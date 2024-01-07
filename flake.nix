@@ -20,12 +20,7 @@
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
-      # TODO: generalize. this ought to have at least aarch64-linux but:
-      # - it won't work as long as the other two TODOs are not addressed
-      # - and it's not a priority to fix, because i cannot test anyways
-      # even so, i'm using flake-parts for nearly system-agnostic flake
-      # if you need on aarch64-linux now, just clone and s/x86_64/aarch64/
-      systems = ["x86_64-linux"];
+      systems = ["x86_64-linux" "aarch64-linux"];
       perSystem = {
         config,
         system,
@@ -63,100 +58,91 @@
 
                   niri = attrs: {
                     buildInputs = [libxkbcommon libinput mesa libglvnd wayland];
-                    # There is supposedly an extraLinkFlags attribute but it doesn't seem to work.
+
+                    # niri is alpha-quality software, and as such it is important for backtraces to be readable
+                    dontStrip = true;
+
                     extraRustcOpts = [
-                      "-Clink-arg=-Wl,--push-state,--no-as-needed"
-                      "-Clink-arg=-lEGL"
-                      "-Clink-arg=-lwayland-client"
-                      "-Clink-arg=-Wl,--pop-state"
+                      "-C link-arg=-Wl,--push-state,--no-as-needed"
+                      "-C link-arg=-lEGL"
+                      "-C link-arg=-lwayland-client"
+                      "-C link-arg=-Wl,--pop-state"
+
+                      "-C debuginfo=line-tables-only"
+
+                      # "/source/" is not very readable. "./" is better, and it matches default behaviour of cargo.
+                      "--remap-path-prefix $NIX_BUILD_TOP/source=./"
                     ];
+
+                    passthru.providedSessions = ["niri"];
+                    postInstall = ''
+                      mkdir -p $out/lib/systemd/user
+                      mkdir -p $out/share/wayland-sessions
+                      mkdir -p $out/share/xdg-desktop-portal
+
+                      cp ${niri-src}/resources/niri-session $out/bin/niri-session
+                      cp ${niri-src}/resources/niri.service $out/lib/systemd/user/niri.service
+                      cp ${niri-src}/resources/niri-shutdown.target $out/lib/systemd/user/niri-shutdown.target
+                      cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions
+                      cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
+                    '';
+
+                    postFixup = ''sed -i "s#/usr#$out#" $out/lib/systemd/user/niri.service'';
                   };
                 });
             };
         };
-
-        niri-bin = workspace.rootCrate.build;
-
-        bundled =
-          pkgs.runCommand "niri" {
-            passthru.providedSessions = ["niri"];
-          } ''
-            mkdir -p $out/bin
-            mkdir -p $out/lib/systemd/user
-            mkdir -p $out/share/wayland-sessions
-            mkdir -p $out/share/xdg-desktop-portal
-
-            cp ${niri-bin}/bin/niri $out/bin/niri
-            cp ${niri-src}/resources/niri-session $out/bin/niri-session
-            cp ${niri-src}/resources/niri.service $out/lib/systemd/user/niri.service
-            cp ${niri-src}/resources/niri-shutdown.target $out/lib/systemd/user/niri-shutdown.target
-            cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions
-            cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
-
-            sed -i "s#/usr#$out#" $out/lib/systemd/user/niri.service
-          '';
       in {
-        packages = rec {
-          niri = bundled;
-          default = niri;
+        packages = {
+          niri =
+            workspace.rootCrate.build
+            // {
+              validate-config = src:
+                builtins.readFile (pkgs.runCommand "config.kdl" {
+                    config = src;
+                    passAsFile = ["config"];
+                    buildInputs = [self.packages.${system}.niri];
+                  } ''
+                    niri validate -c $configPath
+                    cp $configPath $out
+                  '');
+            };
+          default = self.packages.${system}.niri;
         };
 
-        apps = rec {
+        apps = {
           niri = {
             type = "app";
-            program = "${bundled}/bin/niri";
+            program = "${self.packages.${system}.niri}/bin/niri";
           };
-          default = niri;
+          default = self.apps.${system}.niri;
         };
 
         formatter = pkgs.alejandra;
       };
 
-      flake = {
-        nixosModules = rec {
-          niri = {
-            lib,
-            config,
-            ...
-          }: let
-            # TODO: generalize. this system should be that of the target host
-            # i.e. the one related to `config`
-            packages = self.packages.x86_64-linux;
-            cfg = config.programs.niri;
-          in
-            with lib; {
-              options.programs.niri = {
-                enable = mkEnableOption "niri";
-              };
+      flake.nixosModules.default = {
+        lib,
+        config,
+        pkgs,
+        ...
+      }: let
+        packages = self.packages.${pkgs.stdenv.system};
+        cfg = config.programs.niri;
+      in
+        with lib; {
+          options.programs.niri = {
+            enable = mkEnableOption "niri";
+          };
 
-              config = mkIf cfg.enable {
-                environment.systemPackages = [packages.niri];
-                services.xserver.displayManager.sessionPackages = [packages.niri];
-                systemd.user.units = builtins.listToAttrs (builtins.map (unit: {
-                  name = unit;
-                  value.text = builtins.readFile "${packages.niri}/lib/systemd/user/${unit}";
-                }) ["niri.service" "niri-shutdown.target"]);
-              };
-            };
-          default = niri;
+          config = mkIf cfg.enable {
+            environment.systemPackages = [packages.niri];
+            services.xserver.displayManager.sessionPackages = [packages.niri];
+            systemd.user.units = builtins.listToAttrs (builtins.map (unit: {
+              name = unit;
+              value.text = builtins.readFile "${packages.niri}/lib/systemd/user/${unit}";
+            }) ["niri.service" "niri-shutdown.target"]);
+          };
         };
-
-        validate-config = src: let
-          # TODO: generalize. this system should be that of the build host
-          # i.e. the one related to `import nixpkgs {}`
-          packages = self.packages.x86_64-linux;
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          config = pkgs.writeText "config.kdl" src;
-          validated =
-            pkgs.runCommand "niri-validate" {
-              buildInputs = [packages.niri];
-            } ''
-              niri validate -c ${config}
-              mkdir $out
-              ln -s ${config} $out/config.kdl
-            '';
-        in
-          builtins.readFile "${validated}/config.kdl";
-      };
     };
 }
