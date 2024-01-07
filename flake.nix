@@ -93,7 +93,7 @@
                       cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
                     '';
 
-                    postFixup = ''sed -i 's#/usr#$out#' $out/lib/systemd/user/niri.service'';
+                    postFixup = ''sed -i "s#/usr#$out#" $out/lib/systemd/user/niri.service'';
                   };
                 });
             };
