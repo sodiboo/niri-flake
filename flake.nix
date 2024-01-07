@@ -56,6 +56,11 @@
                     buildInputs = [pipewire];
                   };
 
+                  niri-config = attrs: {
+                    # double escape: "." is any char matcher. "\." is literal dot matcher. "\\." to escape the \ in the nix string
+                    prePatch = "sed -i 's#\\.\\./\\.\\.#${niri-src}#' src/lib.rs";
+                  };
+
                   niri = attrs: {
                     buildInputs = [libxkbcommon libinput mesa libglvnd wayland];
 
@@ -87,7 +92,7 @@
                       cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
                     '';
 
-                    postFixup = ''sed -i "s#/usr#$out#" $out/lib/systemd/user/niri.service'';
+                    postFixup = "sed -i 's#/usr#$out#' $out/lib/systemd/user/niri.service";
                   };
                 });
             };
@@ -95,7 +100,7 @@
       in {
         packages = {
           niri =
-            workspace.rootCrate.build
+            workspace.workspaceMembers.niri.build
             // {
               validate-config = src:
                 builtins.readFile (pkgs.runCommand "config.kdl" {
