@@ -22,6 +22,7 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
       perSystem = {
+        self',
         config,
         system,
         pkgs,
@@ -57,8 +58,7 @@
                   };
 
                   niri-config = attrs: {
-                    # double escape: "." is any char matcher. "\." is literal dot matcher. "\\." to escape the \ in the nix string
-                    prePatch = "sed -i 's#\\.\\./\\.\\.#${niri-src}#' src/lib.rs";
+                    prePatch = ''sed -i 's#\.\./\.\.#${niri-src}#' src/lib.rs'';
                   };
 
                   niri = attrs: {
@@ -80,6 +80,7 @@
                     ];
 
                     passthru.providedSessions = ["niri"];
+
                     postInstall = ''
                       mkdir -p $out/lib/systemd/user
                       mkdir -p $out/share/wayland-sessions
@@ -92,7 +93,7 @@
                       cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
                     '';
 
-                    postFixup = "sed -i 's#/usr#$out#' $out/lib/systemd/user/niri.service";
+                    postFixup = ''sed -i 's#/usr#$out#' $out/lib/systemd/user/niri.service'';
                   };
                 });
             };
@@ -106,21 +107,21 @@
                 builtins.readFile (pkgs.runCommand "config.kdl" {
                     config = src;
                     passAsFile = ["config"];
-                    buildInputs = [self.packages.${system}.niri];
+                    buildInputs = [self'.packages.niri];
                   } ''
                     niri validate -c $configPath
                     cp $configPath $out
                   '');
             };
-          default = self.packages.${system}.niri;
+          default = self'.packages.niri;
         };
 
         apps = {
           niri = {
             type = "app";
-            program = "${self.packages.${system}.niri}/bin/niri";
+            program = "${self'.packages.niri}/bin/niri";
           };
-          default = self.apps.${system}.niri;
+          default = self'.apps.niri;
         };
 
         formatter = pkgs.alejandra;
