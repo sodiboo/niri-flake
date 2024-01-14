@@ -46,6 +46,8 @@ Of course, if you don't mind breaking changes, you can use them.
 
 ---
 
-A home-manager module will be available at some point in the future.
+A home-manager module is available under `outputs.homeModules.default`.
+It is somewhat WIP, most notably does not add a proper session entry (how to do this? is it necessary?)
+but it does have the same `programs.niri.enable` option as well as `programs.niri.config`
 
 Feel free to contact me in the `#niri:matrix.org` channel or through GitHub issues if you have any questions or concerns.
