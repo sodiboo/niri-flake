@@ -133,7 +133,7 @@
         pkgs,
         ...
       }: let
-        packages = self.packages.${pkgs.stdenv.system};
+        packages = self.packages.${pkgs.stdenv.targetPlatform.system};
         cfg = config.programs.niri;
       in
         with lib; {
@@ -144,10 +144,13 @@
           config = mkIf cfg.enable {
             environment.systemPackages = [packages.niri];
             services.xserver.displayManager.sessionPackages = [packages.niri];
-            systemd.user.units = builtins.listToAttrs (builtins.map (unit: {
-              name = unit;
-              value.text = builtins.readFile "${packages.niri}/lib/systemd/user/${unit}";
-            }) ["niri.service" "niri-shutdown.target"]);
+            systemd.packages = [packages.niri];
+            services.gnome.gnome-keyring.enable = true;
+            xdg.portal = {
+              enable = true;
+              extraPortals = [pkgs.xdg-desktop-portal-gnome];
+              configPackages = [packages.niri];
+            };
           };
         };
     };
