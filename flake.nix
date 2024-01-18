@@ -57,6 +57,14 @@
                     buildInputs = [pipewire];
                   };
 
+                  gobject-sys = attrs: {
+                    nativeBuildInputs = [pkg-config glib];
+                  };
+
+                  gio-sys = attrs: {
+                    nativeBuildInputs = [pkg-config glib];
+                  };
+
                   niri-config = attrs: {
                     prePatch = ''sed -i 's#\.\./\.\.#${niri-src}#' src/lib.rs'';
                   };
