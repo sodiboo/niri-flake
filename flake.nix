@@ -158,7 +158,7 @@
           ...
         }:
           with lib; let
-            packages = self.packages.${pkgs.stdenv.targetPlatform.system};
+            packages = self.packages.${pkgs.stdenv.system};
             cfg = config.programs.niri;
           in {
             options.programs.niri = {
@@ -182,7 +182,7 @@
                       pkgs.runCommand "config.kdl" {
                         config = cfg.config;
                         passAsFile = ["config"];
-                        buildInputs = [self.packages.${pkgs.stdenv.buildPlatform.system}.niri];
+                        buildInputs = [self.packages.${pkgs.stdenv.system}.niri];
                       } ''
                         niri validate -c $configPath
                         cp $configPath $out
