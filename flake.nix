@@ -70,7 +70,7 @@
                   };
 
                   niri = attrs: {
-                    buildInputs = [libxkbcommon libinput mesa libglvnd wayland];
+                    buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
 
                     # niri is alpha-quality software, and as such it is important for backtraces to be readable
                     dontStrip = true;
