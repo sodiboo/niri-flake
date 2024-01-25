@@ -125,9 +125,41 @@
       };
 
       flake = {
+        homeModules.config = {
+          lib,
+          config,
+          pkgs,
+          ...
+        }:
+          with lib; let
+            packages = self.packages.${pkgs.stdenv.system};
+            cfg = config.programs.niri;
+          in {
+            options.programs.niri = {
+              config = mkOption {
+                default = null;
+                type = types.nullOr types.str;
+              };
+            };
+
+            config.xdg.configFile.niri-config = {
+              enable = !isNull cfg.config;
+              target = "niri/config.kdl";
+              source =
+                pkgs.runCommand "config.kdl" {
+                  config = cfg.config;
+                  passAsFile = ["config"];
+                  buildInputs = [packages.niri];
+                } ''
+                  niri validate -c $configPath
+                  cp $configPath $out
+                '';
+            };
+          };
         nixosModules.default = {
           lib,
           config,
+          options,
           pkgs,
           ...
         }: let
@@ -139,19 +171,26 @@
               enable = mkEnableOption "niri";
             };
 
-            config = mkIf cfg.enable {
-              environment.systemPackages = [packages.niri];
-              services.xserver.displayManager.sessionPackages = [packages.niri];
-              systemd.packages = [packages.niri];
-              services.gnome.gnome-keyring.enable = true;
-              xdg.portal = {
-                enable = true;
-                extraPortals = [pkgs.xdg-desktop-portal-gnome];
-                configPackages = [packages.niri];
-              };
-            };
+            config = mkMerge [
+              (mkIf cfg.enable {
+                environment.systemPackages = [packages.niri];
+                services.xserver.displayManager.sessionPackages = [packages.niri];
+                systemd.packages = [packages.niri];
+                services.gnome.gnome-keyring.enable = true;
+                xdg.portal = {
+                  enable = true;
+                  extraPortals = [pkgs.xdg-desktop-portal-gnome];
+                  configPackages = [packages.niri];
+                };
+              })
+              (optionalAttrs (options ? home-manager) {
+                home-manager.sharedModules = [
+                  self.homeModules.config
+                ];
+              })
+            ];
           };
-        homeModules.default = {
+        homeModules.niri = {
           lib,
           config,
           pkgs,
@@ -161,42 +200,24 @@
             packages = self.packages.${pkgs.stdenv.system};
             cfg = config.programs.niri;
           in {
+            imports = [
+              self.homeModules.config
+            ];
             options.programs.niri = {
               enable = mkEnableOption "niri";
-
-              config = mkOption {
-                default = null;
-                type = types.nullOr types.lines;
-              };
             };
 
             config = mkIf cfg.enable {
               home.packages = [packages.niri];
 
-              xdg.configFile =
-                {
-                  niri-config = {
-                    enable = !isNull cfg.config;
-                    target = "niri/config.kdl";
-                    source =
-                      pkgs.runCommand "config.kdl" {
-                        config = cfg.config;
-                        passAsFile = ["config"];
-                        buildInputs = [self.packages.${pkgs.stdenv.system}.niri];
-                      } ''
-                        niri validate -c $configPath
-                        cp $configPath $out
-                      '';
-                  };
-                }
-                // builtins.listToAttrs (map (unit: {
-                  name = unit;
-                  value = rec {
-                    enable = true;
-                    target = "systemd/user/${unit}";
-                    source = "${packages.niri}/lib/${target}";
-                  };
-                }) ["niri.service" "niri-shutdown.target"]);
+              xdg.configFile = builtins.listToAttrs (map (unit: {
+                name = unit;
+                value = rec {
+                  enable = true;
+                  target = "systemd/user/${unit}";
+                  source = "${packages.niri}/lib/${target}";
+                };
+              }) ["niri.service" "niri-shutdown.target"]);
 
               xdg.portal = {
                 enable = true;
