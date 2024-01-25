@@ -156,7 +156,7 @@
                 '';
             };
           };
-        nixosModules.default = {
+        nixosModules.niri = {
           lib,
           config,
           options,
@@ -190,6 +190,7 @@
               })
             ];
           };
+        nixosModules.default = self.nixosModules.niri;
         homeModules.niri = {
           lib,
           config,
