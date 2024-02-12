@@ -6,16 +6,7 @@ You do not have to be on NixOS to use the home-manager module. If you installed 
 
 # Usage
 
-First of all, add the flake to your inputs and override the `niri-src` input.
-
-> [!important]
-> Nix will automatically pin the `niri-src` input to the latest commit at the time of updating `niri-flake`.
-> 
-> Updating your own flake does not affect this pin, as `niri-flake`'s lockfile is separate from your own.  
-> This is undesirable. Niri currently has no stable releases, so you will generally want the latest commit.
-> 
-> As such, you should manually override it. This is causes the `niri-src` input to be tied to your lockfile,  
-> and then you can update niri by running `nix flake update`.
+First of all, add the flake to your inputs. By default, this flake provides the latest stable version of niri. If you would like to override this, you can run either the latest commit, or a specific version/commit by overriding the `niri-src` input. In all code examples below, i have included a commented line that will override it to use the latest commit on master.
 
 ---
 
@@ -27,7 +18,7 @@ If you're on NixOS and don't need to configure niri declaratively, your flake.ni
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     niri.url = "github:sodiboo/niri-flake";
-    niri.inputs.niri-src.url = "github:YaLTeR/niri";
+    # niri.inputs.niri-src.url = "github:YaLTeR/niri";
   };
 
   outputs = { self, nixpkgs, niri, ... }: {
@@ -56,7 +47,7 @@ If you use home-manager as NixOS module, then your flake.nix should rather look 
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     
     niri.url = "github:sodiboo/niri-flake";
-    niri.inputs.niri-src.url = "github:YaLTeR/niri";
+    # niri.inputs.niri-src.url = "github:YaLTeR/niri";
   };
 
   outputs = { self, nixpkgs, home-manager, niri, ... }: {
@@ -85,6 +76,13 @@ If you use home-manager as NixOS module, then your flake.nix should rather look 
 
 If you're using a standalone setup of home-manager (both NixOS and non-NixOS), you should first install niri through some other means. For NixOS, see above. For non-NixOS, i would recommend non-nix-based installation of niri. If you really want to, there is `homeModules.niri` which manages the config and also provides an option to install niri, but does not register sessions properly.
 
+> [!note]
+> If you install niri through home-manager (rather than merely configuring it), make sure it is compiled against the same version of mesa that you have installed.
+> - If you're on NixOS and installing through the NixOS module, you don't need to worry about this. It's automatically synced exactly.
+> - If you're on NixOS and installing through home-manager (not recommended!), this should be easy to ensure with no override if you update your home and system configurations' `nixpkgs` inputs at the same time (so they stay in sync).
+> - In general, this can be accomplished by setting `programs.niri.package` to `packages.x86_64_linux.niri.override { pkgs = ...; }` with a `pkgs` containing the correct version of mesa (this can be used to specify all the native dependencies that niri will build against).
+> - If you're not installing niri through my flake and only use it to configure, this mostly doesn't affect you.
+
 Once you've installed niri, and you want to configure niri, your flake.nix will end up looking something like this:
 
 ```nix
@@ -95,7 +93,7 @@ Once you've installed niri, and you want to configure niri, your flake.nix will 
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     niri.url = "github:sodiboo/niri-flake";
-    niri.inputs.niri-src.url = "github:YaLTeR/niri";
+    # niri.inputs.niri-src.url = "github:YaLTeR/niri";
   };
 
   outputs = { self, nixpkgs, home-manager, niri, ... }: let
