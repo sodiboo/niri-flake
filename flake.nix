@@ -109,7 +109,9 @@
       in {
         packages = {
           niri =
-            workspace.workspaceMembers.niri.build;
+            workspace.workspaceMembers.niri.build // {
+              inherit workspace;
+            };
           default = self'.packages.niri;
         };
 
