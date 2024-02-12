@@ -35,83 +35,85 @@
           src = niri-src;
         };
 
-        workspace = import manifest {
-          inherit pkgs;
-          buildRustCrateForPkgs = pkgs:
-            pkgs.buildRustCrate.override {
-              defaultCrateOverrides =
-                pkgs.defaultCrateOverrides
-                // (with pkgs; {
-                  libspa-sys = attrs: {
-                    nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
-                    buildInputs = [pipewire];
-                  };
+        makeWorkspace = {pkgs}:
+          import manifest {
+            inherit pkgs;
+            buildRustCrateForPkgs = pkgs:
+              pkgs.buildRustCrate.override {
+                defaultCrateOverrides =
+                  pkgs.defaultCrateOverrides
+                  // (with pkgs; {
+                    libspa-sys = attrs: {
+                      nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
+                      buildInputs = [pipewire];
+                    };
 
-                  libspa = attrs: {
-                    nativeBuildInputs = [pkg-config];
-                    buildInputs = [pipewire];
-                  };
+                    libspa = attrs: {
+                      nativeBuildInputs = [pkg-config];
+                      buildInputs = [pipewire];
+                    };
 
-                  pipewire-sys = attrs: {
-                    nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
-                    buildInputs = [pipewire];
-                  };
+                    pipewire-sys = attrs: {
+                      nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
+                      buildInputs = [pipewire];
+                    };
 
-                  gobject-sys = attrs: {
-                    nativeBuildInputs = [pkg-config glib];
-                  };
+                    gobject-sys = attrs: {
+                      nativeBuildInputs = [pkg-config glib];
+                    };
 
-                  gio-sys = attrs: {
-                    nativeBuildInputs = [pkg-config glib];
-                  };
+                    gio-sys = attrs: {
+                      nativeBuildInputs = [pkg-config glib];
+                    };
 
-                  niri-config = attrs: {
-                    prePatch = ''sed -i 's#\.\./\.\.#${niri-src}#' src/lib.rs'';
-                  };
+                    niri-config = attrs: {
+                      prePatch = ''sed -i 's#\.\./\.\.#${niri-src}#' src/lib.rs'';
+                    };
 
-                  niri = attrs: {
-                    buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
+                    niri = attrs: {
+                      buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
 
-                    # we want backtraces to be readable
-                    dontStrip = true;
+                      # we want backtraces to be readable
+                      dontStrip = true;
 
-                    extraRustcOpts = [
-                      "-C link-arg=-Wl,--push-state,--no-as-needed"
-                      "-C link-arg=-lEGL"
-                      "-C link-arg=-lwayland-client"
-                      "-C link-arg=-Wl,--pop-state"
+                      extraRustcOpts = [
+                        "-C link-arg=-Wl,--push-state,--no-as-needed"
+                        "-C link-arg=-lEGL"
+                        "-C link-arg=-lwayland-client"
+                        "-C link-arg=-Wl,--pop-state"
 
-                      "-C debuginfo=line-tables-only"
+                        "-C debuginfo=line-tables-only"
 
-                      # "/source/" is not very readable. "./" is better, and it matches default behaviour of cargo.
-                      "--remap-path-prefix $NIX_BUILD_TOP/source=./"
-                    ];
+                        # "/source/" is not very readable. "./" is better, and it matches default behaviour of cargo.
+                        "--remap-path-prefix $NIX_BUILD_TOP/source=./"
+                      ];
 
-                    passthru.providedSessions = ["niri"];
+                      passthru.providedSessions = ["niri"];
 
-                    postInstall = ''
-                      mkdir -p $out/lib/systemd/user
-                      mkdir -p $out/share/wayland-sessions
-                      mkdir -p $out/share/xdg-desktop-portal
+                      postInstall = ''
+                        mkdir -p $out/lib/systemd/user
+                        mkdir -p $out/share/wayland-sessions
+                        mkdir -p $out/share/xdg-desktop-portal
 
-                      cp ${niri-src}/resources/niri-session $out/bin/niri-session
-                      cp ${niri-src}/resources/niri.service $out/lib/systemd/user/niri.service
-                      cp ${niri-src}/resources/niri-shutdown.target $out/lib/systemd/user/niri-shutdown.target
-                      cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions
-                      cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
-                    '';
+                        cp ${niri-src}/resources/niri-session $out/bin/niri-session
+                        cp ${niri-src}/resources/niri.service $out/lib/systemd/user/niri.service
+                        cp ${niri-src}/resources/niri-shutdown.target $out/lib/systemd/user/niri-shutdown.target
+                        cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions
+                        cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
+                      '';
 
-                    postFixup = ''sed -i "s#/usr#$out#" $out/lib/systemd/user/niri.service'';
-                  };
-                });
-            };
-        };
+                      postFixup = ''sed -i "s#/usr#$out#" $out/lib/systemd/user/niri.service'';
+                    };
+                  });
+              };
+          };
       in {
         packages = {
-          niri =
-            workspace.workspaceMembers.niri.build // {
-              inherit workspace;
-            };
+          niri = pkgs.lib.makeOverridable (args: let
+            workspace = makeWorkspace args;
+          in
+            workspace.workspaceMembers.niri.build // {inherit workspace;})
+          {inherit pkgs;};
           default = self'.packages.niri;
         };
 
@@ -134,13 +136,16 @@
           ...
         }:
           with lib; let
-            packages = self.packages.${pkgs.stdenv.system};
             cfg = config.programs.niri;
           in {
             options.programs.niri = {
               config = mkOption {
-                default = null;
                 type = types.nullOr types.str;
+                default = null;
+              };
+              package = mkOption {
+                type = types.package;
+                default = self.packages.${pkgs.stdenv.system}.niri.override {inherit pkgs;};
               };
             };
 
@@ -151,7 +156,7 @@
                 pkgs.runCommand "config.kdl" {
                   config = cfg.config;
                   passAsFile = ["config"];
-                  buildInputs = [packages.niri];
+                  buildInputs = [cfg.package];
                 } ''
                   niri validate -c $configPath
                   cp $configPath $out
@@ -165,29 +170,35 @@
           pkgs,
           ...
         }: let
-          packages = self.packages.${pkgs.stdenv.targetPlatform.system};
           cfg = config.programs.niri;
         in
           with lib; {
             options.programs.niri = {
               enable = mkEnableOption "niri";
+              package = mkOption {
+                type = types.package;
+                default = self.packages.${pkgs.stdenv.targetPlatform.system}.niri.override {inherit pkgs;};
+              };
             };
 
             config = mkMerge [
               (mkIf cfg.enable {
-                environment.systemPackages = [packages.niri];
-                services.xserver.displayManager.sessionPackages = [packages.niri];
-                systemd.packages = [packages.niri];
+                environment.systemPackages = [cfg.package];
+                services.xserver.displayManager.sessionPackages = [cfg.package];
+                systemd.packages = [cfg.package];
                 services.gnome.gnome-keyring.enable = true;
                 xdg.portal = {
                   enable = true;
                   extraPortals = [pkgs.xdg-desktop-portal-gnome];
-                  configPackages = [packages.niri];
+                  configPackages = [cfg.package];
                 };
               })
               (optionalAttrs (options ? home-manager) {
                 home-manager.sharedModules = [
                   self.homeModules.config
+                  {
+                    programs.niri.package = cfg.package;
+                  }
                 ];
               })
             ];
@@ -200,7 +211,6 @@
           ...
         }:
           with lib; let
-            packages = self.packages.${pkgs.stdenv.system};
             cfg = config.programs.niri;
           in {
             imports = [
@@ -211,21 +221,21 @@
             };
 
             config = mkIf cfg.enable {
-              home.packages = [packages.niri];
+              home.packages = [cfg.package];
 
               xdg.configFile = builtins.listToAttrs (map (unit: {
                 name = unit;
                 value = rec {
                   enable = true;
                   target = "systemd/user/${unit}";
-                  source = "${packages.niri}/lib/${target}";
+                  source = "${cfg.package}/lib/${target}";
                 };
               }) ["niri.service" "niri-shutdown.target"]);
 
               xdg.portal = {
                 enable = true;
                 extraPortals = [pkgs.xdg-desktop-portal-gnome];
-                configPackages = [packages.niri];
+                configPackages = [cfg.package];
               };
             };
           };
