@@ -7,7 +7,7 @@
 
     crate2nix.url = "github:nix-community/crate2nix";
 
-    niri-src.url = "github:YaLTeR/niri";
+    niri-src.url = "github:YaLTeR/niri/v0.1.1";
     niri-src.flake = false;
   };
 
@@ -72,7 +72,7 @@
                   niri = attrs: {
                     buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
 
-                    # niri is alpha-quality software, and as such it is important for backtraces to be readable
+                    # we want backtraces to be readable
                     dontStrip = true;
 
                     extraRustcOpts = [
