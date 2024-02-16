@@ -177,7 +177,7 @@
               enable = mkEnableOption "niri";
               package = mkOption {
                 type = types.package;
-                default = self.packages.${pkgs.stdenv.targetPlatform.system}.niri.override {inherit pkgs;};
+                default = self.packages.${pkgs.stdenv.system}.niri.override {inherit pkgs;};
               };
             };
 
@@ -185,7 +185,6 @@
               (mkIf cfg.enable {
                 environment.systemPackages = [cfg.package];
                 services.xserver.displayManager.sessionPackages = [cfg.package];
-                systemd.packages = [cfg.package];
                 services.gnome.gnome-keyring.enable = true;
                 xdg.portal = {
                   enable = true;
@@ -222,16 +221,7 @@
 
             config = mkIf cfg.enable {
               home.packages = [cfg.package];
-
-              xdg.configFile = builtins.listToAttrs (map (unit: {
-                name = unit;
-                value = rec {
-                  enable = true;
-                  target = "systemd/user/${unit}";
-                  source = "${cfg.package}/lib/${target}";
-                };
-              }) ["niri.service" "niri-shutdown.target"]);
-
+              services.gnome-keyring.enable = true;
               xdg.portal = {
                 enable = true;
                 extraPortals = [pkgs.xdg-desktop-portal-gnome];
