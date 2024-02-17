@@ -91,18 +91,18 @@
                       passthru.providedSessions = ["niri"];
 
                       postInstall = ''
-                        mkdir -p $out/lib/systemd/user
+                        mkdir -p $out/share/systemd/user
                         mkdir -p $out/share/wayland-sessions
                         mkdir -p $out/share/xdg-desktop-portal
 
                         cp ${niri-src}/resources/niri-session $out/bin/niri-session
-                        cp ${niri-src}/resources/niri.service $out/lib/systemd/user/niri.service
-                        cp ${niri-src}/resources/niri-shutdown.target $out/lib/systemd/user/niri-shutdown.target
-                        cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions
+                        cp ${niri-src}/resources/niri.service $out/share/systemd/user/niri.service
+                        cp ${niri-src}/resources/niri-shutdown.target $out/share/systemd/user/niri-shutdown.target
+                        cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions/niri.desktop
                         cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
                       '';
 
-                      postFixup = ''sed -i "s#/usr#$out#" $out/lib/systemd/user/niri.service'';
+                      postFixup = ''sed -i "s#/usr#$out#" $out/share/systemd/user/niri.service'';
                     };
                   });
               };
