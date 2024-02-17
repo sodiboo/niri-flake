@@ -7,7 +7,7 @@
 
     crate2nix.url = "github:nix-community/crate2nix";
 
-    niri-src.url = "github:YaLTeR/niri/v0.1.1";
+    niri-src.url = "github:YaLTeR/niri/v0.1.2";
     niri-src.flake = false;
   };
 
