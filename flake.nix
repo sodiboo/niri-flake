@@ -69,7 +69,7 @@
                 };
 
                 niri-config = attrs: {
-                  prePatch = ''sed -i 's#\.\./\.\.#${niri-src}#' src/lib.rs'';
+                  prePatch = ''sed -i 's#\.\./\.\.#${src}#' src/lib.rs'';
                 };
 
                 niri = attrs: {
@@ -97,11 +97,11 @@
                     mkdir -p $out/share/wayland-sessions
                     mkdir -p $out/share/xdg-desktop-portal
 
-                    cp ${niri-src}/resources/niri-session $out/bin/niri-session
-                    cp ${niri-src}/resources/niri.service $out/share/systemd/user/niri.service
-                    cp ${niri-src}/resources/niri-shutdown.target $out/share/systemd/user/niri-shutdown.target
-                    cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions/niri.desktop
-                    cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
+                    cp ${src}/resources/niri-session $out/bin/niri-session
+                    cp ${src}/resources/niri.service $out/share/systemd/user/niri.service
+                    cp ${src}/resources/niri-shutdown.target $out/share/systemd/user/niri-shutdown.target
+                    cp ${src}/resources/niri.desktop $out/share/wayland-sessions/niri.desktop
+                    cp ${src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
                   '';
 
                   postFixup = ''sed -i "s#/usr#$out#" $out/share/systemd/user/niri.service'';
