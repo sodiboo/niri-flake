@@ -14,4 +14,5 @@ jobs:
       with:
         name: niri
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build
+    - run: nix build .#niri-stable
+    - run: nix build .#niri-unstable

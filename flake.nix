@@ -7,6 +7,12 @@
 
     crate2nix.url = "github:nix-community/crate2nix";
 
+    niri-unstable.url = "github:YaLTeR/niri";
+    niri-unstable.flake = false;
+
+    niri-stable.url = "github:YaLTeR/niri/v0.1.2";
+    niri-stable.flake = false;
+
     niri-src.url = "github:YaLTeR/niri/v0.1.2";
     niri-src.flake = false;
   };
@@ -15,11 +21,96 @@
     self,
     flake-parts,
     crate2nix,
+    niri-unstable,
+    niri-stable,
     niri-src,
     nixpkgs,
     ...
   }: let
     niri-src-is-unchanged = (builtins.fromJSON (builtins.readFile (self + /flake.lock))).nodes.niri-src.locked.rev == niri-src.rev;
+
+    make-niri = {
+      src,
+      pkgs,
+    }: let
+      tools = pkgs.callPackage "${crate2nix}/tools.nix" {};
+      manifest = tools.generatedCargoNix {
+        inherit src;
+        name = "niri";
+      };
+      workspace = import manifest {
+        inherit pkgs;
+        buildRustCrateForPkgs = pkgs:
+          pkgs.buildRustCrate.override {
+            defaultCrateOverrides =
+              pkgs.defaultCrateOverrides
+              // (with pkgs; {
+                libspa-sys = attrs: {
+                  nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
+                  buildInputs = [pipewire];
+                };
+
+                libspa = attrs: {
+                  nativeBuildInputs = [pkg-config];
+                  buildInputs = [pipewire];
+                };
+
+                pipewire-sys = attrs: {
+                  nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
+                  buildInputs = [pipewire];
+                };
+
+                gobject-sys = attrs: {
+                  nativeBuildInputs = [pkg-config glib];
+                };
+
+                gio-sys = attrs: {
+                  nativeBuildInputs = [pkg-config glib];
+                };
+
+                niri-config = attrs: {
+                  prePatch = ''sed -i 's#\.\./\.\.#${niri-src}#' src/lib.rs'';
+                };
+
+                niri = attrs: {
+                  buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
+
+                  # we want backtraces to be readable
+                  dontStrip = true;
+
+                  extraRustcOpts = [
+                    "-C link-arg=-Wl,--push-state,--no-as-needed"
+                    "-C link-arg=-lEGL"
+                    "-C link-arg=-lwayland-client"
+                    "-C link-arg=-Wl,--pop-state"
+
+                    "-C debuginfo=line-tables-only"
+
+                    # "/source/" is not very readable. "./" is better, and it matches default behaviour of cargo.
+                    "--remap-path-prefix $NIX_BUILD_TOP/source=./"
+                  ];
+
+                  passthru.providedSessions = ["niri"];
+
+                  postInstall = ''
+                    mkdir -p $out/share/systemd/user
+                    mkdir -p $out/share/wayland-sessions
+                    mkdir -p $out/share/xdg-desktop-portal
+
+                    cp ${niri-src}/resources/niri-session $out/bin/niri-session
+                    cp ${niri-src}/resources/niri.service $out/share/systemd/user/niri.service
+                    cp ${niri-src}/resources/niri-shutdown.target $out/share/systemd/user/niri-shutdown.target
+                    cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions/niri.desktop
+                    cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
+                  '';
+
+                  postFixup = ''sed -i "s#/usr#$out#" $out/share/systemd/user/niri.service'';
+                };
+              });
+          };
+      };
+    in
+      workspace.workspaceMembers.niri.build // {inherit workspace;};
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -29,100 +120,13 @@
         system,
         pkgs,
         ...
-      }: let
-        tools = pkgs.callPackage "${crate2nix}/tools.nix" {};
-
-        makeWorkspace = {
-          src,
-          pkgs,
-        }:
-          import (
-            tools.generatedCargoNix {
-              inherit src;
-              name = "niri";
-            }
-          ) {
-            inherit pkgs;
-            buildRustCrateForPkgs = pkgs:
-              pkgs.buildRustCrate.override {
-                defaultCrateOverrides =
-                  pkgs.defaultCrateOverrides
-                  // (with pkgs; {
-                    libspa-sys = attrs: {
-                      nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
-                      buildInputs = [pipewire];
-                    };
-
-                    libspa = attrs: {
-                      nativeBuildInputs = [pkg-config];
-                      buildInputs = [pipewire];
-                    };
-
-                    pipewire-sys = attrs: {
-                      nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
-                      buildInputs = [pipewire];
-                    };
-
-                    gobject-sys = attrs: {
-                      nativeBuildInputs = [pkg-config glib];
-                    };
-
-                    gio-sys = attrs: {
-                      nativeBuildInputs = [pkg-config glib];
-                    };
-
-                    niri-config = attrs: {
-                      prePatch = ''sed -i 's#\.\./\.\.#${niri-src}#' src/lib.rs'';
-                    };
-
-                    niri = attrs: {
-                      buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
-
-                      # we want backtraces to be readable
-                      dontStrip = true;
-
-                      extraRustcOpts = [
-                        "-C link-arg=-Wl,--push-state,--no-as-needed"
-                        "-C link-arg=-lEGL"
-                        "-C link-arg=-lwayland-client"
-                        "-C link-arg=-Wl,--pop-state"
-
-                        "-C debuginfo=line-tables-only"
-
-                        # "/source/" is not very readable. "./" is better, and it matches default behaviour of cargo.
-                        "--remap-path-prefix $NIX_BUILD_TOP/source=./"
-                      ];
-
-                      passthru.providedSessions = ["niri"];
-
-                      postInstall = ''
-                        mkdir -p $out/share/systemd/user
-                        mkdir -p $out/share/wayland-sessions
-                        mkdir -p $out/share/xdg-desktop-portal
-
-                        cp ${niri-src}/resources/niri-session $out/bin/niri-session
-                        cp ${niri-src}/resources/niri.service $out/share/systemd/user/niri.service
-                        cp ${niri-src}/resources/niri-shutdown.target $out/share/systemd/user/niri-shutdown.target
-                        cp ${niri-src}/resources/niri.desktop $out/share/wayland-sessions/niri.desktop
-                        cp ${niri-src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
-                      '';
-
-                      postFixup = ''sed -i "s#/usr#$out#" $out/share/systemd/user/niri.service'';
-                    };
-                  });
-              };
-          };
+      }: let 
+        make-niri-pkg = src: pkgs.lib.makeOverridable make-niri {inherit pkgs src;};
       in {
         packages = {
-          niri =
-            pkgs.lib.makeOverridable (args: let
-              workspace = makeWorkspace args;
-            in
-              workspace.workspaceMembers.niri.build // {inherit workspace;})
-            {
-              inherit pkgs;
-              src = niri-src;
-            };
+          niri-unstable = make-niri-pkg niri-unstable;
+          niri-stable = make-niri-pkg niri-stable;
+          niri = make-niri-pkg niri-src;
           default = self'.packages.niri;
         };
 
