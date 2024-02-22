@@ -289,6 +289,15 @@
                   ''
                 ];
               })
+              {
+                environment.systemPackages = [pkgs.xdg-utils];
+                xdg = {
+                  autostart.enable = mkDefault true;
+                  menus.enable = mkDefault true;
+                  mime.enable = mkDefault true;
+                  icons.enable = mkDefault true;
+                };
+              }
               (mkIf cfg.enable {
                 environment.systemPackages = [cfg.package];
                 services.xserver.displayManager.sessionPackages = [cfg.package];
