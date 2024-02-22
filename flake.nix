@@ -32,8 +32,8 @@
     make-niri = {
       src,
       pkgs,
+      tools,
     }: let
-      tools = pkgs.callPackage "${crate2nix}/tools.nix" {};
       manifest = tools.generatedCargoNix {
         inherit src;
         name = "niri";
@@ -121,7 +121,7 @@
         pkgs,
         ...
       }: let 
-        make-niri-pkg = src: pkgs.lib.makeOverridable make-niri {inherit pkgs src;};
+        make-niri-pkg = src: pkgs.lib.makeOverridable make-niri {inherit pkgs src; tools = crate2nix.tools.${system};};
       in {
         packages = {
           niri-unstable = make-niri-pkg niri-unstable;

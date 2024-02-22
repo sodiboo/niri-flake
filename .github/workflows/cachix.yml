@@ -14,5 +14,6 @@ jobs:
       with:
         name: niri
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build .#niri-stable
-    - run: nix build .#niri-unstable
+    - run: nix build .#niri-stable .#niri-unstable
+    - run: nix-store --query --requisites $(nix-store --query --deriver $(nix eval --raw .#niri-stable)) | cachix push niri
+    - run: nix-store --query --requisites $(nix-store --query --deriver $(nix eval --raw .#niri-unstable)) | cachix push niri
