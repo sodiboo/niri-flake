@@ -68,6 +68,19 @@
                   nativeBuildInputs = [pkg-config glib];
                 };
 
+                # For all niri crates, the hash of the source is different in CI than on my system.
+                # KiaraGrouwstra reports identical hash to my system, so it really is only in CI.
+                #
+                # We suspect it might be due to the fact that CI uses a different version of nix.
+                # But that shouldn't matter, because the hash is not derived from the nix version used!
+                # It might also be some symptom of import-from-derivation, but i don't care to investigate.
+                #
+                # Ultimately, the solution looks stupid, but it does work:
+                # Just override `src` attr to be the correct path based on the `src` argument.
+                # This causes them to be predictable and based on the flake inputs, which is what we want.
+                #
+                # Everything builds the same way without this. But the hash is different.
+                # And for binary caching to work, the hash must be identical.
                 niri-ipc = attrs: {
                   src = "${src}/niri-ipc";
                 };
