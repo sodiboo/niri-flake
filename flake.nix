@@ -68,11 +68,17 @@
                   nativeBuildInputs = [pkg-config glib];
                 };
 
+                niri-ipc = attrs: {
+                  src = "${src}/niri-ipc";
+                };
+
                 niri-config = attrs: {
+                  src = "${src}/niri-config";
                   prePatch = ''sed -i 's#\.\./\.\.#${src}#' src/lib.rs'';
                 };
 
                 niri = attrs: {
+                  src = "${src}";
                   buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
 
                   # we want backtraces to be readable
