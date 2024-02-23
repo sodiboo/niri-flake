@@ -87,7 +87,7 @@
 
                 niri-config = attrs: {
                   src = "${src}/niri-config";
-                  prePatch = ''sed -i 's#\.\./\.\.#${src}#' src/lib.rs'';
+                  prePatch = "substituteInPlace src/lib.rs --replace ../.. ${src}";
                 };
 
                 niri = attrs: {
@@ -123,7 +123,7 @@
                     cp ${src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
                   '';
 
-                  postFixup = ''sed -i "s#/usr#$out#" $out/share/systemd/user/niri.service'';
+                  postFixup = "substituteInPlace $out/share/systemd/user/niri.service --replace /usr $out";
                 };
               });
           };
