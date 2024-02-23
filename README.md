@@ -1,26 +1,54 @@
-This flake provides a NixOS module with an option `programs.niri.enable`. You can import it into your system configuration and enable it to install niri.
+This flake provides packages and modules for [niri](https://github.com/YaLTeR/niri), a scrollable-tiling Wayland compositor.
 
-It also provides a home-manager module with an option `programs.niri.config`, which not only manages your `config.kdl` declaratively, but also validates it at build-time. This ensures that your config's schema is always in sync with the installed version of niri.
+Mainly, it installs all necessary components of a working Wayland environment, and also lets you manage your niri `config.kdl` declaratively, validating it at build-time. This ensures that your config's schema is always in sync with the installed version of niri.
 
-You do not have to be on NixOS to use the home-manager module. If you installed home-manager through the NixOS module (rather than a standalone setup, as is necessary on non-NixOS Linux systems), the option to declaratively manage the config will be automatically imported.
+Feel free to contact me at [`@sodiboo:arcticfoxes.net`](https://matrix.to/#/@sodiboo:arcticfoxes.net) in the [`#niri:matrix.org`](https://matrix.to/#/#niri:matrix.org) channel or through GitHub issues if you have any questions or concerns.
 
-Now with additional capabilities! See [Additional Notes](#additional-notes)
+# Outputs
 
-# Usage
+Packages:
 
-First of all, add the flake to your inputs.
+- `niri.packages.x86_64-linux.niri-stable`: The latest release of niri.
+- `niri.packages.x86_64-linux.niri-unstable`: The latest commit to the `main` branch of the niri repository. This may break at any time without warning, and is not recommended for most users.
+- `niri.packages.aarch64-linux`: aarch64 is entirely untested. Do not expect it to work, but do report any issues you encounter.
+- `niri.overlays.niri`: A nixpkgs overlay that provides the `niri-stable` and `niri-unstable` attributes.
 
-By default, the modules provided use the `niri` package in nixpkgs.
+It is recommended to use the overlay when installing niri from this flake, as it will ensure that it is built against the same version of nixpkgs as the rest of your system. This is necessary, because the mesa drivers must match exactly.
 
-If you would like to use a specific version of niri, you may set the option `programs.niri.package`.
+Modules:
 
-This flake also provides a `packages.${system}.niri`, which should be overridden with `pkgs` to modify the nixpkgs version used (important, to ensure it is compiled against the correct version of mesa).
+- `niri.nixosModules.niri`: [Installing on NixOS](#installing-on-nixos)
+- `niri.homeModules.config`: [Usage with home-manager](#usage-with-home-manager)
+- `niri.homeModules.niri`: [Usage with home-manager](#usage-with-home-manager)
 
-At the moment, you can override the `niri-src` input to use unstable niri. I plan to implement binary caching, and then this input should hopefully be unnecessary/deprecated. For now, i will not document using unstable niri.
+# Binary cache
 
----
+I have a binary cache for this flake's outputs. Currently, it only hosts builds with the `nixos-unstable` channel of nixpkgs.
 
-If you're on NixOS and don't need to configure niri declaratively, your flake.nix should look something like this:
+> [!note]
+> This binary cache is managed by me, sodiboo. By using it, you are trusting me to not serve you malicious software. Using a binary cache is entirely optional.
+
+By default, the flake doesn't depend on its own packages at all. It will install using the `niri` from nixpkgs, and in that case, there is no need to use my binary cache. If you wish to use the flake's packages, then i recommend using the binary cache.
+
+If you're using something close to the default configuration layout of NixOS, or you don't run NixOS at all:
+- Install cachix (i.e. add `pkgs.cachix` to `environment.systemPackages` or `home.packages`)
+- Run `cachix use niri`
+- Follow the instructions to add the cache to your system. Depending on your system setup, you may not need to do anything.
+
+If you run a more exotic nix configuration, or prefer not to install `cachix`, you can manually add it to your system configuration:
+
+```nix
+{
+  nix.settings.substituters = [ "https://niri.cachix.org" ];
+  nix.settings.trusted-public-keys = [ "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=" ];
+}
+```
+
+And of course, if you're setting it in your NixOS configuration, run `nixos-rebuild switch` to apply the changes before you continue with the rest of the instructions.
+
+# Installing on NixOS
+
+If you're on NixOS and don't need to configure niri declaratively, your flake.nix should look something like the following.
 
 ```nix
 {
@@ -38,15 +66,17 @@ If you're on NixOS and don't need to configure niri declaratively, your flake.ni
         {
           programs.niri.enable = true;
         }
+        { # These are optional: If you omit them, then you will be using `pkgs.niri` from nixpkgs.
+          nixpkgs.overlays = [ niri.overlays.niri ];
+          programs.niri.package = pkgs.niri-stable;
+        }
       ];
     };
   }
 }
 ```
 
----
-
-If you use home-manager as NixOS module, then your flake.nix should rather look something like this:
+If you use home-manager as NixOS module, then your flake.nix could rather look something like this. The NixOS module will automatically import the home-manager module if it detects that home-manager is installed as a NixOS module.
 
 ```nix
 {
@@ -66,6 +96,12 @@ If you use home-manager as NixOS module, then your flake.nix should rather look 
         niri.nixosModules.niri
         {
           programs.niri.enable = true;
+        }
+        { # These are optional: If you omit them, then you will be using `pkgs.niri` from nixpkgs.
+          nixpkgs.overlays = [ niri.overlays.niri ];
+          programs.niri.package = pkgs.niri-stable;
+        }
+        {
           home-manager.users.my-user = {
             programs.niri.config = ''
               output "eDP-1" {
@@ -80,19 +116,9 @@ If you use home-manager as NixOS module, then your flake.nix should rather look 
 }
 ```
 
----
+# Usage with home-manager
 
-If you're using a standalone setup of home-manager (both NixOS and non-NixOS), you should first install niri through some other means. For NixOS, see above. For non-NixOS, i would recommend non-nix-based installation of niri. If you really want to, there is `homeModules.niri` which manages the config and also provides an option to install niri, but it may be less feature complete than the NixOS module. The home-manager module cannot register sessions in your display manager.
-
-> [!note]
-> If you install niri through home-manager (rather than merely configuring it), make sure it is compiled against the same version of mesa that you have installed. If you don't, niri might not start properly.
-> The following applies mainly if you want to run niri unstable. By default, niri is packaged in `nixpkgs` and you needn't worry about any of this if that's what you rely on.
-> 
-> - If you're on NixOS and installing through the NixOS module, you don't need to worry about this. It's automatically synced exactly.
-> - If you're on NixOS and installing through home-manager as a NixOS module, make sure sure `home-manager.useGlobalPkgs = true;`, and this will be handled automatically.
-> - If you're on NixOS and installing through home-manager as a standalone tool (not recommended!), this should be easy to ensure with no override if you update your home and system configurations' `nixpkgs` inputs at the same time (so they stay in sync).
-> - In general, this can be accomplished by setting `programs.niri.package` to `packages.x86_64_linux.niri.override { pkgs = ...; }` with a `pkgs` containing the correct version of mesa (this can be used to specify all the native dependencies that niri will build against).
-> - If you're not installing niri through my flake and only use it to configure, I cannot help you.
+If you're using a standalone installation of home-manager (even on non-NixOS), you should first install niri through some other means. For NixOS, see above.
 
 Once you've installed niri, and you want to configure niri, your flake.nix will end up looking something like this:
 
@@ -127,21 +153,23 @@ Once you've installed niri, and you want to configure niri, your flake.nix will 
 }
 ```
 
----
+You can also install niri using home-manager with `niri.homeModules.niri` output. It does not receive the same love and care as the NixOS module, and as such i will *not* document using it here. If you're interested in using it, you can view the source code to see how it works.
+
+One day, the home-manager module will be more feature complete.
 
 # Additional notes
 
-The modules `niri.nixosModules.niri` and `niri.homeModules.niri` provide the following functionality in common:
+When installing niri using the modules provided by this flake:
 
-- They both install niri, as well as its systemd units and the `niri-session` binary.
-- They both install and enable `xdg-desktop-portal-gnome`
-- They both enable the GNOME keyring.
+- The niri package will be installed, including its systemd units and the `niri-session` binary.
+- `xdg-desktop-portal-gnome` will be installed, as it is necessary for screencasting.
+- The GNOME keyring will be enabled. You probably want a keyring installed.
 
-The NixOS module provides the following additional functionality:
+Specifically the NixOS module provides the following additional functionality:
 
-- The NixOS module will enable polkit, and run the KDE polkit agent.
+- It will enable polkit, and run the KDE polkit agent.
 - If you prefer a different polkit authentication agent, you can set `systemd.user.services.niri-flake-polkit.enable = false;`
-- It enables various other features that Wayland compositors may need, such as `dconf`, `opengl` and default fonts. It also adds a pam entry for `swaylock`, which is normally done by the compositor's module on NixOS.
+- It enables various other features that Wayland compositors may need, such as `dconf`, `opengl` and default fonts. It also adds a pam entry for `swaylock`, which is necessary if you wish to use `swaylock`.
 
 Some additional software you may want to install to get a full desktop experience:
 
@@ -155,10 +183,4 @@ If using waybar, you'll want to set `programs.waybar.settings.mainBar.layer = "t
 
 For electron applications such as vscode, you will want to set the `NIXOS_OZONE_WL` environment variable. Several package in nixpkgs look for this variable, and pass some ozone flags in that case. Note that they will only run as wayland applications if you run niri through `niri-session`; the raw `niri` binary will not set the necessary environment variables. If you insist on not running `niri-session`, you can pass the usual ozone flags manually. `NIXOS_OZONE_WL` is not set by this module, because you may want to set it in different places depending on your needs. `environment.variables` should works fine, though.
 
----
-
-The packages built by this flake should work on aarch64, but i have no aarch64 computer to test it on. Please report any issues with aarch64.
-
-I also have no way to test cross-compilation, and given that i consider it an obscure usecase, i did not bother to keep trying to maintain it. Please send a pull request if you're interested in cross-compilation.
-
-Feel free to contact me in the `#niri:matrix.org` channel or through GitHub issues if you have any questions or concerns.
+Visual Studio Code does not properly detect the correct keyring to use on my system. It works fine if you launch it with `code --password-store="gnome-libsecret"`. You persist this flag in `Preferences > Configure Runtime Arguments` (`argv.json`), by setting `"password-store": "gnome-libsecret"`.
