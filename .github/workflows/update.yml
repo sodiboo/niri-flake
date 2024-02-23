@@ -1,4 +1,4 @@
-name: update-flake-lock
+name: Update flake.lock
 on:
   workflow_dispatch:
   schedule:
@@ -17,6 +17,12 @@ jobs:
         with:
           token: '${{ secrets.UPDATE_TOKEN }}'
           pr-title: "Update flake.lock"
+          pr-body: |
+            Automated changes by the [update-flake-lock](https://github.com/DeterminateSystems/update-flake-lock) GitHub Action.
+            
+            ```
+            {{ env.GIT_COMMIT_MESSAGE }}
+            ```
           pr-labels: |
             dependencies
             automated
