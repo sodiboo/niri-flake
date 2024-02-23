@@ -1,6 +1,5 @@
 name: "cachix"
 on:
-  pull_request:
   push:
 jobs:
   build:
@@ -14,4 +13,5 @@ jobs:
       with:
         name: niri
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix-store --query --requisites $(nix-store --query --deriver $(nix build --print-out-paths .#niri-stable .#niri-unstable)) | cachix push niri
+    - name: Build niri-stable and niri-unstable; push to cachix
+      run: nix-store --query --requisites $(nix-store --query --deriver $(nix build --print-out-paths .#niri-stable .#niri-unstable)) | cachix push niri
