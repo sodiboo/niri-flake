@@ -117,6 +117,13 @@
       };
     in
       workspace.workspaceMembers.niri.build // {inherit workspace;};
+
+    make-niri-overridable = pkgs: src:
+      pkgs.lib.makeOverridable (args:
+        make-niri {
+          inherit (args) pkgs src;
+          tools = crate2nix.tools.${args.pkgs.stdenv.system};
+        }) {inherit pkgs src;};
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -126,32 +133,30 @@
         system,
         pkgs,
         ...
-      }: let
-        make-niri-pkg = src:
-          pkgs.lib.makeOverridable make-niri {
-            inherit pkgs src;
-            tools = crate2nix.tools.${system};
-          };
-      in {
+      }: {
         packages = {
-          niri-unstable = make-niri-pkg niri-unstable;
-          niri-stable = make-niri-pkg niri-stable;
-          niri = make-niri-pkg niri-src;
+          niri-unstable = make-niri-overridable pkgs niri-unstable;
+          niri-stable = make-niri-overridable pkgs niri-stable;
+
+          niri = make-niri-overridable pkgs niri-src;
           default = self'.packages.niri;
         };
 
-        apps = {
-          niri = {
+        apps =
+          builtins.mapAttrs (name: package: {
             type = "app";
-            program = "${self'.packages.niri}/bin/niri";
-          };
-          default = self'.apps.niri;
-        };
+            program = "${package}/bin/niri";
+          })
+          self'.packages;
 
         formatter = pkgs.alejandra;
       };
 
       flake = {
+        overlays.niri = final: prev: {
+          niri-unstable = make-niri-overridable final niri-unstable;
+          niri-stable = make-niri-overridable final niri-stable;
+        };
         homeModules.config = {
           lib,
           config,
