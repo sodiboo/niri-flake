@@ -120,8 +120,12 @@
         system,
         pkgs,
         ...
-      }: let 
-        make-niri-pkg = src: pkgs.lib.makeOverridable make-niri {inherit pkgs src; tools = crate2nix.tools.${system};};
+      }: let
+        make-niri-pkg = src:
+          pkgs.lib.makeOverridable make-niri {
+            inherit pkgs src;
+            tools = crate2nix.tools.${system};
+          };
       in {
         packages = {
           niri-unstable = make-niri-pkg niri-unstable;
