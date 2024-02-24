@@ -27,28 +27,17 @@ jobs:
             dependencies
             automated
 
-      - name: "Print PR number"
-        run: |
-          echo "PR number is ${{ steps.update.outputs.pull-request-number }}"
-          echo "PR op is ${{ steps.update.outputs.pull-request-operation }}"
-
-      - name: "Is PR op?"
-        if: ${{ steps.update.outputs.pull-request-operation }}
-        run: echo "PR op is ${{ steps.update.outputs.pull-request-operation }}"
-
-      - name: "Is PR number?"
-        if: ${{ steps.update.outputs.pull-request-number }}
-        run: echo "PR number is ${{ steps.update.outputs.pull-request-number }}"
-
 
         # This is workaround to force the cachix action to run after the update-flake-lock action.
         # Normally, it does not occur because the PR is created by github-actions[bot]
         # But here, we force push it with my own token, so the action runs after a push "by me".
       - name: Checkout repository
+        if: ${{ steps.update.outputs.pull-request-number }}
         uses: actions/checkout@v4
         with:
             token: '${{ secrets.UPDATE_TOKEN }}'
       - name: Amend and push; forcibly run builds
+        if: ${{ steps.update.outputs.pull-request-number }}
         uses: actions/github-script@v7
         with:
           script: |
