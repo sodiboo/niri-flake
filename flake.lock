@@ -94,22 +94,6 @@
         "type": "github"
       }
     },
-    "dummy-test-updates": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1708792901,
-        "narHash": "sha256-FG67o7JdeqIuYl1t86/Cm2DWxZAmuYZEbSlVHdNyDCg=",
-        "owner": "sodiboo",
-        "repo": "dummy-test-updates",
-        "rev": "ebaadad0ac61b3c6ae1b746c1c8291bec7e3a37d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sodiboo",
-        "repo": "dummy-test-updates",
-        "type": "github"
-      }
-    },
     "flake-compat": {
       "locked": {
         "lastModified": 1696426674,
@@ -403,7 +387,6 @@
     "root": {
       "inputs": {
         "crate2nix": "crate2nix",
-        "dummy-test-updates": "dummy-test-updates",
         "flake-parts": "flake-parts_2",
         "niri-src": "niri-src",
         "niri-stable": "niri-stable",
