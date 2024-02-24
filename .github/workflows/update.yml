@@ -18,11 +18,11 @@ jobs:
         with:
           pr-title: "Update flake.lock"
           pr-body: |
-            Automated changes by the [update-flake-lock](https://github.com/DeterminateSystems/update-flake-lock) GitHub Action.
-            
             ```
             {{ env.GIT_COMMIT_MESSAGE }}
             ```
+
+            sodiboo will now force-push my branch in order for the cachix action to run. This is also an automated action.
           pr-labels: |
             dependencies
             automated
@@ -31,7 +31,7 @@ jobs:
         # This is workaround to force the cachix action to run after the update-flake-lock action.
         # Normally, it does not occur because the PR is created by github-actions[bot]
         # But here, we force push it with my own token, so the action runs after a push "by me".
-      - name: Checkout repository
+      - name: Checkout repository as sodiboo
         if: ${{ steps.update.outputs.pull-request-number }}
         uses: actions/checkout@v4
         with:
