@@ -26,10 +26,13 @@ jobs:
             dependencies
             automated
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+            token: '${{ secrets.UPDATE_TOKEN }}'
       - name: Amend and push; forcibly run builds
         uses: actions/github-script@v7
         with:
-          github-token: '${{ secrets.UPDATE_TOKEN }}'
           script: |
             await exec.exec('git checkout update_flake_lock_action');
             await exec.exec('git commit --amend --no-edit');
