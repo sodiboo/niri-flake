@@ -13,7 +13,7 @@ Packages:
 - `niri.packages.aarch64-linux`: aarch64 is entirely untested. Do not expect it to work, but do report any issues you encounter.
 - `niri.overlays.niri`: A nixpkgs overlay that provides the `niri-stable` and `niri-unstable` attributes.
 
-It is recommended to use the overlay when installing niri from this flake, as it will ensure that it is built against the same version of nixpkgs as the rest of your system. This is necessary, because the mesa drivers must match exactly.
+It is recommended to use the overlay to access the packages from this flake, as it will ensure that it is built against the same version of nixpkgs as the rest of your system. This is necessary, because the mesa drivers must match exactly.
 
 Modules:
 
@@ -27,8 +27,8 @@ I have a binary cache for this flake's outputs. Currently, it only hosts builds 
 
 > [!note]
 > This binary cache is managed by me, sodiboo. By using it, you are trusting me to not serve you malicious software. Using a binary cache is entirely optional.
-
-By default, the flake doesn't depend on its own packages at all. It will install using the `niri` from nixpkgs, and in that case, there is no need to use my binary cache. If you wish to use the flake's packages, then i recommend using the binary cache.
+>
+> If you do not wish to use my binary cache, but still want the convenience of one, you could set `programs.niri.package = pkgs.niri;`, which is provided by nixpkgs. This package will receive updates slower.
 
 If you're using something close to the default configuration layout of NixOS, or you don't run NixOS at all:
 - Install cachix (i.e. add `pkgs.cachix` to `environment.systemPackages` or `home.packages`)
@@ -66,9 +66,9 @@ If you're on NixOS and don't need to configure niri declaratively, your flake.ni
         {
           programs.niri.enable = true;
         }
-        { # These are optional: If you omit them, then you will be using `pkgs.niri` from nixpkgs.
+        { # If you wish to use the unstable version of niri, you can set it like so:
           nixpkgs.overlays = [ niri.overlays.niri ];
-          programs.niri.package = pkgs.niri-stable;
+          programs.niri.package = pkgs.niri-unstable;
         }
       ];
     };
@@ -97,9 +97,9 @@ If you use home-manager as NixOS module, then your flake.nix could rather look s
         {
           programs.niri.enable = true;
         }
-        { # These are optional: If you omit them, then you will be using `pkgs.niri` from nixpkgs.
+        { # If you wish to use the unstable version of niri, you can set it like so:
           nixpkgs.overlays = [ niri.overlays.niri ];
-          programs.niri.package = pkgs.niri-stable;
+          programs.niri.package = pkgs.niri-unstable;
         }
         {
           home-manager.users.my-user = {
@@ -181,6 +181,6 @@ These will generally be installed through home-manager. No particular configurat
 
 If using waybar, you'll want to set `programs.waybar.settings.mainBar.layer = "top";`, to ensure it is visible over applications running in niri. You'll also wanna set `programs.waybar.systemd.enable = true;` which i've found seems somewhat unreliable. Your mileage may vary.
 
-For electron applications such as vscode, you will want to set the `NIXOS_OZONE_WL` environment variable. Several package in nixpkgs look for this variable, and pass some ozone flags in that case. Note that they will only run as wayland applications if you run niri through `niri-session`; the raw `niri` binary will not set the necessary environment variables. If you insist on not running `niri-session`, you can pass the usual ozone flags manually. `NIXOS_OZONE_WL` is not set by this module, because you may want to set it in different places depending on your needs. `environment.variables` should works fine, though.
+For electron applications such as vscode, you will want to set the `NIXOS_OZONE_WL` environment variable. Several packages in nixpkgs look for this variable, and pass some ozone flags in that case. Note that they will only run as wayland applications if you run niri through `niri-session`; the raw `niri` binary will not set the necessary environment variables. If you insist on not running `niri-session`, you can pass the usual ozone flags manually. `NIXOS_OZONE_WL` is not set by this module, because you may want to set it in different places depending on your needs. `environment.variables` should works fine, though.
 
 Visual Studio Code does not properly detect the correct keyring to use on my system. It works fine if you launch it with `code --password-store="gnome-libsecret"`. You persist this flag in `Preferences > Configure Runtime Arguments` (`argv.json`), by setting `"password-store": "gnome-libsecret"`.
