@@ -29,7 +29,7 @@
   }: let
     niri-src-is-unchanged = (builtins.fromJSON (builtins.readFile (self + /flake.lock))).nodes.niri-src.locked.rev == niri-src.rev;
 
-    make-niri = nixpkgs.lib.makeOverridable ({
+    make-niri-overridable = nixpkgs.lib.makeOverridable ({
       src,
       pkgs,
     }: let
@@ -130,6 +130,8 @@
       };
     in
       workspace.workspaceMembers.niri.build // {inherit workspace;});
+
+    make-niri = pkgs: src: make-niri-overridable {inherit src pkgs;};
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -141,8 +143,8 @@
         ...
       }: {
         packages = {
-          niri-unstable = make-niri {inherit pkgs; src= niri-unstable;};
-          niri-stable = make-niri {inherit pkgs; src= niri-stable;};
+          niri-unstable = make-niri pkgs niri-unstable;
+          niri-stable = make-niri pkgs niri-stable;
 
           niri =
             nixpkgs.lib.warn
@@ -152,7 +154,7 @@
               If you must use a specific revision, override them with the `src` parameter.
 
               See the README for more details and recommended setup.
-            '' (make-niri {inherit pkgs; src= niri-src;});
+            '' (make-niri pkgs niri-src);
           default = self'.packages.niri;
         };
 
@@ -174,8 +176,8 @@
 
       flake = {
         overlays.niri = final: prev: {
-          niri-unstable = make-niri { pkgs = final; src = niri-unstable; };
-          niri-stable = make-niri { pkgs = final; src = niri-stable; };
+          niri-unstable = make-niri final niri-unstable;
+          niri-stable = make-niri final niri-stable;
         };
         homeModules.config = {
           lib,
@@ -193,7 +195,7 @@
               };
               package = mkOption {
                 type = types.package;
-                default = make-niri { inherit pkgs; src = niri-src; };
+                default = make-niri pkgs niri-src;
               };
             };
 
@@ -225,7 +227,10 @@
               enable = mkEnableOption "niri";
               package = mkOption {
                 type = types.package;
-                default = make-niri { inherit pkgs; src = niri-stable; };
+                default = make-niri {
+                  inherit pkgs;
+                  src = niri-stable;
+                };
               };
 
               acknowledge-warning.will-use-nixpkgs = mkOption {
