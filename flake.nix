@@ -312,7 +312,12 @@
               })
             ];
           };
-        nixosModules.default = self.nixosModules.niri;
+        nixosModules.default =
+          nixpkgs.lib.warn ''
+            Do not use niri.nixosModules.default.
+            Use niri.nixosModules.niri instead.
+          ''
+          self.nixosModules.niri;
         homeModules.niri = {
           lib,
           config,
