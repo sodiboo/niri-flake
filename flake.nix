@@ -15,6 +15,9 @@
 
     niri-src.url = "github:YaLTeR/niri/v0.1.2";
     niri-src.flake = false;
+
+    dummy-test-updates.url = "github:sodiboo/dummy-test-updates";
+    dummy-test-updates.flake = false;
   };
 
   outputs = inputs @ {
