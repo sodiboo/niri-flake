@@ -97,11 +97,11 @@
     "dummy-test-updates": {
       "flake": false,
       "locked": {
-        "lastModified": 1708792663,
-        "narHash": "sha256-dwD82VLyvZIHWdBnWTC2D8/JtsZ+IGzP2JioXhs7H+M=",
+        "lastModified": 1708792901,
+        "narHash": "sha256-FG67o7JdeqIuYl1t86/Cm2DWxZAmuYZEbSlVHdNyDCg=",
         "owner": "sodiboo",
         "repo": "dummy-test-updates",
-        "rev": "e1ec9be8e79f43ef8e70a0ef2b071032d3fb534b",
+        "rev": "ebaadad0ac61b3c6ae1b746c1c8291bec7e3a37d",
         "type": "github"
       },
       "original": {
