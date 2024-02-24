@@ -15,7 +15,6 @@ jobs:
       - name: Update flake.lock
         uses: DeterminateSystems/update-flake-lock@v20
         with:
-          token: '${{ secrets.UPDATE_TOKEN }}'
           pr-title: "Update flake.lock"
           pr-body: |
             Automated changes by the [update-flake-lock](https://github.com/DeterminateSystems/update-flake-lock) GitHub Action.
@@ -26,3 +25,15 @@ jobs:
           pr-labels: |
             dependencies
             automated
+
+      - name: Amend and push; forcibly run builds
+        uses: actions/github-script@v3
+        with:
+          github-token: '${{ secrets.UPDATE_TOKEN }}'
+          script: |
+            const exec = require('@actions/exec');
+            await exec.exec('git branch -D update_flake_lock_action');
+            await exec.exec('git fetch origin');
+            await exec.exec('git checkout update_flake_lock_action');
+            await exec.exec('git commit --amend --no-edit');
+            await exec.exec('git push origin update_flake_lock_action --force');
