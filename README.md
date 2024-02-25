@@ -6,8 +6,6 @@ Feel free to contact me at [`@sodiboo:arcticfoxes.net`](https://matrix.to/#/@sod
 
 # Outputs
 
-Packages:
-
 - `niri.packages.x86_64-linux.niri-stable`: The latest release of niri.
 - `niri.packages.x86_64-linux.niri-unstable`: The latest commit to the `main` branch of the niri repository. This may break at any time without warning, and is not recommended for most users.
 - `niri.packages.aarch64-linux`: aarch64 is entirely untested. Do not expect it to work, but do report any issues you encounter.
@@ -15,36 +13,22 @@ Packages:
 
 It is recommended to use the overlay to access the packages from this flake, as it will ensure that it is built against the same version of nixpkgs as the rest of your system. This is necessary, because the mesa drivers must match exactly.
 
-Modules:
-
 - `niri.nixosModules.niri`: [Installing on NixOS](#installing-on-nixos)
 - `niri.homeModules.config`: [Usage with home-manager](#usage-with-home-manager)
 - `niri.homeModules.niri`: [Usage with home-manager](#usage-with-home-manager)
 
-# Binary cache
+# Binary Cache
 
-I have a binary cache for this flake's outputs. Currently, it only hosts builds with the `nixos-unstable` channel of nixpkgs.
+I have a binary cache for this flake's outputs. Currently, it only hosts builds with the `nixos-unstable` channel of nixpkgs. As far as i'm aware, no users exist that are using stable nixpkgs channel. If that's you, please tell me about it so i can cache builds for you.
 
 > [!note]
 > This binary cache is managed by me, sodiboo. By using it, you are trusting me to not serve you malicious software. Using a binary cache is entirely optional.
 >
 > If you do not wish to use my binary cache, but still want the convenience of one, you could set `programs.niri.package = pkgs.niri;`, which is provided by nixpkgs. This package will receive updates slower.
 
-If you're using something close to the default configuration layout of NixOS, or you don't run NixOS at all:
-- Install cachix (i.e. add `pkgs.cachix` to `environment.systemPackages` or `home.packages`)
-- Run `cachix use niri`
-- Follow the instructions to add the cache to your system. Depending on your system setup, you may not need to do anything.
+If you use NixOS, add the `niri.nixosModules.niri` module and don't enable niri yet. Rebuild your system once to enable the binary cache, *then* enable niri. You can set `niri-flake.cache.enable = false;` to prevent this from happening.
 
-If you run a more exotic nix configuration, or prefer not to install `cachix`, you can manually add it to your system configuration:
-
-```nix
-{
-  nix.settings.substituters = [ "https://niri.cachix.org" ];
-  nix.settings.trusted-public-keys = [ "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=" ];
-}
-```
-
-And of course, if you're setting it in your NixOS configuration, run `nixos-rebuild switch` to apply the changes before you continue with the rest of the instructions.
+If you're not using the NixOS module, you can add the cache to your system by running `cachix use niri`. This works on any system with nix installed, not just NixOS.
 
 # Installing on NixOS
 
