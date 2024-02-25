@@ -195,7 +195,7 @@
               };
               package = mkOption {
                 type = types.package;
-                default = make-niri pkgs niri-src;
+                default = make-niri pkgs niri-stable;
               };
             };
 
