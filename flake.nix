@@ -227,10 +227,7 @@
               enable = mkEnableOption "niri";
               package = mkOption {
                 type = types.package;
-                default = make-niri {
-                  inherit pkgs;
-                  src = niri-stable;
-                };
+                default = make-niri pkgs niri-stable;
               };
 
               acknowledge-warning.will-use-nixpkgs = mkOption {
