@@ -27,6 +27,7 @@
     nixpkgs,
     ...
   }: let
+    kdl = import ./kdl.nix { inherit (nixpkgs) lib; };
     niri-src-is-unchanged = (builtins.fromJSON (builtins.readFile (self + /flake.lock))).nodes.niri-src.locked.rev == niri-src.rev;
 
     make-niri-overridable = nixpkgs.lib.makeOverridable ({
@@ -175,6 +176,7 @@
       };
 
       flake = {
+        inherit kdl;
         overlays.niri = final: prev: {
           niri-unstable = make-niri final niri-unstable;
           niri-stable = make-niri final niri-stable;
