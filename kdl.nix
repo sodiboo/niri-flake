@@ -1,19 +1,20 @@
 {lib}:
 with lib; let
   node = name: args: children: let
-    has-props = (length args != 0) && isAttrs (last args);
+    real-args = toList args;
+    has-props = (length real-args != 0) && isAttrs (last real-args);
   in {
     inherit name children;
 
     props =
       if has-props
-      then last args
+      then last real-args
       else {};
 
     args =
       if has-props
-      then take (length args - 1) args
-      else args;
+      then take (length real-args - 1) real-args
+      else real-args;
   };
 
   plain = name: node name [];
