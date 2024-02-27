@@ -1,20 +1,20 @@
 {lib}:
 with lib; let
   node = name: args: children: let
-    real-args = toList args;
-    has-props = (length real-args != 0) && isAttrs (last real-args);
+    args' = toList args;
+    has-props = (length args' != 0) && isAttrs (last args');
   in {
     inherit name children;
 
     props =
       if has-props
-      then last real-args
+      then last args'
       else {};
 
     args =
       if has-props
-      then take (length real-args - 1) real-args
-      else real-args;
+      then take (length args' - 1) args'
+      else args';
   };
 
   plain = name: node name [];
@@ -91,6 +91,35 @@ with lib; let
       (map serialize.node)
       (concatStringsSep "\n")
     ];
+  kdl-value = types.nullOr (
+    types.oneOf [
+      types.str
+      types.int
+      types.float
+      types.bool
+    ]
+  );
+
+  kdl-node = types.submodule {
+    options.name = mkOption {
+      type = types.str;
+    };
+    options.args = mkOption {
+      type = types.listOf kdl-value;
+      default = [];
+    };
+    options.props = mkOption {
+      type = types.attrsOf kdl-value;
+      default = {};
+    };
+    options.children = mkOption {
+      type = kdl-nodes;
+      default = [];
+    };
+  };
+
+  kdl-nodes = types.oneOf [(types.listOf (types.nullOr kdl-nodes)) kdl-node];
 in {
   inherit node plain plain-leaf leaf serialize;
+  types = {inherit kdl-value kdl-node kdl-nodes;};
 }
