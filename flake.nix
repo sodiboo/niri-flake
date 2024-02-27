@@ -181,6 +181,7 @@
           niri-unstable = make-niri final niri-unstable;
           niri-stable = make-niri final niri-stable;
         };
+        homeModules.experimental-settings = import ./settings.nix {inherit kdl;};
         homeModules.config = {
           lib,
           config,
