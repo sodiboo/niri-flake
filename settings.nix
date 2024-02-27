@@ -210,7 +210,10 @@ with lib; {
       then (plain-leaf name)
       else null;
 
-    disable = label: cfg: plain-leaf' label (cfg.enable == false);
+    toggle = label: cfg: contents:
+      if cfg.enable
+      then contents
+      else plain-leaf label;
 
     bulk = kind: set: names: map (name: kind name set.${name}) names;
 
@@ -224,10 +227,10 @@ with lib; {
 
     borderish = name: cfg:
       plain name [
-        (disable "off" cfg)
-        # width and (in)?active-color are not nullable
-        # but that doesn't matter
-        (bulk (nullable' leaf) cfg ["width" "active-color" "inactive-color" "active-gradient" "inactive-gradient"])
+        (toggle "off" cfg
+          # width and (in)?active-color are not nullable
+          # but that doesn't matter
+          (bulk (nullable' leaf) cfg ["width" "active-color" "inactive-color" "active-gradient" "inactive-gradient"]))
       ];
 
     preset-widths = name: cfg: plain name (map (mapAttrsToList leaf) (toList cfg));
@@ -259,32 +262,33 @@ with lib; {
             (nullable' leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
           ])
           (bulk pointer' cfg.input ["mouse" "trackpoint"])
-          (disable "disable-power-key-handling" cfg.input.power-key-handling)
+          (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         ])
 
         (mapAttrsToList (name: cfg:
           node "output" name [
-            (disable "off" cfg)
-            (leaf "scale" cfg.scale)
-            (leaf "transform" (let
-              rotation = toString cfg.transform.rotation;
-              basic =
-                if cfg.transform.flipped
-                then "flipped-${rotation}"
-                else "${rotation}";
-              replacement."0" = "normal";
-              replacement."flipped-0" = "flipped";
-            in
-              replacement.${basic} or basic))
-            (nullable' leaf "position" cfg.position)
-            (nullable cfg.mode (cfg: let
-              geometry = "${cfg.width}x${cfg.height}";
-              mode =
-                if cfg.refresh == null
-                then "${geometry}"
-                else "${geometry}@${cfg.refresh}";
-            in
-              leaf "mode" mode))
+            (toggle "off" cfg [
+              (leaf "scale" cfg.scale)
+              (leaf "transform" (let
+                rotation = toString cfg.transform.rotation;
+                basic =
+                  if cfg.transform.flipped
+                  then "flipped-${rotation}"
+                  else "${rotation}";
+                replacement."0" = "normal";
+                replacement."flipped-0" = "flipped";
+              in
+                replacement.${basic} or basic))
+              (nullable' leaf "position" cfg.position)
+              (nullable cfg.mode (cfg: let
+                geometry = "${cfg.width}x${cfg.height}";
+                mode =
+                  if cfg.refresh == null
+                  then "${geometry}"
+                  else "${geometry}@${cfg.refresh}";
+              in
+                leaf "mode" mode))
+            ])
           ])
         cfg.outputs)
 
