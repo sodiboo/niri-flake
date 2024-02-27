@@ -53,13 +53,14 @@
                 #    This is to avoid building the same crate multiple times.
                 #    Ultimately, that speeds up the build.
                 #    But it also means that each crate has separate build inputs.
+                #
                 #    Many popular crates have "default overrides" in nixpkgs.
-                #                            (see: pkgs.defaultCrateOverrides)
                 #    But it doesn't cover all crates niri depends on.
                 #    So we need to fix those last few ourselves.
+                #
                 #    (nixpkgs)/(niri's dev flake) uses `cargo` to build.
                 #    And this builds all crates in the same derivation.
-                #    So they share build inputs. That's why they only have one set of overrides.
+                #    That's why they don't override individual crates.
                 libspa-sys = attrs: {
                   nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
                   buildInputs = [pipewire];
@@ -120,10 +121,12 @@
                   # which is not that bad, and not worth aborting builds for.
                   # if i was packaging only stable, this would be trivial to implement.
                   # but ultimately, unstable is the one where this matters more.
-                  prePatch = "substituteInPlace src/**.rs src/**/*.rs --replace-quiet " + nixpkgs.lib.escapeShellArgs [
-                    ''git_version!(fallback = "unknown commit")''
-                    ''"niri-flake at ${src.shortRev}"''
-                  ];
+                  prePatch =
+                    "substituteInPlace src/**.rs src/**/*.rs --replace-quiet "
+                    + nixpkgs.lib.escapeShellArgs [
+                      ''git_version!(fallback = "unknown commit")''
+                      ''"niri-flake at ${src.shortRev}"''
+                    ];
                   buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
 
                   # we want backtraces to be readable
