@@ -27,7 +27,7 @@
     nixpkgs,
     ...
   }: let
-    kdl = import ./kdl.nix { inherit (nixpkgs) lib; };
+    kdl = import ./kdl.nix {inherit (nixpkgs) lib;};
     niri-src-is-unchanged = (builtins.fromJSON (builtins.readFile (self + /flake.lock))).nodes.niri-src.locked.rev == niri-src.rev;
 
     make-niri-overridable = nixpkgs.lib.makeOverridable ({
@@ -192,7 +192,7 @@
           in {
             options.programs.niri = {
               config = mkOption {
-                type = types.nullOr types.str;
+                type = types.nullOr (either types.str kdl.types.kdl-nodes);
                 default = null;
               };
               package = mkOption {
@@ -202,11 +202,14 @@
             };
 
             config.xdg.configFile.niri-config = {
-              enable = !isNull cfg.config;
+              enable = cfg.config != null;
               target = "niri/config.kdl";
               source =
                 pkgs.runCommand "config.kdl" {
-                  config = cfg.config;
+                  config =
+                    if isString cfg.config
+                    then cfg.config
+                    else kdl.serialize.nodes cfg.config;
                   passAsFile = ["config"];
                   buildInputs = [cfg.package];
                 } ''
