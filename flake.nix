@@ -46,6 +46,20 @@
             defaultCrateOverrides =
               pkgs.defaultCrateOverrides
               // (with pkgs; {
+                # Q: Why do we need to override these?
+                #    (nixpkgs)/(niri's dev flake) doesn't do this!
+                #
+                # A: crate2nix builds each crate in a separate derivation.
+                #    This is to avoid building the same crate multiple times.
+                #    Ultimately, that speeds up the build.
+                #    But it also means that each crate has separate build inputs.
+                #    Many popular crates have "default overrides" in nixpkgs.
+                #                            (see: pkgs.defaultCrateOverrides)
+                #    But it doesn't cover all crates niri depends on.
+                #    So we need to fix those last few ourselves.
+                #    (nixpkgs)/(niri's dev flake) uses `cargo` to build.
+                #    And this builds all crates in the same derivation.
+                #    So they share build inputs. That's why they only have one set of overrides.
                 libspa-sys = attrs: {
                   nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
                   buildInputs = [pipewire];
