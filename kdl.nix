@@ -63,6 +63,26 @@ with lib; let
     length
   ];
 
+  # a common pattern when declaring a config is to have "optional" nodes
+  # that only exist if a certain condition is met.
+  # without special handling, this would be done with list concatenation
+  # and lib.optional, which is ugly and hard to read.
+  # it's also not unthinkable that a user might want to declare many nodes
+  # in a separate function, and include in the current list.
+  # this function makes it easier to declare optional nodes
+  # or adding an infix list of nodes by ignoring null nodes, and flattening the result
+  # this is completely fine because in this context,
+  # nested lists are not meaningful and neither are null nodes.
+  transform-nodes = flip pipe [
+    flatten
+    (filter (n: n != null))
+  ];
+
+  internal-serialize-nodes = flip pipe [
+    (map serialize.node)
+    (concatStringsSep "\n")
+  ];
+
   serialize.node = {
     name,
     args,
@@ -74,23 +94,23 @@ with lib; let
       (map serialize.value args)
       (map serialize.prop (attrsToList props))
       (
-        if length children == 0
-        then []
-        else let
-          serialized = serialize.nodes children;
+        let
+          children' = transform-nodes children;
+          serialized = internal-serialize-nodes children';
         in
-          if count-lines serialized == 1
+          if length children' == 0
+          then []
+          else if count-lines serialized == 1
           then "{ ${serialized}; }"
           else "{\n${indent serialized}\n}"
       )
     ]);
 
   serialize.nodes = flip pipe [
-      flatten
-      (filter (n: n != null))
-      (map serialize.node)
-      (concatStringsSep "\n")
-    ];
+    transform-nodes
+    internal-serialize-nodes
+  ];
+
   kdl-value = types.nullOr (
     types.oneOf [
       types.str
