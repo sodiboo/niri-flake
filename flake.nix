@@ -193,7 +193,7 @@
           in {
             options.programs.niri = {
               config = mkOption {
-                type = types.nullOr (either types.str kdl.types.kdl-nodes);
+                type = types.nullOr (types.either types.str kdl.types.kdl-nodes);
                 default = null;
               };
               package = mkOption {
