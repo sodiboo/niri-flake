@@ -70,11 +70,21 @@ with lib; {
       inactive-gradient = nullable gradient;
     };
 
+    bind = mkOptionType {
+      name = "bind";
+      description = "key binding";
+      descriptionClass = "noun";
+      check = v: let
+        leaves = mapAttrsToList kdl.leaf v;
+      in
+        isString v || (isAttrs v && length leaves == 1 && all kdl.types.kdl-node.check leaves);
+    };
+
     # why not just use a record? because, it is slightly more convenient to use
     # if inactive fields are missing rather than null
     match = mkOptionType {
       name = "match";
-      description = "window matcher";
+      description = "match rule";
       descriptionClass = "noun";
       check = v: isAttrs v && all (flip elem ["app-id" "title"]) (attrNames v) && all isString (attrValues v);
     };
@@ -178,7 +188,7 @@ with lib; {
 
     environment = attrs (nullOr (types.str));
 
-    binds = attrs kdl.types.kdl-nodes;
+    binds = attrs bind;
 
     spawn-at-startup = list (record {
       command = list types.str;
@@ -315,7 +325,15 @@ with lib; {
         ])
 
         (plain "environment" (mapAttrsToList leaf cfg.environment))
-        (plain "binds" (mapAttrsToList plain cfg.binds))
+        (plain "binds" (mapAttrsToList (name: bind:
+          plain name [
+            (
+              if isString bind
+              then plain-leaf bind
+              else mapAttrsToList leaf bind
+            )
+          ])
+        cfg.binds))
 
         (map (cfg: leaf "spawn-at-startup" cfg.command) cfg.spawn-at-startup)
         (map (cfg:
