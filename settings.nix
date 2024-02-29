@@ -112,9 +112,8 @@ with lib; {
         };
       mouse = basic-pointer false;
       trackpoint = basic-pointer false;
-      tablet = {
-        map-to-output = optional types.str "eDP-1";
-      };
+      tablet.map-to-output = nullable types.str;
+      touch.map-to-output = nullable types.str;
 
       power-key-handling.enable = optional types.bool true;
     };
@@ -170,9 +169,7 @@ with lib; {
 
     screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
 
-    hotkey-overlay = {
-      skip-at-startup = optional types.bool false;
-    };
+    hotkey-overlay.skip-at-startup = optional types.bool false;
 
     animations = {
       enable = optional types.bool true;
@@ -209,41 +206,43 @@ with lib; {
 
   options.programs.niri.generated-kdl-config = let
     cfg = config.programs.niri.settings;
-    nullable = v: f:
-      if v == null
+    nullable = f: name: value: 
+      if value == null
       then null
-      else f v;
-    nullable' = f: name: value: nullable value (f name);
+      else f name value;
+
+    map' = node: f: name: val: node name (f val);
 
     plain-leaf' = name: cond:
       if cond
       then (plain-leaf name)
       else null;
 
-    toggle = label: cfg: contents:
+    toggle = disabled: cfg: contents:
       if cfg.enable
       then contents
-      else plain-leaf label;
-
-    bulk = kind: set: names: map (name: kind name set.${name}) names;
+      else plain-leaf disabled;
+    
+    named = kind: set: name: kind name set.${name}; 
 
     pointer = cfg: [
       (plain-leaf' "natural-scroll" cfg.natural-scroll)
       (leaf "accel-speed" cfg.accel-speed)
-      (nullable cfg.accel-profile (leaf "accel-profile"))
+      (nullable leaf "accel-profile" cfg.accel-profile)
     ];
 
-    pointer' = name: cfg: plain name (pointer cfg);
+    touchy = map' plain (mapAttrsToList leaf);
 
     borderish = name: cfg:
       plain name [
         (toggle "off" cfg
           # width and (in)?active-color are not nullable
           # but that doesn't matter
-          (bulk (nullable' leaf) cfg ["width" "active-color" "inactive-color" "active-gradient" "inactive-gradient"]))
+          (map (named (nullable leaf) cfg) ["width" "active-color" "inactive-color" "active-gradient" "inactive-gradient"]))
       ];
 
-    preset-widths = name: cfg: plain name (map (mapAttrsToList leaf) (toList cfg));
+    # preset-widths = name: cfg: plain name (map (mapAttrsToList leaf) (toList cfg));
+    preset-widths = map' plain (cfg: map (mapAttrsToList leaf) (toList cfg));
   in
     mkOption {
       type = kdl.types.kdl-nodes;
@@ -252,7 +251,7 @@ with lib; {
         (plain "input" [
           (plain "keyboard" [
             (plain "xkb" [
-              (bulk (nullable' leaf) cfg.input.keyboard.xkb [
+              (map (named (nullable leaf) cfg.input.keyboard.xkb) [
                 "layout"
                 "model"
                 "rules"
@@ -260,18 +259,19 @@ with lib; {
                 "options"
               ])
             ])
-            (bulk leaf cfg.input.keyboard [
+            (map (named leaf cfg.input.keyboard) [
               "repeat-delay"
               "repeat-rate"
               "track-layout"
             ])
           ])
           (plain "touchpad" [
-            (bulk plain-leaf' cfg.input.touchpad ["tap" "dwt" "dwtp"])
+            (map (named plain-leaf' cfg.input.touchpad) ["tap" "dwt" "dwtp"])
             (pointer cfg.input.touchpad)
-            (nullable' leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
+            (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
           ])
-          (bulk pointer' cfg.input ["mouse" "trackpoint"])
+          (map (named (map' plain pointer) cfg.input) ["mouse" "trackpoint"])
+          (map (named touchy cfg.input) ["tablet" "touch"])
           (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         ])
 
@@ -289,15 +289,15 @@ with lib; {
                 replacement."flipped-0" = "flipped";
               in
                 replacement.${basic} or basic))
-              (nullable' leaf "position" cfg.position)
-              (nullable cfg.mode (cfg: let
+              (nullable leaf "position" cfg.position)
+              (nullable (map' leaf (cfg: let
                 geometry = "${cfg.width}x${cfg.height}";
                 mode =
                   if cfg.refresh == null
                   then "${geometry}"
                   else "${geometry}@${cfg.refresh}";
               in
-                leaf "mode" mode))
+                mode)) "mode" cfg.mode)
             ])
           ])
         cfg.outputs)
@@ -307,7 +307,7 @@ with lib; {
         (plain "layout" [
           (leaf "gaps" cfg.layout.gaps)
           (plain "struts" [
-            (bulk leaf cfg.layout.struts ["left" "right" "top" "bottom"])
+            (map (named leaf cfg.layout.struts) ["left" "right" "top" "bottom"])
           ])
           (borderish "focus-ring" cfg.layout.focus-ring)
           (borderish "border" cfg.layout.border)
@@ -338,9 +338,9 @@ with lib; {
         (map (cfg: leaf "spawn-at-startup" cfg.command) cfg.spawn-at-startup)
         (map (cfg:
           plain "window-rule" [
-            (bulk (name: map (leaf name)) cfg ["matches" "excludes"])
-            (nullable' preset-widths "default-column-width" cfg.default-column-width)
-            (bulk (nullable' leaf) cfg ["open-on-output" "open-maximized" "open-fullscreen"])
+            (map (named (name: map (leaf name)) cfg) ["matches" "excludes"])
+            (nullable preset-widths "default-column-width" cfg.default-column-width)
+            (map (named (nullable leaf) cfg) ["open-on-output" "open-maximized" "open-fullscreen"])
           ])
         cfg.window-rules)
 
