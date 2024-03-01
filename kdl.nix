@@ -4,7 +4,7 @@ with lib; let
     args' = toList args;
     has-props = (length args' != 0) && isAttrs (last args');
   in {
-    inherit name children;
+    inherit name;
 
     props =
       if has-props
@@ -15,6 +15,8 @@ with lib; let
       if has-props
       then take (length args' - 1) args'
       else args';
+
+    children = toList children;
   };
 
   plain = name: node name [];
