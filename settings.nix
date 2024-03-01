@@ -6,7 +6,7 @@
 with kdl;
 with lib; {
   options.programs.niri.settings = let
-    inherit (types) nullOr attrsOf listOf submodule enum;
+    inherit (types) nullOr attrsOf listOf submodule enum either;
 
     record = options: submodule {inherit options;};
 
@@ -68,16 +68,6 @@ with lib; {
       inactive-color = optional types.str "rgb(80 80 80)";
       active-gradient = nullable gradient;
       inactive-gradient = nullable gradient;
-    };
-
-    bind = mkOptionType {
-      name = "bind";
-      description = "key binding";
-      descriptionClass = "noun";
-      check = v: let
-        leaves = mapAttrsToList kdl.leaf v;
-      in
-        isString v || (isAttrs v && length leaves == 1 && all kdl.types.kdl-node.check leaves);
     };
 
     # why not just use a record? because, it is slightly more convenient to use
@@ -185,7 +175,7 @@ with lib; {
 
     environment = attrs (nullOr (types.str));
 
-    binds = attrs bind;
+    binds = attrs (either types.str kdl.types.kdl-leaf);
 
     spawn-at-startup = list (record {
       command = list types.str;

@@ -140,8 +140,25 @@ with lib; let
     };
   };
 
+  kdl-leaf = mkOptionType {
+    name = "kdl-leaf";
+    description = "kdl leaf";
+    descriptionClass = "noun";
+    check = v: let
+      leaves = mapAttrsToList leaf v;
+    in
+      isAttrs v && length leaves == 1 && all kdl-node.check leaves;
+  };
+
+  kdl-args = mkOptionType {
+    name = "kdl-args";
+    description = "kdl arguments";
+    descriptionClass = "noun";
+    check = v: kdl-leaf.check {inherit v;};
+  };
+
   kdl-nodes = types.oneOf [(types.listOf (types.nullOr kdl-nodes)) kdl-node];
 in {
   inherit node plain plain-leaf leaf serialize;
-  types = {inherit kdl-value kdl-node kdl-nodes;};
+  types = {inherit kdl-value kdl-node kdl-nodes kdl-leaf kdl-args;};
 }
