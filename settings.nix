@@ -223,8 +223,6 @@ with lib; {
       then contents
       else plain-leaf disabled;
 
-    named = kind: set: name: kind name set.${name};
-
     pointer = cfg: [
       (bool-leaf "natural-scroll" cfg.natural-scroll)
       (leaf "accel-speed" cfg.accel-speed)
@@ -235,10 +233,15 @@ with lib; {
 
     borderish = name: cfg:
       plain name [
-        (toggle "off" cfg
-          # width and (in)?active-color are not nullable
-          # but that doesn't matter
-          (map (named (nullable leaf) cfg) ["width" "active-color" "inactive-color" "active-gradient" "inactive-gradient"]))
+        (
+          toggle "off" cfg [
+            (leaf "width" cfg.width)
+            (leaf "active-color" cfg.active-color)
+            (leaf "inactive-color" cfg.inactive-color)
+            (nullable leaf "active-gradient" cfg.active-gradient)
+            (nullable leaf "inactive-gradient" cfg.inactive-gradient)
+          ]
+        )
       ];
 
     preset-widths = map' plain (cfg: map (mapAttrsToList leaf) (toList cfg));
@@ -252,9 +255,12 @@ with lib; {
 
     window-rule = cfg:
       plain "window-rule" [
-        (map (named (name: map (leaf name)) cfg) ["matches" "excludes"])
+        (map (leaf "matches") cfg.matches)
+        (map (leaf "excludes") cfg.excludes)
         (nullable preset-widths "default-column-width" cfg.default-column-width)
-        (map (named (nullable leaf) cfg) ["open-on-output" "open-maximized" "open-fullscreen"])
+        (nullable leaf "open-on-output" cfg.open-on-output)
+        (nullable leaf "open-maximized" cfg.open-maximized)
+        (nullable leaf "open-fullscreen" cfg.open-fullscreen)
       ];
     transform = cfg: let
       rotation = toString cfg.rotation;
@@ -289,27 +295,27 @@ with lib; {
         (plain "input" [
           (plain "keyboard" [
             (plain "xkb" [
-              (map (named (nullable leaf) cfg.input.keyboard.xkb) [
-                "layout"
-                "model"
-                "rules"
-                "variant"
-                "options"
-              ])
+              (nullable leaf "layout" cfg.input.keyboard.xkb.layout)
+              (nullable leaf "model" cfg.input.keyboard.xkb.model)
+              (nullable leaf "rules" cfg.input.keyboard.xkb.rules)
+              (nullable leaf "variant" cfg.input.keyboard.xkb.variant)
+              (nullable leaf "options" cfg.input.keyboard.xkb.options)
             ])
-            (map (named leaf cfg.input.keyboard) [
-              "repeat-delay"
-              "repeat-rate"
-              "track-layout"
-            ])
+            (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
+            (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
+            (leaf "track-layout" cfg.input.keyboard.track-layout)
           ])
           (plain "touchpad" [
-            (map (named bool-leaf cfg.input.touchpad) ["tap" "dwt" "dwtp"])
+            (bool-leaf "tap" cfg.input.touchpad.tap)
+            (bool-leaf "dwt" cfg.input.touchpad.dwt)
+            (bool-leaf "dwtp" cfg.input.touchpad.dwtp)
             (pointer cfg.input.touchpad)
             (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
           ])
-          (map (named (map' plain pointer) cfg.input) ["mouse" "trackpoint"])
-          (map (named (map' plain touchy) cfg.input) ["tablet" "touch"])
+          (map' plain pointer "mouse" cfg.input.mouse)
+          (map' plain pointer "trackpoint" cfg.input.trackpoint)
+          (map' plain touchy "tablet" cfg.input.tablet)
+          (map' plain touchy "touch" cfg.input.touch)
           (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         ])
 
@@ -329,7 +335,10 @@ with lib; {
         (plain "layout" [
           (leaf "gaps" cfg.layout.gaps)
           (plain "struts" [
-            (map (named leaf cfg.layout.struts) ["left" "right" "top" "bottom"])
+            (leaf "left" cfg.layout.struts.left)
+            (leaf "right" cfg.layout.struts.right)
+            (leaf "top" cfg.layout.struts.top)
+            (leaf "bottom" cfg.layout.struts.bottom)
           ])
           (borderish "focus-ring" cfg.layout.focus-ring)
           (borderish "border" cfg.layout.border)
@@ -355,12 +364,10 @@ with lib; {
         (plain "animations" [
           (toggle "off" cfg.animations [
             (leaf "slowdown" cfg.animations.slowdown)
-            (map (named animation cfg.animations) [
-              "workspace-switch"
-              "horizontal-view-movement"
-              "window-open"
-              "config-notification-open-close"
-            ])
+            (animation "workspace-switch" cfg.animations.workspace-switch)
+            (animation "horizontal-view-movement" cfg.animations.horizontal-view-movement)
+            (animation "window-open" cfg.animations.window-open)
+            (animation "config-notification-open-close" cfg.animations.config-notification-open-close)
           ])
         ])
 
