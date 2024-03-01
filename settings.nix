@@ -51,7 +51,7 @@ with lib; {
     }: {
       enable = optional types.bool true;
       duration-ms = optional (nullOr types.int) duration;
-      animation-curve = optional (nullOr (enum ["ease-out-cubic" "ease-out-expo"])) curve;
+      curve = optional (nullOr (enum ["ease-out-cubic" "ease-out-expo"])) curve;
     };
 
     gradient = record {
@@ -206,14 +206,14 @@ with lib; {
 
   options.programs.niri.generated-kdl-config = let
     cfg = config.programs.niri.settings;
-    nullable = f: name: value: 
+    nullable = f: name: value:
       if value == null
       then null
       else f name value;
 
     map' = node: f: name: val: node name (f val);
 
-    plain-leaf' = name: cond:
+    bool-leaf = name: cond:
       if cond
       then (plain-leaf name)
       else null;
@@ -222,16 +222,16 @@ with lib; {
       if cfg.enable
       then contents
       else plain-leaf disabled;
-    
-    named = kind: set: name: kind name set.${name}; 
+
+    named = kind: set: name: kind name set.${name};
 
     pointer = cfg: [
-      (plain-leaf' "natural-scroll" cfg.natural-scroll)
+      (bool-leaf "natural-scroll" cfg.natural-scroll)
       (leaf "accel-speed" cfg.accel-speed)
       (nullable leaf "accel-profile" cfg.accel-profile)
     ];
 
-    touchy = map' plain (mapAttrsToList leaf);
+    touchy = mapAttrsToList (nullable leaf);
 
     borderish = name: cfg:
       plain name [
@@ -241,8 +241,46 @@ with lib; {
           (map (named (nullable leaf) cfg) ["width" "active-color" "inactive-color" "active-gradient" "inactive-gradient"]))
       ];
 
-    # preset-widths = name: cfg: plain name (map (mapAttrsToList leaf) (toList cfg));
     preset-widths = map' plain (cfg: map (mapAttrsToList leaf) (toList cfg));
+
+    animation = map' plain (cfg: [
+      (toggle "off" cfg [
+        (leaf "duration-ms" cfg.duration-ms)
+        (leaf "curve" cfg.curve)
+      ])
+    ]);
+
+    window-rule = cfg:
+      plain "window-rule" [
+        (map (named (name: map (leaf name)) cfg) ["matches" "excludes"])
+        (nullable preset-widths "default-column-width" cfg.default-column-width)
+        (map (named (nullable leaf) cfg) ["open-on-output" "open-maximized" "open-fullscreen"])
+      ];
+    transform = cfg: let
+      rotation = toString cfg.rotation;
+      basic =
+        if cfg.flipped
+        then "flipped-${rotation}"
+        else "${rotation}";
+      replacement."0" = "normal";
+      replacement."flipped-0" = "flipped";
+    in
+      replacement.${basic} or basic;
+
+    mode = cfg: let
+      cfg' = mapAttrs (const toString) cfg;
+    in
+      if cfg.refresh == null
+      then "${cfg'.width}x${cfg'.height}"
+      else "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
+
+    normalize-bind = bind: [
+      (
+        if isString bind
+        then plain-leaf bind
+        else mapAttrsToList leaf bind
+      )
+    ];
   in
     mkOption {
       type = kdl.types.kdl-nodes;
@@ -266,12 +304,12 @@ with lib; {
             ])
           ])
           (plain "touchpad" [
-            (map (named plain-leaf' cfg.input.touchpad) ["tap" "dwt" "dwtp"])
+            (map (named bool-leaf cfg.input.touchpad) ["tap" "dwt" "dwtp"])
             (pointer cfg.input.touchpad)
             (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
           ])
           (map (named (map' plain pointer) cfg.input) ["mouse" "trackpoint"])
-          (map (named touchy cfg.input) ["tablet" "touch"])
+          (map (named (map' plain touchy) cfg.input) ["tablet" "touch"])
           (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         ])
 
@@ -279,30 +317,14 @@ with lib; {
           node "output" name [
             (toggle "off" cfg [
               (leaf "scale" cfg.scale)
-              (leaf "transform" (let
-                rotation = toString cfg.transform.rotation;
-                basic =
-                  if cfg.transform.flipped
-                  then "flipped-${rotation}"
-                  else "${rotation}";
-                replacement."0" = "normal";
-                replacement."flipped-0" = "flipped";
-              in
-                replacement.${basic} or basic))
+              (map' leaf transform "transform" cfg.transform)
               (nullable leaf "position" cfg.position)
-              (nullable (map' leaf (cfg: let
-                geometry = "${cfg.width}x${cfg.height}";
-                mode =
-                  if cfg.refresh == null
-                  then "${geometry}"
-                  else "${geometry}@${cfg.refresh}";
-              in
-                mode)) "mode" cfg.mode)
+              (nullable (map' leaf mode) "mode" cfg.mode)
             ])
           ])
         cfg.outputs)
 
-        (plain-leaf' "prefer-no-csd" cfg.prefer-no-csd)
+        (bool-leaf "prefer-no-csd" cfg.prefer-no-csd)
 
         (plain "layout" [
           (leaf "gaps" cfg.layout.gaps)
@@ -321,28 +343,26 @@ with lib; {
         ])
 
         (plain "hotkey-overlay" [
-          (plain-leaf' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
+          (bool-leaf "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
         ])
 
         (plain "environment" (mapAttrsToList leaf cfg.environment))
-        (plain "binds" (mapAttrsToList (name: bind:
-          plain name [
-            (
-              if isString bind
-              then plain-leaf bind
-              else mapAttrsToList leaf bind
-            )
-          ])
-        cfg.binds))
+        (plain "binds" (mapAttrsToList (map' plain normalize-bind) cfg.binds))
 
-        (map (cfg: leaf "spawn-at-startup" cfg.command) cfg.spawn-at-startup)
-        (map (cfg:
-          plain "window-rule" [
-            (map (named (name: map (leaf name)) cfg) ["matches" "excludes"])
-            (nullable preset-widths "default-column-width" cfg.default-column-width)
-            (map (named (nullable leaf) cfg) ["open-on-output" "open-maximized" "open-fullscreen"])
+        (map (map' leaf (getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
+        (map window-rule cfg.window-rules)
+
+        (plain "animations" [
+          (toggle "off" cfg.animations [
+            (leaf "slowdown" cfg.animations.slowdown)
+            (map (named animation cfg.animations) [
+              "workspace-switch"
+              "horizontal-view-movement"
+              "window-open"
+              "config-notification-open-close"
+            ])
           ])
-        cfg.window-rules)
+        ])
 
         cfg.additional-nodes
       ];
