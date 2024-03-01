@@ -322,6 +322,7 @@ with lib; {
           ])
         cfg.outputs)
 
+        (leaf "screenshot-path" cfg.screenshot-path)
         (bool-leaf "prefer-no-csd" cfg.prefer-no-csd)
 
         (plain "layout" [
@@ -336,6 +337,7 @@ with lib; {
           (borderish "border" cfg.layout.border)
           (preset-widths "preset-column-widths" cfg.layout.preset-column-widths)
           (preset-widths "default-column-width" cfg.layout.default-column-width)
+          (leaf "center-focused-column" cfg.layout.center-focused-column)
         ])
 
         (plain "cursor" [
