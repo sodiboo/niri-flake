@@ -191,6 +191,8 @@ with lib; {
       open-fullscreen = nullable types.bool;
     });
 
+    debug = nullable (attrsOf kdl.types.kdl-args);
+
     additional-nodes = optional kdl.types.kdl-nodes [];
   };
 
@@ -360,6 +362,8 @@ with lib; {
             (animation "config-notification-open-close" cfg.animations.config-notification-open-close)
           ])
         ])
+
+        (nullable (map' plain (mapAttrsToList leaf)) "debug" cfg.debug)
 
         cfg.additional-nodes
       ];
