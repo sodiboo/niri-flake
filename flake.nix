@@ -12,9 +12,6 @@
 
     niri-stable.url = "github:YaLTeR/niri/v0.1.2";
     niri-stable.flake = false;
-
-    niri-src.url = "github:YaLTeR/niri/v0.1.2";
-    niri-src.flake = false;
   };
 
   outputs = inputs @ {
@@ -23,12 +20,10 @@
     crate2nix,
     niri-unstable,
     niri-stable,
-    niri-src,
     nixpkgs,
     ...
   }: let
     kdl = import ./kdl.nix {inherit (nixpkgs) lib;};
-    niri-src-is-unchanged = (builtins.fromJSON (builtins.readFile (self + /flake.lock))).nodes.niri-src.locked.rev == niri-src.rev;
 
     make-niri-overridable = nixpkgs.lib.makeOverridable ({
       src,
@@ -180,17 +175,6 @@
         packages = {
           niri-unstable = make-niri pkgs niri-unstable;
           niri-stable = make-niri pkgs niri-stable;
-
-          niri =
-            nixpkgs.lib.warn
-            ''
-              Usage of `niri.packages.${system}.niri is deprecated.
-              Use `niri.packages.${system}.niri-stable` or `niri.packages.${system}.niri-unstable` instead.
-              If you must use a specific revision, override them with the `src` parameter.
-
-              See the README for more details and recommended setup.
-            '' (make-niri pkgs niri-src);
-          default = self'.packages.niri;
         };
 
         apps = {
@@ -269,11 +253,6 @@
                 type = types.package;
                 default = make-niri pkgs niri-stable;
               };
-
-              acknowledge-warning.will-use-nixpkgs = mkOption {
-                type = types.bool;
-                default = false;
-              };
             };
 
             options.niri-flake.cache.enable = mkOption {
@@ -287,29 +266,6 @@
                   substituters = ["https://niri.cachix.org"];
                   trusted-public-keys = ["niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="];
                 };
-              })
-              (mkIf (!niri-src-is-unchanged) {
-                warnings = [
-                  ''
-                    Don't override `niri.inputs.niri-src`. This input will be removed in the future.
-                    You should use the `niri-stable` and `niri-unstable` packages instead.
-                    See the README for more details.
-
-                    If you must use a specific revision, create your own input instead.
-                    Then, use the package `niri-unstable.override { src = my-niri-src; }`.
-                  ''
-                ];
-              })
-              (mkIf cfg.acknowledge-warning.will-use-nixpkgs {
-                warnings = [
-                  ''
-                    Unset programs.niri.acknowledge-warning.will-use-nixpkgs.
-
-                    nixpkgs niri will *not* be the default, given that binary caching has been implemented prior to their merging of v0.1.2.
-
-                    the option to acknowledge the warning will be removed, as the warning it acknowledges is already gone.
-                  ''
-                ];
               })
               {
                 environment.systemPackages = [pkgs.xdg-utils];
@@ -360,12 +316,6 @@
               })
             ];
           };
-        nixosModules.default =
-          nixpkgs.lib.warn ''
-            Do not use niri.nixosModules.default.
-            Use niri.nixosModules.niri instead.
-          ''
-          self.nixosModules.niri;
         homeModules.niri = {
           lib,
           config,

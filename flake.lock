@@ -223,23 +223,6 @@
         "type": "github"
       }
     },
-    "niri-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1708141626,
-        "narHash": "sha256-vO6ak5rT6ntBC20vYC36zcEcHv7Cki9y8A+c7ThfsUg=",
-        "owner": "YaLTeR",
-        "repo": "niri",
-        "rev": "62892d636112230dc16778b91331fbe97576b005",
-        "type": "github"
-      },
-      "original": {
-        "owner": "YaLTeR",
-        "ref": "v0.1.2",
-        "repo": "niri",
-        "type": "github"
-      }
-    },
     "niri-stable": {
       "flake": false,
       "locked": {
@@ -388,7 +371,6 @@
       "inputs": {
         "crate2nix": "crate2nix",
         "flake-parts": "flake-parts_2",
-        "niri-src": "niri-src",
         "niri-stable": "niri-stable",
         "niri-unstable": "niri-unstable",
         "nixpkgs": "nixpkgs_3"
