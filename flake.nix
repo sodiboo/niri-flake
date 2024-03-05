@@ -98,7 +98,7 @@
 
                 niri-config = attrs: {
                   src = "${src}/niri-config";
-                  prePatch = "substituteInPlace src/lib.rs --replace-fail ../.. ${src}";
+                  prePatch = "substituteInPlace src/lib.rs --replace ../.. ${src}";
                 };
 
                 niri = attrs: {
@@ -117,7 +117,7 @@
                   # if i was packaging only stable, this would be trivial to implement.
                   # but ultimately, unstable is the one where this matters more.
                   prePatch =
-                    "substituteInPlace src/**.rs src/**/*.rs --replace-quiet "
+                    "substituteInPlace src/**.rs src/**/*.rs --replace "
                     + nixpkgs.lib.escapeShellArgs [
                       ''git_version!(fallback = "unknown commit")''
                       ''"niri-flake at ${src.shortRev}"''
@@ -153,7 +153,7 @@
                     cp ${src}/resources/niri-portals.conf $out/share/xdg-desktop-portal/niri-portals.conf
                   '';
 
-                  postFixup = "substituteInPlace $out/share/systemd/user/niri.service --replace-fail /usr $out";
+                  postFixup = "substituteInPlace $out/share/systemd/user/niri.service --replace /usr $out";
                 };
               });
           };
