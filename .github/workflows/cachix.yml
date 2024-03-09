@@ -15,3 +15,5 @@ jobs:
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Build niri-stable and niri-unstable; push to cachix
       run: nix-store --query --requisites $(nix-store --query --deriver $(nix build --print-out-paths .#niri-stable .#niri-unstable)) | cachix push niri
+    - name: Build packages with nixpkgs stable and push to cachix
+      run: nix-store --query --requisites $(nix-store --query --deriver $(nix build --override-input nixpkgs github:NixOS/nixpkgs/nixos-23.11 --print-out-paths .#niri-stable .#niri-unstable)) | cachix push niri

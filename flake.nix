@@ -10,7 +10,7 @@
     niri-unstable.url = "github:YaLTeR/niri";
     niri-unstable.flake = false;
 
-    niri-stable.url = "github:YaLTeR/niri/v0.1.2";
+    niri-stable.url = "github:YaLTeR/niri/v0.1.3";
     niri-stable.flake = false;
   };
 
