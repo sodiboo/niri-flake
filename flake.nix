@@ -25,6 +25,26 @@
   }: let
     kdl = import ./kdl.nix {inherit (nixpkgs) lib;};
 
+    lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+    stable-tag = lock.nodes.niri-stable.original.ref;
+    stable-rev = lock.nodes.niri-stable.locked.rev;
+
+    date = {
+      year = builtins.substring 0 4;
+      month = builtins.substring 4 2;
+      day = builtins.substring 6 2;
+      hour = builtins.substring 8 2;
+      minute = builtins.substring 10 2;
+      second = builtins.substring 12 2;
+    };
+
+    fmt-date = raw: "${date.year raw}-${date.month raw}-${date.day raw}";
+
+    version-string = src:
+      if src.rev == stable-rev
+      then "stable ${stable-tag}"
+      else "unstable ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
+
     make-niri-overridable = nixpkgs.lib.makeOverridable ({
       src,
       pkgs,
@@ -103,24 +123,15 @@
 
                 niri = attrs: {
                   src = "${src}";
-                  # this is kind of a hack. i'm not sure how to handle the paths properly
-                  # i tried various things: *.rs, **.rs, **/*.rs, src/*.rs, src/**.rs, src/**/*.rs
-                  # but ultimately, none of them (from what i can tell) works on stable and unstable.
-                  # as i write this, the file of interest has moved files between the two branches.
-                  # so no single absolute file path works.
-                  # i may have missed something. some of the above probably works on its own.
-                  # but it takes like 10 mins to rebuild niri on both branches on my laptop
-                  # and i don't have the patience to test all of them thoroughly.
-                  # this one works. one path is for stable, one is for unstable
-                  # i use --replace-quiet because if it doesn't work, --version will say "unknown commit"
-                  # which is not that bad, and not worth aborting builds for.
-                  # if i was packaging only stable, this would be trivial to implement.
-                  # but ultimately, unstable is the one where this matters more.
                   prePatch =
-                    "substituteInPlace src/**.rs src/**/*.rs --replace "
+                    "substituteInPlace src/utils/mod.rs --replace "
                     + nixpkgs.lib.escapeShellArgs [
-                      ''git_version!(fallback = "unknown commit")''
-                      ''"niri-flake at ${src.shortRev}"''
+                      ''pub fn version() -> String {''
+                      ''
+                        #[allow(unreachable_code)]
+                        pub fn version() -> String {
+                          return "${version-string src}".into();
+                      ''
                     ];
                   buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
 
