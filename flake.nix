@@ -180,6 +180,13 @@
       make-niri {
         inherit pkgs;
         src = niri-stable;
+        patches = [
+          (pkgs.fetchpatch {
+            name = "revert-viewporter.patch";
+            url = "https://github.com/YaLTeR/niri/commit/40cec34aa4a7f99ab12b30cba1a0ee83a706a413.patch";
+            hash = "sha256-3fg8v0eotfjUQY6EVFEPK5BBIBrr6vQpXbjDcsw2E8Q=";
+          })
+        ];
       };
 
     make-niri-unstable = pkgs:
