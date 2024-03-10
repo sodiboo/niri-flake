@@ -21,7 +21,7 @@ with lib; let
 
   plain = name: node name [];
   leaf = name: args: node name args [];
-  plain-leaf = name: node name [] [];
+  flag = name: node name [] [];
 
   serialize.string = v: "\"${escape ["\\" "\""] (toString v)}\"";
   serialize.path = serialize.string;
@@ -159,6 +159,6 @@ with lib; let
 
   kdl-nodes = types.oneOf [(types.listOf (types.nullOr kdl-nodes)) kdl-node];
 in {
-  inherit node plain plain-leaf leaf serialize;
+  inherit node plain leaf flag serialize;
   types = {inherit kdl-value kdl-node kdl-nodes kdl-leaf kdl-args;};
 }

@@ -205,18 +205,18 @@ with lib; {
 
     map' = node: f: name: val: node name (f val);
 
-    bool-leaf = name: cond:
+    flag' = name: cond:
       if cond
-      then (plain-leaf name)
+      then (flag name)
       else null;
 
     toggle = disabled: cfg: contents:
       if cfg.enable
       then contents
-      else plain-leaf disabled;
+      else flag disabled;
 
     pointer = cfg: [
-      (bool-leaf "natural-scroll" cfg.natural-scroll)
+      (flag' "natural-scroll" cfg.natural-scroll)
       (leaf "accel-speed" cfg.accel-speed)
       (nullable leaf "accel-profile" cfg.accel-profile)
     ];
@@ -275,7 +275,7 @@ with lib; {
     normalize-bind = bind: [
       (
         if isString bind
-        then plain-leaf bind
+        then flag bind
         else mapAttrsToList leaf bind
       )
     ];
@@ -298,9 +298,9 @@ with lib; {
             (leaf "track-layout" cfg.input.keyboard.track-layout)
           ])
           (plain "touchpad" [
-            (bool-leaf "tap" cfg.input.touchpad.tap)
-            (bool-leaf "dwt" cfg.input.touchpad.dwt)
-            (bool-leaf "dwtp" cfg.input.touchpad.dwtp)
+            (flag' "tap" cfg.input.touchpad.tap)
+            (flag' "dwt" cfg.input.touchpad.dwt)
+            (flag' "dwtp" cfg.input.touchpad.dwtp)
             (pointer cfg.input.touchpad)
             (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
           ])
@@ -323,7 +323,7 @@ with lib; {
         cfg.outputs)
 
         (leaf "screenshot-path" cfg.screenshot-path)
-        (bool-leaf "prefer-no-csd" cfg.prefer-no-csd)
+        (flag' "prefer-no-csd" cfg.prefer-no-csd)
 
         (plain "layout" [
           (leaf "gaps" cfg.layout.gaps)
@@ -346,7 +346,7 @@ with lib; {
         ])
 
         (plain "hotkey-overlay" [
-          (bool-leaf "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
+          (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
         ])
 
         (plain "environment" (mapAttrsToList leaf cfg.environment))
