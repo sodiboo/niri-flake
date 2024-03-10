@@ -119,7 +119,7 @@
 
                 niri-config = attrs: {
                   src = "${src}/niri-config";
-                  prePatch = "substituteInPlace src/lib.rs --replace ../.. ${src}";
+                  postPatch = "substituteInPlace src/lib.rs --replace ../.. ${src}";
                 };
 
                 niri = attrs: {
@@ -127,7 +127,7 @@
 
                   inherit patches;
 
-                  prePatch =
+                  postPatch =
                     "substituteInPlace src/utils/mod.rs --replace "
                     + nixpkgs.lib.escapeShellArgs [
                       ''pub fn version() -> String {''
