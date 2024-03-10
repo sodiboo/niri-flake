@@ -17,6 +17,37 @@ with lib; {
     attrs = type: optional (attrsOf type) {};
     list = type: optional (listOf type) [];
 
+    tagged-union = variants:
+      mkOptionType {
+        name = "tagged-union";
+        description = "tagged union of: ${concatStringsSep ", " (attrNames variants)}";
+        descriptionClass = "conjunction";
+
+        check = v: let
+          names = attrNames v;
+          name = head names;
+        in
+          isAttrs v && length names == 1 && elem name (attrNames variants) && variants.${name}.check v.${name};
+
+        merge = loc: definitions: let
+          defs-for = name:
+            pipe definitions [
+              (filter (hasAttrByPath ["value" name]))
+              (map (def: def // {value = def.value.${name};}))
+            ];
+          merged = mapAttrs (name: type:
+            type.merge (loc ++ [name]) (defs-for name))
+          (filterAttrs (name: type: defs-for name != []) variants);
+        in
+          if merged == {}
+          then throw "The option `${showOption loc}` has no definitions, but one is required"
+          else if length (attrNames merged) == 1
+          then merged
+          else throw "The option `${showOption loc}` has conflicting definitions of multiple variants";
+
+        nestedTypes = variants;
+      };
+
     basic-pointer = default-natural-scroll: {
       natural-scroll = optional types.bool default-natural-scroll;
       accel-speed = optional types.float 0.0;
@@ -44,15 +75,17 @@ with lib; {
     #   descriptionClass = "noun";
     #   check = v: isList v && length v == 4 && all isInt v;
     # };
-
-    animation = {
-      duration ? 250,
-      curve ? "ease-out-cubic",
-    }: {
-      enable = optional types.bool true;
-      duration-ms = optional (nullOr types.int) duration;
-      curve = optional (nullOr (enum ["ease-out-cubic" "ease-out-expo"])) curve;
-    };
+    animation = nullOr (tagged-union {
+      spring = record {
+        damping-ratio = required types.float;
+        stiffness = required types.int;
+        epsilon = required types.float;
+      };
+      easing = record {
+        duration-ms = required types.int;
+        curve = required (enum ["ease-out-cubic" "ease-out-expo"]);
+      };
+    });
 
     gradient = record {
       from = required types.str;
@@ -164,13 +197,33 @@ with lib; {
     animations = {
       enable = optional types.bool true;
       slowdown = optional types.float 1.0;
-      workspace-switch = animation {};
-      horizontal-view-movement = animation {};
-      window-open = animation {
-        duration = 150;
-        curve = "ease-out-expo";
+      workspace-switch = optional animation {
+        spring = {
+          damping-ratio = 1.0;
+          stiffness = 1000;
+          epsilon = 0.0001;
+        };
       };
-      config-notification-open-close = animation {};
+      horizontal-view-movement = optional animation {
+        spring = {
+          damping-ratio = 1.0;
+          stiffness = 800;
+          epsilon = 0.0001;
+        };
+      };
+      config-notification-open-close = optional animation {
+        spring = {
+          damping-ratio = 0.6;
+          stiffness = 1000;
+          epsilon = 0.001;
+        };
+      };
+      window-open = optional animation {
+        easing = {
+          duration-ms = 150;
+          curve = "ease-out-expo";
+        };
+      };
     };
 
     environment = attrs (nullOr (types.str));
@@ -198,17 +251,15 @@ with lib; {
 
   options.programs.niri.generated-kdl-config = let
     cfg = config.programs.niri.settings;
-    nullable = f: name: value:
-      if value == null
-      then null
-      else f name value;
+    optional-node = cond: v:
+      if cond
+      then v
+      else null;
+
+    nullable = f: name: value: optional-node (value != null) (f name value);
+    flag' = name: flip optional-node (flag name);
 
     map' = node: f: name: val: node name (f val);
-
-    flag' = name: cond:
-      if cond
-      then (flag name)
-      else null;
 
     toggle = disabled: cfg: contents:
       if cfg.enable
@@ -239,10 +290,12 @@ with lib; {
     preset-widths = map' plain (cfg: map (mapAttrsToList leaf) (toList cfg));
 
     animation = map' plain (cfg: [
-      (toggle "off" cfg [
-        (leaf "duration-ms" cfg.duration-ms)
-        (leaf "curve" cfg.curve)
+      (flag' "off" (cfg == null))
+      (optional-node (cfg ? easing) [
+        (leaf "duration-ms" cfg.easing.duration-ms)
+        (leaf "curve" cfg.easing.curve)
       ])
+      (nullable leaf "spring" cfg.spring or null)
     ]);
 
     window-rule = cfg:
