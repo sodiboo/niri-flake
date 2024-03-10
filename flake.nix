@@ -45,9 +45,10 @@
       then "stable ${stable-tag}"
       else "unstable ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
 
-    make-niri-overridable = nixpkgs.lib.makeOverridable ({
+    make-niri = nixpkgs.lib.makeOverridable ({
       src,
       pkgs,
+      patches ? [],
     }: let
       tools = crate2nix.tools.${pkgs.stdenv.system};
       manifest = tools.generatedCargoNix {
@@ -123,6 +124,9 @@
 
                 niri = attrs: {
                   src = "${src}";
+
+                  inherit patches;
+
                   prePatch =
                     "substituteInPlace src/utils/mod.rs --replace "
                     + nixpkgs.lib.escapeShellArgs [
@@ -172,7 +176,17 @@
     in
       workspace.workspaceMembers.niri.build // {inherit workspace;});
 
-    make-niri = pkgs: src: make-niri-overridable {inherit src pkgs;};
+    make-niri-stable = pkgs:
+      make-niri {
+        inherit pkgs;
+        src = niri-stable;
+      };
+
+    make-niri-unstable = pkgs:
+      make-niri {
+        inherit pkgs;
+        src = niri-unstable;
+      };
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -184,8 +198,8 @@
         ...
       }: {
         packages = {
-          niri-unstable = make-niri pkgs niri-unstable;
-          niri-stable = make-niri pkgs niri-stable;
+          niri-unstable = make-niri-unstable pkgs;
+          niri-stable = make-niri-stable pkgs;
         };
 
         apps = {
@@ -207,8 +221,8 @@
       flake = {
         inherit kdl;
         overlays.niri = final: prev: {
-          niri-unstable = make-niri final niri-unstable;
-          niri-stable = make-niri final niri-stable;
+          niri-unstable = make-niri-unstable final;
+          niri-stable = make-niri-stable final;
         };
         homeModules.experimental-settings = import ./settings.nix {inherit kdl;};
         homeModules.config = {
@@ -227,7 +241,7 @@
               };
               package = mkOption {
                 type = types.package;
-                default = make-niri pkgs niri-stable;
+                default = make-niri-stable pkgs;
               };
             };
 
@@ -262,7 +276,7 @@
               enable = mkEnableOption "niri";
               package = mkOption {
                 type = types.package;
-                default = make-niri pkgs niri-stable;
+                default = make-niri-stable pkgs;
               };
             };
 
