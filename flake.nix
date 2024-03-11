@@ -231,6 +231,7 @@
           niri-unstable = make-niri-unstable final;
           niri-stable = make-niri-stable final;
         };
+        homeModules.stylix = import ./stylix.nix;
         homeModules.config = {
           lib,
           config,
@@ -358,6 +359,7 @@
                     self.homeModules.config
                     {programs.niri.package = mkForce cfg.package;}
                   ]
+                  ++ optionals (options ? stylix) [self.homeModules.stylix];
               })
             ];
           };
