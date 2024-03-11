@@ -24,6 +24,8 @@
     ...
   }: let
     kdl = import ./kdl.nix {inherit (nixpkgs) lib;};
+    settings = import ./settings.nix inputs;
+    stylix-module = import ./stylix.nix;
 
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
     stable-tag = lock.nodes.niri-stable.original.ref;
@@ -231,7 +233,7 @@
           niri-unstable = make-niri-unstable final;
           niri-stable = make-niri-stable final;
         };
-        homeModules.stylix = import ./stylix.nix;
+        homeModules.stylix = stylix-module;
         homeModules.config = {
           lib,
           config,
@@ -240,7 +242,6 @@
         }:
           with lib; let
             cfg = config.programs.niri;
-            settings = import ./settings.nix inputs;
           in {
             imports = [
               settings.module
