@@ -242,8 +242,6 @@ in
         });
 
         debug = nullable (attrsOf kdl.types.kdl-args);
-
-        additional-nodes = optional kdl.types.kdl-nodes [];
       };
     in {
       options.programs.niri.settings = required settings;
@@ -415,7 +413,5 @@ in
         ])
 
         (nullable (map' plain (mapAttrsToList leaf)) "debug" cfg.debug)
-
-        cfg.additional-nodes
       ];
   }
