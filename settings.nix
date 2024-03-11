@@ -93,7 +93,6 @@
     };
 
     borderish = default-active-color: {
-      enable = optional types.bool enable;
       width = optional types.int 4;
       active-color = optional types.str default-active-color;
       inactive-color = optional types.str "rgb(80 80 80)";
