@@ -2,10 +2,8 @@
   lib,
   config,
   ...
-}:
-with kdl;
-with lib; {
-  options.programs.niri.settings = let
+}: with lib; {
+  module = let
     inherit (types) nullOr attrsOf listOf submodule enum either;
 
     record = options: submodule {inherit options;};
@@ -111,146 +109,149 @@ with lib; {
       descriptionClass = "noun";
       check = v: isAttrs v && all (flip elem ["app-id" "title"]) (attrNames v) && all isString (attrValues v);
     };
+
+    settings = record {
+      input = {
+        keyboard = {
+          xkb = {
+            layout = nullable types.str;
+            model = nullable types.str;
+            rules = nullable types.str;
+            variant = nullable types.str;
+            options = nullable types.str;
+          };
+          repeat-delay = optional types.int 600;
+          repeat-rate = optional types.int 25;
+          track-layout = optional (enum ["global" "window"]) "global";
+        };
+        touchpad =
+          (basic-pointer true)
+          // {
+            tap = optional types.bool true;
+            dwt = optional types.bool false;
+            dwtp = optional types.bool false;
+            tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
+          };
+        mouse = basic-pointer false;
+        trackpoint = basic-pointer false;
+        tablet.map-to-output = nullable types.str;
+        touch.map-to-output = nullable types.str;
+
+        power-key-handling.enable = optional types.bool true;
+      };
+
+      outputs = attrs (record {
+        enable = optional types.bool true;
+        scale = optional types.float 1.0;
+        transform = {
+          flipped = optional types.bool false;
+          rotation = optional (enum [0 90 180 270]) 0;
+        };
+        position = nullable (record {
+          x = required types.int;
+          y = required types.int;
+        });
+        mode = nullable (record {
+          width = required types.int;
+          height = required types.int;
+          refresh = nullable types.float;
+        });
+      });
+
+      layout = {
+        focus-ring =
+          (borderish "rgb(127 200 255)")
+          // {
+            enable = optional types.bool true;
+          };
+
+        border =
+          (borderish "rgb(255 200 127)")
+          // {
+            enable = optional types.bool false;
+          };
+        preset-column-widths = list preset-width;
+        default-column-width = optional default-width {};
+        center-focused-column = optional (enum ["never" "always" "on-overflow"]) "never";
+        gaps = optional types.int 16;
+        struts = {
+          left = optional types.int 0;
+          right = optional types.int 0;
+          top = optional types.int 0;
+          bottom = optional types.int 0;
+        };
+      };
+
+      prefer-no-csd = optional types.bool false;
+
+      cursor = {
+        theme = optional types.str "default";
+        size = optional types.int 24;
+      };
+
+      screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
+
+      hotkey-overlay.skip-at-startup = optional types.bool false;
+
+      animations = {
+        enable = optional types.bool true;
+        slowdown = optional types.float 1.0;
+        workspace-switch = optional animation {
+          spring = {
+            damping-ratio = 1.0;
+            stiffness = 1000;
+            epsilon = 0.0001;
+          };
+        };
+        horizontal-view-movement = optional animation {
+          spring = {
+            damping-ratio = 1.0;
+            stiffness = 800;
+            epsilon = 0.0001;
+          };
+        };
+        config-notification-open-close = optional animation {
+          spring = {
+            damping-ratio = 0.6;
+            stiffness = 1000;
+            epsilon = 0.001;
+          };
+        };
+        window-open = optional animation {
+          easing = {
+            duration-ms = 150;
+            curve = "ease-out-expo";
+          };
+        };
+      };
+
+      environment = attrs (nullOr (types.str));
+
+      binds = attrs (either types.str kdl.types.kdl-leaf);
+
+      spawn-at-startup = list (record {
+        command = list types.str;
+      });
+
+      window-rules = list (record {
+        matches = list match;
+        excludes = list match;
+
+        default-column-width = nullable default-width;
+        open-on-output = nullable types.str;
+        open-maximized = nullable types.bool;
+        open-fullscreen = nullable types.bool;
+      });
+
+      debug = nullable (attrsOf kdl.types.kdl-args);
+
+      additional-nodes = optional kdl.types.kdl-nodes [];
+    };
   in {
-    input = {
-      keyboard = {
-        xkb = {
-          layout = nullable types.str;
-          model = nullable types.str;
-          rules = nullable types.str;
-          variant = nullable types.str;
-          options = nullable types.str;
-        };
-        repeat-delay = optional types.int 600;
-        repeat-rate = optional types.int 25;
-        track-layout = optional (enum ["global" "window"]) "global";
-      };
-      touchpad =
-        (basic-pointer true)
-        // {
-          tap = optional types.bool true;
-          dwt = optional types.bool false;
-          dwtp = optional types.bool false;
-          tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
-        };
-      mouse = basic-pointer false;
-      trackpoint = basic-pointer false;
-      tablet.map-to-output = nullable types.str;
-      touch.map-to-output = nullable types.str;
-
-      power-key-handling.enable = optional types.bool true;
-    };
-
-    outputs = attrs (record {
-      enable = optional types.bool true;
-      scale = optional types.float 1.0;
-      transform = {
-        flipped = optional types.bool false;
-        rotation = optional (enum [0 90 180 270]) 0;
-      };
-      position = nullable (record {
-        x = required types.int;
-        y = required types.int;
-      });
-      mode = nullable (record {
-        width = required types.int;
-        height = required types.int;
-        refresh = nullable types.float;
-      });
-    });
-
-    layout = {
-      focus-ring =
-        (borderish "rgb(127 200 255)")
-        // {
-          enable = optional types.bool true;
-        };
-
-      border =
-        (borderish "rgb(255 200 127)")
-        // {
-          enable = optional types.bool false;
-        };
-      preset-column-widths = list preset-width;
-      default-column-width = optional default-width {};
-      center-focused-column = optional (enum ["never" "always" "on-overflow"]) "never";
-      gaps = optional types.int 16;
-      struts = {
-        left = optional types.int 0;
-        right = optional types.int 0;
-        top = optional types.int 0;
-        bottom = optional types.int 0;
-      };
-    };
-
-    prefer-no-csd = optional types.bool false;
-
-    cursor = {
-      theme = optional types.str "default";
-      size = optional types.int 24;
-    };
-
-    screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
-
-    hotkey-overlay.skip-at-startup = optional types.bool false;
-
-    animations = {
-      enable = optional types.bool true;
-      slowdown = optional types.float 1.0;
-      workspace-switch = optional animation {
-        spring = {
-          damping-ratio = 1.0;
-          stiffness = 1000;
-          epsilon = 0.0001;
-        };
-      };
-      horizontal-view-movement = optional animation {
-        spring = {
-          damping-ratio = 1.0;
-          stiffness = 800;
-          epsilon = 0.0001;
-        };
-      };
-      config-notification-open-close = optional animation {
-        spring = {
-          damping-ratio = 0.6;
-          stiffness = 1000;
-          epsilon = 0.001;
-        };
-      };
-      window-open = optional animation {
-        easing = {
-          duration-ms = 150;
-          curve = "ease-out-expo";
-        };
-      };
-    };
-
-    environment = attrs (nullOr (types.str));
-
-    binds = attrs (either types.str kdl.types.kdl-leaf);
-
-    spawn-at-startup = list (record {
-      command = list types.str;
-    });
-
-    window-rules = list (record {
-      matches = list match;
-      excludes = list match;
-
-      default-column-width = nullable default-width;
-      open-on-output = nullable types.str;
-      open-maximized = nullable types.bool;
-      open-fullscreen = nullable types.bool;
-    });
-
-    debug = nullable (attrsOf kdl.types.kdl-args);
-
-    additional-nodes = optional kdl.types.kdl-nodes [];
+    options.programs.niri.settings = nullable settings;
   };
 
-  options.programs.niri.generated-kdl-config = let
-    cfg = config.programs.niri.settings;
+  render = cfg: let
     optional-node = cond: v:
       if cond
       then v
@@ -332,95 +333,90 @@ with lib; {
         else mapAttrsToList leaf bind
       )
     ];
-  in
-    mkOption {
-      type = kdl.types.kdl-nodes;
-      readOnly = true;
-      default = with kdl; [
-        (plain "input" [
-          (plain "keyboard" [
-            (plain "xkb" [
-              (nullable leaf "layout" cfg.input.keyboard.xkb.layout)
-              (nullable leaf "model" cfg.input.keyboard.xkb.model)
-              (nullable leaf "rules" cfg.input.keyboard.xkb.rules)
-              (nullable leaf "variant" cfg.input.keyboard.xkb.variant)
-              (nullable leaf "options" cfg.input.keyboard.xkb.options)
-            ])
-            (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
-            (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
-            (leaf "track-layout" cfg.input.keyboard.track-layout)
-          ])
-          (plain "touchpad" [
-            (flag' "tap" cfg.input.touchpad.tap)
-            (flag' "dwt" cfg.input.touchpad.dwt)
-            (flag' "dwtp" cfg.input.touchpad.dwtp)
-            (pointer cfg.input.touchpad)
-            (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
-          ])
-          (plain "mouse" (pointer cfg.input.mouse))
-          (plain "trackpoint" (pointer cfg.input.trackpoint))
-          (plain "tablet" (touchy cfg.input.tablet))
-          (plain "touch" (touchy cfg.input.touch))
-          (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
+  in [
+    (plain "input" [
+      (plain "keyboard" [
+        (plain "xkb" [
+          (nullable leaf "layout" cfg.input.keyboard.xkb.layout)
+          (nullable leaf "model" cfg.input.keyboard.xkb.model)
+          (nullable leaf "rules" cfg.input.keyboard.xkb.rules)
+          (nullable leaf "variant" cfg.input.keyboard.xkb.variant)
+          (nullable leaf "options" cfg.input.keyboard.xkb.options)
         ])
+        (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
+        (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
+        (leaf "track-layout" cfg.input.keyboard.track-layout)
+      ])
+      (plain "touchpad" [
+        (flag' "tap" cfg.input.touchpad.tap)
+        (flag' "dwt" cfg.input.touchpad.dwt)
+        (flag' "dwtp" cfg.input.touchpad.dwtp)
+        (pointer cfg.input.touchpad)
+        (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
+      ])
+      (plain "mouse" (pointer cfg.input.mouse))
+      (plain "trackpoint" (pointer cfg.input.trackpoint))
+      (plain "tablet" (touchy cfg.input.tablet))
+      (plain "touch" (touchy cfg.input.touch))
+      (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
+    ])
 
-        (mapAttrsToList (name: cfg:
-          node "output" name [
-            (toggle "off" cfg [
-              (leaf "scale" cfg.scale)
-              (map' leaf transform "transform" cfg.transform)
-              (nullable leaf "position" cfg.position)
-              (nullable (map' leaf mode) "mode" cfg.mode)
-            ])
-          ])
-        cfg.outputs)
-
-        (leaf "screenshot-path" cfg.screenshot-path)
-        (flag' "prefer-no-csd" cfg.prefer-no-csd)
-
-        (plain "layout" [
-          (leaf "gaps" cfg.layout.gaps)
-          (plain "struts" [
-            (leaf "left" cfg.layout.struts.left)
-            (leaf "right" cfg.layout.struts.right)
-            (leaf "top" cfg.layout.struts.top)
-            (leaf "bottom" cfg.layout.struts.bottom)
-          ])
-          (borderish "focus-ring" cfg.layout.focus-ring)
-          (borderish "border" cfg.layout.border)
-          (preset-widths "preset-column-widths" cfg.layout.preset-column-widths)
-          (preset-widths "default-column-width" cfg.layout.default-column-width)
-          (leaf "center-focused-column" cfg.layout.center-focused-column)
+    (mapAttrsToList (name: cfg:
+      node "output" name [
+        (toggle "off" cfg [
+          (leaf "scale" cfg.scale)
+          (map' leaf transform "transform" cfg.transform)
+          (nullable leaf "position" cfg.position)
+          (nullable (map' leaf mode) "mode" cfg.mode)
         ])
+      ])
+    cfg.outputs)
 
-        (plain "cursor" [
-          (leaf "xcursor-theme" cfg.cursor.theme)
-          (leaf "xcursor-size" cfg.cursor.size)
-        ])
+    (leaf "screenshot-path" cfg.screenshot-path)
+    (flag' "prefer-no-csd" cfg.prefer-no-csd)
 
-        (plain "hotkey-overlay" [
-          (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
-        ])
+    (plain "layout" [
+      (leaf "gaps" cfg.layout.gaps)
+      (plain "struts" [
+        (leaf "left" cfg.layout.struts.left)
+        (leaf "right" cfg.layout.struts.right)
+        (leaf "top" cfg.layout.struts.top)
+        (leaf "bottom" cfg.layout.struts.bottom)
+      ])
+      (borderish "focus-ring" cfg.layout.focus-ring)
+      (borderish "border" cfg.layout.border)
+      (preset-widths "preset-column-widths" cfg.layout.preset-column-widths)
+      (preset-widths "default-column-width" cfg.layout.default-column-width)
+      (leaf "center-focused-column" cfg.layout.center-focused-column)
+    ])
 
-        (plain "environment" (mapAttrsToList leaf cfg.environment))
-        (plain "binds" (mapAttrsToList (map' plain normalize-bind) cfg.binds))
+    (plain "cursor" [
+      (leaf "xcursor-theme" cfg.cursor.theme)
+      (leaf "xcursor-size" cfg.cursor.size)
+    ])
 
-        (map (map' leaf (getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
-        (map window-rule cfg.window-rules)
+    (plain "hotkey-overlay" [
+      (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
+    ])
 
-        (plain "animations" [
-          (toggle "off" cfg.animations [
-            (leaf "slowdown" cfg.animations.slowdown)
-            (animation "workspace-switch" cfg.animations.workspace-switch)
-            (animation "horizontal-view-movement" cfg.animations.horizontal-view-movement)
-            (animation "window-open" cfg.animations.window-open)
-            (animation "config-notification-open-close" cfg.animations.config-notification-open-close)
-          ])
-        ])
+    (plain "environment" (mapAttrsToList leaf cfg.environment))
+    (plain "binds" (mapAttrsToList (map' plain normalize-bind) cfg.binds))
 
-        (nullable (map' plain (mapAttrsToList leaf)) "debug" cfg.debug)
+    (map (map' leaf (getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
+    (map window-rule cfg.window-rules)
 
-        cfg.additional-nodes
-      ];
-    };
+    (plain "animations" [
+      (toggle "off" cfg.animations [
+        (leaf "slowdown" cfg.animations.slowdown)
+        (animation "workspace-switch" cfg.animations.workspace-switch)
+        (animation "horizontal-view-movement" cfg.animations.horizontal-view-movement)
+        (animation "window-open" cfg.animations.window-open)
+        (animation "config-notification-open-close" cfg.animations.config-notification-open-close)
+      ])
+    ])
+
+    (nullable (map' plain (mapAttrsToList leaf)) "debug" cfg.debug)
+
+    cfg.additional-nodes
+  ];
 }
