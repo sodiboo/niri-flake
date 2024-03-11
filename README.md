@@ -10,12 +10,14 @@ Feel free to contact me at [`@sodiboo:arcticfoxes.net`](https://matrix.to/#/@sod
 - `niri.packages.x86_64-linux.niri-unstable`: The latest commit to the `main` branch of the niri repository. This may break at any time without warning, and is not recommended for most users.
 - `niri.packages.aarch64-linux`: aarch64 is entirely untested. Do not expect it to work, but do report any issues you encounter.
 - `niri.overlays.niri`: A nixpkgs overlay that provides the `niri-stable` and `niri-unstable` attributes.
+- `niri.kdl`: A library to write kdl files with nix syntax.
 
 It is recommended to use the overlay to access the packages from this flake, as it will ensure that it is built against the same version of nixpkgs as the rest of your system. This is necessary, because the mesa drivers must match exactly.
 
-- `niri.nixosModules.niri`: [Installing on NixOS](#installing-on-nixos)
-- `niri.homeModules.config`: [Usage with home-manager](#usage-with-home-manager)
-- `niri.homeModules.niri`: [Usage with home-manager](#usage-with-home-manager)
+- `niri.nixosModules.niri`: [Installion on NixOS](#installation-on-nixos)
+- `niri.homeModules.niri`: [Installation with home-manager](#installation-with-home-manager)
+- `niri.homeModules.config`: [Configuration with home-manager](#configuration-with-home-manager)
+- `niri.homeModules.stylix`: [Stylix](#stylix)
 
 # Binary Cache
 
@@ -30,7 +32,7 @@ If you use NixOS, add the `niri.nixosModules.niri` module and don't enable niri 
 
 If you're not using the NixOS module, you can add the cache to your system by running `cachix use niri`. This works on any system with nix installed, not just NixOS.
 
-# Installing on NixOS
+# Installation on NixOS
 
 If you're on NixOS and don't need to configure niri declaratively, your flake.nix should look something like the following.
 
@@ -60,7 +62,7 @@ If you're on NixOS and don't need to configure niri declaratively, your flake.ni
 }
 ```
 
-If you use home-manager as NixOS module, then your flake.nix could rather look something like this. The NixOS module will automatically import the home-manager module if it detects that home-manager is installed as a NixOS module.
+If you use home-manager as NixOS module, then your flake.nix could rather look something like this. The NixOS module will automatically import the home-manager config module if it detects that home-manager is installed as a NixOS module.
 
 ```nix
 {
@@ -87,11 +89,10 @@ If you use home-manager as NixOS module, then your flake.nix could rather look s
         }
         {
           home-manager.users.my-user = {
-            programs.niri.config = ''
-              output "eDP-1" {
-                scale 2.0
-              }
-            '';
+            # For more info on available configuration options, see "Configuration with home-manager"
+            programs.niri.settings = {
+              outputs."eDP-1".scale = 2.0;
+            };
           };
         }
       ];
@@ -100,11 +101,14 @@ If you use home-manager as NixOS module, then your flake.nix could rather look s
 }
 ```
 
-# Usage with home-manager
+# Installation with home-manager
 
-If you're using a standalone installation of home-manager (even on non-NixOS), you should first install niri through some other means. For NixOS, see above.
+You can install niri via home-manager using the `niri.homeModules.niri` output. For now, it's less complete than the "real" module, but it works mostly fine.
 
-Once you've installed niri, and you want to configure niri, your flake.nix will end up looking something like this:
+# Configuration with home-manager
+
+`programs.niri.settings` is the preferred way to configure niri. This is provided by `niri.homeModules.config`, which is automatically imported when using home-manager as a NixOS module. (TODO: document the available options)
+Doing it this way, your flake.nix will end up looking something like this:
 
 ```nix
 {
@@ -125,11 +129,9 @@ Once you've installed niri, and you want to configure niri, your flake.nix will 
       modules = [
         niri.homeModules.config
         {
-          programs.niri.config = ''
-            output "eDP-1" {
-              scale 2.0
-            }
-          '';
+          programs.niri.settings = {
+            outputs."eDP-1".scale = 2.0;
+          };
         }
       ];
     };
@@ -137,9 +139,52 @@ Once you've installed niri, and you want to configure niri, your flake.nix will 
 }
 ```
 
-You can also install niri using home-manager with `niri.homeModules.niri` output. It does not receive the same love and care as the NixOS module, and as such i will *not* document using it here. If you're interested in using it, you can view the source code to see how it works.
+If for whatever reason you want or need to override this, you can set `programs.niri.config`.
+You should give this option structured output from the `niri.kdl` library.
 
-One day, the home-manager module will be more feature complete.
+```nix
+{
+  inputs = { /* ... */ };
+  outputs = { niri, ...}: {
+    homeModules.example-kdl-config = {
+      programs.niri.config = with niri.kdl; [
+        (node "output" "eDP-1" [
+          (leaf "scale" 2.0)
+        ])
+      ];
+    };
+  };
+}
+```
+
+But you can also pass it a string:
+
+```nix
+{
+  inputs = { /* ... */ };
+  outputs = { niri, ...}: {
+    homeModules.example-string-config = {
+      programs.niri.config = ''
+        output "eDP-1" {
+          scale 2.0
+        }
+      '';
+    };
+  };
+}
+```
+
+or set `programs.niri.config = null;` to prevent this module from generating a config file.
+
+# Stylix
+
+A module is provided to integrate with Stylix. To use this, the main prerequisite is that you don't ever set `programs.niri.config`; this will override everything from `programs.niri.settings`, which is where the stylix module places config.
+
+If you've installed home-manager and stylix as a NixOS module, then this will be automatically imported. Else, you'll have to import `niri.homeModules.stylix` yourself.
+
+The stylix module provides the option to disable it: `stylix.targets.niri.enable = false;`. Note that it is already disabled by default if you have `stylix.autoEnable` set to false.
+
+When enabled, the stylix module will set the active/inactive border colors, and set `layout.border` to be on by default. It also sets the xcursor theme and size.
 
 # Additional notes
 
