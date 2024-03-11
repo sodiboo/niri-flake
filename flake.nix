@@ -231,7 +231,6 @@
           niri-unstable = make-niri-unstable final;
           niri-stable = make-niri-stable final;
         };
-        # homeModules.experimental-settings = import ./settings.nix {inherit kdl;};
         homeModules.config = {
           lib,
           config,
@@ -240,27 +239,42 @@
         }:
           with lib; let
             cfg = config.programs.niri;
+            settings = import ./settings.nix inputs;
           in {
+            imports = [
+              settings.module
+            ];
+
             options.programs.niri = {
               config = mkOption {
                 type = types.nullOr (types.either types.str kdl.types.kdl-nodes);
-                default = null;
+                default = settings.render cfg.settings;
               };
+
               package = mkOption {
                 type = types.package;
                 default = make-niri-stable pkgs;
               };
+
+              finalConfig = mkOption {
+                type = types.nullOr types.str;
+                default =
+                  if isString cfg.config
+                  then cfg.config
+                  else if cfg.config != null
+                  then kdl.serialize.nodes cfg.config
+                  else null;
+
+                readOnly = true;
+              };
             };
 
             config.xdg.configFile.niri-config = {
-              enable = cfg.config != null;
+              enable = cfg.finalConfig != null;
               target = "niri/config.kdl";
               source =
                 pkgs.runCommand "config.kdl" {
-                  config =
-                    if isString cfg.config
-                    then cfg.config
-                    else kdl.serialize.nodes cfg.config;
+                  config = cfg.finalConfig;
                   passAsFile = ["config"];
                   buildInputs = [cfg.package];
                 } ''
@@ -339,12 +353,11 @@
                 fonts.enableDefaultPackages = mkDefault true;
               })
               (optionalAttrs (options ? home-manager) {
-                home-manager.sharedModules = [
-                  self.homeModules.config
-                  {
-                    programs.niri.package = mkForce cfg.package;
-                  }
-                ];
+                home-manager.sharedModules =
+                  [
+                    self.homeModules.config
+                    {programs.niri.package = mkForce cfg.package;}
+                  ]
               })
             ];
           };
