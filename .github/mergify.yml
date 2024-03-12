@@ -2,8 +2,6 @@ pull_request_rules:
   - name: "merge when finished building"
     conditions:
       - "author=github-actions[bot]"
-      - "check-success=build for nixos-unstable"
-      - "check-success=build for nixos-23.11"
     actions:
       merge:
         method: rebase
