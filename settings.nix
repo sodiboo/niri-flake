@@ -15,11 +15,17 @@ with lib; {
     attrs = type: optional (attrsOf type) {};
     list = type: optional (listOf type) [];
 
-    tagged-union = variants:
+    variant = variants:
       mkOptionType {
-        name = "tagged-union";
-        description = "tagged union of: ${concatStringsSep ", " (attrNames variants)}";
-        descriptionClass = "conjunction";
+        name = "variant";
+        description =
+          if variants == {}
+          then "impossible (empty variant)"
+          else "variant of: ${concatStringsSep " | " (attrNames variants)}";
+        descriptionClass =
+          if variants == {}
+          then "noun"
+          else "composite";
 
         check = v: let
           names = attrNames v;
@@ -44,6 +50,11 @@ with lib; {
           else throw "The option `${showOption loc}` has conflicting definitions of multiple variants";
 
         nestedTypes = variants;
+
+        getSubOptions =
+          (record (mapAttrs (const required)
+              variants))
+          .getSubOptions;
       };
 
     basic-pointer = default-natural-scroll: {
@@ -52,7 +63,7 @@ with lib; {
       accel-profile = nullable (enum ["adaptive" "flat"]);
     };
 
-    preset-width = tagged-union {
+    preset-width = variant {
       fixed = types.int;
       proportion = types.float;
     };
@@ -66,7 +77,7 @@ with lib; {
     #   descriptionClass = "noun";
     #   check = v: isList v && length v == 4 && all isInt v;
     # };
-    animation = nullOr (tagged-union {
+    animation = nullOr (variant {
       spring = record {
         damping-ratio = required types.float;
         stiffness = required types.int;
@@ -93,7 +104,7 @@ with lib; {
       inactive-gradient = nullable gradient;
     };
 
-    match =  record {
+    match = record {
       app-id = nullable types.str;
       title = nullable types.str;
     };
