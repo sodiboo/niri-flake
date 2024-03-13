@@ -1,9 +1,8 @@
 {
-  self,
-  nixpkgs,
-  ...
+  kdl,
+  lib,
 }:
-with nixpkgs.lib; {
+with lib; {
   module = let
     inherit (types) nullOr attrsOf listOf submodule enum either;
 
@@ -220,7 +219,7 @@ with nixpkgs.lib; {
 
       environment = attrs (nullOr (types.str));
 
-      binds = attrs (either types.str self.kdl.types.kdl-leaf);
+      binds = attrs (either types.str kdl.types.kdl-leaf);
 
       spawn-at-startup = list (record {
         command = list types.str;
@@ -236,13 +235,13 @@ with nixpkgs.lib; {
         open-fullscreen = nullable types.bool;
       });
 
-      debug = nullable (attrsOf self.kdl.types.kdl-args);
+      debug = nullable (attrsOf kdl.types.kdl-args);
     };
   in {
     options.programs.niri.settings = nullable settings;
   };
 
-  render = with self.kdl;
+  render = with kdl;
     cfg:
       if cfg == null
       then null

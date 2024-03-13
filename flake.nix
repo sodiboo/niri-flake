@@ -24,7 +24,10 @@
     ...
   }: let
     kdl = import ./kdl.nix {inherit (nixpkgs) lib;};
-    settings = import ./settings.nix inputs;
+    settings = import ./settings.nix {
+      inherit kdl;
+      inherit (nixpkgs) lib;
+    };
     stylix-module = import ./stylix.nix;
 
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
