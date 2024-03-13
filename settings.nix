@@ -68,7 +68,25 @@ with lib; {
       proportion = types.float;
     };
 
-    default-width = types.either preset-width (enum [{}]);
+    emptyOr = elemType:
+      mkOptionType {
+        name = "emptyOr";
+        description =
+          if elem elemType.descriptionClass ["noun" "conjunction"]
+          then "{} or ${elemType.description}"
+          else "{} or (${elemType.description})";
+        descriptionClass = "conjunction";
+        check = v: v == {} || elemType.check v;
+        nestedTypes.elemType = elemType;
+        merge = loc: defs:
+          if all (def: def.value == {}) defs
+          then {}
+          else elemType.merge loc defs;
+
+        inherit (elemType) getSubOptions;
+      };
+
+    default-width = emptyOr preset-width;
 
     # niri seems to have deprecated this way of defining colors; so we won't support it
     # color-array = mkOptionType {
