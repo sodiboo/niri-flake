@@ -93,13 +93,9 @@ with lib; {
       inactive-gradient = nullable gradient;
     };
 
-    # why not just use a record? because, it is slightly more convenient to use
-    # if inactive fields are missing rather than null
-    match = mkOptionType {
-      name = "match";
-      description = "match rule";
-      descriptionClass = "noun";
-      check = v: isAttrs v && all (flip elem ["app-id" "title"]) (attrNames v) && all isString (attrValues v);
+    match =  record {
+      app-id = nullable types.str;
+      title = nullable types.str;
     };
 
     settings = record {
@@ -293,10 +289,12 @@ with lib; {
           (nullable leaf "spring" cfg.spring or null)
         ]);
 
+        filter-match = map (filterAttrs (name: value: value != null));
+
         window-rule = cfg:
           plain "window-rule" [
-            (map (leaf "matches") cfg.matches)
-            (map (leaf "excludes") cfg.excludes)
+            (map (leaf "matches") (filter-match cfg.matches))
+            (map (leaf "excludes") (filter-match cfg.excludes))
             (nullable preset-widths "default-column-width" cfg.default-column-width)
             (nullable leaf "open-on-output" cfg.open-on-output)
             (nullable leaf "open-maximized" cfg.open-maximized)
