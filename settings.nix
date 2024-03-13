@@ -53,16 +53,9 @@ with nixpkgs.lib; {
       accel-profile = nullable (enum ["adaptive" "flat"]);
     };
 
-    preset-width = mkOptionType {
-      name = "preset-width";
-      description = "width (fixed pixels or proportion of the screen)";
-      descriptionClass = "noun";
-      check = v: let
-        names = attrNames v;
-        is-proportion = head names == "proportion" && isFloat v.proportion;
-        is-fixed = head names == "fixed" && isInt v.fixed;
-      in
-        isAttrs v && (length names == 1) && (is-proportion || is-fixed);
+    preset-width = tagged-union {
+      fixed = types.int;
+      proportion = types.float;
     };
 
     default-width = types.either preset-width (enum [{}]);
