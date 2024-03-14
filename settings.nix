@@ -319,52 +319,156 @@ with lib; let
   fake-docs = {
     stable-tag,
     nixpkgs,
-  }: let
-    section = contents:
-      mkOption {
-        type = mkOptionType {name = "docs-override";};
-        description = contents;
-      };
-    fake-option = loc: contents:
-      section ''
-        ## `${loc}`
-
-        ${contents}
-      '';
-  in {
+  }: {
     imports = [module];
 
-    options._ = {
+    options._ = let
+      section = contents:
+        mkOption {
+          type = mkOptionType {name = "docs-override";};
+          description = contents;
+        };
+
+      header = title: section "# ${title}";
+      fake-option = loc: contents:
+        section ''
+          ## `${loc}`
+
+          ${contents}
+        '';
+
+      test = pat: str: strings.match pat str != null;
+
+      anchor = flip pipe [
+        (replaceStrings (upperChars ++ [" "]) (lowerChars ++ ["-"]))
+        (splitString "")
+        (filter (test "[a-z0-9]"))
+        concatStrings
+      ];
+
+      link = title: "[${title}](#${anchor title})";
+      link' = loc: link "`${loc}`";
+
+      opt-mod = module: "Options for `${module}`";
+      link-opts = module: link (opt-mod module);
+
+      stylix-note = ''
+        Note that enabling the stylix target will cause a config file to be generated, even if you don't set ${link' "programs.niri.config"}.
+      '';
+
+      module = name: desc:
+        fake-option name ''
+          ${desc}
+
+          see also: ${link-opts name}
+        '';
+
+      pkg-header = name: "packages.<system>.${name}";
+      pkg-link = name: link' (pkg-header name);
+
+      pkg-output = name: desc:
+        fake-option (pkg-header name) ''
+          (where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
+
+          ${desc}
+
+          Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
+
+          Also note that you likely should not be using these outputs directly. Instead, you should use the overlay (${link' "overlays.niri"}).
+        '';
+
+      enable-option = fake-option "programs.niri.enable" ''
+        - type: `boolean`
+        - default: `false`
+
+        Whether to install and enable niri.
+
+        This also enables the necessary system components for niri to function properly, such as desktop portals and polkit.
+      '';
+
+      package-option = fake-option "programs.niri.package" ''
+        - type: `package`
+        - default: `pkgs.niri-stable`
+
+        The package that niri will use.
+
+        By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
+
+        - [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
+        - ${pkg-link "niri-stable"}
+        - ${pkg-link "niri-unstable"}
+      '';
+      link-niri-release = tag: "[release `${tag}`](https://github.com/YaLTeR/niri/releases/tag/${tag})";
+    in {
       a.outputs = {
+        _ = header "Outputs provided by this flake";
+
+        a.modules = {
+          a.nixos = module "nixosModules.niri" ''
+            The full NixOS module for niri.
+
+            By default, this module does the following:
+
+            - It will enable a binary cache managed by me, sodiboo. This helps you avoid building niri from source, which can take a long time in release mode.
+            - If you have home-manager installed in your NixOS configuration (rather than as a standalone program), this module will automatically import ${link' "homeModules.config"} for all users and give it the correct package to use for validation.
+            - If you have home-manager and stylix installed in your NixOS configuration, this module will also automatically import ${link' "homeModules.stylix"} for all users.
+          '';
+
+          b.home = module "homeModules.niri" ''
+            The full home-manager module for niri.
+
+            By default, this module does nothing. It will import ${link' "homeModules.config"}, which provides many configuration options, and it also provides some options to install niri.
+          '';
+
+          c.config = module "homeModules.config" ''
+            Configuration options for niri. This module is automatically imported by ${link' "nixosModules.niri"} and ${link' "homeModules.niri"}.
+
+            By default, this module does nothing. It provides many configuration options for niri, such as keybindings, animations, and window rules.
+
+            When its options are set, it generates `$XDGN_CONFIG_HOME/niri/config.kdl` for the user. This is the default path for niri's config file.
+
+            It will also validate the config file with the `niri validate` command before committing that config. This ensures that the config file is always valid, else your system will fail to build. When using ${link' "programs.niri.settings"} to configure niri, that's not necessary, because it will always generate a valid config file. But, if you set ${link' "programs.niri.config"} directly, then this is very useful.
+          '';
+
+          d.stylix = module "homeModules.stylix" ''
+            Stylix integration. It provides a target to enable niri.
+
+            This module is automatically imported if you have home-manager and stylix installed in your NixOS configuration.
+
+            If you use standalone home-manager, you must import it manually if you wish to use stylix with niri. (since it can't be automatically imported in that case)
+
+            ${stylix-note}
+          '';
+        };
+
+        b.packages = {
+          niri-stable = pkg-output "niri-stable" ''
+            The latest stable tagged version of niri (currently ${link-niri-release stable-tag}), along with potential patches.
+          '';
+          niri-unstable = pkg-output "niri-unstable" ''
+            The latest commit to the main branch of niri. This is refreshed hourly and may break at any time without prior notice.
+          '';
+        };
+
+        c.overlay = fake-option "overlays.niri" ''
+          A nixpkgs overlay that provides `niri-stable` and `niri-unstable`.
+
+          It is recommended to use this overlay over directly accessing the outputs. This is because the overlay ensures that the dependencies match your system's nixpkgs version, which is most important for `mesa`. If `mesa` doesn't match, niri will be unable to run in a TTY.
+
+          You can enable this overlay by adding this line to your configuration:
+
+          ```nix
+          nixpkgs.overlays = [ niri.overlay ];
+          ```
+
+          You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
+        '';
       };
+
       b.nixos = {
-        _ = section ''
-          # Options available in the NixOS module
-        '';
-        enable = fake-option "programs.niri.enable" ''
-          - type: `boolean`
-          - default: `false`
-
-          Whether to install and enable niri.
-
-          This also enables the necessary system components for niri to function properly, such as desktop portals and polkit.
-        '';
-
-        package = fake-option "programs.niri.package" ''
-          - type: `package`
-          - default: `pkgs.niri-stable`
-
-          The package that niri will use.
-
-          By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
-
-          - `pkgs.niri` (niri v${nixpkgs.legacyPackages.x86_64-linux.niri.version}; from nixpkgs)
-          - `pkgs.niri-stable` (niri ${stable-tag}; from niri-flake)
-          - `pkgs.niri-unstable` (latest commit; from niri-flake)
-
-          Note that the packages provided by this flake are available only if you add the overlay.
-        '';
-
+        _ = header (opt-mod "nixosModules.niri");
+        enable = enable-option;
+        package = package-option;
         z.cache = fake-option "niri-flake.cache.enable" ''
           - type: `boolean`
           - default: `true`
@@ -375,9 +479,29 @@ with lib; let
         '';
       };
 
+      c.home = {
+        _ = header (opt-mod "homeModules.niri");
+        enable = enable-option;
+        package = package-option;
+      };
+
+      d.stylix = {
+        _ = header (opt-mod "homeModules.stylix");
+        target = fake-option "stylix.targets.niri.enable" ''
+          - type: `boolean`
+          - default: `stylix.autoEnable`
+
+          Whether to style niri according to your stylix config.
+        '';
+      };
+
       z.pre-config = {
-        _ = section ''
-          # Options available in the home-manager module
+        _ = header (opt-mod "homeModules.config");
+        package = fake-option "programs.niri.package" ''
+          - type: `package`
+          - default: `pkgs.niri-stable`
+
+          The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in ${link' "nixosModules.niri"} or ${link' "homeModules.niri"}.
         '';
         variant = section ''
           ## type: `variant of`
