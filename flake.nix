@@ -29,7 +29,7 @@
       inherit (nixpkgs) lib;
     };
     stylix-module = import ./stylix.nix;
-    make-docs = import ./docs.nix {inherit (nixpkgs) lib;};
+    make-docs = import ./generate-docs.nix {inherit (nixpkgs) lib;};
 
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
     stable-tag = lock.nodes.niri-stable.original.ref;
