@@ -29,6 +29,7 @@
       inherit (nixpkgs) lib;
     };
     stylix-module = import ./stylix.nix;
+    make-docs = import ./docs.nix {inherit (nixpkgs) lib;};
 
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
     stable-tag = lock.nodes.niri-stable.original.ref;
@@ -225,6 +226,14 @@
           };
 
           default = self'.apps.niri-stable;
+
+          generate-docs = {
+            type = "app";
+            program = let
+              docs-src = pkgs.writeText "settings-documentation.md" (make-docs (settings.fake-docs {inherit stable-tag nixpkgs;}));
+            in
+              "${pkgs.writeScript "generate-docs" "cat ${docs-src}"}";
+          };
         };
 
         formatter = pkgs.alejandra;
@@ -251,26 +260,9 @@
             ];
 
             options.programs.niri = {
-              config = mkOption {
-                type = types.nullOr (types.either types.str kdl.types.kdl-nodes);
-                default = settings.render cfg.settings;
-              };
-
               package = mkOption {
                 type = types.package;
                 default = make-niri-stable pkgs;
-              };
-
-              finalConfig = mkOption {
-                type = types.nullOr types.str;
-                default =
-                  if isString cfg.config
-                  then cfg.config
-                  else if cfg.config != null
-                  then kdl.serialize.nodes cfg.config
-                  else null;
-
-                readOnly = true;
               };
             };
 

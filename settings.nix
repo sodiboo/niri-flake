@@ -2,7 +2,7 @@
   kdl,
   lib,
 }:
-with lib; {
+with lib; let
   module = let
     inherit (types) nullOr attrsOf listOf submodule enum either;
 
@@ -262,8 +262,135 @@ with lib; {
 
       debug = nullable (attrsOf kdl.types.kdl-args);
     };
+  in
+    {config, ...}: let
+      cfg = config.programs.niri;
+    in {
+      options.programs.niri = {
+        config = mkOption {
+          type = types.nullOr (types.either types.str kdl.types.kdl-document);
+          default = render cfg.settings;
+          defaultText = "<dependent on programs.niri.settings>";
+          description = ''
+            The niri config file.
+
+            - When this is null, no config file is generated.
+            - When this is a string, it is assumed to be the config file contents.
+            - When this is kdl document, it is serialized to a string before being used as the config file contents.
+
+            By default, this is a KDL document that reflects the settings in `programs.niri.settings`.
+          '';
+        };
+
+        finalConfig = mkOption {
+          type = types.nullOr types.str;
+          default =
+            if isString cfg.config
+            then cfg.config
+            else if cfg.config != null
+            then kdl.serialize.nodes cfg.config
+            else null;
+          readOnly = true;
+
+          defaultText = "<dependent on programs.niri.config>";
+
+          description = ''
+            The final niri config file contents.
+
+            This is a string that reflects the document stored in `programs.niri.config`.
+
+            It is exposed mainly for debugging purposes, such as when you need to inspect how a certain option affects the resulting config file.
+          '';
+        };
+
+        settings =
+          (nullable settings)
+          // {
+            description = ''
+              Nix-native settings for niri.
+
+              By default, when this is null, no config file is generated.
+
+              Beware that setting `programs.niri.config` completely overrides everything under this option.
+            '';
+          };
+      };
+    };
+  fake-docs = {
+    stable-tag,
+    nixpkgs,
+  }: let
+    section = contents:
+      mkOption {
+        type = mkOptionType {name = "docs-override";};
+        description = contents;
+      };
+    fake-option = loc: contents:
+      section ''
+        ## `${loc}`
+
+        ${contents}
+      '';
   in {
-    options.programs.niri.settings = nullable settings;
+    imports = [module];
+
+    options._ = {
+      a.outputs = {
+      };
+      b.nixos = {
+        _ = section ''
+          # Options available in the NixOS module
+        '';
+        enable = fake-option "programs.niri.enable" ''
+          - type: `boolean`
+          - default: `false`
+
+          Whether to install and enable niri.
+
+          This also enables the necessary system components for niri to function properly, such as desktop portals and polkit.
+        '';
+
+        package = fake-option "programs.niri.package" ''
+          - type: `package`
+          - default: `pkgs.niri-stable`
+
+          The package that niri will use.
+
+          By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
+
+          - `pkgs.niri` (niri v${nixpkgs.legacyPackages.x86_64-linux.niri.version}; from nixpkgs)
+          - `pkgs.niri-stable` (niri ${stable-tag}; from niri-flake)
+          - `pkgs.niri-unstable` (latest commit; from niri-flake)
+
+          Note that the packages provided by this flake are available only if you add the overlay.
+        '';
+
+        z.cache = fake-option "niri-flake.cache.enable" ''
+          - type: `boolean`
+          - default: `true`
+
+          Whether or not to enable the binary cache managed by me, sodiboo.
+
+          This is enabled by default, because there's not much reason to *not* use it. But, if you wish to disable it, you may.
+        '';
+      };
+
+      z.pre-config = {
+        _ = section ''
+          # Options available in the home-manager module
+        '';
+        variant = section ''
+          ## type: `variant of`
+
+          Some of the options below make use of a "variant" type.
+
+          This is a type that behaves similarly to a submodule, except you can only set *one* of its suboptions.
+
+          An example of this usage is in animations, where each action can have either an easing animation or a spring animation. \
+          You cannot set parameters for both, so `variant` is used here.
+        '';
+      };
+    };
   };
 
   render = with kdl;
@@ -438,4 +565,6 @@ with lib; {
 
         (nullable (map' plain (mapAttrsToList leaf)) "debug" cfg.debug)
       ];
+in {
+  inherit module render fake-docs;
 }
