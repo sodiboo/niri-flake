@@ -1,6 +1,11 @@
 {lib}:
 with lib; let
   match = name: cases: cases.${name} or cases._;
+  indent = flip pipe [
+    (splitString "\n")
+    (map (s: "  ${s}"))
+    (concatStringsSep "\n")
+  ];
   render = v:
     match (builtins.typeOf v) {
       string = lib.strings.escapeNixString v;
@@ -13,7 +18,7 @@ with lib; let
       set =
         if v == {}
         then null
-        else "{ ${concatStringsSep " " (mapAttrsToList (name: val: "${name} = ${render val};") v)} }";
+        else "{\n${indent (concatStringsSep "\n" (mapAttrsToList (name: val: "${name} = ${render val};") v))}\n}";
       null = "null";
       list =
         if v == []
@@ -43,6 +48,16 @@ with lib; let
     if v != null
     then f v
     else null;
+
+  multiline-default = text:
+    if length (splitString "\n" text) == 1
+    then "- default: `${text}`"
+    else ''
+      - default:
+        ```nix
+      ${indent text}
+        ```
+    '';
 in
   flip pipe [
     types.submodule
@@ -57,7 +72,7 @@ in
             filter (v: v != null) [
               "## `${loc}`"
               "- type: `${opt.type.description}`"
-              (maybe (v: "- default: `${v}`") opt.defaultText)
+              (maybe multiline-default opt.defaultText)
               ""
               (maybe id opt.description or null)
             ]

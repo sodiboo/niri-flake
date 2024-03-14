@@ -235,7 +235,17 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.animations.config-notification-open-close`
 - type: `null or (variant of: easing | spring)`
-- default: `{ spring = { damping-ratio = 0.600000; epsilon = 0.001000; stiffness = 1000; }; }`
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 0.600000;
+      epsilon = 0.001000;
+      stiffness = 1000;
+    };
+  }
+  ```
+
 
 
 ## `programs.niri.settings.animations.config-notification-open-close.easing.curve`
@@ -270,7 +280,17 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.animations.horizontal-view-movement`
 - type: `null or (variant of: easing | spring)`
-- default: `{ spring = { damping-ratio = 1.000000; epsilon = 0.000100; stiffness = 800; }; }`
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 1.000000;
+      epsilon = 0.000100;
+      stiffness = 800;
+    };
+  }
+  ```
+
 
 
 ## `programs.niri.settings.animations.horizontal-view-movement.easing.curve`
@@ -305,7 +325,16 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.animations.window-open`
 - type: `null or (variant of: easing | spring)`
-- default: `{ easing = { curve = "ease-out-expo"; duration-ms = 150; }; }`
+- default:
+  ```nix
+  {
+    easing = {
+      curve = "ease-out-expo";
+      duration-ms = 150;
+    };
+  }
+  ```
+
 
 
 ## `programs.niri.settings.animations.window-open.easing.curve`
@@ -335,7 +364,17 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.animations.workspace-switch`
 - type: `null or (variant of: easing | spring)`
-- default: `{ spring = { damping-ratio = 1.000000; epsilon = 0.000100; stiffness = 1000; }; }`
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 1.000000;
+      epsilon = 0.000100;
+      stiffness = 1000;
+    };
+  }
+  ```
+
 
 
 ## `programs.niri.settings.animations.workspace-switch.easing.curve`
