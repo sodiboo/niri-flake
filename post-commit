@@ -1,0 +1,13 @@
+#!/run/current-system/sw/bin/sh
+# (that shebang is nixos-specific)
+
+# ln -s ../../post-commit .git/hooks/post-commit
+
+nix run "git+file:.?ref=main#generate-docs" > docs.md
+git diff --quiet docs.md
+if [ $? -ne 0 ];
+then
+git add docs.md
+git commit --no-verify --amend --no-edit
+nix run --no-warn-dirty .#generate-docs > docs.md
+fi
