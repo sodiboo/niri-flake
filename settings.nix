@@ -342,7 +342,7 @@ with lib; let
       anchor = flip pipe [
         (replaceStrings (upperChars ++ [" "]) (lowerChars ++ ["-"]))
         (splitString "")
-        (filter (test "[a-z0-9]"))
+        (filter (test "[a-z0-9-]"))
         concatStrings
       ];
 

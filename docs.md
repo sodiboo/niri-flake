@@ -11,7 +11,7 @@ By default, this module does the following:
 - If you have home-manager and stylix installed in your NixOS configuration, this module will also automatically import [`homeModules.stylix`](#homemodulesstylix) for all users.
 
 
-see also: [Options for `nixosModules.niri`](#optionsfornixosmodulesniri)
+see also: [Options for `nixosModules.niri`](#options-for-nixosmodulesniri)
 
 
 
@@ -22,7 +22,7 @@ The full home-manager module for niri.
 By default, this module does nothing. It will import [`homeModules.config`](#homemodulesconfig), which provides many configuration options, and it also provides some options to install niri.
 
 
-see also: [Options for `homeModules.niri`](#optionsforhomemodulesniri)
+see also: [Options for `homeModules.niri`](#options-for-homemodulesniri)
 
 
 
@@ -37,7 +37,7 @@ When its options are set, it generates `$XDGN_CONFIG_HOME/niri/config.kdl` for t
 It will also validate the config file with the `niri validate` command before committing that config. This ensures that the config file is always valid, else your system will fail to build. When using [`programs.niri.settings`](#programsnirisettings) to configure niri, that's not necessary, because it will always generate a valid config file. But, if you set [`programs.niri.config`](#programsniriconfig) directly, then this is very useful.
 
 
-see also: [Options for `homeModules.config`](#optionsforhomemodulesconfig)
+see also: [Options for `homeModules.config`](#options-for-homemodulesconfig)
 
 
 
@@ -53,7 +53,7 @@ Note that enabling the stylix target will cause a config file to be generated, e
 
 
 
-see also: [Options for `homeModules.stylix`](#optionsforhomemodulesstylix)
+see also: [Options for `homeModules.stylix`](#options-for-homemodulesstylix)
 
 
 
@@ -122,8 +122,8 @@ The package that niri will use.
 By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
 
 - [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
-- [`packages.<system>.niri-stable`](#packagessystemniristable)
-- [`packages.<system>.niri-unstable`](#packagessystemniriunstable)
+- [`packages.<system>.niri-stable`](#packagessystemniri-stable)
+- [`packages.<system>.niri-unstable`](#packagessystemniri-unstable)
 
 
 
@@ -161,8 +161,8 @@ The package that niri will use.
 By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
 
 - [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
-- [`packages.<system>.niri-stable`](#packagessystemniristable)
-- [`packages.<system>.niri-unstable`](#packagessystemniriunstable)
+- [`packages.<system>.niri-stable`](#packagessystemniri-stable)
+- [`packages.<system>.niri-unstable`](#packagessystemniri-unstable)
 
 
 
