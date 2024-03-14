@@ -157,8 +157,21 @@ with lib; let
     check = v: kdl-leaf.check {inherit v;};
   };
 
-  kdl-nodes = types.oneOf [(types.listOf (types.nullOr kdl-nodes)) kdl-node];
+  kdl-nodes =
+    (types.oneOf [(types.listOf (types.nullOr kdl-nodes)) kdl-node])
+    // {
+      name = "kdl-nodes";
+      description = "kdl nodes";
+      descriptionClass = "noun";
+    };
+
+  kdl-document =
+    kdl-nodes
+    // {
+      name = "kdl-document";
+      description = "kdl document";
+    };
 in {
   inherit node plain leaf flag serialize;
-  types = {inherit kdl-value kdl-node kdl-nodes kdl-leaf kdl-args;};
+  types = {inherit kdl-value kdl-node kdl-nodes kdl-leaf kdl-args kdl-document;};
 }
