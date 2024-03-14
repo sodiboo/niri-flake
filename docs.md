@@ -233,8 +233,42 @@ By default, when this is null, no config file is generated.
 Beware that setting `programs.niri.config` completely overrides everything under this option.
 
 
+## `programs.niri.settings.animations.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.slowdown`
+- type: `floating point number`
+- default: `1.000000`
+
+
+## `programs.niri.settings.animations.<name>`
+- type: `animation`, which is a `variant of: easing | spring`
+
+
+## `programs.niri.settings.animations.<name>.easing.curve`
+- type: `one of "ease-out-cubic", "ease-out-expo"`
+
+
+## `programs.niri.settings.animations.<name>.easing.duration-ms`
+- type: `signed integer`
+
+
+## `programs.niri.settings.animations.<name>.spring.damping-ratio`
+- type: `floating point number`
+
+
+## `programs.niri.settings.animations.<name>.spring.epsilon`
+- type: `floating point number`
+
+
+## `programs.niri.settings.animations.<name>.spring.stiffness`
+- type: `signed integer`
+
+
 ## `programs.niri.settings.animations.config-notification-open-close`
-- type: `null or (variant of: easing | spring)`
+- type: `null or animation`
 - default:
   ```nix
   {
@@ -248,38 +282,8 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 
 
-## `programs.niri.settings.animations.config-notification-open-close.easing.curve`
-- type: `one of "ease-out-cubic", "ease-out-expo"`
-- default: `null`
-
-
-## `programs.niri.settings.animations.config-notification-open-close.easing.duration-ms`
-- type: `signed integer`
-- default: `null`
-
-
-## `programs.niri.settings.animations.config-notification-open-close.spring.damping-ratio`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.config-notification-open-close.spring.epsilon`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.config-notification-open-close.spring.stiffness`
-- type: `signed integer`
-- default: `null`
-
-
-## `programs.niri.settings.animations.enable`
-- type: `boolean`
-- default: `true`
-
-
 ## `programs.niri.settings.animations.horizontal-view-movement`
-- type: `null or (variant of: easing | spring)`
+- type: `null or animation`
 - default:
   ```nix
   {
@@ -293,38 +297,8 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 
 
-## `programs.niri.settings.animations.horizontal-view-movement.easing.curve`
-- type: `one of "ease-out-cubic", "ease-out-expo"`
-- default: `null`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.easing.duration-ms`
-- type: `signed integer`
-- default: `null`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.spring.damping-ratio`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.spring.epsilon`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.spring.stiffness`
-- type: `signed integer`
-- default: `null`
-
-
-## `programs.niri.settings.animations.slowdown`
-- type: `floating point number`
-- default: `1.000000`
-
-
 ## `programs.niri.settings.animations.window-open`
-- type: `null or (variant of: easing | spring)`
+- type: `null or animation`
 - default:
   ```nix
   {
@@ -337,33 +311,8 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 
 
-## `programs.niri.settings.animations.window-open.easing.curve`
-- type: `one of "ease-out-cubic", "ease-out-expo"`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-open.easing.duration-ms`
-- type: `signed integer`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-open.spring.damping-ratio`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-open.spring.epsilon`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-open.spring.stiffness`
-- type: `signed integer`
-- default: `null`
-
-
 ## `programs.niri.settings.animations.workspace-switch`
-- type: `null or (variant of: easing | spring)`
+- type: `null or animation`
 - default:
   ```nix
   {
@@ -375,31 +324,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
   }
   ```
 
-
-
-## `programs.niri.settings.animations.workspace-switch.easing.curve`
-- type: `one of "ease-out-cubic", "ease-out-expo"`
-- default: `null`
-
-
-## `programs.niri.settings.animations.workspace-switch.easing.duration-ms`
-- type: `signed integer`
-- default: `null`
-
-
-## `programs.niri.settings.animations.workspace-switch.spring.damping-ratio`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.workspace-switch.spring.epsilon`
-- type: `floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.animations.workspace-switch.spring.stiffness`
-- type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.binds`
@@ -567,7 +491,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.border.active-gradient.from`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.border.active-gradient.relative-to`
@@ -577,7 +500,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.border.active-gradient.to`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.border.enable`
@@ -602,7 +524,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.border.inactive-gradient.from`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.border.inactive-gradient.relative-to`
@@ -612,7 +533,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.border.inactive-gradient.to`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.border.width`
@@ -631,12 +551,10 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.default-column-width.fixed`
 - type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.default-column-width.proportion`
 - type: `floating point number`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.focus-ring.active-color`
@@ -656,7 +574,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.focus-ring.active-gradient.from`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.focus-ring.active-gradient.relative-to`
@@ -666,7 +583,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.focus-ring.active-gradient.to`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.focus-ring.enable`
@@ -691,7 +607,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.focus-ring.inactive-gradient.from`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.focus-ring.inactive-gradient.relative-to`
@@ -701,7 +616,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.focus-ring.inactive-gradient.to`
 - type: `string`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.focus-ring.width`
@@ -720,12 +634,10 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
-- default: `null`
 
 
 ## `programs.niri.settings.layout.struts.bottom`
@@ -764,7 +676,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.outputs.<name>.mode.height`
 - type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.outputs.<name>.mode.refresh`
@@ -774,7 +685,6 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.outputs.<name>.mode.width`
 - type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.outputs.<name>.position`
@@ -784,12 +694,10 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.outputs.<name>.position.x`
 - type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.outputs.<name>.position.y`
 - type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.outputs.<name>.scale`
@@ -836,12 +744,10 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.window-rules.*.default-column-width.fixed`
 - type: `signed integer`
-- default: `null`
 
 
 ## `programs.niri.settings.window-rules.*.default-column-width.proportion`
 - type: `floating point number`
-- default: `null`
 
 
 ## `programs.niri.settings.window-rules.*.excludes`

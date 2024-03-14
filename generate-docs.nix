@@ -27,21 +27,25 @@ with lib; let
       _ = "<${(builtins.typeOf v)}>";
     };
 
-  describe = opt:
+  describe = path: opt:
     optionalAttrs (opt.type.name != "submodule") {
-      ${showOption opt.loc} =
+      ${showOption path} =
         opt
         // {
           defaultText =
             opt.defaultText
-            or (render opt.default or null);
+            or (
+              if opt ? default
+              then render opt.default
+              else null
+            );
         };
     };
 
-  make-docs = v: (
+  make-docs = path: v: (
     if (v ? _type && v._type == "option")
-    then (describe v) // (make-docs (v.type.getSubOptions v.loc))
-    else concatMapAttrs (const make-docs) (filterAttrs (name: const (name != "_module")) v)
+    then (describe path v) // (make-docs path (v.type.getSubOptions v.loc))
+    else concatMapAttrs (name: make-docs (path ++ [name])) (filterAttrs (name: const (name != "_module")) v)
   );
 
   maybe = f: v:
@@ -62,16 +66,17 @@ in
   flip pipe [
     types.submodule
     (m: m.getSubOptions [])
-    make-docs
+    (make-docs [])
     (mapAttrsToList (
-      loc: opt:
+      path: opt:
         if opt.type.name == "docs-override"
         then "${opt.description}"
         else
           (concatStringsSep "\n" (
             filter (v: v != null) [
-              "## `${loc}`"
-              "- type: `${opt.type.description}`"
+              "## `${showOption opt.loc}`"
+              # "#### `${path}`"
+              "- type: `${opt.type.description}`${optionalString (opt.type ? nestedTypes.newtype-inner) ", which is a `${opt.type.nestedTypes.newtype-inner.description}`"}"
               (maybe multiline-default opt.defaultText)
               ""
               (maybe id opt.description or null)

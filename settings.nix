@@ -95,17 +95,6 @@ with lib; let
     #   descriptionClass = "noun";
     #   check = v: isList v && length v == 4 && all isInt v;
     # };
-    animation = nullOr (variant {
-      spring = record {
-        damping-ratio = required types.float;
-        stiffness = required types.int;
-        epsilon = required types.float;
-      };
-      easing = record {
-        duration-ms = required types.int;
-        curve = required (enum ["ease-out-cubic" "ease-out-expo"]);
-      };
-    });
 
     gradient = record {
       from = required types.str;
@@ -210,37 +199,81 @@ with lib; let
 
       hotkey-overlay.skip-at-startup = optional types.bool false;
 
-      animations = {
-        enable = optional types.bool true;
-        slowdown = optional types.float 1.0;
-        workspace-switch = optional animation {
-          spring = {
+      animations = let
+        animation = variant {
+          spring = record {
+            damping-ratio = required types.float;
+            stiffness = required types.int;
+            epsilon = required types.float;
+          };
+          easing = record {
+            duration-ms = required types.int;
+            curve = required (enum ["ease-out-cubic" "ease-out-expo"]);
+          };
+        };
+        opts = {
+          enable = optional types.bool true;
+          slowdown = optional types.float 1.0;
+        };
+
+        defaults = {
+          workspace-switch.spring = {
             damping-ratio = 1.0;
             stiffness = 1000;
             epsilon = 0.0001;
           };
-        };
-        horizontal-view-movement = optional animation {
-          spring = {
+          horizontal-view-movement.spring = {
             damping-ratio = 1.0;
             stiffness = 800;
             epsilon = 0.0001;
           };
-        };
-        config-notification-open-close = optional animation {
-          spring = {
+          config-notification-open-close.spring = {
             damping-ratio = 0.6;
             stiffness = 1000;
             epsilon = 0.001;
           };
-        };
-        window-open = optional animation {
-          easing = {
+          window-open.easing = {
             duration-ms = 150;
             curve = "ease-out-expo";
           };
         };
-      };
+
+        anims =
+          mapAttrs (const (
+            optional (nullOr (animation
+              // {
+                description = "animation";
+                descriptionClass = "noun";
+                getSubOptions = const {};
+              }))
+          ))
+          defaults;
+        base = record (opts // anims);
+      in
+        mkOption {
+          type = mkOptionType {
+            inherit (base) name check merge nestedTypes;
+            description = "animations";
+            descriptionClass = "noun";
+            getSubOptions = loc: {
+              a.opts = (record opts).getSubOptions loc;
+              b.submodule =
+                (required (animation
+                  // {
+                    description = "animation";
+                    nestedTypes.newtype-inner = animation;
+                  }))
+                // {
+                  defaultText = null;
+                  loc = loc ++ ["<name>"];
+                };
+              c.defaults = {
+                anims = (record anims).getSubOptions loc;
+              };
+            };
+          };
+          description = "animations";
+        };
 
       environment = attrs (nullOr (types.str));
 
