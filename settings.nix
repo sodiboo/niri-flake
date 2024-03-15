@@ -436,7 +436,30 @@ with lib; let
       a.outputs = {
         _ = header "Outputs provided by this flake";
 
-        a.modules = {
+        a.packages = {
+          niri-stable = pkg-output "niri-stable" ''
+            The latest stable tagged version of niri (currently ${link-niri-release stable-tag}), along with potential patches.
+          '';
+          niri-unstable = pkg-output "niri-unstable" ''
+            The latest commit to the main branch of niri. This is refreshed hourly and may break at any time without prior notice.
+          '';
+        };
+
+        b.overlay = fake-option "overlays.niri" ''
+          A nixpkgs overlay that provides `niri-stable` and `niri-unstable`.
+
+          It is recommended to use this overlay over directly accessing the outputs. This is because the overlay ensures that the dependencies match your system's nixpkgs version, which is most important for `mesa`. If `mesa` doesn't match, niri will be unable to run in a TTY.
+
+          You can enable this overlay by adding this line to your configuration:
+
+          ```nix
+          nixpkgs.overlays = [ niri.overlay ];
+          ```
+
+          You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
+        '';
+
+        c.modules = {
           a.nixos = module "nixosModules.niri" ''
             The full NixOS module for niri.
 
@@ -473,29 +496,6 @@ with lib; let
             ${stylix-note}
           '';
         };
-
-        b.packages = {
-          niri-stable = pkg-output "niri-stable" ''
-            The latest stable tagged version of niri (currently ${link-niri-release stable-tag}), along with potential patches.
-          '';
-          niri-unstable = pkg-output "niri-unstable" ''
-            The latest commit to the main branch of niri. This is refreshed hourly and may break at any time without prior notice.
-          '';
-        };
-
-        c.overlay = fake-option "overlays.niri" ''
-          A nixpkgs overlay that provides `niri-stable` and `niri-unstable`.
-
-          It is recommended to use this overlay over directly accessing the outputs. This is because the overlay ensures that the dependencies match your system's nixpkgs version, which is most important for `mesa`. If `mesa` doesn't match, niri will be unable to run in a TTY.
-
-          You can enable this overlay by adding this line to your configuration:
-
-          ```nix
-          nixpkgs.overlays = [ niri.overlay ];
-          ```
-
-          You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
-        '';
       };
 
       b.nixos = {

@@ -1,5 +1,47 @@
 # Outputs provided by this flake
 
+## `packages.<system>.niri-stable`
+
+(where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
+
+The latest stable tagged version of niri (currently [release `v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)), along with potential patches.
+
+
+Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
+
+Also note that you likely should not be using these outputs directly. Instead, you should use the overlay ([`overlays.niri`](#overlaysniri)).
+
+
+
+## `packages.<system>.niri-unstable`
+
+(where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
+
+The latest commit to the main branch of niri. This is refreshed hourly and may break at any time without prior notice.
+
+
+Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
+
+Also note that you likely should not be using these outputs directly. Instead, you should use the overlay ([`overlays.niri`](#overlaysniri)).
+
+
+
+## `overlays.niri`
+
+A nixpkgs overlay that provides `niri-stable` and `niri-unstable`.
+
+It is recommended to use this overlay over directly accessing the outputs. This is because the overlay ensures that the dependencies match your system's nixpkgs version, which is most important for `mesa`. If `mesa` doesn't match, niri will be unable to run in a TTY.
+
+You can enable this overlay by adding this line to your configuration:
+
+```nix
+nixpkgs.overlays = [ niri.overlay ];
+```
+
+You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
+
+
+
 ## `nixosModules.niri`
 
 The full NixOS module for niri.
@@ -54,48 +96,6 @@ Note that enabling the stylix target will cause a config file to be generated, e
 
 
 see also: [Options for `homeModules.stylix`](#options-for-homemodulesstylix)
-
-
-
-## `packages.<system>.niri-stable`
-
-(where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
-
-The latest stable tagged version of niri (currently [release `v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)), along with potential patches.
-
-
-Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
-
-Also note that you likely should not be using these outputs directly. Instead, you should use the overlay ([`overlays.niri`](#overlaysniri)).
-
-
-
-## `packages.<system>.niri-unstable`
-
-(where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
-
-The latest commit to the main branch of niri. This is refreshed hourly and may break at any time without prior notice.
-
-
-Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
-
-Also note that you likely should not be using these outputs directly. Instead, you should use the overlay ([`overlays.niri`](#overlaysniri)).
-
-
-
-## `overlays.niri`
-
-A nixpkgs overlay that provides `niri-stable` and `niri-unstable`.
-
-It is recommended to use this overlay over directly accessing the outputs. This is because the overlay ensures that the dependencies match your system's nixpkgs version, which is most important for `mesa`. If `mesa` doesn't match, niri will be unable to run in a TTY.
-
-You can enable this overlay by adding this line to your configuration:
-
-```nix
-nixpkgs.overlays = [ niri.overlay ];
-```
-
-You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
 
 
 
