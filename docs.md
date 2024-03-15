@@ -218,127 +218,6 @@ By default, when this is null, no config file is generated.
 Beware that setting `programs.niri.config` completely overrides everything under this option.
 
 
-## `programs.niri.settings.animations.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.slowdown`
-- type: `floating point number`
-- default: `1.000000`
-
-
-## `programs.niri.settings.animations.<name>`
-- type: `animation`, which is a `variant of: easing | spring`
-
-
-## `programs.niri.settings.animations.<name>.easing.curve`
-- type: `one of "ease-out-cubic", "ease-out-expo"`
-
-
-## `programs.niri.settings.animations.<name>.easing.duration-ms`
-- type: `signed integer`
-
-
-## `programs.niri.settings.animations.<name>.spring.damping-ratio`
-- type: `floating point number`
-
-
-## `programs.niri.settings.animations.<name>.spring.epsilon`
-- type: `floating point number`
-
-
-## `programs.niri.settings.animations.<name>.spring.stiffness`
-- type: `signed integer`
-
-
-## `programs.niri.settings.animations.config-notification-open-close`
-- type: `null or animation`
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 0.600000;
-      epsilon = 0.001000;
-      stiffness = 1000;
-    };
-  }
-  ```
-
-
-
-## `programs.niri.settings.animations.horizontal-view-movement`
-- type: `null or animation`
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 1.000000;
-      epsilon = 0.000100;
-      stiffness = 800;
-    };
-  }
-  ```
-
-
-
-## `programs.niri.settings.animations.window-open`
-- type: `null or animation`
-- default:
-  ```nix
-  {
-    easing = {
-      curve = "ease-out-expo";
-      duration-ms = 150;
-    };
-  }
-  ```
-
-
-
-## `programs.niri.settings.animations.workspace-switch`
-- type: `null or animation`
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 1.000000;
-      epsilon = 0.000100;
-      stiffness = 1000;
-    };
-  }
-  ```
-
-
-
-## `programs.niri.settings.binds`
-- type: `attribute set of (string or kdl leaf)`
-
-
-## `programs.niri.settings.cursor.size`
-- type: `signed integer`
-- default: `24`
-
-
-## `programs.niri.settings.cursor.theme`
-- type: `string`
-- default: `"default"`
-
-
-## `programs.niri.settings.debug`
-- type: `null or (attribute set of kdl arguments)`
-- default: `null`
-
-
-## `programs.niri.settings.environment`
-- type: `attribute set of (null or string)`
-
-
-## `programs.niri.settings.hotkey-overlay.skip-at-startup`
-- type: `boolean`
-- default: `false`
-
-
 ## `programs.niri.settings.input.keyboard.repeat-delay`
 - type: `signed integer`
 - default: `600`
@@ -455,6 +334,86 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 
 ## `programs.niri.settings.input.trackpoint.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+
+## `programs.niri.settings.outputs`
+- type: `attribute set of (submodule)`
+
+
+## `programs.niri.settings.outputs.<name>.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.outputs.<name>.mode`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.mode.height`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.mode.refresh`
+- type: `null or floating point number`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.mode.width`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.position`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.position.x`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.position.y`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.scale`
+- type: `floating point number`
+- default: `1.000000`
+
+
+## `programs.niri.settings.outputs.<name>.transform.flipped`
+- type: `boolean`
+- default: `false`
+
+
+## `programs.niri.settings.outputs.<name>.transform.rotation`
+- type: `one of 0, 90, 180, 270`
+- default: `0`
+
+
+## `programs.niri.settings.cursor.size`
+- type: `signed integer`
+- default: `24`
+
+
+## `programs.niri.settings.cursor.theme`
+- type: `string`
+- default: `"default"`
+
+
+## `programs.niri.settings.screenshot-path`
+- type: `null or string`
+- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
+
+
+## `programs.niri.settings.hotkey-overlay.skip-at-startup`
+- type: `boolean`
+- default: `false`
+
+
+## `programs.niri.settings.prefer-no-csd`
 - type: `boolean`
 - default: `false`
 
@@ -645,77 +604,113 @@ Beware that setting `programs.niri.config` completely overrides everything under
 - default: `0`
 
 
-## `programs.niri.settings.outputs`
-- type: `attribute set of (submodule)`
-
-
-## `programs.niri.settings.outputs.<name>.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.outputs.<name>.mode`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.outputs.<name>.mode.height`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.mode.refresh`
-- type: `null or floating point number`
-- default: `null`
-
-
-## `programs.niri.settings.outputs.<name>.mode.width`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.position`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.outputs.<name>.position.x`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.position.y`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.scale`
-- type: `floating point number`
-- default: `1.000000`
-
-
-## `programs.niri.settings.outputs.<name>.transform.flipped`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.outputs.<name>.transform.rotation`
-- type: `one of 0, 90, 180, 270`
-- default: `0`
-
-
-## `programs.niri.settings.prefer-no-csd`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.screenshot-path`
-- type: `null or string`
-- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
-
-
 ## `programs.niri.settings.spawn-at-startup`
 - type: `list of (submodule)`
 
 
 ## `programs.niri.settings.spawn-at-startup.*.command`
 - type: `list of string`
+
+
+## `programs.niri.settings.binds`
+- type: `attribute set of (string or kdl leaf)`
+
+
+## `programs.niri.settings.animations.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.slowdown`
+- type: `floating point number`
+- default: `1.000000`
+
+
+## `programs.niri.settings.animations.<name>`
+- type: `animation`, which is a `variant of: easing | spring`
+
+
+## `programs.niri.settings.animations.<name>.easing.curve`
+- type: `one of "ease-out-cubic", "ease-out-expo"`
+
+
+## `programs.niri.settings.animations.<name>.easing.duration-ms`
+- type: `signed integer`
+
+
+## `programs.niri.settings.animations.<name>.spring.damping-ratio`
+- type: `floating point number`
+
+
+## `programs.niri.settings.animations.<name>.spring.epsilon`
+- type: `floating point number`
+
+
+## `programs.niri.settings.animations.<name>.spring.stiffness`
+- type: `signed integer`
+
+
+## `programs.niri.settings.animations.config-notification-open-close`
+- type: `null or animation`
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 0.600000;
+      epsilon = 0.001000;
+      stiffness = 1000;
+    };
+  }
+  ```
+
+
+
+## `programs.niri.settings.animations.horizontal-view-movement`
+- type: `null or animation`
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 1.000000;
+      epsilon = 0.000100;
+      stiffness = 800;
+    };
+  }
+  ```
+
+
+
+## `programs.niri.settings.animations.window-open`
+- type: `null or animation`
+- default:
+  ```nix
+  {
+    easing = {
+      curve = "ease-out-expo";
+      duration-ms = 150;
+    };
+  }
+  ```
+
+
+
+## `programs.niri.settings.animations.workspace-switch`
+- type: `null or animation`
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 1.000000;
+      epsilon = 0.000100;
+      stiffness = 1000;
+    };
+  }
+  ```
+
+
+
+## `programs.niri.settings.environment`
+- type: `attribute set of (null or string)`
 
 
 ## `programs.niri.settings.window-rules`
@@ -775,4 +770,9 @@ Beware that setting `programs.niri.config` completely overrides everything under
 
 ## `programs.niri.settings.window-rules.*.open-on-output`
 - type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.debug`
+- type: `null or (attribute set of kdl arguments)`
 - default: `null`

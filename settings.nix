@@ -116,8 +116,19 @@ with lib; let
       title = nullable types.str;
     };
 
-    settings = record {
-      input = {
+    ordered-record = sections: let
+      base = record (concatMapAttrs (flip const) sections);
+      self = mkOptionType {
+        inherit (base) name description check merge nestedTypes;
+        getSubOptions = loc: mapAttrs (section: opts: (record opts).getSubOptions loc) sections;
+      };
+    in
+      self;
+
+    section = content: optional (ordered-record content) {};
+
+    settings = ordered-record {
+      a.input = {
         keyboard = {
           xkb = {
             layout = nullable types.str;
@@ -146,7 +157,7 @@ with lib; let
         power-key-handling.enable = optional types.bool true;
       };
 
-      outputs = attrs (record {
+      b.outputs = attrs (record {
         enable = optional types.bool true;
         scale = optional types.float 1.0;
         transform = {
@@ -164,7 +175,18 @@ with lib; let
         });
       });
 
-      layout = {
+      c.cursor = {
+        theme = optional types.str "default";
+        size = optional types.int 24;
+      };
+
+      d.screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
+
+      e.hotkey-overlay.skip-at-startup = optional types.bool false;
+
+      f.prefer-no-csd = optional types.bool false;
+
+      g.layout = {
         focus-ring =
           (borderish "rgb(127 200 255)")
           // {
@@ -188,18 +210,12 @@ with lib; let
         };
       };
 
-      prefer-no-csd = optional types.bool false;
+      h.spawn-at-startup = list (record {
+        command = list types.str;
+      });
+      i.binds = attrs (either types.str kdl.types.kdl-leaf);
 
-      cursor = {
-        theme = optional types.str "default";
-        size = optional types.int 24;
-      };
-
-      screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
-
-      hotkey-overlay.skip-at-startup = optional types.bool false;
-
-      animations = let
+      j.animations = let
         animation = variant {
           spring = record {
             damping-ratio = required types.float;
@@ -275,15 +291,9 @@ with lib; let
           description = "animations";
         };
 
-      environment = attrs (nullOr (types.str));
+      k.environment = attrs (nullOr (types.str));
 
-      binds = attrs (either types.str kdl.types.kdl-leaf);
-
-      spawn-at-startup = list (record {
-        command = list types.str;
-      });
-
-      window-rules = list (record {
+      l.window-rules = list (record {
         matches = list match;
         excludes = list match;
 
@@ -293,7 +303,7 @@ with lib; let
         open-fullscreen = nullable types.bool;
       });
 
-      debug = nullable (attrsOf kdl.types.kdl-args);
+      z.debug = nullable (attrsOf kdl.types.kdl-args);
     };
   in
     {config, ...}: let
