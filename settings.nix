@@ -453,7 +453,7 @@ with lib; let
           You can enable this overlay by adding this line to your configuration:
 
           ```nix
-          nixpkgs.overlays = [ niri.overlay ];
+          nixpkgs.overlays = [ niri.overlays.niri ];
           ```
 
           You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
