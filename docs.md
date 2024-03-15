@@ -74,7 +74,7 @@ The package that niri will use.
 
 You may wish to set it to the following values:
 
-- [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
+- [`pkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
 - [`packages.<system>.niri-stable`](#packagessystemniri-stable)
 - [`packages.<system>.niri-unstable`](#packagessystemniri-unstable)
 
@@ -119,7 +119,7 @@ The package that niri will use.
 
 You may wish to set it to the following values:
 
-- [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
+- [`pkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
 - [`packages.<system>.niri-stable`](#packagessystemniri-stable)
 - [`packages.<system>.niri-unstable`](#packagessystemniri-unstable)
 

@@ -395,6 +395,8 @@ with lib; let
       pkg-header = name: "packages.<system>.${name}";
       pkg-link = name: link' (pkg-header name);
 
+      nixpkgs-link = name: "[`pkgs.${name}`](https://search.nixos.org/packages?channel=unstable&show=${name})";
+
       pkg-output = name: desc:
         fake-option (pkg-header name) ''
           (where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
@@ -423,7 +425,7 @@ with lib; let
 
         You may wish to set it to the following values:
 
-        - [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
+        - ${nixpkgs-link "niri"}
         - ${pkg-link "niri-stable"}
         - ${pkg-link "niri-unstable"}
       '';
