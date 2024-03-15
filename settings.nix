@@ -125,7 +125,10 @@ with lib; let
     in
       self;
 
-    section = content: optional (ordered-record content) {};
+    make-section = flip optional {};
+
+    # section = flip pipe [record make-section];
+    # ordered-section = flip pipe [ordered-record make-section];
 
     settings = ordered-record {
       a.input = {
@@ -266,31 +269,27 @@ with lib; let
           defaults;
         base = record (opts // anims);
       in
-        mkOption {
-          type = mkOptionType {
-            inherit (base) name check merge nestedTypes;
-            description = "animations";
-            descriptionClass = "noun";
-            getSubOptions = loc: {
-              a.opts = (record opts).getSubOptions loc;
-              b.submodule =
-                (required (animation
-                  // {
-                    description = "animation";
-                    nestedTypes.newtype-inner = animation;
-                  }))
+        make-section (mkOptionType {
+          inherit (base) name check merge nestedTypes;
+          description = "animations";
+          descriptionClass = "noun";
+          getSubOptions = loc: {
+            a.opts = (record opts).getSubOptions loc;
+            b.submodule =
+              (required (animation
                 // {
-                  defaultText = null;
-                  loc = loc ++ ["<name>"];
-                };
-              c.defaults = {
-                anims = (record anims).getSubOptions loc;
+                  description = "animation";
+                  nestedTypes.newtype-inner = animation;
+                }))
+              // {
+                defaultText = null;
+                loc = loc ++ ["<name>"];
               };
+            c.defaults = {
+              anims = (record anims).getSubOptions loc;
             };
           };
-          default = {};
-          description = "animations";
-        };
+        });
 
       k.environment = attrs (nullOr (types.str));
 
