@@ -85,9 +85,13 @@ You may wish to set it to the following values:
 - type: `boolean`
 - default: `true`
 
-Whether or not to enable the binary cache managed by me, sodiboo.
+Whether or not to enable the binary cache [`niri.cachix.org`](https://niri.cachix.org/) in your nix configuration.
 
-This is enabled by default, because there's not much reason to *not* use it. But, if you wish to disable it, you may.
+Using a binary cache can save you time, by avoiding redundant rebuilds.
+
+This cache is managed by me, sodiboo, and i use GitHub Actions to automaticaly upload builds of [`packages.<system>.niri-stable`](#packagessystemniri-stable) and [`packages.<system>.niri-unstable`](#packagessystemniri-unstable) (for nixpkgs unstable and stable). By using it, you are trusting me to not upload malicious builds, and as such you may disable it.
+
+If you do not wish to use this cache, then you may wish to set [`programs.niri.package`](#programsniripackage) to [`pkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri), in order to take advantage of the NixOS cache.
 
 
 
