@@ -1,4 +1,4 @@
-# Outputs provided by this flake
+# Packages provided by this flake
 
 ## `packages.<system>.niri-stable`
 
@@ -42,7 +42,7 @@ You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable`
 
 
 
-## `nixosModules.niri`
+# `nixosModules.niri`
 
 The full NixOS module for niri.
 
@@ -53,53 +53,6 @@ By default, this module does the following:
 - If you have home-manager and stylix installed in your NixOS configuration, this module will also automatically import [`homeModules.stylix`](#homemodulesstylix) for all users.
 
 
-see also: [Options for `nixosModules.niri`](#options-for-nixosmodulesniri)
-
-
-
-## `homeModules.niri`
-
-The full home-manager module for niri.
-
-By default, this module does nothing. It will import [`homeModules.config`](#homemodulesconfig), which provides many configuration options, and it also provides some options to install niri.
-
-
-see also: [Options for `homeModules.niri`](#options-for-homemodulesniri)
-
-
-
-## `homeModules.config`
-
-Configuration options for niri. This module is automatically imported by [`nixosModules.niri`](#nixosmodulesniri) and [`homeModules.niri`](#homemodulesniri).
-
-By default, this module does nothing. It provides many configuration options for niri, such as keybindings, animations, and window rules.
-
-When its options are set, it generates `$XDGN_CONFIG_HOME/niri/config.kdl` for the user. This is the default path for niri's config file.
-
-It will also validate the config file with the `niri validate` command before committing that config. This ensures that the config file is always valid, else your system will fail to build. When using [`programs.niri.settings`](#programsnirisettings) to configure niri, that's not necessary, because it will always generate a valid config file. But, if you set [`programs.niri.config`](#programsniriconfig) directly, then this is very useful.
-
-
-see also: [Options for `homeModules.config`](#options-for-homemodulesconfig)
-
-
-
-## `homeModules.stylix`
-
-Stylix integration. It provides a target to enable niri.
-
-This module is automatically imported if you have home-manager and stylix installed in your NixOS configuration.
-
-If you use standalone home-manager, you must import it manually if you wish to use stylix with niri. (since it can't be automatically imported in that case)
-
-Note that enabling the stylix target will cause a config file to be generated, even if you don't set [`programs.niri.config`](#programsniriconfig).
-
-
-
-see also: [Options for `homeModules.stylix`](#options-for-homemodulesstylix)
-
-
-
-# Options for `nixosModules.niri`
 
 ## `programs.niri.enable`
 
@@ -115,11 +68,11 @@ This also enables the necessary system components for niri to function properly,
 ## `programs.niri.package`
 
 - type: `package`
-- default: `pkgs.niri-stable`
+- default: [`packages.<system>.niri-stable`](#packagessystemniri-stable)
 
 The package that niri will use.
 
-By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
+You may wish to set it to the following values:
 
 - [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
 - [`packages.<system>.niri-stable`](#packagessystemniri-stable)
@@ -138,7 +91,13 @@ This is enabled by default, because there's not much reason to *not* use it. But
 
 
 
-# Options for `homeModules.niri`
+# `homeModules.niri`
+
+The full home-manager module for niri.
+
+By default, this module does nothing. It will import [`homeModules.config`](#homemodulesconfig), which provides many configuration options, and it also provides some options to install niri.
+
+
 
 ## `programs.niri.enable`
 
@@ -154,11 +113,11 @@ This also enables the necessary system components for niri to function properly,
 ## `programs.niri.package`
 
 - type: `package`
-- default: `pkgs.niri-stable`
+- default: [`packages.<system>.niri-stable`](#packagessystemniri-stable)
 
 The package that niri will use.
 
-By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
+You may wish to set it to the following values:
 
 - [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
 - [`packages.<system>.niri-stable`](#packagessystemniri-stable)
@@ -166,25 +125,38 @@ By default, this is niri-stable as provided by my flake. You may wish to set it 
 
 
 
-# Options for `homeModules.stylix`
+# `homeModules.stylix`
+
+Stylix integration. It provides a target to enable niri.
+
+This module is automatically imported if you have home-manager and stylix installed in your NixOS configuration.
+
+If you use standalone home-manager, you must import it manually if you wish to use stylix with niri. (since it can't be automatically imported in that case)
+
+
 
 ## `stylix.targets.niri.enable`
 
 - type: `boolean`
-- default: `stylix.autoEnable`
+- default: [`stylix.autoEnable`](https://danth.github.io/stylix/options/hm.html#stylixautoenable)
 
 Whether to style niri according to your stylix config.
 
+Note that enabling this stylix target will cause a config file to be generated, even if you don't set [`programs.niri.config`](#programsniriconfig).
+
+This also means that, with stylix installed, having everything set to default *does* generate an actual config file.
 
 
-# Options for `homeModules.config`
 
-## `programs.niri.package`
+# `homeModules.config`
 
-- type: `package`
-- default: `pkgs.niri-stable`
+Configuration options for niri. This module is automatically imported by [`nixosModules.niri`](#nixosmodulesniri) and [`homeModules.niri`](#homemodulesniri).
 
-The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in [`nixosModules.niri`](#nixosmodulesniri) or [`homeModules.niri`](#homemodulesniri).
+By default, this module does nothing. It provides many configuration options for niri, such as keybindings, animations, and window rules.
+
+When its options are set, it generates `$XDG_CONFIG_HOME/niri/config.kdl` for the user. This is the default path for niri's config file.
+
+It will also validate the config file with the `niri validate` command before committing that config. This ensures that the config file is always valid, else your system will fail to build. When using [`programs.niri.settings`](#programsnirisettings) to configure niri, that's not necessary, because it will always generate a valid config file. But, if you set [`programs.niri.config`](#programsniriconfig) directly, then this is very useful.
 
 
 
@@ -196,6 +168,15 @@ This is a type that behaves similarly to a submodule, except you can only set *o
 
 An example of this usage is in animations, where each action can have either an easing animation or a spring animation. \
 You cannot set parameters for both, so `variant` is used here.
+
+
+## `programs.niri.package`
+
+- type: `package`
+- default: `pkgs.niri-stable`
+
+The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in [`nixosModules.niri`](#nixosmodulesniri) or [`homeModules.niri`](#homemodulesniri).
+
 
 
 ## `programs.niri.config`

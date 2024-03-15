@@ -382,19 +382,15 @@ with lib; let
       link = title: "[${title}](#${anchor title})";
       link' = loc: link "`${loc}`";
 
-      opt-mod = module: "Options for `${module}`";
-      link-opts = module: link (opt-mod module);
+      module = name: desc: opts:
+        {
+          _ = section ''
+            # `${name}`
 
-      stylix-note = ''
-        Note that enabling the stylix target will cause a config file to be generated, even if you don't set ${link' "programs.niri.config"}.
-      '';
-
-      module = name: desc:
-        fake-option name ''
-          ${desc}
-
-          see also: ${link-opts name}
-        '';
+            ${desc}
+          '';
+        }
+        // opts;
 
       pkg-header = name: "packages.<system>.${name}";
       pkg-link = name: link' (pkg-header name);
@@ -421,20 +417,22 @@ with lib; let
 
       package-option = fake-option "programs.niri.package" ''
         - type: `package`
-        - default: `pkgs.niri-stable`
+        - default: ${pkg-link "niri-stable"}
 
         The package that niri will use.
 
-        By default, this is niri-stable as provided by my flake. You may wish to set it to the following values:
+        You may wish to set it to the following values:
 
         - [`nixpkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
         - ${pkg-link "niri-stable"}
         - ${pkg-link "niri-unstable"}
       '';
       link-niri-release = tag: "[release `${tag}`](https://github.com/YaLTeR/niri/releases/tag/${tag})";
+
+      link-stylix-opt = opt: "[`${opt}`](https://danth.github.io/stylix/options/hm.html#${anchor opt})";
     in {
-      a.outputs = {
-        _ = header "Outputs provided by this flake";
+      a.nonmodules = {
+        _ = header "Packages provided by this flake";
 
         a.packages = {
           niri-stable = pkg-output "niri-stable" ''
@@ -458,9 +456,10 @@ with lib; let
 
           You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
         '';
-
-        c.modules = {
-          a.nixos = module "nixosModules.niri" ''
+      };
+      b.modules = {
+        a.nixos =
+          module "nixosModules.niri" ''
             The full NixOS module for niri.
 
             By default, this module does the following:
@@ -468,85 +467,78 @@ with lib; let
             - It will enable a binary cache managed by me, sodiboo. This helps you avoid building niri from source, which can take a long time in release mode.
             - If you have home-manager installed in your NixOS configuration (rather than as a standalone program), this module will automatically import ${link' "homeModules.config"} for all users and give it the correct package to use for validation.
             - If you have home-manager and stylix installed in your NixOS configuration, this module will also automatically import ${link' "homeModules.stylix"} for all users.
-          '';
+          '' {
+            enable = enable-option;
+            package = package-option;
+            z.cache = fake-option "niri-flake.cache.enable" ''
+              - type: `boolean`
+              - default: `true`
 
-          b.home = module "homeModules.niri" ''
+              Whether or not to enable the binary cache managed by me, sodiboo.
+
+              This is enabled by default, because there's not much reason to *not* use it. But, if you wish to disable it, you may.
+            '';
+          };
+
+        b.home =
+          module "homeModules.niri" ''
             The full home-manager module for niri.
 
             By default, this module does nothing. It will import ${link' "homeModules.config"}, which provides many configuration options, and it also provides some options to install niri.
-          '';
+          '' {
+            enable = enable-option;
+            package = package-option;
+          };
 
-          c.config = module "homeModules.config" ''
-            Configuration options for niri. This module is automatically imported by ${link' "nixosModules.niri"} and ${link' "homeModules.niri"}.
-
-            By default, this module does nothing. It provides many configuration options for niri, such as keybindings, animations, and window rules.
-
-            When its options are set, it generates `$XDGN_CONFIG_HOME/niri/config.kdl` for the user. This is the default path for niri's config file.
-
-            It will also validate the config file with the `niri validate` command before committing that config. This ensures that the config file is always valid, else your system will fail to build. When using ${link' "programs.niri.settings"} to configure niri, that's not necessary, because it will always generate a valid config file. But, if you set ${link' "programs.niri.config"} directly, then this is very useful.
-          '';
-
-          d.stylix = module "homeModules.stylix" ''
+        c.stylix =
+          module "homeModules.stylix" ''
             Stylix integration. It provides a target to enable niri.
 
             This module is automatically imported if you have home-manager and stylix installed in your NixOS configuration.
 
             If you use standalone home-manager, you must import it manually if you wish to use stylix with niri. (since it can't be automatically imported in that case)
+          '' {
+            target = fake-option "stylix.targets.niri.enable" ''
+              - type: `boolean`
+              - default: ${link-stylix-opt "stylix.autoEnable"}
 
-            ${stylix-note}
+              Whether to style niri according to your stylix config.
+
+              Note that enabling this stylix target will cause a config file to be generated, even if you don't set ${link' "programs.niri.config"}.
+
+              This also means that, with stylix installed, having everything set to default *does* generate an actual config file.
+            '';
+          };
+      };
+
+      z.pre-config =
+        module "homeModules.config" ''
+          Configuration options for niri. This module is automatically imported by ${link' "nixosModules.niri"} and ${link' "homeModules.niri"}.
+
+          By default, this module does nothing. It provides many configuration options for niri, such as keybindings, animations, and window rules.
+
+          When its options are set, it generates `$XDG_CONFIG_HOME/niri/config.kdl` for the user. This is the default path for niri's config file.
+
+          It will also validate the config file with the `niri validate` command before committing that config. This ensures that the config file is always valid, else your system will fail to build. When using ${link' "programs.niri.settings"} to configure niri, that's not necessary, because it will always generate a valid config file. But, if you set ${link' "programs.niri.config"} directly, then this is very useful.
+        '' {
+          a.variant = section ''
+            ## type: `variant of`
+
+            Some of the options below make use of a "variant" type.
+
+            This is a type that behaves similarly to a submodule, except you can only set *one* of its suboptions.
+
+            An example of this usage is in animations, where each action can have either an easing animation or a spring animation. \
+            You cannot set parameters for both, so `variant` is used here.
+          '';
+
+          b.package = fake-option "programs.niri.package" ''
+            - type: `package`
+            - default: `pkgs.niri-stable`
+
+            The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in ${link' "nixosModules.niri"} or ${link' "homeModules.niri"}.
           '';
         };
-      };
-
-      b.nixos = {
-        _ = header (opt-mod "nixosModules.niri");
-        enable = enable-option;
-        package = package-option;
-        z.cache = fake-option "niri-flake.cache.enable" ''
-          - type: `boolean`
-          - default: `true`
-
-          Whether or not to enable the binary cache managed by me, sodiboo.
-
-          This is enabled by default, because there's not much reason to *not* use it. But, if you wish to disable it, you may.
-        '';
-      };
-
-      c.home = {
-        _ = header (opt-mod "homeModules.niri");
-        enable = enable-option;
-        package = package-option;
-      };
-
-      d.stylix = {
-        _ = header (opt-mod "homeModules.stylix");
-        target = fake-option "stylix.targets.niri.enable" ''
-          - type: `boolean`
-          - default: `stylix.autoEnable`
-
-          Whether to style niri according to your stylix config.
-        '';
-      };
-
-      z.pre-config = {
-        _ = header (opt-mod "homeModules.config");
-        package = fake-option "programs.niri.package" ''
-          - type: `package`
-          - default: `pkgs.niri-stable`
-
-          The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in ${link' "nixosModules.niri"} or ${link' "homeModules.niri"}.
-        '';
-        variant = section ''
-          ## type: `variant of`
-
-          Some of the options below make use of a "variant" type.
-
-          This is a type that behaves similarly to a submodule, except you can only set *one* of its suboptions.
-
-          An example of this usage is in animations, where each action can have either an easing animation or a spring animation. \
-          You cannot set parameters for both, so `variant` is used here.
-        '';
-      };
     };
   };
 
