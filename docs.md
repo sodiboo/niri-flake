@@ -618,6 +618,8 @@ Beware that setting `programs.niri.config` completely overrides everything under
 - type: `attribute set of (string or kdl leaf)`
 
 
+<!-- programs.niri.settings.animations -->
+
 ## `programs.niri.settings.animations.enable`
 - type: `boolean`
 - default: `true`
@@ -632,6 +634,8 @@ Beware that setting `programs.niri.config` completely overrides everything under
 - type: `animation`, which is a `variant of: easing | spring`
 
 
+<!-- programs.niri.settings.animations.<name>.easing -->
+
 ## `programs.niri.settings.animations.<name>.easing.curve`
 - type: `one of "ease-out-cubic", "ease-out-expo"`
 
@@ -639,6 +643,8 @@ Beware that setting `programs.niri.config` completely overrides everything under
 ## `programs.niri.settings.animations.<name>.easing.duration-ms`
 - type: `signed integer`
 
+
+<!-- programs.niri.settings.animations.<name>.spring -->
 
 ## `programs.niri.settings.animations.<name>.spring.damping-ratio`
 - type: `floating point number`

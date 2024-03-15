@@ -32,7 +32,7 @@ with lib; let
     };
 
   describe = path: opt:
-    optionalAttrs (opt.type.name != "submodule") {
+    {
       ${showOption path} =
         opt
         // {
@@ -73,6 +73,8 @@ in
       path: opt:
         if opt.type.name == "docs-override"
         then "${opt.description}"
+        else if opt.type.name == "submodule" && opt.description or null == null
+        then "<!-- ${showOption opt.loc} -->"
         else
           (concatStringsSep "\n" (
             filter (v: v != null) [
