@@ -35,7 +35,9 @@ It is recommended to use this overlay over directly accessing the outputs. This 
 You can enable this overlay by adding this line to your configuration:
 
 ```nix
-nixpkgs.overlays = [ niri.overlays.niri ];
+{
+  nixpkgs.overlays = [ niri.overlays.niri ];
+}
 ```
 
 You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
@@ -177,7 +179,7 @@ You cannot set parameters for both, so `variant` is used here.
 ## `programs.niri.package`
 
 - type: `package`
-- default: `pkgs.niri-stable`
+- default: [`packages.<system>.niri-stable`](#packagessystemniri-stable)
 
 The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in [`nixosModules.niri`](#nixosmodulesniri) or [`homeModules.niri`](#homemodulesniri).
 

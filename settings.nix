@@ -463,7 +463,9 @@ with lib; let
           You can enable this overlay by adding this line to your configuration:
 
           ```nix
-          nixpkgs.overlays = [ niri.overlays.niri ];
+          {
+            nixpkgs.overlays = [ niri.overlays.niri ];
+          }
           ```
 
           You can then access the packages via `pkgs.niri-stable` and `pkgs.niri-unstable` as if they were part of nixpkgs.
@@ -550,7 +552,7 @@ with lib; let
 
           b.package = fake-option "programs.niri.package" ''
             - type: `package`
-            - default: `pkgs.niri-stable`
+            - default: ${pkg-link "niri-stable"}
 
             The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in ${link' "nixosModules.niri"} or ${link' "homeModules.niri"}.
           '';
