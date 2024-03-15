@@ -1,15 +1,15 @@
 {lib}:
 with lib; let
   match = name: cases: cases.${name} or cases._;
-  indent = flip pipe [
+  indent = entries: "${pipe entries [
+    toList
+    (concatStringsSep "\n")
     (splitString "\n")
     (map (s: "  ${s}"))
     (concatStringsSep "\n")
-  ];
-  concat-indent = flip pipe [
-    (concatStringsSep "\n")
-    indent
-  ];
+  ]}";
+
+  delimit = start: content: end: concatStringsSep "\n" [start content end];
   render = v:
     match (builtins.typeOf v) {
       string = lib.strings.escapeNixString v;
@@ -22,12 +22,12 @@ with lib; let
       set =
         if v == {}
         then null
-        else "{\n${concat-indent (mapAttrsToList (name: val: "${name} = ${render val};") v)}\n}";
+        else delimit "{" (indent(mapAttrsToList (name: val: "${name} = ${render val};") v)) "}";
       null = "null";
       list =
         if v == []
         then null
-        else "[\n${concat-indent (map render v)}\n]";
+        else delimit "[" (indent(map render v)) "]";
       _ = "<${(builtins.typeOf v)}>";
     };
 
@@ -62,9 +62,7 @@ with lib; let
     then "- default: `${text}`"
     else ''
       - default:
-        ```nix
-      ${indent text}
-        ```
+      ${indent (delimit "```nix" text "```")}
     '';
 in
   flip pipe [
