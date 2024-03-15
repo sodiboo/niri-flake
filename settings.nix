@@ -288,6 +288,7 @@ with lib; let
               };
             };
           };
+          default = {};
           description = "animations";
         };
 
