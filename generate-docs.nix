@@ -6,6 +6,10 @@ with lib; let
     (map (s: "  ${s}"))
     (concatStringsSep "\n")
   ];
+  concat-indent = flip pipe [
+    (concatStringsSep "\n")
+    indent
+  ];
   render = v:
     match (builtins.typeOf v) {
       string = lib.strings.escapeNixString v;
@@ -18,12 +22,12 @@ with lib; let
       set =
         if v == {}
         then null
-        else "{\n${indent (concatStringsSep "\n" (mapAttrsToList (name: val: "${name} = ${render val};") v))}\n}";
+        else "{\n${concat-indent (mapAttrsToList (name: val: "${name} = ${render val};") v)}\n}";
       null = "null";
       list =
         if v == []
         then null
-        else "<list>";
+        else "[\n${concat-indent (map render v)}\n]";
       _ = "<${(builtins.typeOf v)}>";
     };
 
