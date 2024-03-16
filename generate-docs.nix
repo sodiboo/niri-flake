@@ -99,7 +99,9 @@ with lib; let
   nixpkgs-link = name: "[`pkgs.${name}`](https://search.nixos.org/packages?channel=unstable&show=${name})";
 
   make-default = text:
-    ''
+    if length (splitString "\n" text) == 1
+    then "- default: `${text}`"
+    else ''
       - default:
       ${indent (delimit "```nix" text "```")}
     '';
