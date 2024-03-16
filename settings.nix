@@ -144,101 +144,6 @@ with docs.lib; {
 
     settings = make-ordered [
       {
-        input = {
-          keyboard = {
-            xkb = {
-              layout = nullable types.str;
-              model = nullable types.str;
-              rules = nullable types.str;
-              variant = nullable types.str;
-              options = nullable types.str;
-            };
-            repeat-delay = optional types.int 600;
-            repeat-rate = optional types.int 25;
-            track-layout = optional (enum ["global" "window"]) "global";
-          };
-          touchpad =
-            (basic-pointer true)
-            // {
-              tap = optional types.bool true;
-              dwt = optional types.bool false;
-              dwtp = optional types.bool false;
-              tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
-            };
-          mouse = basic-pointer false;
-          trackpoint = basic-pointer false;
-          tablet.map-to-output = nullable types.str;
-          touch.map-to-output = nullable types.str;
-
-          power-key-handling.enable = optional types.bool true;
-        };
-      }
-
-      {
-        outputs = attrs (record {
-          enable = optional types.bool true;
-          scale = optional types.float 1.0;
-          transform = {
-            flipped = optional types.bool false;
-            rotation = optional (enum [0 90 180 270]) 0;
-          };
-          position = nullable (record {
-            x = required types.int;
-            y = required types.int;
-          });
-          mode = nullable (record {
-            width = required types.int;
-            height = required types.int;
-            refresh = nullable types.float;
-          });
-        });
-      }
-
-      {
-        cursor = {
-          theme = optional types.str "default";
-          size = optional types.int 24;
-        };
-      }
-
-      {screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";}
-
-      {hotkey-overlay.skip-at-startup = optional types.bool false;}
-
-      {prefer-no-csd = optional types.bool false;}
-
-      {
-        layout = {
-          focus-ring =
-            (borderish "rgb(127 200 255)")
-            // {
-              enable = optional types.bool true;
-            };
-
-          border =
-            (borderish "rgb(255 200 127)")
-            // {
-              enable = optional types.bool false;
-            };
-          preset-column-widths = list preset-width;
-          default-column-width = optional default-width {};
-          center-focused-column = optional (enum ["never" "always" "on-overflow"]) "never";
-          gaps = optional types.int 16;
-          struts = {
-            left = optional types.int 0;
-            right = optional types.int 0;
-            top = optional types.int 0;
-            bottom = optional types.int 0;
-          };
-        };
-      }
-
-      {
-        spawn-at-startup = list (record {
-          command = list types.str;
-        });
-      }
-      {
         binds =
           attrs (either types.str kdl.types.kdl-leaf)
           // {
@@ -333,6 +238,128 @@ with docs.lib; {
               Although the nix module does *not* verify the correctness of the keybindings, it will ask niri to validate the config file before committing it. This ensures that you won't accidentally build a system with an invalid niri config.
             '';
           };
+      }
+
+      {screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png" // {
+        description = ''
+          The path to save screenshots to.
+
+          If this is null, then no screenshots will be saved.
+
+          If the path starts with a `~`, then it will be expanded to the user's home directory.
+
+          The path is then passed to [`stftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+        '';
+      };}
+
+      {
+        hotkey-overlay.skip-at-startup =
+          optional types.bool false
+          // {
+            description = ''
+              Whether to skip the hotkey overlay shown when niri starts.
+            '';
+          };
+      }
+
+      {
+        prefer-no-csd =
+          optional types.bool false
+          // {
+            description = ''
+              Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
+            '';
+          };
+      }
+
+      {
+        spawn-at-startup = list (record {
+          command = list types.str;
+        });
+      }
+
+      {
+        input = {
+          keyboard = {
+            xkb = {
+              layout = nullable types.str;
+              model = nullable types.str;
+              rules = nullable types.str;
+              variant = nullable types.str;
+              options = nullable types.str;
+            };
+            repeat-delay = optional types.int 600;
+            repeat-rate = optional types.int 25;
+            track-layout = optional (enum ["global" "window"]) "global";
+          };
+          touchpad =
+            (basic-pointer true)
+            // {
+              tap = optional types.bool true;
+              dwt = optional types.bool false;
+              dwtp = optional types.bool false;
+              tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
+            };
+          mouse = basic-pointer false;
+          trackpoint = basic-pointer false;
+          tablet.map-to-output = nullable types.str;
+          touch.map-to-output = nullable types.str;
+
+          power-key-handling.enable = optional types.bool true;
+        };
+      }
+
+      {
+        outputs = attrs (record {
+          enable = optional types.bool true;
+          scale = optional types.float 1.0;
+          transform = {
+            flipped = optional types.bool false;
+            rotation = optional (enum [0 90 180 270]) 0;
+          };
+          position = nullable (record {
+            x = required types.int;
+            y = required types.int;
+          });
+          mode = nullable (record {
+            width = required types.int;
+            height = required types.int;
+            refresh = nullable types.float;
+          });
+        });
+      }
+
+      {
+        cursor = {
+          theme = optional types.str "default";
+          size = optional types.int 24;
+        };
+      }
+
+      {
+        layout = {
+          focus-ring =
+            (borderish "rgb(127 200 255)")
+            // {
+              enable = optional types.bool true;
+            };
+
+          border =
+            (borderish "rgb(255 200 127)")
+            // {
+              enable = optional types.bool false;
+            };
+          preset-column-widths = list preset-width;
+          default-column-width = optional default-width {};
+          center-focused-column = optional (enum ["never" "always" "on-overflow"]) "never";
+          gaps = optional types.int 16;
+          struts = {
+            left = optional types.int 0;
+            right = optional types.int 0;
+            top = optional types.int 0;
+            bottom = optional types.int 0;
+          };
+        };
       }
 
       {
