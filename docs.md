@@ -204,7 +204,6 @@ The `niri` package that the config is validated against. This cannot be modified
 <!-- sorting key: programs.niri.config -->
 ## `programs.niri.config`
 - type: `null or string or kdl document`
-- default: `<dependent on programs.niri.settings>`
 
 The niri config file.
 
@@ -212,17 +211,16 @@ The niri config file.
 - When this is a string, it is assumed to be the config file contents.
 - When this is kdl document, it is serialized to a string before being used as the config file contents.
 
-By default, this is a KDL document that reflects the settings in `programs.niri.settings`.
+By default, this is a KDL document that reflects the settings in [`programs.niri.settings`](#programsnirisettings).
 
 
 <!-- sorting key: programs.niri.finalConfig -->
 ## `programs.niri.finalConfig`
 - type: `null or string`
-- default: `<dependent on programs.niri.config>`
 
 The final niri config file contents.
 
-This is a string that reflects the document stored in `programs.niri.config`.
+This is a string that reflects the document stored in [`programs.niri.config`](#programsniriconfig).
 
 It is exposed mainly for debugging purposes, such as when you need to inspect how a certain option affects the resulting config file.
 
@@ -236,7 +234,7 @@ Nix-native settings for niri.
 
 By default, when this is null, no config file is generated.
 
-Beware that setting `programs.niri.config` completely overrides everything under this option.
+Beware that setting [`programs.niri.config`](#programsniriconfig) completely overrides everything under this option.
 
 
 <!-- sorting key: programs.niri.settings.a.input.keyboard.repeat-delay -->

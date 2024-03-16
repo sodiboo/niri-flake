@@ -45,10 +45,10 @@ with lib; let
       };
   };
 
-  make-docs = path: v: (
+  traverse = path: v: (
     if (v ? _type && v._type == "option")
-    then (describe path v) // (make-docs path (v.type.getSubOptions v.loc))
-    else concatMapAttrs (name: make-docs (path ++ [name])) (filterAttrs (name: const (name != "_module")) v)
+    then (describe path v) // (traverse path (v.type.getSubOptions v.loc))
+    else concatMapAttrs (name: traverse (path ++ [name])) (filterAttrs (name: const (name != "_module")) v)
   );
 
   maybe = f: v:
@@ -56,18 +56,59 @@ with lib; let
     then f v
     else null;
 
-  multiline-default = text:
+  section = contents:
+    mkOption {
+      type = mkOptionType {name = "docs-override";};
+      description = contents;
+    };
+
+  header = title: section "# ${title}";
+  fake-option = loc: contents:
+    section ''
+      ## `${loc}`
+
+      ${contents}
+    '';
+
+  test = pat: str: strings.match pat str != null;
+
+  anchor = flip pipe [
+    (replaceStrings (upperChars ++ [" "]) (lowerChars ++ ["-"]))
+    (splitString "")
+    (filter (test "[a-z0-9-]"))
+    concatStrings
+  ];
+  anchor' = loc: anchor "`${loc}`";
+
+  link = title: "[${title}](#${anchor title})";
+  link' = loc: link "`${loc}`";
+
+  module = name: desc: opts:
+    {
+      _ = section ''
+        # `${name}`
+
+        ${desc}
+      '';
+    }
+    // opts;
+
+  pkg-header = name: "packages.<system>.${name}";
+  pkg-link = name: link' (pkg-header name);
+
+  nixpkgs-link = name: "[`pkgs.${name}`](https://search.nixos.org/packages?channel=unstable&show=${name})";
+
+  make-default = text:
     if length (splitString "\n" text) == 1
     then "- default: `${text}`"
     else ''
       - default:
       ${indent (delimit "```nix" text "```")}
     '';
-in
-  flip pipe [
+  make-docs = flip pipe [
     types.submodule
     (m: m.getSubOptions [])
-    (make-docs [])
+    (traverse [])
     (mapAttrsToList (
       path: opt:
         "<!-- sorting key: ${path} -->\n"
@@ -81,7 +122,7 @@ in
               filter (v: v != null) [
                 "## `${showOption opt.loc}`"
                 (optionalString (opt.type.description != "submodule") "- type: `${opt.type.description}`${optionalString (opt.type ? nestedTypes.newtype-inner) ", which is a `${opt.type.nestedTypes.newtype-inner.description}`"}")
-                (maybe multiline-default opt.defaultText)
+                (maybe make-default opt.defaultText)
                 ""
                 (maybe id opt.description or null)
               ]
@@ -89,4 +130,10 @@ in
         )
     ))
     (concatStringsSep "\n\n")
-  ]
+  ];
+in {
+  inherit make-docs;
+  lib = {
+    inherit section header fake-option test anchor anchor' link link' module pkg-header pkg-link nixpkgs-link;
+  };
+}

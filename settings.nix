@@ -1,8 +1,10 @@
 {
+  self,
   kdl,
   lib,
+  docs,
 }:
-with lib; let
+with lib; with docs.lib; {
   module = let
     inherit (types) nullOr attrsOf listOf submodule enum either;
 
@@ -312,8 +314,8 @@ with lib; let
       options.programs.niri = {
         config = mkOption {
           type = types.nullOr (types.either types.str kdl.types.kdl-document);
-          default = render cfg.settings;
-          defaultText = "<dependent on programs.niri.settings>";
+          default = self.render cfg.settings;
+          defaultText = null;
           description = ''
             The niri config file.
 
@@ -321,7 +323,7 @@ with lib; let
             - When this is a string, it is assumed to be the config file contents.
             - When this is kdl document, it is serialized to a string before being used as the config file contents.
 
-            By default, this is a KDL document that reflects the settings in `programs.niri.settings`.
+            By default, this is a KDL document that reflects the settings in ${link' "programs.niri.settings"}.
           '';
         };
 
@@ -334,13 +336,11 @@ with lib; let
             then kdl.serialize.nodes cfg.config
             else null;
           readOnly = true;
-
-          defaultText = "<dependent on programs.niri.config>";
-
+          defaultText = null;
           description = ''
             The final niri config file contents.
 
-            This is a string that reflects the document stored in `programs.niri.config`.
+            This is a string that reflects the document stored in ${link' "programs.niri.config"}.
 
             It is exposed mainly for debugging purposes, such as when you need to inspect how a certain option affects the resulting config file.
           '';
@@ -354,7 +354,7 @@ with lib; let
 
               By default, when this is null, no config file is generated.
 
-              Beware that setting `programs.niri.config` completely overrides everything under this option.
+              Beware that setting ${link' "programs.niri.config"} completely overrides everything under this option.
             '';
           };
       };
@@ -363,50 +363,9 @@ with lib; let
     stable-tag,
     nixpkgs,
   }: {
-    imports = [module];
+    imports = [self.module];
 
     options._ = let
-      section = contents:
-        mkOption {
-          type = mkOptionType {name = "docs-override";};
-          description = contents;
-        };
-
-      header = title: section "# ${title}";
-      fake-option = loc: contents:
-        section ''
-          ## `${loc}`
-
-          ${contents}
-        '';
-
-      test = pat: str: strings.match pat str != null;
-
-      anchor = flip pipe [
-        (replaceStrings (upperChars ++ [" "]) (lowerChars ++ ["-"]))
-        (splitString "")
-        (filter (test "[a-z0-9-]"))
-        concatStrings
-      ];
-
-      link = title: "[${title}](#${anchor title})";
-      link' = loc: link "`${loc}`";
-
-      module = name: desc: opts:
-        {
-          _ = section ''
-            # `${name}`
-
-            ${desc}
-          '';
-        }
-        // opts;
-
-      pkg-header = name: "packages.<system>.${name}";
-      pkg-link = name: link' (pkg-header name);
-
-      nixpkgs-link = name: "[`pkgs.${name}`](https://search.nixos.org/packages?channel=unstable&show=${name})";
-
       pkg-output = name: desc:
         fake-option (pkg-header name) ''
           (where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
@@ -732,6 +691,4 @@ with lib; let
 
         (nullable (map' plain (mapAttrsToList leaf)) "debug" cfg.debug)
       ];
-in {
-  inherit module render fake-docs;
 }

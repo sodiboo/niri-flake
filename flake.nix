@@ -24,12 +24,12 @@
     ...
   }: let
     kdl = import ./kdl.nix {inherit (nixpkgs) lib;};
-    settings = import ./settings.nix {
-      inherit kdl;
+    docs = import ./generate-docs.nix {inherit (nixpkgs) lib;};
+    settings = nixpkgs.lib.fix(self: import ./settings.nix {
+      inherit self kdl docs;
       inherit (nixpkgs) lib;
-    };
+    });
     stylix-module = import ./stylix.nix;
-    make-docs = import ./generate-docs.nix {inherit (nixpkgs) lib;};
 
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
     stable-tag = lock.nodes.niri-stable.original.ref;
@@ -230,7 +230,7 @@
           generate-docs = {
             type = "app";
             program = let
-              docs-src = pkgs.writeText "settings-documentation.md" (make-docs (settings.fake-docs {inherit stable-tag nixpkgs;}));
+              docs-src = pkgs.writeText "settings-documentation.md" (docs.make-docs (settings.fake-docs {inherit stable-tag nixpkgs;}));
             in
               "${pkgs.writeScript "generate-docs" "cat ${docs-src}"}";
           };
