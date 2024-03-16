@@ -187,7 +187,7 @@ Some of the options below make use of a "variant" type.
 
 This is a type that behaves similarly to a submodule, except you can only set *one* of its suboptions.
 
-An example of this usage is in animations, where each action can have either an easing animation or a spring animation. \
+An example of this usage is in [`programs.niri.settings.animations.<name>`](#programsnirisettingsanimationsname), where each event can have either an easing animation or a spring animation. \
 You cannot set parameters for both, so `variant` is used here.
 
 
@@ -718,6 +718,95 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 ## `programs.niri.settings.binds`
 - type: `attribute set of (string or kdl leaf)`
 
+Keybindings for niri.
+
+This is a mapping of keybindings to "actions".
+
+An action is an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "XF86AudioRaiseVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
+    "XF86AudioLowerVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
+  };
+}
+```
+
+If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+D".spawn = "fuzzel";
+  };
+}
+```
+
+For actions taking no arguments, you should pass it an empty array.
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Q".close-window = [];
+  };
+}
+```
+
+In this simple case, you can also use a string instead of an arrset.
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Q" = "close-window";
+  };
+}
+```
+
+In the future, i might implement a way to define actions with some kind of type checking, and in that case, the arrset form will be the only accepted shape. But, for now, strings may look nicer for simple cases.
+
+Note that the arguments are not limited to strings:
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Ctrl+5".move-column-to-workspace = 5;
+  };
+}
+```
+
+And if an action takes *properties* (unordered key-value) as well as *arguments* (ordered value), then you can pass the propset as the *last* argument to the action.
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Shift+E".quit = [{skip-confirmation = true;}];
+  };
+}
+```
+
+But of course, you can also elide the array if there aren't any other arguments.
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Shift+E".quit = {skip-confirmation = true;};
+  };
+}
+```
+
+And it's written even simpler like so:
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Shift+E".quit.skip-confirmation = true;
+  };
+}
+```
+
+Although the nix module does *not* verify the correctness of the keybindings, it will ask niri to validate the config file before committing it. This ensures that you won't accidentally build a system with an invalid niri config.
+
 
 <!-- sorting key: programs.niri.settings.j.animations -->
 <!-- programs.niri.settings.animations -->
@@ -837,6 +926,23 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 ## `programs.niri.settings.environment`
 - type: `attribute set of (null or string)`
 
+Environment variables to set for processes spawned by niri.
+
+If an environment variable is already set in the environment, then it will be overridden by the value set here.
+
+If a value is null, then the environment variable will be unset, even if it already existed.
+
+Examples:
+
+```nix
+{
+  programs.niri.settings.environment = {
+    QT_QPA_PLATFORM = "wayland";
+    DISPLAY = null;
+  };
+}
+```
+
 
 <!-- sorting key: programs.niri.settings.l.window-rules -->
 ## `programs.niri.settings.window-rules`
@@ -915,3 +1021,24 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 ## `programs.niri.settings.debug`
 - type: `null or (attribute set of kdl arguments)`
 - default: `null`
+
+Debug options for niri.
+
+`kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See [`programs.niri.settings.binds`](#programsnirisettingsbinds) for more information on all the ways you can use this.
+
+Note that for no-argument nodes, there is no special way to define them here. You can't pass them as just a "string" because that makes no sense here. You must pass it an empty array of arguments.
+
+Here's an example of how to use this:
+
+```nix
+{
+  programs.niri.settings.debug = {
+    disable-cursor-plane = [];
+    render-drm-device = "/dev/dri/renderD129";
+  };
+}
+```
+
+This option is, just like [`programs.niri.settings.binds`](#programsnirisettingsbinds), not verified by the nix module. But, it will be validated by niri before committing the config.
+
+Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
