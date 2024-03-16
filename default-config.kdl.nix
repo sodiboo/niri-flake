@@ -161,7 +161,7 @@ in {
       # You can change how the focus ring looks.
       (plain "focus-ring" [
         # Uncomment this line to disable the focus ring.
-        # (flag "off)
+        # (flag "off")
 
         # How many logical pixels the ring extends out from the windows.
         (leaf "width" 4)
@@ -296,7 +296,7 @@ in {
     # Animation settings.
     (plain "animations" [
       # Uncomment to turn off all animations.
-      # (flag "off)
+      # (flag "off")
 
       # Slow down all animations by this factor. Values below 1 speed them up instead.
       # (leaf "slowdown" 3.0)
@@ -343,7 +343,7 @@ in {
       # Animation when switching workspaces up and down,
       # including after the touchpad gesture.
       (plain "workspace-switch" [
-        # (flag "off)
+        # (flag "off")
         # (leaf "spring" { damping-ratio=1.0; stiffness=1000; epsilon=0.0001; })
       ])
 
@@ -353,13 +353,13 @@ in {
       # - When a window resizes bigger and the camera scrolls to show it in full.
       # - And so on.
       (plain "horizontal-view-movement" [
-        # (flag "off)
+        # (flag "off")
         # (leaf "spring" { damping-ratio=1.0; stiffness=800; epsilon=0.0001; })
       ])
 
       # Window opening animation. Note that this one has different defaults.
       (plain "window-open" [
-        # (flag "off)
+        # (flag "off")
         # (leaf "duration-ms" 150)
         # (leaf "curve" "ease-out-expo")
 
@@ -370,7 +370,7 @@ in {
       # Config parse error and new default config creation notification
       # open/close animation.
       (plain "config-notification-open-close" [
-        # (flag "off)
+        # (flag "off")
         # (leaf "spring" { damping-ratio=0.6; stiffness=1000; epsilon=0.001; })
       ])
     ])
