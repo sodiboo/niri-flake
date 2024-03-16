@@ -240,17 +240,21 @@ with docs.lib; {
           };
       }
 
-      {screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png" // {
-        description = ''
-          The path to save screenshots to.
+      {
+        screenshot-path =
+          optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+          // {
+            description = ''
+              The path to save screenshots to.
 
-          If this is null, then no screenshots will be saved.
+              If this is null, then no screenshots will be saved.
 
-          If the path starts with a `~`, then it will be expanded to the user's home directory.
+              If the path starts with a `~`, then it will be expanded to the user's home directory.
 
-          The path is then passed to [`stftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
-        '';
-      };}
+              The path is then passed to [`stftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+            '';
+          };
+      }
 
       {
         hotkey-overlay.skip-at-startup =
