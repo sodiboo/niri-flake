@@ -1017,7 +1017,7 @@ Examples:
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.z.debug -->
+<!-- sorting key: programs.niri.settings.m.debug -->
 ## `programs.niri.settings.debug`
 - type: `null or (attribute set of kdl arguments)`
 - default: `null`

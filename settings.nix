@@ -4,7 +4,8 @@
   lib,
   docs,
 }:
-with lib; with docs.lib; {
+with lib;
+with docs.lib; {
   module = let
     inherit (types) nullOr attrsOf listOf submodule enum either;
 
@@ -129,323 +130,352 @@ with lib; with docs.lib; {
 
     make-section = flip optional {};
 
+    make-ordered = flip pipe [
+      (imap0 (i: section: {
+        name = elemAt strings.lowerChars i;
+        value = section;
+      }))
+      listToAttrs
+      ordered-record
+    ];
+
     # section = flip pipe [record make-section];
-    # ordered-section = flip pipe [ordered-record make-section];
+    # ordered-section = flip pipe [make-ordered make-section];
 
-    settings = ordered-record {
-      a.input = {
-        keyboard = {
-          xkb = {
-            layout = nullable types.str;
-            model = nullable types.str;
-            rules = nullable types.str;
-            variant = nullable types.str;
-            options = nullable types.str;
+    settings = make-ordered [
+      {
+        input = {
+          keyboard = {
+            xkb = {
+              layout = nullable types.str;
+              model = nullable types.str;
+              rules = nullable types.str;
+              variant = nullable types.str;
+              options = nullable types.str;
+            };
+            repeat-delay = optional types.int 600;
+            repeat-rate = optional types.int 25;
+            track-layout = optional (enum ["global" "window"]) "global";
           };
-          repeat-delay = optional types.int 600;
-          repeat-rate = optional types.int 25;
-          track-layout = optional (enum ["global" "window"]) "global";
+          touchpad =
+            (basic-pointer true)
+            // {
+              tap = optional types.bool true;
+              dwt = optional types.bool false;
+              dwtp = optional types.bool false;
+              tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
+            };
+          mouse = basic-pointer false;
+          trackpoint = basic-pointer false;
+          tablet.map-to-output = nullable types.str;
+          touch.map-to-output = nullable types.str;
+
+          power-key-handling.enable = optional types.bool true;
         };
-        touchpad =
-          (basic-pointer true)
-          // {
-            tap = optional types.bool true;
-            dwt = optional types.bool false;
-            dwtp = optional types.bool false;
-            tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
-          };
-        mouse = basic-pointer false;
-        trackpoint = basic-pointer false;
-        tablet.map-to-output = nullable types.str;
-        touch.map-to-output = nullable types.str;
+      }
 
-        power-key-handling.enable = optional types.bool true;
-      };
-
-      b.outputs = attrs (record {
-        enable = optional types.bool true;
-        scale = optional types.float 1.0;
-        transform = {
-          flipped = optional types.bool false;
-          rotation = optional (enum [0 90 180 270]) 0;
-        };
-        position = nullable (record {
-          x = required types.int;
-          y = required types.int;
-        });
-        mode = nullable (record {
-          width = required types.int;
-          height = required types.int;
-          refresh = nullable types.float;
-        });
-      });
-
-      c.cursor = {
-        theme = optional types.str "default";
-        size = optional types.int 24;
-      };
-
-      d.screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
-
-      e.hotkey-overlay.skip-at-startup = optional types.bool false;
-
-      f.prefer-no-csd = optional types.bool false;
-
-      g.layout = {
-        focus-ring =
-          (borderish "rgb(127 200 255)")
-          // {
-            enable = optional types.bool true;
-          };
-
-        border =
-          (borderish "rgb(255 200 127)")
-          // {
-            enable = optional types.bool false;
-          };
-        preset-column-widths = list preset-width;
-        default-column-width = optional default-width {};
-        center-focused-column = optional (enum ["never" "always" "on-overflow"]) "never";
-        gaps = optional types.int 16;
-        struts = {
-          left = optional types.int 0;
-          right = optional types.int 0;
-          top = optional types.int 0;
-          bottom = optional types.int 0;
-        };
-      };
-
-      h.spawn-at-startup = list (record {
-        command = list types.str;
-      });
-      i.binds =
-        attrs (either types.str kdl.types.kdl-leaf)
-        // {
-          description = ''
-            Keybindings for niri.
-
-            This is a mapping of keybindings to "actions".
-
-            An action is an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "XF86AudioRaiseVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
-                "XF86AudioLowerVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
-              };
-            }
-            ```
-
-            If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "Mod+D".spawn = "fuzzel";
-              };
-            }
-            ```
-
-            For actions taking no arguments, you should pass it an empty array.
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "Mod+Q".close-window = [];
-              };
-            }
-            ```
-
-            In this simple case, you can also use a string instead of an arrset.
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "Mod+Q" = "close-window";
-              };
-            }
-            ```
-
-            In the future, i might implement a way to define actions with some kind of type checking, and in that case, the arrset form will be the only accepted shape. But, for now, strings may look nicer for simple cases.
-
-            Note that the arguments are not limited to strings:
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "Mod+Ctrl+5".move-column-to-workspace = 5;
-              };
-            }
-            ```
-
-            And if an action takes *properties* (unordered key-value) as well as *arguments* (ordered value), then you can pass the propset as the *last* argument to the action.
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "Mod+Shift+E".quit = [{skip-confirmation = true;}];
-              };
-            }
-            ```
-
-            But of course, you can also elide the array if there aren't any other arguments.
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "Mod+Shift+E".quit = {skip-confirmation = true;};
-              };
-            }
-            ```
-
-            And it's written even simpler like so:
-
-            ```nix
-            {
-              programs.niri.settings.binds = {
-                "Mod+Shift+E".quit.skip-confirmation = true;
-              };
-            }
-            ```
-
-            Although the nix module does *not* verify the correctness of the keybindings, it will ask niri to validate the config file before committing it. This ensures that you won't accidentally build a system with an invalid niri config.
-          '';
-        };
-
-      j.animations = let
-        animation = variant {
-          spring = record {
-            damping-ratio = required types.float;
-            stiffness = required types.int;
-            epsilon = required types.float;
-          };
-          easing = record {
-            duration-ms = required types.int;
-            curve = required (enum ["ease-out-cubic" "ease-out-expo"]);
-          };
-        };
-        opts = {
+      {
+        outputs = attrs (record {
           enable = optional types.bool true;
-          slowdown = optional types.float 1.0;
-        };
+          scale = optional types.float 1.0;
+          transform = {
+            flipped = optional types.bool false;
+            rotation = optional (enum [0 90 180 270]) 0;
+          };
+          position = nullable (record {
+            x = required types.int;
+            y = required types.int;
+          });
+          mode = nullable (record {
+            width = required types.int;
+            height = required types.int;
+            refresh = nullable types.float;
+          });
+        });
+      }
 
-        defaults = {
-          workspace-switch.spring = {
-            damping-ratio = 1.0;
-            stiffness = 1000;
-            epsilon = 0.0001;
-          };
-          horizontal-view-movement.spring = {
-            damping-ratio = 1.0;
-            stiffness = 800;
-            epsilon = 0.0001;
-          };
-          config-notification-open-close.spring = {
-            damping-ratio = 0.6;
-            stiffness = 1000;
-            epsilon = 0.001;
-          };
-          window-open.easing = {
-            duration-ms = 150;
-            curve = "ease-out-expo";
+      {
+        cursor = {
+          theme = optional types.str "default";
+          size = optional types.int 24;
+        };
+      }
+
+      {screenshot-path = optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";}
+
+      {hotkey-overlay.skip-at-startup = optional types.bool false;}
+
+      {prefer-no-csd = optional types.bool false;}
+
+      {
+        layout = {
+          focus-ring =
+            (borderish "rgb(127 200 255)")
+            // {
+              enable = optional types.bool true;
+            };
+
+          border =
+            (borderish "rgb(255 200 127)")
+            // {
+              enable = optional types.bool false;
+            };
+          preset-column-widths = list preset-width;
+          default-column-width = optional default-width {};
+          center-focused-column = optional (enum ["never" "always" "on-overflow"]) "never";
+          gaps = optional types.int 16;
+          struts = {
+            left = optional types.int 0;
+            right = optional types.int 0;
+            top = optional types.int 0;
+            bottom = optional types.int 0;
           };
         };
+      }
 
-        anims =
-          mapAttrs (const (
-            optional (nullOr (animation
-              // {
-                description = "animation";
-                descriptionClass = "noun";
-                getSubOptions = const {};
-              }))
-          ))
-          defaults;
-        base = record (opts // anims);
-      in
-        make-section (mkOptionType {
-          inherit (base) name check merge nestedTypes;
-          description = "animations";
-          descriptionClass = "noun";
-          getSubOptions = loc: {
-            a.opts = (record opts).getSubOptions loc;
-            b.submodule =
-              (required (animation
-                // {
-                  description = "animation";
-                  nestedTypes.newtype-inner = animation;
-                }))
-              // {
-                defaultText = null;
-                loc = loc ++ ["<name>"];
-              };
-            c.defaults = {
-              anims = (record anims).getSubOptions loc;
+      {
+        spawn-at-startup = list (record {
+          command = list types.str;
+        });
+      }
+      {
+        binds =
+          attrs (either types.str kdl.types.kdl-leaf)
+          // {
+            description = ''
+              Keybindings for niri.
+
+              This is a mapping of keybindings to "actions".
+
+              An action is an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "XF86AudioRaiseVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
+                  "XF86AudioLowerVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
+                };
+              }
+              ```
+
+              If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "Mod+D".spawn = "fuzzel";
+                };
+              }
+              ```
+
+              For actions taking no arguments, you should pass it an empty array.
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "Mod+Q".close-window = [];
+                };
+              }
+              ```
+
+              In this simple case, you can also use a string instead of an arrset.
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "Mod+Q" = "close-window";
+                };
+              }
+              ```
+
+              In the future, i might implement a way to define actions with some kind of type checking, and in that case, the arrset form will be the only accepted shape. But, for now, strings may look nicer for simple cases.
+
+              Note that the arguments are not limited to strings:
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "Mod+Ctrl+5".move-column-to-workspace = 5;
+                };
+              }
+              ```
+
+              And if an action takes *properties* (unordered key-value) as well as *arguments* (ordered value), then you can pass the propset as the *last* argument to the action.
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "Mod+Shift+E".quit = [{skip-confirmation = true;}];
+                };
+              }
+              ```
+
+              But of course, you can also elide the array if there aren't any other arguments.
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "Mod+Shift+E".quit = {skip-confirmation = true;};
+                };
+              }
+              ```
+
+              And it's written even simpler like so:
+
+              ```nix
+              {
+                programs.niri.settings.binds = {
+                  "Mod+Shift+E".quit.skip-confirmation = true;
+                };
+              }
+              ```
+
+              Although the nix module does *not* verify the correctness of the keybindings, it will ask niri to validate the config file before committing it. This ensures that you won't accidentally build a system with an invalid niri config.
+            '';
+          };
+      }
+
+      {
+        animations = let
+          animation = variant {
+            spring = record {
+              damping-ratio = required types.float;
+              stiffness = required types.int;
+              epsilon = required types.float;
+            };
+            easing = record {
+              duration-ms = required types.int;
+              curve = required (enum ["ease-out-cubic" "ease-out-expo"]);
             };
           };
+          opts = {
+            enable = optional types.bool true;
+            slowdown = optional types.float 1.0;
+          };
+
+          defaults = {
+            workspace-switch.spring = {
+              damping-ratio = 1.0;
+              stiffness = 1000;
+              epsilon = 0.0001;
+            };
+            horizontal-view-movement.spring = {
+              damping-ratio = 1.0;
+              stiffness = 800;
+              epsilon = 0.0001;
+            };
+            config-notification-open-close.spring = {
+              damping-ratio = 0.6;
+              stiffness = 1000;
+              epsilon = 0.001;
+            };
+            window-open.easing = {
+              duration-ms = 150;
+              curve = "ease-out-expo";
+            };
+          };
+
+          anims =
+            mapAttrs (const (
+              optional (nullOr (animation
+                // {
+                  description = "animation";
+                  descriptionClass = "noun";
+                  getSubOptions = const {};
+                }))
+            ))
+            defaults;
+          base = record (opts // anims);
+        in
+          make-section (mkOptionType {
+            inherit (base) name check merge nestedTypes;
+            description = "animations";
+            descriptionClass = "noun";
+            getSubOptions = loc: {
+              a.opts = (record opts).getSubOptions loc;
+              b.submodule =
+                (required (animation
+                  // {
+                    description = "animation";
+                    nestedTypes.newtype-inner = animation;
+                  }))
+                // {
+                  defaultText = null;
+                  loc = loc ++ ["<name>"];
+                };
+              c.defaults = {
+                anims = (record anims).getSubOptions loc;
+              };
+            };
+          });
+      }
+
+      {
+        environment =
+          attrs (nullOr (types.str))
+          // {
+            description = ''
+              Environment variables to set for processes spawned by niri.
+
+              If an environment variable is already set in the environment, then it will be overridden by the value set here.
+
+              If a value is null, then the environment variable will be unset, even if it already existed.
+
+              Examples:
+
+              ```nix
+              {
+                programs.niri.settings.environment = {
+                  QT_QPA_PLATFORM = "wayland";
+                  DISPLAY = null;
+                };
+              }
+              ```
+            '';
+          };
+      }
+
+      {
+        window-rules = list (record {
+          matches = list match;
+          excludes = list match;
+
+          default-column-width = nullable default-width;
+          open-on-output = nullable types.str;
+          open-maximized = nullable types.bool;
+          open-fullscreen = nullable types.bool;
         });
+      }
 
-      k.environment =
-        attrs (nullOr (types.str))
-        // {
-          description = ''
-            Environment variables to set for processes spawned by niri.
+      {
+        debug =
+          nullable (attrsOf kdl.types.kdl-args)
+          // {
+            description = ''
+              Debug options for niri.
 
-            If an environment variable is already set in the environment, then it will be overridden by the value set here.
+              `kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See ${link' "programs.niri.settings.binds"} for more information on all the ways you can use this.
 
-            If a value is null, then the environment variable will be unset, even if it already existed.
+              Note that for no-argument nodes, there is no special way to define them here. You can't pass them as just a "string" because that makes no sense here. You must pass it an empty array of arguments.
 
-            Examples:
+              Here's an example of how to use this:
 
-            ```nix
-            {
-              programs.niri.settings.environment = {
-                QT_QPA_PLATFORM = "wayland";
-                DISPLAY = null;
-              };
-            }
-            ```
-          '';
-        };
+              ```nix
+              {
+                programs.niri.settings.debug = {
+                  disable-cursor-plane = [];
+                  render-drm-device = "/dev/dri/renderD129";
+                };
+              }
+              ```
 
-      l.window-rules = list (record {
-        matches = list match;
-        excludes = list match;
+              This option is, just like ${link' "programs.niri.settings.binds"}, not verified by the nix module. But, it will be validated by niri before committing the config.
 
-        default-column-width = nullable default-width;
-        open-on-output = nullable types.str;
-        open-maximized = nullable types.bool;
-        open-fullscreen = nullable types.bool;
-      });
-
-      z.debug =
-        nullable (attrsOf kdl.types.kdl-args)
-        // {
-          description = ''
-            Debug options for niri.
-
-            `kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See ${link' "programs.niri.settings.binds"} for more information on all the ways you can use this.
-
-            Note that for no-argument nodes, there is no special way to define them here. You can't pass them as just a "string" because that makes no sense here. You must pass it an empty array of arguments.
-
-            Here's an example of how to use this:
-
-            ```nix
-            {
-              programs.niri.settings.debug = {
-                disable-cursor-plane = [];
-                render-drm-device = "/dev/dri/renderD129";
-              };
-            }
-            ```
-
-            This option is, just like ${link' "programs.niri.settings.binds"}, not verified by the nix module. But, it will be validated by niri before committing the config.
-
-            Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
-          '';
-        };
-    };
+              Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
+            '';
+          };
+      }
+    ];
   in
     {config, ...}: let
       cfg = config.programs.niri;
