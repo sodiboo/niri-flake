@@ -1,12 +1,11 @@
 {
-  self,
   kdl,
   lib,
   docs,
   ...
 }:
 with lib;
-with docs.lib; {
+with docs.lib; rec {
   module = let
     inherit (types) nullOr attrsOf listOf submodule enum either;
 
@@ -515,7 +514,7 @@ with docs.lib; {
       options.programs.niri = {
         config = mkOption {
           type = types.nullOr (types.either types.str kdl.types.kdl-document);
-          default = self.render cfg.settings;
+          default = render cfg.settings;
           defaultText = null;
           description = ''
             The niri config file.
@@ -564,7 +563,7 @@ with docs.lib; {
     stable-tag,
     nixpkgs,
   }: {
-    imports = [self.module];
+    imports = [module];
 
     options._ = let
       pkg-output = name: desc:
@@ -633,7 +632,7 @@ with docs.lib; {
       };
       b.modules = {
         a.nixos =
-          module "nixosModules.niri" ''
+          module-doc "nixosModules.niri" ''
             The full NixOS module for niri.
 
             By default, this module does the following:
@@ -659,7 +658,7 @@ with docs.lib; {
           };
 
         b.home =
-          module "homeModules.niri" ''
+          module-doc "homeModules.niri" ''
             The full home-manager module for niri.
 
             By default, this module does nothing. It will import ${link' "homeModules.config"}, which provides many configuration options, and it also provides some options to install niri.
@@ -669,7 +668,7 @@ with docs.lib; {
           };
 
         c.stylix =
-          module "homeModules.stylix" ''
+          module-doc "homeModules.stylix" ''
             Stylix integration. It provides a target to enable niri.
 
             This module is automatically imported if you have home-manager and stylix installed in your NixOS configuration.
@@ -690,7 +689,7 @@ with docs.lib; {
       };
 
       z.pre-config =
-        module "homeModules.config" ''
+        module-doc "homeModules.config" ''
           Configuration options for niri. This module is automatically imported by ${link' "nixosModules.niri"} and ${link' "homeModules.niri"}.
 
           By default, this module does nothing. It provides many configuration options for niri, such as keybindings, animations, and window rules.

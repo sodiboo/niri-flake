@@ -23,12 +23,10 @@
     nixpkgs,
     ...
   }: let
-    call = f:
-      nixpkgs.lib.fix (self:
-        import f {
-          inherit self kdl docs;
-          inherit (nixpkgs) lib;
-        });
+    call = nixpkgs.lib.flip import {
+      inherit kdl docs;
+      inherit (nixpkgs) lib;
+    };
     kdl = call ./kdl.nix;
     docs = call ./generate-docs.nix;
     settings = call ./settings.nix;

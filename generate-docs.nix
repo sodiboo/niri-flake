@@ -83,7 +83,7 @@ with lib; let
   link = title: "[${title}](#${anchor title})";
   link' = loc: link "`${loc}`";
 
-  module = name: desc: opts:
+  module-doc = name: desc: opts:
     {
       _ = section ''
         # `${name}`
@@ -134,6 +134,6 @@ with lib; let
 in {
   inherit make-docs;
   lib = {
-    inherit section header fake-option test anchor anchor' link link' module pkg-header pkg-link nixpkgs-link;
+    inherit section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link;
   };
 }
