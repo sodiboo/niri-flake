@@ -1,23 +1,23 @@
 {lib}:
 with lib; let
-  node = name: args: children: let
-    args' = toList args;
-    has-props = (length args' != 0) && isAttrs (last args');
-  in {
-    inherit name;
-
-    props =
-      if has-props
-      then last args'
-      else {};
-
-    args =
-      if has-props
-      then take (length args' - 1) args'
-      else args';
-
-    children = toList children;
-  };
+  node = name: args: children:
+    foldl (self: this:
+      if isAttrs this
+      then
+        self
+        // {
+          props = self.props // this;
+        }
+      else
+        self
+        // {
+          args = self.args ++ [this];
+        }) {
+      inherit name;
+      children = toList children;
+      args = [];
+      props = {};
+    } (toList args);
 
   plain = name: node name [];
   leaf = name: args: node name args [];
