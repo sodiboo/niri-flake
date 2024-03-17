@@ -21,6 +21,13 @@ with lib; let
 
   plain = name: node name [];
   leaf = name: args: node name args [];
+  magic-leaf = node-name: {
+    ${node-name} = [];
+    __functor = self: arg: {
+      inherit (self) __functor;
+      ${node-name} = self.${node-name} ++ [arg];
+    };
+  };
   flag = name: node name [] [];
 
   serialize.string = v: "\"${escape ["\\" "\""] (toString v)}\"";
@@ -145,9 +152,10 @@ with lib; let
     description = "kdl leaf";
     descriptionClass = "noun";
     check = v: let
-      leaves = mapAttrsToList leaf v;
+      leaves = mapAttrsToList leaf (removeAttrs v ["__functor"]);
     in
       isAttrs v && length leaves == 1 && all kdl-node.check leaves;
+    merge = loc: defs: removeAttrs (mergeOneOption loc defs) ["__functor"];
   };
 
   kdl-args = mkOptionType {
@@ -172,6 +180,6 @@ with lib; let
       description = "kdl document";
     };
 in {
-  inherit node plain leaf flag serialize;
+  inherit node plain leaf magic-leaf flag serialize;
   types = {inherit kdl-value kdl-node kdl-nodes kdl-leaf kdl-args kdl-document;};
 }

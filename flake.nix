@@ -28,6 +28,7 @@
       inherit (nixpkgs) lib;
     };
     kdl = call ./kdl.nix;
+    binds = call ./parse-binds.nix;
     docs = call ./generate-docs.nix;
     settings = call ./settings.nix;
     stylix-module = call ./stylix.nix;
@@ -181,7 +182,11 @@
           };
       };
     in
-      workspace.workspaceMembers.niri.build // {inherit workspace;});
+      workspace.workspaceMembers.niri.build
+      // {
+        binds = binds src;
+        inherit workspace;
+      });
 
     make-niri-stable = pkgs:
       make-niri {
