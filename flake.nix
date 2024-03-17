@@ -23,14 +23,16 @@
     nixpkgs,
     ...
   }: let
-    kdl = import ./kdl.nix {inherit (nixpkgs) lib;};
-    docs = import ./generate-docs.nix {inherit (nixpkgs) lib;};
-    settings = nixpkgs.lib.fix (self:
-      import ./settings.nix {
-        inherit self kdl docs;
-        inherit (nixpkgs) lib;
-      });
-    stylix-module = import ./stylix.nix;
+    call = f:
+      nixpkgs.lib.fix (self:
+        import f {
+          inherit self kdl docs;
+          inherit (nixpkgs) lib;
+        });
+    kdl = call ./kdl.nix;
+    docs = call ./generate-docs.nix;
+    settings = call ./settings.nix;
+    stylix-module = call ./stylix.nix;
 
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
     stable-tag = lock.nodes.niri-stable.original.ref;

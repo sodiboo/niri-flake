@@ -1,4 +1,4 @@
-{lib}:
+{lib, ...}:
 with lib; let
   match = name: cases: cases.${name} or cases._;
   indent = entries: "${pipe entries [

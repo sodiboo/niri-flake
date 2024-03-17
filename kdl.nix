@@ -1,4 +1,4 @@
-{lib}:
+{lib, ...}:
 with lib; let
   node = name: args: children:
     foldl (self: this:

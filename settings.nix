@@ -3,6 +3,7 @@
   kdl,
   lib,
   docs,
+  ...
 }:
 with lib;
 with docs.lib; {
