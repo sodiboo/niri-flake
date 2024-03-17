@@ -1,13 +1,27 @@
 {
+  inputs,
   kdl,
   lib,
   docs,
+  binds,
   ...
 }:
 with lib;
 with docs.lib; rec {
   module = let
     inherit (types) nullOr attrsOf listOf submodule enum either;
+
+    binds-stable = binds inputs.niri-stable;
+    binds-unstable = binds inputs.niri-unstable;
+
+    binds-for = groupBy (name:
+      if binds-stable ? ${name} && binds-unstable ? ${name}
+      then "both"
+      else if binds-stable ? ${name}
+      then "stable"
+      else if binds-unstable ? ${name}
+      then "unstable"
+      else abort "unreachable") (attrNames (binds-stable // binds-unstable));
 
     record = options: submodule {inherit options;};
 
@@ -169,63 +183,12 @@ with docs.lib; rec {
               {
                 programs.niri.settings.binds = {
                   "Mod+D".spawn = "fuzzel";
+                  "Mod+1".focus-workspace = 1;
                 };
               }
               ```
 
-              For actions taking no arguments, you should pass it an empty array.
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "Mod+Q".close-window = [];
-                };
-              }
-              ```
-
-              In this simple case, you can also use a string instead of an arrset.
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "Mod+Q" = "close-window";
-                };
-              }
-              ```
-
-              In the future, i might implement a way to define actions with some kind of type checking, and in that case, the arrset form will be the only accepted shape. But, for now, strings may look nicer for simple cases.
-
-              Note that the arguments are not limited to strings:
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "Mod+Ctrl+5".move-column-to-workspace = 5;
-                };
-              }
-              ```
-
-              And if an action takes *properties* (unordered key-value) as well as *arguments* (ordered value), then you can pass the propset as the *last* argument to the action.
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "Mod+Shift+E".quit = [{skip-confirmation = true;}];
-                };
-              }
-              ```
-
-              But of course, you can also elide the array if there aren't any other arguments.
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "Mod+Shift+E".quit = {skip-confirmation = true;};
-                };
-              }
-              ```
-
-              And it's written even simpler like so:
+              For actions taking properties (named arguments), you can pass an attrset.
 
               ```nix
               {
@@ -235,7 +198,39 @@ with docs.lib; rec {
               }
               ```
 
-              Although the nix module does *not* verify the correctness of the keybindings, it will ask niri to validate the config file before committing it. This ensures that you won't accidentally build a system with an invalid niri config.
+              There is also a `binds` attrset available under each of the packages from this flake. It has attributes for each action.
+
+              > [!note]
+              > Note that although this interface is stable, its location is *not* stable. I've only just implemented this "magic leaf" kind of varargs function. I put it under each package for now, but that may change in the near future.
+
+              Usage is like so:
+
+              ```nix
+              {
+                programs.niri.settings.binds = with config.programs.niri.package.binds; {
+                  "XF86AudioRaiseVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
+                  "XF86AudioLowerVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
+
+                  "Mod+D" = spawn "fuzzel";
+                  "Mod+1" = focus-workspace 1;
+
+                  "Mod+Shift+E" = quit;
+                  "Mod+Ctrl+Shift+E" = quit { skip-confirmation=true; };
+
+                  "Mod+Plus" = set-column-width "+10%";
+                }
+              }
+              ```
+
+              These are the available actions:
+
+              ${concatStringsSep "\n" (concatLists [
+                (forEach binds-for.both or [] (a: "- `${a}`"))
+                (forEach binds-for.stable or [] (a: "- `${a}` (only on `niri-stable`)"))
+                (forEach binds-for.unstable or [] (a: "- `${a}` (only on `niri-unstable`)"))
+              ])}
+
+              No distinction is made between action that take arguments and those that don't. Their usages are the exact same.
             '';
           };
       }

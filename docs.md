@@ -262,63 +262,12 @@ If there is only a single argument, you can pass it directly. It will be implici
 {
   programs.niri.settings.binds = {
     "Mod+D".spawn = "fuzzel";
+    "Mod+1".focus-workspace = 1;
   };
 }
 ```
 
-For actions taking no arguments, you should pass it an empty array.
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+Q".close-window = [];
-  };
-}
-```
-
-In this simple case, you can also use a string instead of an arrset.
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+Q" = "close-window";
-  };
-}
-```
-
-In the future, i might implement a way to define actions with some kind of type checking, and in that case, the arrset form will be the only accepted shape. But, for now, strings may look nicer for simple cases.
-
-Note that the arguments are not limited to strings:
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+Ctrl+5".move-column-to-workspace = 5;
-  };
-}
-```
-
-And if an action takes *properties* (unordered key-value) as well as *arguments* (ordered value), then you can pass the propset as the *last* argument to the action.
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+Shift+E".quit = [{skip-confirmation = true;}];
-  };
-}
-```
-
-But of course, you can also elide the array if there aren't any other arguments.
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+Shift+E".quit = {skip-confirmation = true;};
-  };
-}
-```
-
-And it's written even simpler like so:
+For actions taking properties (named arguments), you can pass an attrset.
 
 ```nix
 {
@@ -328,7 +277,98 @@ And it's written even simpler like so:
 }
 ```
 
-Although the nix module does *not* verify the correctness of the keybindings, it will ask niri to validate the config file before committing it. This ensures that you won't accidentally build a system with an invalid niri config.
+There is also a `binds` attrset available under each of the packages from this flake. It has attributes for each action.
+
+> [!note]
+> Note that although this interface is stable, its location is *not* stable. I've only just implemented this "magic leaf" kind of varargs function. I put it under each package for now, but that may change in the near future.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.binds = with config.programs.niri.package.binds; {
+    "XF86AudioRaiseVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
+    "XF86AudioLowerVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
+
+    "Mod+D" = spawn "fuzzel";
+    "Mod+1" = focus-workspace 1;
+
+    "Mod+Shift+E" = quit;
+    "Mod+Ctrl+Shift+E" = quit { skip-confirmation=true; };
+
+    "Mod+Plus" = set-column-width "+10%";
+  }
+}
+```
+
+These are the available actions:
+
+- `center-column`
+- `close-window`
+- `consume-or-expel-window-left`
+- `consume-or-expel-window-right`
+- `consume-window-into-column`
+- `expel-window-from-column`
+- `focus-column-first`
+- `focus-column-last`
+- `focus-column-left`
+- `focus-column-right`
+- `focus-monitor-down`
+- `focus-monitor-left`
+- `focus-monitor-right`
+- `focus-monitor-up`
+- `focus-window-down`
+- `focus-window-or-workspace-down`
+- `focus-window-or-workspace-up`
+- `focus-window-up`
+- `focus-workspace`
+- `focus-workspace-down`
+- `focus-workspace-up`
+- `fullscreen-window`
+- `maximize-column`
+- `move-column-left`
+- `move-column-right`
+- `move-column-to-first`
+- `move-column-to-last`
+- `move-column-to-monitor-down`
+- `move-column-to-monitor-left`
+- `move-column-to-monitor-right`
+- `move-column-to-monitor-up`
+- `move-column-to-workspace`
+- `move-column-to-workspace-down`
+- `move-column-to-workspace-up`
+- `move-window-down`
+- `move-window-down-or-to-workspace-down`
+- `move-window-to-monitor-down`
+- `move-window-to-monitor-left`
+- `move-window-to-monitor-right`
+- `move-window-to-monitor-up`
+- `move-window-to-workspace`
+- `move-window-to-workspace-down`
+- `move-window-to-workspace-up`
+- `move-window-up`
+- `move-window-up-or-to-workspace-up`
+- `move-workspace-down`
+- `move-workspace-to-monitor-down`
+- `move-workspace-to-monitor-left`
+- `move-workspace-to-monitor-right`
+- `move-workspace-to-monitor-up`
+- `move-workspace-up`
+- `power-off-monitors`
+- `quit`
+- `screenshot`
+- `screenshot-screen`
+- `screenshot-window`
+- `set-column-width`
+- `set-window-height`
+- `show-hotkey-overlay`
+- `spawn`
+- `suspend`
+- `switch-layout`
+- `switch-preset-column-width`
+- `toggle-debug-tint`
+
+No distinction is made between action that take arguments and those that don't. Their usages are the exact same.
 
 
 <!-- sorting key: programs.niri.settings.b.screenshot-path -->
