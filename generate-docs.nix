@@ -56,6 +56,15 @@ with lib; let
     then f v
     else null;
 
+  unstable-note = ''
+    > [!important]
+    > This option is not yet available in stable niri.
+    >
+    > If you wish to modify this option, you should make sure ${link' "programs.niri.package"} is set to ${pkg-link "niri-unstable"}.
+    >
+    > Otherwise, your system might fail to build.
+  '';
+
   section = contents:
     mkOption {
       type = mkOptionType {name = "docs-override";};
@@ -98,6 +107,10 @@ with lib; let
 
   nixpkgs-link = name: "[`pkgs.${name}`](https://search.nixos.org/packages?channel=unstable&show=${name})";
 
+  libinput-link = page: header: "https://wayland.freedesktop.org/libinput/doc/latest/${page}.html#${anchor header}";
+
+  libinput-doc = page: header: "[${header}](${libinput-link "${page}.html" (anchor header)})";
+
   make-default = text:
     if length (splitString "\n" text) == 1
     then "- default: `${text}`"
@@ -134,6 +147,6 @@ with lib; let
 in {
   inherit make-docs;
   lib = {
-    inherit section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link;
+    inherit unstable-note section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link libinput-link libinput-doc;
   };
 }

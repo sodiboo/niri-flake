@@ -429,16 +429,42 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - default: `"global"`
 
 
+<!-- sorting key: programs.niri.settings.f.input.keyboard.xkb -->
+## `programs.niri.settings.input.keyboard.xkb`
+
+
+Parameters passed to libxkbcommon, which handles the keyboard in niri.
+
+Further reading:
+- [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
+
+
 <!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.layout -->
 ## `programs.niri.settings.input.keyboard.xkb.layout`
-- type: `null or string`
-- default: `null`
+- type: `string`
+- default: `"us"`
+
+A comma-separated list of layouts (languages) to include in the keymap.
+
+Note that niri will set this to `"us"` by default, when unspecified.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available layouts and their variants.
+
+If this is set to an empty string, the layout will be read from the `XKB_DEFAULT_LAYOUT` environment variable.
+
 
 
 <!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.model -->
 ## `programs.niri.settings.input.keyboard.xkb.model`
-- type: `null or string`
-- default: `null`
+- type: `string`
+- default: `""`
+
+The keyboard model by which to interpret keycodes and LEDs
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#MODELS) for a list of available models.
+
+If this is set to an empty string, the model will be read from the `XKB_DEFAULT_MODEL` environment variable.
+
 
 
 <!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.options -->
@@ -446,17 +472,40 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `null or string`
 - default: `null`
 
+A comma separated list of options, through which the user specifies non-layout related preferences, like which key combinations are used for switching layouts, or which key is the Compose key.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#OPTIONS) for a list of available options.
+
+If this is set to an empty string, no options will be used.
+
+If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` environment variable.
+
+
 
 <!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.rules -->
 ## `programs.niri.settings.input.keyboard.xkb.rules`
-- type: `null or string`
-- default: `null`
+- type: `string`
+- default: `""`
+
+The rules file to use.
+
+The rules file describes how to interpret the values of the model, layout, variant and options fields.
+
+If this is set to an empty string, the rules will be read from the `XKB_DEFAULT_RULES` environment variable.
+
 
 
 <!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.variant -->
 ## `programs.niri.settings.input.keyboard.xkb.variant`
-- type: `null or string`
-- default: `null`
+- type: `string`
+- default: `""`
+
+A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available variants for each layout.
+
+If this is set to an empty string, the variant will be read from the `XKB_DEFAULT_VARIANT` environment variable.
+
 
 
 <!-- sorting key: programs.niri.settings.f.input.mouse.accel-profile -->
@@ -464,11 +513,17 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
 
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
 
 <!-- sorting key: programs.niri.settings.f.input.mouse.accel-speed -->
 ## `programs.niri.settings.input.mouse.accel-speed`
 - type: `floating point number`
 - default: `0.000000`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
 <!-- sorting key: programs.niri.settings.f.input.mouse.natural-scroll -->
@@ -476,11 +531,21 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `boolean`
 - default: `false`
 
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
 
 <!-- sorting key: programs.niri.settings.f.input.power-key-handling.enable -->
 ## `programs.niri.settings.input.power-key-handling.enable`
 - type: `boolean`
 - default: `true`
+
+By default, niri will take over the power button to make it sleep instead of power off.
+
+You can disable this behaviour if you prefer to configure the power button elsewhere.
 
 
 <!-- sorting key: programs.niri.settings.f.input.tablet.map-to-output -->
@@ -500,11 +565,17 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
 
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
 
 <!-- sorting key: programs.niri.settings.f.input.touchpad.accel-speed -->
 ## `programs.niri.settings.input.touchpad.accel-speed`
 - type: `floating point number`
 - default: `0.000000`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
 <!-- sorting key: programs.niri.settings.f.input.touchpad.click-method -->
@@ -512,9 +583,25 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `null or one of "button-areas", "clickfinger"`
 - default: `null`
 
-> [!note]
-> This option is only available on unstable niri.
-> If you use stable niri, this option will likely not work.
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`packages.<system>.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Method to determine which mouse button is pressed when you click the touchpad.
+
+- `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html.html#software-button-areas) \
+  The button is determined by which part of the touchpad was clicked.
+
+- `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html.html#clickfinger-behavior) \
+  The button is determined by how many fingers clicked.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#click-method
+- https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
 
 
 <!-- sorting key: programs.niri.settings.f.input.touchpad.dwt -->
@@ -522,11 +609,23 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `boolean`
 - default: `false`
 
+Whether to disable the touchpad while typing.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-typing
+- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-typing
+
 
 <!-- sorting key: programs.niri.settings.f.input.touchpad.dwtp -->
 ## `programs.niri.settings.input.touchpad.dwtp`
 - type: `boolean`
 - default: `false`
+
+Whether to disable the touchpad while the trackpoint is in use.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-trackpointing
+- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
 
 
 <!-- sorting key: programs.niri.settings.f.input.touchpad.natural-scroll -->
@@ -534,11 +633,23 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `boolean`
 - default: `true`
 
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
 
 <!-- sorting key: programs.niri.settings.f.input.touchpad.tap -->
 ## `programs.niri.settings.input.touchpad.tap`
 - type: `boolean`
 - default: `true`
+
+Whether to enable tap-to-click.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
+- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-to-click-behaviour
 
 
 <!-- sorting key: programs.niri.settings.f.input.touchpad.tap-button-map -->
@@ -546,11 +657,19 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `null or one of "left-middle-right", "left-right-middle"`
 - default: `null`
 
+The mouse button to register when tapping with 1, 2, or 3 fingers, when [`programs.niri.settings.input.touchpad.tap`](#programsnirisettingsinputtouchpadtap) is enabled.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
+
 
 <!-- sorting key: programs.niri.settings.f.input.trackpoint.accel-profile -->
 ## `programs.niri.settings.input.trackpoint.accel-profile`
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
 <!-- sorting key: programs.niri.settings.f.input.trackpoint.accel-speed -->
@@ -558,11 +677,20 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `floating point number`
 - default: `0.000000`
 
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
 
 <!-- sorting key: programs.niri.settings.f.input.trackpoint.natural-scroll -->
 ## `programs.niri.settings.input.trackpoint.natural-scroll`
 - type: `boolean`
 - default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
 <!-- sorting key: programs.niri.settings.g.outputs -->
@@ -581,6 +709,12 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `null or (submodule)`
 - default: `null`
 
+The resolution and refresh rate of this display.
+
+By default, when this is null, niri will automatically pick a mode for you.
+
+If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
+
 
 <!-- sorting key: programs.niri.settings.g.outputs.mode.height -->
 ## `programs.niri.settings.outputs.<name>.mode.height`
@@ -592,6 +726,8 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `null or floating point number`
 - default: `null`
 
+The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
+
 
 <!-- sorting key: programs.niri.settings.g.outputs.mode.width -->
 ## `programs.niri.settings.outputs.<name>.mode.width`
@@ -602,6 +738,18 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 ## `programs.niri.settings.outputs.<name>.position`
 - type: `null or (submodule)`
 - default: `null`
+
+Position of the output in the global coordinate space.
+
+This affects directional monitor actions like "focus-monitor-left", and cursor movement.
+
+The cursor can only move between directly adjacent outputs.
+
+Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
+
+For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
+
+If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
 
 
 <!-- sorting key: programs.niri.settings.g.outputs.position.x -->
@@ -619,17 +767,25 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `floating point number`
 - default: `1.000000`
 
+The scale of this output, which represents how many physical pixels fit in one logical pixel.
+
+Although this is a floating-point number, niri currently only accepts integer values. It does not support fractional scaling.
+
 
 <!-- sorting key: programs.niri.settings.g.outputs.transform.flipped -->
 ## `programs.niri.settings.outputs.<name>.transform.flipped`
 - type: `boolean`
 - default: `false`
 
+Whether to flip this output vertically.
+
 
 <!-- sorting key: programs.niri.settings.g.outputs.transform.rotation -->
 ## `programs.niri.settings.outputs.<name>.transform.rotation`
 - type: `one of 0, 90, 180, 270`
 - default: `0`
+
+Counter-clockwise rotation of this output in degrees.
 
 
 <!-- sorting key: programs.niri.settings.h.cursor.size -->

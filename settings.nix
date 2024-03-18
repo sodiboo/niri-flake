@@ -75,9 +75,33 @@ with docs.lib; rec {
       };
 
     basic-pointer = default-natural-scroll: {
-      natural-scroll = optional types.bool default-natural-scroll;
-      accel-speed = optional types.float 0.0;
-      accel-profile = nullable (enum ["adaptive" "flat"]);
+      natural-scroll =
+        optional types.bool default-natural-scroll
+        // {
+          description = ''
+            Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+            Further reading:
+            - ${libinput-link "configuration" "Scrolling"}
+            - ${libinput-link "scrolling" "Natural scrolling vs. traditional scrolling"}
+          '';
+        };
+      accel-speed =
+        optional types.float 0.0
+        // {
+          description = ''
+            Further reading:
+            - ${libinput-link "configuration" "Pointer acceleration"}
+          '';
+        };
+      accel-profile =
+        nullable (enum ["adaptive" "flat"])
+        // {
+          description = ''
+            Further reading:
+            - ${libinput-link "pointer-acceleration" "Pointer acceleration profiles"}
+          '';
+        };
     };
 
     preset-width = variant {
@@ -153,13 +177,7 @@ with docs.lib; rec {
       ordered-record
     ];
 
-    unstable-note = ''
-      > [!note]
-      > This option is only available on unstable niri.
-      > If you use stable niri, this option will likely not work.
-    '';
-
-    # section = flip pipe [record make-section];
+    section = flip pipe [record make-section];
     # ordered-section = flip pipe [make-ordered make-section];
 
     settings = make-ordered [
@@ -286,13 +304,93 @@ with docs.lib; rec {
       {
         input = {
           keyboard = {
-            xkb = {
-              layout = nullable types.str;
-              model = nullable types.str;
-              rules = nullable types.str;
-              variant = nullable types.str;
-              options = nullable types.str;
-            };
+            xkb = let
+              arch-man-xkb = anchor: "[`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#${anchor})";
+
+              default-env = empty: field: ''
+                If this is set to ${if empty then "an empty string" else "null"}, the ${field} will be read from the `XKB_DEFAULT_${toUpper field}` environment variable.
+              '';
+
+              str-fallback = default-env true;
+              nullable-fallback = default-env false;
+
+              base = {
+                # niri doesn't default its config repr to "us", but it is Option<String>
+                # however, when passed to xkb, it needs to be &str (None is not allowed)
+                # and there, niri will `.unwrap_or("us")`
+                # https://github.com/YaLTeR/niri/blob/0c57815fbf47c69af9ed11fa8ebc1b52158a3ba2/niri-config/src/lib.rs#L106
+                layout =
+                  optional types.str "us"
+                  // {
+                    description = ''
+                      A comma-separated list of layouts (languages) to include in the keymap.
+
+                      Note that niri will set this to `"us"` by default, when unspecified.
+
+                      See ${arch-man-xkb "LAYOUTS"} for a list of available layouts and their variants.
+
+                      ${str-fallback "layout"}
+                    '';
+                  };
+                model =
+                  optional types.str ""
+                  // {
+                    description = ''
+                      The keyboard model by which to interpret keycodes and LEDs
+
+                      See ${arch-man-xkb "MODELS"} for a list of available models.
+
+                      ${str-fallback "model"}
+                    '';
+                  };
+                rules =
+                  optional types.str ""
+                  // {
+                    description = ''
+                      The rules file to use.
+
+                      The rules file describes how to interpret the values of the model, layout, variant and options fields.
+
+                      ${str-fallback "rules"}
+                    '';
+                  };
+                variant =
+                  optional types.str ""
+                  // {
+                    description = ''
+                      A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
+
+                      See ${arch-man-xkb "LAYOUTS"} for a list of available variants for each layout.
+
+                      ${str-fallback "variant"}
+                    '';
+                  };
+                options =
+                  nullable types.str
+                  // {
+                    description = ''
+                      A comma separated list of options, through which the user specifies non-layout related preferences, like which key combinations are used for switching layouts, or which key is the Compose key.
+
+                      See ${arch-man-xkb "OPTIONS"} for a list of available options.
+
+                      If this is set to an empty string, no options will be used.
+
+                      ${nullable-fallback "options"}
+                    '';
+                  };
+              };
+
+              # base' = mapAttrs (name: opt: opt // optionalAttrs (opt.default == "" || opt.default == null) {defaultText = "${if opt.default == "" then "\"\"" else "null"} (inherited from XKB_DEFAULT_${toUpper name}>";}) base;
+            in
+              section base
+              // {
+                description = ''
+                  Parameters passed to libxkbcommon, which handles the keyboard in niri.
+
+                  Further reading:
+                  - [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
+                '';
+              };
             repeat-delay = optional types.int 600;
             repeat-rate = optional types.int 25;
             track-layout = optional (enum ["global" "window"]) "global";
@@ -300,40 +398,155 @@ with docs.lib; rec {
           touchpad =
             (basic-pointer true)
             // {
-              tap = optional types.bool true;
-              dwt = optional types.bool false;
-              dwtp = optional types.bool false;
-              tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
-              click-method = nullable (enum ["button-areas" "clickfinger"]) // {
-                description = unstable-note;
-              };
+              tap =
+                optional types.bool true
+                // {
+                  description = ''
+                    Whether to enable tap-to-click.
+
+                    Further reading:
+                    - ${libinput-link "configuration" "Tap-to-click"}
+                    - ${libinput-link "tapping" "Tap-to-click behaviour"}
+                  '';
+                };
+              dwt =
+                optional types.bool false
+                // {
+                  description = ''
+                    Whether to disable the touchpad while typing.
+
+                    Further reading:
+                    - ${libinput-link "configuration" "Disable while typing"}
+                    - ${libinput-link "palm-detection" "Disable-while-typing"}
+                  '';
+                };
+              dwtp =
+                optional types.bool false
+                // {
+                  description = ''
+                    Whether to disable the touchpad while the trackpoint is in use.
+
+                    Further reading:
+                    - ${libinput-link "configuration" "Disable while trackpointing"}
+                    - ${libinput-link "palm-detection" "Disable-while-trackpointing"}
+                  '';
+                };
+              tap-button-map =
+                nullable (enum ["left-middle-right" "left-right-middle"])
+                // {
+                  description = ''
+                    The mouse button to register when tapping with 1, 2, or 3 fingers, when ${link' "programs.niri.settings.input.touchpad.tap"} is enabled.
+
+                    Further reading:
+                    - ${libinput-link "configuration" "Tap-to-click"}
+                  '';
+                };
+              click-method =
+                nullable (enum ["button-areas" "clickfinger"])
+                // {
+                  description = ''
+                    ${unstable-note}
+
+                    Method to determine which mouse button is pressed when you click the touchpad.
+
+                    - `"button-areas"`: ${libinput-doc "clickpad-softbuttons" "Software button areas"} \
+                      The button is determined by which part of the touchpad was clicked.
+
+                    - `"clickfinger"`: ${libinput-doc "clickpad-softbuttons" "Clickfinger behavior"} \
+                      The button is determined by how many fingers clicked.
+
+                    Further reading:
+                    - ${libinput-link "configuration" "Click method"}
+                    - ${libinput-link "clickpad-softbuttons" "Clickpad software button behavior"}
+                  '';
+                };
             };
           mouse = basic-pointer false;
           trackpoint = basic-pointer false;
           tablet.map-to-output = nullable types.str;
           touch.map-to-output = nullable types.str;
 
-          power-key-handling.enable = optional types.bool true;
+          power-key-handling.enable =
+            optional types.bool true
+            // {
+              description = ''
+                By default, niri will take over the power button to make it sleep instead of power off.
+
+                You can disable this behaviour if you prefer to configure the power button elsewhere.
+              '';
+            };
         };
       }
 
       {
         outputs = attrs (record {
           enable = optional types.bool true;
-          scale = optional types.float 1.0;
+          scale =
+            optional types.float 1.0
+            // {
+              description = ''
+                The scale of this output, which represents how many physical pixels fit in one logical pixel.
+
+                Although this is a floating-point number, niri currently only accepts integer values. It does not support fractional scaling.
+              '';
+            };
           transform = {
-            flipped = optional types.bool false;
-            rotation = optional (enum [0 90 180 270]) 0;
+            flipped =
+              optional types.bool false
+              // {
+                description = ''
+                  Whether to flip this output vertically.
+                '';
+              };
+            rotation =
+              optional (enum [0 90 180 270]) 0
+              // {
+                description = ''
+                  Counter-clockwise rotation of this output in degrees.
+                '';
+              };
           };
-          position = nullable (record {
-            x = required types.int;
-            y = required types.int;
-          });
-          mode = nullable (record {
-            width = required types.int;
-            height = required types.int;
-            refresh = nullable types.float;
-          });
+          position =
+            nullable (record {
+              x = required types.int;
+              y = required types.int;
+            })
+            // {
+              description = ''
+                Position of the output in the global coordinate space.
+
+                This affects directional monitor actions like "focus-monitor-left", and cursor movement.
+
+                The cursor can only move between directly adjacent outputs.
+
+                Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
+
+                For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
+
+                If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
+              '';
+            };
+          mode =
+            nullable (record {
+              width = required types.int;
+              height = required types.int;
+              refresh =
+                nullable types.float
+                // {
+                  description = ''
+                    The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
+                  '';
+                };
+            })
+            // {
+              description = ''
+                The resolution and refresh rate of this display.
+
+                By default, when this is null, niri will automatically pick a mode for you.
+
+                If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
+              '';
+            };
         });
       }
 
@@ -815,10 +1028,10 @@ with docs.lib; rec {
         (plain "input" [
           (plain "keyboard" [
             (plain "xkb" [
-              (nullable leaf "layout" cfg.input.keyboard.xkb.layout)
-              (nullable leaf "model" cfg.input.keyboard.xkb.model)
-              (nullable leaf "rules" cfg.input.keyboard.xkb.rules)
-              (nullable leaf "variant" cfg.input.keyboard.xkb.variant)
+              (leaf "layout" cfg.input.keyboard.xkb.layout)
+              (leaf "model" cfg.input.keyboard.xkb.model)
+              (leaf "rules" cfg.input.keyboard.xkb.rules)
+              (leaf "variant" cfg.input.keyboard.xkb.variant)
               (nullable leaf "options" cfg.input.keyboard.xkb.options)
             ])
             (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
