@@ -42,5 +42,6 @@ jobs:
         with:
           script: |
             await exec.exec('git checkout update_flake_lock_action');
+            await exec.exec('bash ./post-commit'):
             await exec.exec('git commit --amend --no-edit');
             await exec.exec('git push origin update_flake_lock_action --force');
