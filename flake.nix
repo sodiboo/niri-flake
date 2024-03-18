@@ -47,6 +47,7 @@
     };
 
     fmt-date = raw: "${date.year raw}-${date.month raw}-${date.day raw}";
+    fmt-time = raw: "${date.hour raw}:${date.minute raw}:${date.second raw}";
 
     version-string = src:
       if src.rev == stable-rev
@@ -236,7 +237,7 @@
           generate-docs = {
             type = "app";
             program = let
-              docs-src = pkgs.writeText "settings-documentation.md" (docs.make-docs (settings.fake-docs {inherit stable-tag nixpkgs;}));
+              docs-src = pkgs.writeText "settings-documentation.md" (docs.make-docs (settings.fake-docs {inherit stable-tag fmt-date fmt-time nixpkgs;}));
             in "${pkgs.writeScript "generate-docs" "cat ${docs-src}"}";
           };
         };

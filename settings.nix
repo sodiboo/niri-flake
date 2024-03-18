@@ -998,6 +998,8 @@ with docs.lib; rec {
     };
   fake-docs = {
     stable-tag,
+    fmt-date,
+    fmt-time,
     nixpkgs,
   }: {
     imports = [module];
@@ -1005,13 +1007,7 @@ with docs.lib; rec {
     options._ = let
       pkg-output = name: desc:
         fake-option (pkg-header name) ''
-          (where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
-
           ${desc}
-
-          Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
-
-          Also note that you likely should not be using these outputs directly. Instead, you should use the overlay (${link' "overlays.niri"}).
         '';
 
       enable-option = fake-option "programs.niri.enable" ''
@@ -1035,7 +1031,29 @@ with docs.lib; rec {
         - ${pkg-link "niri-stable"}
         - ${pkg-link "niri-unstable"}
       '';
-      link-niri-release = tag: "[release `${tag}`](https://github.com/YaLTeR/niri/releases/tag/${tag})";
+
+      patches = pkg:
+        concatMap (
+          patch: let
+            m = strings.match "${escapeRegex "https://github.com/YaLTeR/niri/commit/"}([0-9a-f]{40})${escapeRegex ".patch"}" patch.url;
+          in
+            if m != null
+            then [
+              {
+                rev = head m;
+                url = patch.url;
+              }
+            ]
+            else []
+        ) (pkg.patches or []);
+
+      stable-patches = patches inputs.self.packages.x86_64-linux.niri-stable;
+
+      link-niri-commit = {
+        rev,
+        shortRev,
+      }: "[`${shortRev}`](https://github.com/YaLTeR/niri/tree/${rev})";
+      link-niri-release = tag: "[`${tag}`](https://github.com/YaLTeR/niri/releases/tag/${tag})";
 
       link-stylix-opt = opt: "[`${opt}`](https://danth.github.io/stylix/options/hm.html#${anchor opt})";
     in {
@@ -1043,11 +1061,36 @@ with docs.lib; rec {
         _ = header "Packages provided by this flake";
 
         a.packages = {
+          _ = fake-option (pkg-header "<name>") ''
+            (where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
+
+            > [!important]
+            > Packages for `aarch64-linux` are untested. They might work, but i can't guarantee it.
+
+            You should preferably not be using these outputs directly. Instead, you should use ${link' "overlays.niri"}.
+          '';
           niri-stable = pkg-output "niri-stable" ''
-            The latest stable tagged version of niri (currently ${link-niri-release stable-tag}), along with potential patches.
+            The latest stable tagged version of niri, along with potential patches.
+
+            Currently, this is release ${link-niri-release stable-tag}${
+              if stable-patches != []
+              then " plus the following patches:"
+              else "."
+            }
+
+            ${concatStringsSep "\n" (map ({
+              rev,
+              url,
+            }: "- [`${rev}`](${removeSuffix ".patch" url})")
+            stable-patches)}
           '';
           niri-unstable = pkg-output "niri-unstable" ''
-            The latest commit to the main branch of niri. This is refreshed hourly and may break at any time without prior notice.
+            The latest commit to the development branch of niri.
+
+            > [!warning]
+            > `niri-unstable` is not a released version, there are no stability guarantees, and updates may break stuff at any time without warning. Here be dragons.
+
+            Currently, this is exactly commit ${link-niri-commit {inherit (inputs.niri-unstable) shortRev rev;}} which was authored on `${fmt-date inputs.niri-unstable.lastModifiedDate} ${fmt-time inputs.niri-unstable.lastModifiedDate}`. It is refreshed hourly.
           '';
         };
 

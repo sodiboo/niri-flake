@@ -1,31 +1,40 @@
 <!-- sorting key: _.a.nonmodules._ -->
 # Packages provided by this flake
 
-<!-- sorting key: _.a.nonmodules.a.packages.niri-stable -->
-## `packages.<system>.niri-stable`
+<!-- sorting key: _.a.nonmodules.a.packages._ -->
+## `packages.<system>.<name>`
 
 (where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
 
-The latest stable tagged version of niri (currently [release `v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)), along with potential patches.
+> [!important]
+> Packages for `aarch64-linux` are untested. They might work, but i can't guarantee it.
+
+You should preferably not be using these outputs directly. Instead, you should use [`overlays.niri`](#overlaysniri).
 
 
-Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
 
-Also note that you likely should not be using these outputs directly. Instead, you should use the overlay ([`overlays.niri`](#overlaysniri)).
+<!-- sorting key: _.a.nonmodules.a.packages.niri-stable -->
+## `packages.<system>.niri-stable`
+
+The latest stable tagged version of niri, along with potential patches.
+
+Currently, this is release [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3) plus the following patches:
+
+- [`40cec34aa4a7f99ab12b30cba1a0ee83a706a413`](https://github.com/YaLTeR/niri/commit/40cec34aa4a7f99ab12b30cba1a0ee83a706a413)
+
 
 
 
 <!-- sorting key: _.a.nonmodules.a.packages.niri-unstable -->
 ## `packages.<system>.niri-unstable`
 
-(where `<system>` is one of: `x86_64-linux`, `aarch64-linux`)
+The latest commit to the development branch of niri.
 
-The latest commit to the main branch of niri. This is refreshed hourly and may break at any time without prior notice.
+> [!warning]
+> `niri-unstable` is not a released version, there are no stability guarantees, and updates may break stuff at any time without warning. Here be dragons.
 
+Currently, this is exactly commit [`4740682`](https://github.com/YaLTeR/niri/tree/4740682904f7353f5969449f3f63afc6c787c7c1) which was authored on `2024-03-18 15:36:18`. It is refreshed hourly.
 
-Note that the `aarch64-linux` package is untested. It might work, but i can't guarantee it.
-
-Also note that you likely should not be using these outputs directly. Instead, you should use the overlay ([`overlays.niri`](#overlaysniri)).
 
 
 
