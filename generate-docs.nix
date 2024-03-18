@@ -90,7 +90,7 @@ with lib; let
   anchor' = loc: anchor "`${loc}`";
 
   link = title: "[${title}](#${anchor title})";
-  link' = loc: link "`${loc}`";
+  link' = loc: "[`${removePrefix "programs.niri.settings." loc}`](#${anchor "`${loc}`"})";
 
   module-doc = name: desc: opts:
     {

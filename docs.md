@@ -187,7 +187,7 @@ Some of the options below make use of a "variant" type.
 
 This is a type that behaves similarly to a submodule, except you can only set *one* of its suboptions.
 
-An example of this usage is in [`programs.niri.settings.animations.<name>`](#programsnirisettingsanimationsname), where each event can have either an easing animation or a spring animation. \
+An example of this usage is in [`animations.<name>`](#programsnirisettingsanimationsname), where each event can have either an easing animation or a spring animation. \
 You cannot set parameters for both, so `variant` is used here.
 
 
@@ -665,7 +665,7 @@ Further reading:
 - type: `null or one of "left-middle-right", "left-right-middle"`
 - default: `null`
 
-The mouse button to register when tapping with 1, 2, or 3 fingers, when [`programs.niri.settings.input.touchpad.tap`](#programsnirisettingsinputtouchpadtap) is enabled.
+The mouse button to register when tapping with 1, 2, or 3 fingers, when [`input.touchpad.tap`](#programsnirisettingsinputtouchpadtap) is enabled.
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
@@ -908,9 +908,9 @@ The default width for new columns.
 
 When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
 
-See [`programs.niri.settings.layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
 
-You can override this for specific windows using [`programs.niri.settings.window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
+You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
 <!-- sorting key: programs.niri.settings.i.layout.default-column-width.fixed -->
@@ -1237,7 +1237,7 @@ Examples:
 
 Window rules.
 
-A window rule will match based on [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) and [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). Both of these are lists of "match rules".
+A window rule will match based on [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) and [`window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). Both of these are lists of "match rules".
 
 A given match rule can match based on the `title` or `app-id` fields. For a given match rule to "match" a window, it must match on all fields.
 
@@ -1249,13 +1249,13 @@ A given match rule can match based on the `title` or `app-id` fields. For a give
 
 For a given window rule to match a window, the above logic is employed to determine whether any given match rule matches, and the interactions between them decide whether the window rule as a whole will match. For a given window rule:
 
-- A given window is "considered" if any of the match rules in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) successfully match this window. If all of the match rules do not match this window, then that window will never match this window rule.
+- A given window is "considered" if any of the match rules in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) successfully match this window. If all of the match rules do not match this window, then that window will never match this window rule.
 
-- If [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) contains no match rules, it will match any window and "consider" it for this window rule.
+- If [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) contains no match rules, it will match any window and "consider" it for this window rule.
 
-- If a given window is "considered" for this window rule according to the above rules, the selection can be further refined with [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). If any of the match rules in `excludes` match this window, it will be rejected and this window rule will not match the given window.
+- If a given window is "considered" for this window rule according to the above rules, the selection can be further refined with [`window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). If any of the match rules in `excludes` match this window, it will be rejected and this window rule will not match the given window.
 
-That is, a given window rule will apply to a given window if any of the entries in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) match that window (or there are none), AND none of the entries in [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes) match that window.
+That is, a given window rule will apply to a given window if any of the entries in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) match that window (or there are none), AND none of the entries in [`window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes) match that window.
 
 All fields of a window rule can be set to null, which represents that the field shall have no effect on the window (and in general, the client is allowed to choose the initial value).
 
@@ -1279,7 +1279,7 @@ If the final value of a given field is null, then it usually means that the clie
 
 A list of rules to match windows.
 
-If any of these rules match a window (or there are none), that window rule will be considered for this window. It can still be rejected by [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes)
+If any of these rules match a window (or there are none), that window rule will be considered for this window. It can still be rejected by [`window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes)
 
 If all of the rules do not match a window, then this window rule will not apply to that window.
 
@@ -1302,9 +1302,9 @@ If all of the rules do not match a window, then this window rule will not apply 
 
 A list of rules to exclude windows.
 
-If any of these rules match a window, then this window rule will not apply to that window, even if it matches one of the rules in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
+If any of these rules match a window, then this window rule will not apply to that window, even if it matches one of the rules in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
 
-If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
+If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.app-id -->
@@ -1324,9 +1324,9 @@ If none of these rules match a window, then this window rule will not be rejecte
 - type: `null or {} or (variant of: fixed | proportion)`
 - default: `null`
 
-By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from [`programs.niri.settings.layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
+By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
 
-If this option is not null, then its value will take priority over [`programs.niri.settings.layout.default-column-width`](#programsnirisettingslayoutdefault-column-width) for windows matching this rule.
+If this option is not null, then its value will take priority over [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width) for windows matching this rule.
 
 As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
 
@@ -1390,7 +1390,7 @@ If the final value is an output that does not exist, or it is null, then the win
 
 Debug options for niri.
 
-`kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See [`programs.niri.settings.binds`](#programsnirisettingsbinds) for more information on all the ways you can use this.
+`kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See [`binds`](#programsnirisettingsbinds) for more information on all the ways you can use this.
 
 Note that for no-argument nodes, there is no special way to define them here. You can't pass them as just a "string" because that makes no sense here. You must pass it an empty array of arguments.
 
@@ -1405,6 +1405,6 @@ Here's an example of how to use this:
 }
 ```
 
-This option is, just like [`programs.niri.settings.binds`](#programsnirisettingsbinds), not verified by the nix module. But, it will be validated by niri before committing the config.
+This option is, just like [`binds`](#programsnirisettingsbinds), not verified by the nix module. But, it will be validated by niri before committing the config.
 
 Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
