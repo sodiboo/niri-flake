@@ -507,6 +507,16 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - default: `0.000000`
 
 
+<!-- sorting key: programs.niri.settings.f.input.touchpad.click-method -->
+## `programs.niri.settings.input.touchpad.click-method`
+- type: `null or one of "button-areas", "clickfinger"`
+- default: `null`
+
+> [!note]
+> This option is only available on unstable niri.
+> If you use stable niri, this option will likely not work.
+
+
 <!-- sorting key: programs.niri.settings.f.input.touchpad.dwt -->
 ## `programs.niri.settings.input.touchpad.dwt`
 - type: `boolean`

@@ -153,6 +153,12 @@ with docs.lib; rec {
       ordered-record
     ];
 
+    unstable-note = ''
+      > [!note]
+      > This option is only available on unstable niri.
+      > If you use stable niri, this option will likely not work.
+    '';
+
     # section = flip pipe [record make-section];
     # ordered-section = flip pipe [make-ordered make-section];
 
@@ -298,6 +304,9 @@ with docs.lib; rec {
               dwt = optional types.bool false;
               dwtp = optional types.bool false;
               tap-button-map = nullable (enum ["left-middle-right" "left-right-middle"]);
+              click-method = nullable (enum ["button-areas" "clickfinger"]) // {
+                description = unstable-note;
+              };
             };
           mouse = basic-pointer false;
           trackpoint = basic-pointer false;
@@ -821,6 +830,7 @@ with docs.lib; rec {
             (flag' "dwt" cfg.input.touchpad.dwt)
             (flag' "dwtp" cfg.input.touchpad.dwtp)
             (pointer cfg.input.touchpad)
+            (nullable leaf "click-method" cfg.input.touchpad.click-method)
             (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
           ])
           (plain "mouse" (pointer cfg.input.mouse))
