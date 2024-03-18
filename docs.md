@@ -420,6 +420,22 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `list of string`
 
 
+<!-- sorting key: programs.niri.settings.f.input.focus-follows-mouse -->
+## `programs.niri.settings.input.focus-follows-mouse`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`packages.<system>.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether to focus the window under the mouse when the mouse moves.
+
+
 <!-- sorting key: programs.niri.settings.f.input.keyboard.repeat-delay -->
 ## `programs.niri.settings.input.keyboard.repeat-delay`
 - type: `signed integer`
@@ -708,6 +724,22 @@ Whether scrolling should move the content in the scrolled direction (as opposed 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+<!-- sorting key: programs.niri.settings.f.input.warp-mouse-to-focus -->
+## `programs.niri.settings.input.warp-mouse-to-focus`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`packages.<system>.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether to warp the mouse to the focused window when switching focus.
 
 
 <!-- sorting key: programs.niri.settings.g.outputs -->

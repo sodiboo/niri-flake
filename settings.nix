@@ -511,6 +511,20 @@ with docs.lib; rec {
           trackpoint = basic-pointer false;
           tablet.map-to-output = nullable types.str;
           touch.map-to-output = nullable types.str;
+          warp-mouse-to-focus = optional types.bool false // {
+            description = ''
+              ${unstable-note}
+
+              Whether to warp the mouse to the focused window when switching focus.
+            '';
+          };
+          focus-follows-mouse = optional types.bool false // {
+            description = ''
+              ${unstable-note}
+
+              Whether to focus the window under the mouse when the mouse moves.
+            '';
+          };
 
           power-key-handling.enable =
             optional types.bool true
@@ -1313,6 +1327,8 @@ with docs.lib; rec {
           (plain "trackpoint" (pointer cfg.input.trackpoint))
           (plain "tablet" (touchy cfg.input.tablet))
           (plain "touch" (touchy cfg.input.touch))
+          (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
+          (flag' "focus-follows-mouse" cfg.input.focus-follows-mouse)
           (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         ])
 
