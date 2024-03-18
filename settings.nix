@@ -1075,7 +1075,7 @@ with docs.lib; rec {
             Currently, this is release ${link-niri-release stable-tag}${
               if stable-patches != []
               then " plus the following patches:"
-              else "."
+              else " with no additional patches."
             }
 
             ${concatStringsSep "\n" (map ({
