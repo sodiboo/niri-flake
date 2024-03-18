@@ -368,7 +368,7 @@ These are the available actions:
 - `switch-preset-column-width`
 - `toggle-debug-tint`
 
-No distinction is made between action that take arguments and those that don't. Their usages are the exact same.
+No distinction is made between actions that take arguments and those that don't. Their usages are the exact same.
 
 
 <!-- sorting key: programs.niri.settings.b.screenshot-path -->
@@ -893,20 +893,38 @@ Counter-clockwise rotation of this output in degrees.
 - type: `one of "never", "always", "on-overflow"`
 - default: `"never"`
 
+When changing focus, niri can automatically center the focused column.
+
+- `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+- `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+- `"always"`: the focused column will always be centered, even if it was already fully visible.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.default-column-width -->
 ## `programs.niri.settings.layout.default-column-width`
 - type: `{} or (variant of: fixed | proportion)`
+
+The default width for new columns.
+
+When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+
+See [`programs.niri.settings.layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+
+You can override this for specific windows using [`programs.niri.settings.window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
 <!-- sorting key: programs.niri.settings.i.layout.default-column-width.fixed -->
 ## `programs.niri.settings.layout.default-column-width.fixed`
 - type: `signed integer`
 
+The width of the column in logical pixels
+
 
 <!-- sorting key: programs.niri.settings.i.layout.default-column-width.proportion -->
 ## `programs.niri.settings.layout.default-column-width.proportion`
 - type: `floating point number`
+
+The width of the column as a proportion of the screen's width
 
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.active-color -->
@@ -994,20 +1012,57 @@ Counter-clockwise rotation of this output in degrees.
 - type: `signed integer`
 - default: `16`
 
+The gap between windows in the layout, measured in logical pixels.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.preset-column-widths -->
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of variant of: fixed | proportion`
+
+The widths that `switch-preset-column-width` will cycle through.
+
+Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.layout.preset-coumn-widths = [
+    { proportion = 1./3.; }
+    { proportion = 1./2.; }
+    { proportion = 2./3.; }
+
+    # { fixed = 1920; }
+  ];
+}
+```
 
 
 <!-- sorting key: programs.niri.settings.i.layout.preset-column-widths.fixed -->
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
+The width of the column in logical pixels
+
 
 <!-- sorting key: programs.niri.settings.i.layout.preset-column-widths.proportion -->
 ## `programs.niri.settings.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+<!-- sorting key: programs.niri.settings.i.layout.struts -->
+## `programs.niri.settings.layout.struts`
+
+
+The distances from the edges of the screen to the eges of the working area.
+
+The top and bottom struts are absolute gaps from the edges of the screen. If you set a bottom strut of 64px and the scale is 2.0, then the output will have 128 physical pixels under the scrollable working area where it only shows the wallpaper.
+
+Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
 
 
 <!-- sorting key: programs.niri.settings.i.layout.struts.bottom -->
@@ -1174,73 +1229,152 @@ Examples:
 ## `programs.niri.settings.window-rules`
 - type: `list of (submodule)`
 
+Window rules.
 
-<!-- sorting key: programs.niri.settings.l.window-rules.default-column-width -->
-## `programs.niri.settings.window-rules.*.default-column-width`
-- type: `null or {} or (variant of: fixed | proportion)`
-- default: `null`
+A window rule will match based on [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) and [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). Both of these are lists of "match rules".
+
+A given match rule can match based on the `title` or `app-id` fields. For a given match rule to "match" a window, it must match on all fields.
+
+- The `title` field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
+
+- The `app-id` field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
+
+- If a field is null, it will always match.
+
+For a given window rule to match a window, the above logic is employed to determine whether any given match rule matches, and the interactions between them decide whether the window rule as a whole will match. For a given window rule:
+
+- A given window is "considered" if any of the match rules in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) successfully match this window. If all of the match rules do not match this window, then that window will never match this window rule.
+
+- If [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) contains no match rules, it will match any window and "consider" it for this window rule.
+
+- If a given window is "considered" for this window rule according to the above rules, the selection can be further refined with [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). If any of the match rules in `excludes` match this window, it will be rejected and this window rule will not match the given window.
+
+That is, a given window rule will apply to a given window if any of the entries in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) match that window (or there are none), AND none of the entries in [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes) match that window.
+
+All fields of a window rule can be set to null, which represents that the field shall have no effect on the window (and in general, the client is allowed to choose the initial value).
+
+To compute the final set of window rules that apply to a given window, each window rule in this list is consdered in order.
+
+At first, every field is set to null.
+
+Then, for each applicable window rule:
+
+- If a given field is null on this window rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
+- If the given field is not null, it will overwrite the value from any previous rule.
+
+The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* window rule that matches the given window rule (not considering null entries, unless there are no non-null entries)
+
+If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.default-column-width.fixed -->
-## `programs.niri.settings.window-rules.*.default-column-width.fixed`
-- type: `signed integer`
-
-
-<!-- sorting key: programs.niri.settings.l.window-rules.default-column-width.proportion -->
-## `programs.niri.settings.window-rules.*.default-column-width.proportion`
-- type: `floating point number`
-
-
-<!-- sorting key: programs.niri.settings.l.window-rules.excludes -->
-## `programs.niri.settings.window-rules.*.excludes`
-- type: `list of (submodule)`
-
-
-<!-- sorting key: programs.niri.settings.l.window-rules.excludes.app-id -->
-## `programs.niri.settings.window-rules.*.excludes.*.app-id`
-- type: `null or string`
-- default: `null`
-
-
-<!-- sorting key: programs.niri.settings.l.window-rules.excludes.title -->
-## `programs.niri.settings.window-rules.*.excludes.*.title`
-- type: `null or string`
-- default: `null`
-
-
-<!-- sorting key: programs.niri.settings.l.window-rules.matches -->
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches -->
 ## `programs.niri.settings.window-rules.*.matches`
 - type: `list of (submodule)`
 
+A list of rules to match windows.
 
-<!-- sorting key: programs.niri.settings.l.window-rules.matches.app-id -->
+If any of these rules match a window (or there are none), that window rule will be considered for this window. It can still be rejected by [`programs.niri.settings.window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes)
+
+If all of the rules do not match a window, then this window rule will not apply to that window.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.app-id -->
 ## `programs.niri.settings.window-rules.*.matches.*.app-id`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.matches.title -->
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.title -->
 ## `programs.niri.settings.window-rules.*.matches.*.title`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.open-fullscreen -->
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes -->
+## `programs.niri.settings.window-rules.*.excludes`
+- type: `list of (submodule)`
+
+A list of rules to exclude windows.
+
+If any of these rules match a window, then this window rule will not apply to that window, even if it matches one of the rules in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
+
+If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in [`programs.niri.settings.window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.app-id -->
+## `programs.niri.settings.window-rules.*.excludes.*.app-id`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.title -->
+## `programs.niri.settings.window-rules.*.excludes.*.title`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width -->
+## `programs.niri.settings.window-rules.*.default-column-width`
+- type: `null or {} or (variant of: fixed | proportion)`
+- default: `null`
+
+By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from [`programs.niri.settings.layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
+
+If this option is not null, then its value will take priority over [`programs.niri.settings.layout.default-column-width`](#programsnirisettingslayoutdefault-column-width) for windows matching this rule.
+
+As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width.fixed -->
+## `programs.niri.settings.window-rules.*.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width.proportion -->
+## `programs.niri.settings.window-rules.*.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.c.open-fullscreen -->
 ## `programs.niri.settings.window-rules.*.open-fullscreen`
 - type: `null or boolean`
 - default: `null`
 
+Whether to open this window in fullscreen.
 
-<!-- sorting key: programs.niri.settings.l.window-rules.open-maximized -->
+If the final value of this field is true, then this window will always be forced to open in fullscreen.
+
+If the final value of this field is false, then this window is never allowed to open in fullscreen, even if it requests to do so.
+
+If the final value of this field is null, then the client gets to decide if this window will open in fullscreen.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.c.open-maximized -->
 ## `programs.niri.settings.window-rules.*.open-maximized`
 - type: `null or boolean`
 - default: `null`
 
+Whether to open this window in a maximized column.
 
-<!-- sorting key: programs.niri.settings.l.window-rules.open-on-output -->
+If the final value of this field is null or false, then the window will not open in a maximized column.
+
+If the final value of this field is true, then the window will open in a maximized column.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.c.open-on-output -->
 ## `programs.niri.settings.window-rules.*.open-on-output`
 - type: `null or string`
 - default: `null`
+
+The output to open this window on.
+
+If final value of this field is an output that exists, the new window will open on that output.
+
+If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
 
 
 <!-- sorting key: programs.niri.settings.m.debug -->

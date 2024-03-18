@@ -69,8 +69,12 @@ with docs.lib; rec {
         nestedTypes = variants;
 
         getSubOptions =
-          (record (mapAttrs (const required)
-              variants))
+          (record (mapAttrs (const (type:
+            (required type)
+            // (optionalAttrs (type ? variant-description) {
+              description = type.variant-description;
+            })))
+          variants))
           .getSubOptions;
       };
 
@@ -105,8 +109,20 @@ with docs.lib; rec {
     };
 
     preset-width = variant {
-      fixed = types.int;
-      proportion = types.float;
+      fixed =
+        types.int
+        // {
+          variant-description = ''
+            The width of the column in logical pixels
+          '';
+        };
+      proportion =
+        types.float
+        // {
+          variant-description = ''
+            The width of the column as a proportion of the screen's width
+          '';
+        };
     };
 
     emptyOr = elemType:
@@ -254,7 +270,7 @@ with docs.lib; rec {
                 (forEach binds-for.unstable or [] (a: "- `${a}` (only on `niri-unstable`)"))
               ])}
 
-              No distinction is made between action that take arguments and those that don't. Their usages are the exact same.
+              No distinction is made between actions that take arguments and those that don't. Their usages are the exact same.
             '';
           };
       }
@@ -589,16 +605,78 @@ with docs.lib; rec {
             // {
               enable = optional types.bool false;
             };
-          preset-column-widths = list preset-width;
-          default-column-width = optional default-width {};
-          center-focused-column = optional (enum ["never" "always" "on-overflow"]) "never";
-          gaps = optional types.int 16;
-          struts = {
-            left = optional types.int 0;
-            right = optional types.int 0;
-            top = optional types.int 0;
-            bottom = optional types.int 0;
-          };
+          preset-column-widths =
+            list preset-width
+            // {
+              description = ''
+                The widths that `switch-preset-column-width` will cycle through.
+
+                Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+
+                Example:
+
+                ```nix
+                {
+                  programs.niri.settings.layout.preset-coumn-widths = [
+                    { proportion = 1./3.; }
+                    { proportion = 1./2.; }
+                    { proportion = 2./3.; }
+
+                    # { fixed = 1920; }
+                  ];
+                }
+                ```
+              '';
+            };
+          default-column-width =
+            optional default-width {}
+            // {
+              description = ''
+                The default width for new columns.
+
+                When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+
+                See ${link' "programs.niri.settings.layout.preset-column-widths"} for more information.
+
+                You can override this for specific windows using ${link' "programs.niri.settings.window-rules.*.default-column-width"}
+              '';
+            };
+          center-focused-column =
+            optional (enum ["never" "always" "on-overflow"]) "never"
+            // {
+              description = ''
+                When changing focus, niri can automatically center the focused column.
+
+                - `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+                - `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+                - `"always"`: the focused column will always be centered, even if it was already fully visible.
+              '';
+            };
+          gaps =
+            optional types.int 16
+            // {
+              description = ''
+                The gap between windows in the layout, measured in logical pixels.
+              '';
+            };
+          struts =
+            section {
+              left = optional types.int 0;
+              right = optional types.int 0;
+              top = optional types.int 0;
+              bottom = optional types.int 0;
+            }
+            // {
+              description = ''
+                The distances from the edges of the screen to the eges of the working area.
+
+                The top and bottom struts are absolute gaps from the edges of the screen. If you set a bottom strut of 64px and the scale is 2.0, then the output will have 128 physical pixels under the scrollable working area where it only shows the wallpaper.
+
+                Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+                The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
+              '';
+            };
         };
       }
 
@@ -703,15 +781,123 @@ with docs.lib; rec {
       }
 
       {
-        window-rules = list (record {
-          matches = list match;
-          excludes = list match;
+        window-rules =
+          list (make-ordered [
+            {
+              matches =
+                list match
+                // {
+                  description = ''
+                    A list of rules to match windows.
 
-          default-column-width = nullable default-width;
-          open-on-output = nullable types.str;
-          open-maximized = nullable types.bool;
-          open-fullscreen = nullable types.bool;
-        });
+                    If any of these rules match a window (or there are none), that window rule will be considered for this window. It can still be rejected by ${link' "programs.niri.settings.window-rules.*.excludes"}
+
+                    If all of the rules do not match a window, then this window rule will not apply to that window.
+                  '';
+                };
+            }
+            {
+              excludes =
+                list match
+                // {
+                  description = ''
+                    A list of rules to exclude windows.
+
+                    If any of these rules match a window, then this window rule will not apply to that window, even if it matches one of the rules in ${link' "programs.niri.settings.window-rules.*.matches"}
+
+                    If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in ${link' "programs.niri.settings.window-rules.*.matches"}
+                  '';
+                };
+            }
+            {
+              default-column-width =
+                nullable default-width
+                // {
+                  description = ''
+                    By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from ${link' "programs.niri.settings.layout.default-column-width"}
+
+                    If this option is not null, then its value will take priority over ${link' "programs.niri.settings.layout.default-column-width"} for windows matching this rule.
+
+                    As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
+                  '';
+                };
+              open-on-output =
+                nullable types.str
+                // {
+                  description = ''
+                    The output to open this window on.
+
+                    If final value of this field is an output that exists, the new window will open on that output.
+
+                    If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
+                  '';
+                };
+              open-maximized =
+                nullable types.bool
+                // {
+                  description = ''
+                    Whether to open this window in a maximized column.
+
+                    If the final value of this field is null or false, then the window will not open in a maximized column.
+
+                    If the final value of this field is true, then the window will open in a maximized column.
+                  '';
+                };
+              open-fullscreen =
+                nullable types.bool
+                // {
+                  description = ''
+                    Whether to open this window in fullscreen.
+
+                    If the final value of this field is true, then this window will always be forced to open in fullscreen.
+
+                    If the final value of this field is false, then this window is never allowed to open in fullscreen, even if it requests to do so.
+
+                    If the final value of this field is null, then the client gets to decide if this window will open in fullscreen.
+                  '';
+                };
+            }
+          ])
+          // {
+            description = ''
+              Window rules.
+
+              A window rule will match based on ${link' "programs.niri.settings.window-rules.*.matches"} and ${link' "programs.niri.settings.window-rules.*.excludes"}. Both of these are lists of "match rules".
+
+              A given match rule can match based on the `title` or `app-id` fields. For a given match rule to "match" a window, it must match on all fields.
+
+              - The `title` field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
+
+              - The `app-id` field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
+
+              - If a field is null, it will always match.
+
+              For a given window rule to match a window, the above logic is employed to determine whether any given match rule matches, and the interactions between them decide whether the window rule as a whole will match. For a given window rule:
+
+              - A given window is "considered" if any of the match rules in ${link' "programs.niri.settings.window-rules.*.matches"} successfully match this window. If all of the match rules do not match this window, then that window will never match this window rule.
+
+              - If ${link' "programs.niri.settings.window-rules.*.matches"} contains no match rules, it will match any window and "consider" it for this window rule.
+
+              - If a given window is "considered" for this window rule according to the above rules, the selection can be further refined with ${link' "programs.niri.settings.window-rules.*.excludes"}. If any of the match rules in `excludes` match this window, it will be rejected and this window rule will not match the given window.
+
+              That is, a given window rule will apply to a given window if any of the entries in ${link' "programs.niri.settings.window-rules.*.matches"} match that window (or there are none), AND none of the entries in ${link' "programs.niri.settings.window-rules.*.excludes"} match that window.
+
+              All fields of a window rule can be set to null, which represents that the field shall have no effect on the window (and in general, the client is allowed to choose the initial value).
+
+              To compute the final set of window rules that apply to a given window, each window rule in this list is consdered in order.
+
+              At first, every field is set to null.
+
+              Then, for each applicable window rule:
+
+              - If a given field is null on this window rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
+              - If the given field is not null, it will overwrite the value from any previous rule.
+
+              The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* window rule that matches the given window rule (not considering null entries, unless there are no non-null entries)
+
+              If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
+            '';
+          };
       }
 
       {
