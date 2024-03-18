@@ -416,17 +416,25 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `signed integer`
 - default: `600`
 
+The delay in milliseconds before a key starts repeating.
+
 
 <!-- sorting key: programs.niri.settings.f.input.keyboard.repeat-rate -->
 ## `programs.niri.settings.input.keyboard.repeat-rate`
 - type: `signed integer`
 - default: `25`
 
+The rate in characters per second at which a key repeats.
+
 
 <!-- sorting key: programs.niri.settings.f.input.keyboard.track-layout -->
 ## `programs.niri.settings.input.keyboard.track-layout`
 - type: `one of "global", "window"`
 - default: `"global"`
+
+The keyboard layout can be remembered per `"window"`, such that when you switch to a window, the keyboard layout is set to the one that was last used in that window.
+
+By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
 
 
 <!-- sorting key: programs.niri.settings.f.input.keyboard.xkb -->

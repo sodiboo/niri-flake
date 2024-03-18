@@ -307,12 +307,12 @@ with docs.lib; rec {
             xkb = let
               arch-man-xkb = anchor: "[`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#${anchor})";
 
-              default-env = empty: field: ''
-                If this is set to ${if empty then "an empty string" else "null"}, the ${field} will be read from the `XKB_DEFAULT_${toUpper field}` environment variable.
+              default-env = default: field: ''
+                If this is set to ${default}, the ${field} will be read from the `XKB_DEFAULT_${toUpper field}` environment variable.
               '';
 
-              str-fallback = default-env true;
-              nullable-fallback = default-env false;
+              str-fallback = default-env "an empty string";
+              nullable-fallback = default-env "null";
 
               base = {
                 # niri doesn't default its config repr to "us", but it is Option<String>
@@ -379,7 +379,6 @@ with docs.lib; rec {
                     '';
                   };
               };
-
               # base' = mapAttrs (name: opt: opt // optionalAttrs (opt.default == "" || opt.default == null) {defaultText = "${if opt.default == "" then "\"\"" else "null"} (inherited from XKB_DEFAULT_${toUpper name}>";}) base;
             in
               section base
@@ -391,9 +390,29 @@ with docs.lib; rec {
                   - [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
                 '';
               };
-            repeat-delay = optional types.int 600;
-            repeat-rate = optional types.int 25;
-            track-layout = optional (enum ["global" "window"]) "global";
+            repeat-delay =
+              optional types.int 600
+              // {
+                description = ''
+                  The delay in milliseconds before a key starts repeating.
+                '';
+              };
+            repeat-rate =
+              optional types.int 25
+              // {
+                description = ''
+                  The rate in characters per second at which a key repeats.
+                '';
+              };
+            track-layout =
+              optional (enum ["global" "window"]) "global"
+              // {
+                description = ''
+                  The keyboard layout can be remembered per `"window"`, such that when you switch to a window, the keyboard layout is set to the one that was last used in that window.
+
+                  By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
+                '';
+              };
           };
           touchpad =
             (basic-pointer true)
