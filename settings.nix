@@ -23,10 +23,13 @@ with docs.lib; rec {
       then "unstable"
       else abort "unreachable") (attrNames (binds-stable // binds-unstable));
 
-    record = options: let base = submodule {inherit options;}; in mkOptionType {
-      name = "record";
-      inherit (base) description check merge nestedTypes getSubOptions;
-    };
+    record = options: let
+      base = submodule {inherit options;};
+    in
+      mkOptionType {
+        name = "record";
+        inherit (base) description check merge nestedTypes getSubOptions;
+      };
 
     required = type: mkOption {inherit type;};
     nullable = type: optional (nullOr type) null;
@@ -171,13 +174,15 @@ with docs.lib; rec {
       inactive-gradient = nullable gradient;
     };
 
-    match = record {
-      app-id = nullable types.str;
-      title = nullable types.str;
-    } // {
-      description = "match rule";
-      descriptionClass = "noun";
-    };
+    match =
+      record {
+        app-id = nullable types.str;
+        title = nullable types.str;
+      }
+      // {
+        description = "match rule";
+        descriptionClass = "noun";
+      };
 
     ordered-record = sections: let
       base = record (concatMapAttrs (flip const) sections);
@@ -789,84 +794,85 @@ with docs.lib; rec {
       {
         window-rules =
           list (make-ordered [
-            {
-              matches =
-                list match
-                // {
-                  description = ''
-                    A list of rules to match windows.
+              {
+                matches =
+                  list match
+                  // {
+                    description = ''
+                      A list of rules to match windows.
 
-                    If any of these rules match a window (or there are none), that window rule will be considered for this window. It can still be rejected by ${link' "programs.niri.settings.window-rules.*.excludes"}
+                      If any of these rules match a window (or there are none), that window rule will be considered for this window. It can still be rejected by ${link' "programs.niri.settings.window-rules.*.excludes"}
 
-                    If all of the rules do not match a window, then this window rule will not apply to that window.
-                  '';
-                };
-            }
-            {
-              excludes =
-                list match
-                // {
-                  description = ''
-                    A list of rules to exclude windows.
+                      If all of the rules do not match a window, then this window rule will not apply to that window.
+                    '';
+                  };
+              }
+              {
+                excludes =
+                  list match
+                  // {
+                    description = ''
+                      A list of rules to exclude windows.
 
-                    If any of these rules match a window, then this window rule will not apply to that window, even if it matches one of the rules in ${link' "programs.niri.settings.window-rules.*.matches"}
+                      If any of these rules match a window, then this window rule will not apply to that window, even if it matches one of the rules in ${link' "programs.niri.settings.window-rules.*.matches"}
 
-                    If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in ${link' "programs.niri.settings.window-rules.*.matches"}
-                  '';
-                };
-            }
-            {
-              default-column-width =
-                nullable default-width
-                // {
-                  description = ''
-                    By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from ${link' "programs.niri.settings.layout.default-column-width"}
+                      If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in ${link' "programs.niri.settings.window-rules.*.matches"}
+                    '';
+                  };
+              }
+              {
+                default-column-width =
+                  nullable default-width
+                  // {
+                    description = ''
+                      By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from ${link' "programs.niri.settings.layout.default-column-width"}
 
-                    If this option is not null, then its value will take priority over ${link' "programs.niri.settings.layout.default-column-width"} for windows matching this rule.
+                      If this option is not null, then its value will take priority over ${link' "programs.niri.settings.layout.default-column-width"} for windows matching this rule.
 
-                    As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
-                  '';
-                };
-              open-on-output =
-                nullable types.str
-                // {
-                  description = ''
-                    The output to open this window on.
+                      As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
+                    '';
+                  };
+                open-on-output =
+                  nullable types.str
+                  // {
+                    description = ''
+                      The output to open this window on.
 
-                    If final value of this field is an output that exists, the new window will open on that output.
+                      If final value of this field is an output that exists, the new window will open on that output.
 
-                    If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
-                  '';
-                };
-              open-maximized =
-                nullable types.bool
-                // {
-                  description = ''
-                    Whether to open this window in a maximized column.
+                      If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
+                    '';
+                  };
+                open-maximized =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Whether to open this window in a maximized column.
 
-                    If the final value of this field is null or false, then the window will not open in a maximized column.
+                      If the final value of this field is null or false, then the window will not open in a maximized column.
 
-                    If the final value of this field is true, then the window will open in a maximized column.
-                  '';
-                };
-              open-fullscreen =
-                nullable types.bool
-                // {
-                  description = ''
-                    Whether to open this window in fullscreen.
+                      If the final value of this field is true, then the window will open in a maximized column.
+                    '';
+                  };
+                open-fullscreen =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Whether to open this window in fullscreen.
 
-                    If the final value of this field is true, then this window will always be forced to open in fullscreen.
+                      If the final value of this field is true, then this window will always be forced to open in fullscreen.
 
-                    If the final value of this field is false, then this window is never allowed to open in fullscreen, even if it requests to do so.
+                      If the final value of this field is false, then this window is never allowed to open in fullscreen, even if it requests to do so.
 
-                    If the final value of this field is null, then the client gets to decide if this window will open in fullscreen.
-                  '';
-                };
-            }
-          ] // {
-            description = "window rule";
-            descriptionClass = "noun";
-          })
+                      If the final value of this field is null, then the client gets to decide if this window will open in fullscreen.
+                    '';
+                  };
+              }
+            ]
+            // {
+              description = "window rule";
+              descriptionClass = "noun";
+            })
           // {
             description = ''
               Window rules.
