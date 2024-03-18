@@ -23,7 +23,10 @@ with docs.lib; rec {
       then "unstable"
       else abort "unreachable") (attrNames (binds-stable // binds-unstable));
 
-    record = options: submodule {inherit options;};
+    record = options: let base = submodule {inherit options;}; in mkOptionType {
+      name = "record";
+      inherit (base) description check merge nestedTypes getSubOptions;
+    };
 
     required = type: mkOption {inherit type;};
     nullable = type: optional (nullOr type) null;

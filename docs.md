@@ -1090,7 +1090,9 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 <!-- sorting key: programs.niri.settings.j.animations -->
-<!-- programs.niri.settings.animations -->
+## `programs.niri.settings.animations`
+- type: `animations`
+
 
 <!-- sorting key: programs.niri.settings.j.animations.a.opts.enable -->
 ## `programs.niri.settings.animations.enable`
@@ -1110,7 +1112,9 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 <!-- sorting key: programs.niri.settings.j.animations.b.submodule.easing -->
-<!-- programs.niri.settings.animations.<name>.easing -->
+## `programs.niri.settings.animations.<name>.easing`
+
+
 
 <!-- sorting key: programs.niri.settings.j.animations.b.submodule.easing.curve -->
 ## `programs.niri.settings.animations.<name>.easing.curve`
@@ -1123,7 +1127,9 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 <!-- sorting key: programs.niri.settings.j.animations.b.submodule.spring -->
-<!-- programs.niri.settings.animations.<name>.spring -->
+## `programs.niri.settings.animations.<name>.spring`
+
+
 
 <!-- sorting key: programs.niri.settings.j.animations.b.submodule.spring.damping-ratio -->
 ## `programs.niri.settings.animations.<name>.spring.damping-ratio`
