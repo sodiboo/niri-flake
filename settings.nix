@@ -174,6 +174,9 @@ with docs.lib; rec {
     match = record {
       app-id = nullable types.str;
       title = nullable types.str;
+    } // {
+      description = "match rule";
+      descriptionClass = "noun";
     };
 
     ordered-record = sections: let
@@ -860,7 +863,10 @@ with docs.lib; rec {
                   '';
                 };
             }
-          ])
+          ] // {
+            description = "window rule";
+            descriptionClass = "noun";
+          })
           // {
             description = ''
               Window rules.

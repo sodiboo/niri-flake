@@ -1233,7 +1233,7 @@ Examples:
 
 <!-- sorting key: programs.niri.settings.l.window-rules -->
 ## `programs.niri.settings.window-rules`
-- type: `list of (submodule)`
+- type: `list of window rule`
 
 Window rules.
 
@@ -1275,7 +1275,7 @@ If the final value of a given field is null, then it usually means that the clie
 
 <!-- sorting key: programs.niri.settings.l.window-rules.a.matches -->
 ## `programs.niri.settings.window-rules.*.matches`
-- type: `list of (submodule)`
+- type: `list of match rule`
 
 A list of rules to match windows.
 
@@ -1298,7 +1298,7 @@ If all of the rules do not match a window, then this window rule will not apply 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.b.excludes -->
 ## `programs.niri.settings.window-rules.*.excludes`
-- type: `list of (submodule)`
+- type: `list of match rule`
 
 A list of rules to exclude windows.
 
