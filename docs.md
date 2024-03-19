@@ -892,10 +892,20 @@ The color of the border for the window that has keyboard focus.
 ## `programs.niri.settings.layout.border.active.color`
 - type: `string`
 
+A solid color to use for the decoration.
+
+This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
+
+The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.border.active.gradient -->
 ## `programs.niri.settings.layout.border.active.gradient`
 - type: `gradient`
+
+A linear gradient to use for the decoration.
+
+This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
 <!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.angle -->
@@ -903,10 +913,18 @@ The color of the border for the window that has keyboard focus.
 - type: `signed integer`
 - default: `180`
 
+The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
+
+This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.from -->
 ## `programs.niri.settings.layout.border.active.gradient.from`
 - type: `string`
+
+The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.border.active.color`](#programsnirisettingslayoutborderactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.relative-to -->
@@ -914,10 +932,24 @@ The color of the border for the window that has keyboard focus.
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
+The rectangle that this gradient is contained within.
+
+If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
+
+![](https://private-user-images.githubusercontent.com/1794388/311415262-1bec9a69-06e6-411a-b64c-1c693adace37.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI2Mi0xYmVjOWE2OS0wNmU2LTQxMWEtYjY0Yy0xYzY5M2FkYWNlMzcucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MWVkNDgxZWY1NTNhYWIxNzM0MWYwMzM1YTJjOWU0ODYzMWVlNWY0MzBiOTFmNjhjMGMyNDkzODJlNjQ5OWRiYiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.FFlkxc6eDLQ6q4rmtvsaiB_skDu4HBmS3AMQVSnegIw)
+
+If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
+
+![](https://private-user-images.githubusercontent.com/1794388/311415241-c3557d79-0c55-454e-aeb4-3255ce371009.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI0MS1jMzU1N2Q3OS0wYzU1LTQ1NGUtYWViNC0zMjU1Y2UzNzEwMDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9YjIwN2FiYWVhYWE2MWY2OWMyYjYwMWFmN2I2MzEwNzhjYjVlOWExOGFjYjIxMzc3ZDE4NTQ3OTZiMWYxZDkyOSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.UBskp4iQJivkElv0JP8k7dR4-aRIEIMP9gjov9GE93Q)
+
 
 <!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.to -->
 ## `programs.niri.settings.layout.border.active.gradient.to`
 - type: `string`
+
+The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.border.active.color`](#programsnirisettingslayoutborderactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.border.enable -->
@@ -946,10 +978,20 @@ The color of the border for windows that do not have keyboard focus.
 ## `programs.niri.settings.layout.border.inactive.color`
 - type: `string`
 
+A solid color to use for the decoration.
+
+This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
+
+The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient -->
 ## `programs.niri.settings.layout.border.inactive.gradient`
 - type: `gradient`
+
+A linear gradient to use for the decoration.
+
+This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
 <!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.angle -->
@@ -957,10 +999,18 @@ The color of the border for windows that do not have keyboard focus.
 - type: `signed integer`
 - default: `180`
 
+The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
+
+This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.from -->
 ## `programs.niri.settings.layout.border.inactive.gradient.from`
 - type: `string`
+
+The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.border.inactive.color`](#programsnirisettingslayoutborderinactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.relative-to -->
@@ -968,10 +1018,24 @@ The color of the border for windows that do not have keyboard focus.
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
+The rectangle that this gradient is contained within.
+
+If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
+
+![](https://private-user-images.githubusercontent.com/1794388/311415262-1bec9a69-06e6-411a-b64c-1c693adace37.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI2Mi0xYmVjOWE2OS0wNmU2LTQxMWEtYjY0Yy0xYzY5M2FkYWNlMzcucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MWVkNDgxZWY1NTNhYWIxNzM0MWYwMzM1YTJjOWU0ODYzMWVlNWY0MzBiOTFmNjhjMGMyNDkzODJlNjQ5OWRiYiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.FFlkxc6eDLQ6q4rmtvsaiB_skDu4HBmS3AMQVSnegIw)
+
+If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
+
+![](https://private-user-images.githubusercontent.com/1794388/311415241-c3557d79-0c55-454e-aeb4-3255ce371009.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI0MS1jMzU1N2Q3OS0wYzU1LTQ1NGUtYWViNC0zMjU1Y2UzNzEwMDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9YjIwN2FiYWVhYWE2MWY2OWMyYjYwMWFmN2I2MzEwNzhjYjVlOWExOGFjYjIxMzc3ZDE4NTQ3OTZiMWYxZDkyOSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.UBskp4iQJivkElv0JP8k7dR4-aRIEIMP9gjov9GE93Q)
+
 
 <!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.to -->
 ## `programs.niri.settings.layout.border.inactive.gradient.to`
 - type: `string`
+
+The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.border.inactive.color`](#programsnirisettingslayoutborderinactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.border.width -->
@@ -1050,10 +1114,20 @@ The color of the focus ring for the window that has keyboard focus.
 ## `programs.niri.settings.layout.focus-ring.active.color`
 - type: `string`
 
+A solid color to use for the decoration.
+
+This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
+
+The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient -->
 ## `programs.niri.settings.layout.focus-ring.active.gradient`
 - type: `gradient`
+
+A linear gradient to use for the decoration.
+
+This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.angle -->
@@ -1061,10 +1135,18 @@ The color of the focus ring for the window that has keyboard focus.
 - type: `signed integer`
 - default: `180`
 
+The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
+
+This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.from -->
 ## `programs.niri.settings.layout.focus-ring.active.gradient.from`
 - type: `string`
+
+The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.focus-ring.active.color`](#programsnirisettingslayoutfocus-ringactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.relative-to -->
@@ -1072,10 +1154,24 @@ The color of the focus ring for the window that has keyboard focus.
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
+The rectangle that this gradient is contained within.
+
+If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
+
+![](https://private-user-images.githubusercontent.com/1794388/311415262-1bec9a69-06e6-411a-b64c-1c693adace37.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI2Mi0xYmVjOWE2OS0wNmU2LTQxMWEtYjY0Yy0xYzY5M2FkYWNlMzcucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MWVkNDgxZWY1NTNhYWIxNzM0MWYwMzM1YTJjOWU0ODYzMWVlNWY0MzBiOTFmNjhjMGMyNDkzODJlNjQ5OWRiYiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.FFlkxc6eDLQ6q4rmtvsaiB_skDu4HBmS3AMQVSnegIw)
+
+If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
+
+![](https://private-user-images.githubusercontent.com/1794388/311415241-c3557d79-0c55-454e-aeb4-3255ce371009.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI0MS1jMzU1N2Q3OS0wYzU1LTQ1NGUtYWViNC0zMjU1Y2UzNzEwMDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9YjIwN2FiYWVhYWE2MWY2OWMyYjYwMWFmN2I2MzEwNzhjYjVlOWExOGFjYjIxMzc3ZDE4NTQ3OTZiMWYxZDkyOSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.UBskp4iQJivkElv0JP8k7dR4-aRIEIMP9gjov9GE93Q)
+
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.to -->
 ## `programs.niri.settings.layout.focus-ring.active.gradient.to`
 - type: `string`
+
+The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.focus-ring.active.color`](#programsnirisettingslayoutfocus-ringactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.enable -->
@@ -1104,10 +1200,20 @@ The color of the focus ring for windows that do not have keyboard focus.
 ## `programs.niri.settings.layout.focus-ring.inactive.color`
 - type: `string`
 
+A solid color to use for the decoration.
+
+This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
+
+The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient -->
 ## `programs.niri.settings.layout.focus-ring.inactive.gradient`
 - type: `gradient`
+
+A linear gradient to use for the decoration.
+
+This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.angle -->
@@ -1115,10 +1221,18 @@ The color of the focus ring for windows that do not have keyboard focus.
 - type: `signed integer`
 - default: `180`
 
+The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
+
+This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
+
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.from -->
 ## `programs.niri.settings.layout.focus-ring.inactive.gradient.from`
 - type: `string`
+
+The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.focus-ring.inactive.color`](#programsnirisettingslayoutfocus-ringinactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.relative-to -->
@@ -1126,10 +1240,24 @@ The color of the focus ring for windows that do not have keyboard focus.
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
+The rectangle that this gradient is contained within.
+
+If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
+
+![](https://private-user-images.githubusercontent.com/1794388/311415262-1bec9a69-06e6-411a-b64c-1c693adace37.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI2Mi0xYmVjOWE2OS0wNmU2LTQxMWEtYjY0Yy0xYzY5M2FkYWNlMzcucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MWVkNDgxZWY1NTNhYWIxNzM0MWYwMzM1YTJjOWU0ODYzMWVlNWY0MzBiOTFmNjhjMGMyNDkzODJlNjQ5OWRiYiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.FFlkxc6eDLQ6q4rmtvsaiB_skDu4HBmS3AMQVSnegIw)
+
+If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
+
+![](https://private-user-images.githubusercontent.com/1794388/311415241-c3557d79-0c55-454e-aeb4-3255ce371009.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI0MS1jMzU1N2Q3OS0wYzU1LTQ1NGUtYWViNC0zMjU1Y2UzNzEwMDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9YjIwN2FiYWVhYWE2MWY2OWMyYjYwMWFmN2I2MzEwNzhjYjVlOWExOGFjYjIxMzc3ZDE4NTQ3OTZiMWYxZDkyOSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.UBskp4iQJivkElv0JP8k7dR4-aRIEIMP9gjov9GE93Q)
+
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.to -->
 ## `programs.niri.settings.layout.focus-ring.inactive.gradient.to`
 - type: `string`
+
+The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+For more details, see [`layout.focus-ring.inactive.color`](#programsnirisettingslayoutfocus-ringinactivecolor).
 
 
 <!-- sorting key: programs.niri.settings.i.layout.focus-ring.width -->

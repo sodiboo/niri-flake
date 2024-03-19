@@ -163,26 +163,82 @@ with docs.lib; rec {
     #   check = v: isList v && length v == 4 && all isInt v;
     # };
 
-    gradient =
+    gradient = path:
       record {
-        from = required types.str;
-        to = required types.str;
-        angle = optional types.int 180;
-        relative-to = optional (enum ["window" "workspace-view"]) "window";
+        from =
+          required types.str
+          // {
+            description = ''
+              The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+              For more details, see ${link' "${path}.color"}.
+            '';
+          };
+        to =
+          required types.str
+          // {
+            description = ''
+              The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
+
+              For more details, see ${link' "${path}.color"}.
+            '';
+          };
+        angle =
+          optional types.int 180
+          // {
+            description = ''
+              The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
+
+              This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
+            '';
+          };
+        relative-to = optional (enum ["window" "workspace-view"]) "window" // {
+          description = ''
+            The rectangle that this gradient is contained within.
+
+            If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
+
+            ![](https://private-user-images.githubusercontent.com/1794388/311415262-1bec9a69-06e6-411a-b64c-1c693adace37.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI2Mi0xYmVjOWE2OS0wNmU2LTQxMWEtYjY0Yy0xYzY5M2FkYWNlMzcucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MWVkNDgxZWY1NTNhYWIxNzM0MWYwMzM1YTJjOWU0ODYzMWVlNWY0MzBiOTFmNjhjMGMyNDkzODJlNjQ5OWRiYiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.FFlkxc6eDLQ6q4rmtvsaiB_skDu4HBmS3AMQVSnegIw)
+
+            If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
+
+            ![](https://private-user-images.githubusercontent.com/1794388/311415241-c3557d79-0c55-454e-aeb4-3255ce371009.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI0MS1jMzU1N2Q3OS0wYzU1LTQ1NGUtYWViNC0zMjU1Y2UzNzEwMDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9YjIwN2FiYWVhYWE2MWY2OWMyYjYwMWFmN2I2MzEwNzhjYjVlOWExOGFjYjIxMzc3ZDE4NTQ3OTZiMWYxZDkyOSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.UBskp4iQJivkElv0JP8k7dR4-aRIEIMP9gjov9GE93Q)
+          '';
+        };
       }
       // {
         description = "gradient";
         descriptionClass = "noun";
       };
 
-    decoration = variant {
-      color = types.str;
-      gradient = gradient;
-    };
+    decoration = path:
+      variant {
+        color =
+          types.str
+          // {
+            variant-description = ''
+              A solid color to use for the decoration.
+
+              This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
+
+              The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
+            '';
+          };
+        gradient =
+          (gradient path)
+          // {
+            variant-description = ''
+              A linear gradient to use for the decoration.
+
+              This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
+            '';
+          };
+      };
 
     borderish = {
       enable-by-default,
       default-active-color,
+      path,
       name,
       window,
       description,
@@ -204,14 +260,14 @@ with docs.lib; rec {
               '';
             };
           active =
-            optional decoration {color = default-active-color;}
+            optional (decoration "${path}.active") {color = default-active-color;}
             // {
               description = ''
                 The color of the ${name} for the window that has keyboard focus.
               '';
             };
           inactive =
-            optional decoration {color = "rgb(80 80 80)";}
+            optional (decoration "${path}.inactive") {color = "rgb(80 80 80)";}
             // {
               description = ''
                 The color of the ${name} for windows that do not have keyboard focus.
@@ -228,12 +284,12 @@ with docs.lib; rec {
               visible = false;
             };
           active-gradient =
-            nullable gradient
+            nullable (gradient path)
             // {
               visible = false;
             };
           inactive-gradient =
-            nullable gradient
+            nullable (gradient path)
             // {
               visible = false;
             };
@@ -697,20 +753,24 @@ with docs.lib; rec {
 
       {
         cursor = {
-          theme = optional types.str "default" // {
-            description = ''
-              The name of the xcursor theme to use.
+          theme =
+            optional types.str "default"
+            // {
+              description = ''
+                The name of the xcursor theme to use.
 
-              This will also set the XCURSOR_THEME environment variable for all spawned processes.
-            '';
-          };
-          size = optional types.int 24 // {
-            description = ''
-              The size of the cursor in logical pixels.
+                This will also set the XCURSOR_THEME environment variable for all spawned processes.
+              '';
+            };
+          size =
+            optional types.int 24
+            // {
+              description = ''
+                The size of the cursor in logical pixels.
 
-              This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-            '';
-          };
+                This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+              '';
+            };
         };
       }
 
@@ -719,6 +779,7 @@ with docs.lib; rec {
           focus-ring = borderish {
             enable-by-default = true;
             default-active-color = "rgb(127 200 255)";
+            path = "programs.niri.settings.layout.focus-ring";
             name = "focus ring";
             window = "focused window";
             description = ''
@@ -733,6 +794,7 @@ with docs.lib; rec {
           border = borderish {
             enable-by-default = false;
             default-active-color = "rgb(255 200 127)";
+            path = "programs.niri.settings.layout.border";
             name = "border";
             window = "window";
             description = ''
