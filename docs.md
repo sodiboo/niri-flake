@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`c3327d3`](https://github.com/YaLTeR/niri/tree/c3327d36da25f37e86eb8f89bd74f2a4bc1ea744) which was authored on `2024-03-19 05:00:00`.
+Currently, this is exactly commit [`db49deb`](https://github.com/YaLTeR/niri/tree/db49deb7fd2fbe805ceec060aa4dec65009ad7a7) which was authored on `2024-03-19 14:29:13`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -382,6 +382,7 @@ These are the available actions:
 - `switch-layout`
 - `switch-preset-column-width`
 - `toggle-debug-tint`
+- `focus-workspace-previous` (only on `niri-unstable`)
 
 No distinction is made between actions that take arguments and those that don't. Their usages are the exact same.
 
