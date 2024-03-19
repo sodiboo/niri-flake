@@ -697,8 +697,20 @@ with docs.lib; rec {
 
       {
         cursor = {
-          theme = optional types.str "default";
-          size = optional types.int 24;
+          theme = optional types.str "default" // {
+            description = ''
+              The name of the xcursor theme to use.
+
+              This will also set the XCURSOR_THEME environment variable for all spawned processes.
+            '';
+          };
+          size = optional types.int 24 // {
+            description = ''
+              The size of the cursor in logical pixels.
+
+              This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+            '';
+          };
         };
       }
 

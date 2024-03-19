@@ -848,11 +848,19 @@ Counter-clockwise rotation of this output in degrees.
 - type: `signed integer`
 - default: `24`
 
+The size of the cursor in logical pixels.
+
+This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+
 
 <!-- sorting key: programs.niri.settings.h.cursor.theme -->
 ## `programs.niri.settings.cursor.theme`
 - type: `string`
 - default: `"default"`
+
+The name of the xcursor theme to use.
+
+This will also set the XCURSOR_THEME environment variable for all spawned processes.
 
 
 <!-- sorting key: programs.niri.settings.i.layout.border -->
