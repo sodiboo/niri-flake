@@ -5,7 +5,7 @@
 
 if [[ ! -e .git/rebase-merge/done ]]; then
 
-nix run "git+file:.?ref=main#generate-docs" > docs.md
+nix run "git+file:.?ref=HEAD#generate-docs" > docs.md
 git diff --quiet docs.md
 if [ $? -ne 0 ]; then
 
