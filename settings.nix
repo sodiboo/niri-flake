@@ -192,33 +192,35 @@ with docs.lib; rec {
               This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
             '';
           };
-        relative-to = optional (enum ["window" "workspace-view"]) "window" // {
-          description = ''
-            The rectangle that this gradient is contained within.
+        relative-to =
+          optional (enum ["window" "workspace-view"]) "window"
+          // {
+            description = ''
+              The rectangle that this gradient is contained within.
 
-            If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
+              If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
 
-            ![
-            four windows arranged in two columns; a big window to the left of three stacked windows.
-            a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
-            the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
-            the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
-            the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
-            ](assets/relative-to-window.png 'behaviour of relative-to="window"')
+              ![
+              four windows arranged in two columns; a big window to the left of three stacked windows.
+              a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
+              the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
+              the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
+              the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
+              ](assets/relative-to-window.png 'behaviour of relative-to="window"')
 
-            If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
+              If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
 
-            ![
-            four windows arranged in two columns; a big window to the left of three stacked windows.
-            a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
-            it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
-            the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
-            the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
-            ](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
+              ![
+              four windows arranged in two columns; a big window to the left of three stacked windows.
+              a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
+              it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
+              the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
+              the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
+              ](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
 
-            these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
-          '';
-        };
+              these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
+            '';
+          };
       }
       // {
         description = "gradient";
