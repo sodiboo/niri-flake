@@ -15,7 +15,6 @@ jobs:
       - name: Update flake.lock
         id: update
         uses: DeterminateSystems/update-flake-lock@v20
-        continue-on-error: true
         with:
           commit-msg: "Update flake.lock"
           pr-title: "Update flake.lock"
@@ -34,10 +33,12 @@ jobs:
         # Normally, it does not occur because the PR is created by github-actions[bot]
         # But here, we force push it with my own token, so the action runs after a push "by me".
       - name: Checkout repository as sodiboo
+        if: ${{ steps.update.outputs.pull-request-number }}
         uses: actions/checkout@v4
         with:
             token: '${{ secrets.UPDATE_TOKEN }}'
       - name: Amend and push; forcibly run builds
+        if: ${{ steps.update.outputs.pull-request-number }}
         uses: actions/github-script@v7
         with:
           script: |
