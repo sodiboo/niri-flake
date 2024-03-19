@@ -198,11 +198,25 @@ with docs.lib; rec {
 
             If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
 
-            ![](https://private-user-images.githubusercontent.com/1794388/311415262-1bec9a69-06e6-411a-b64c-1c693adace37.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI2Mi0xYmVjOWE2OS0wNmU2LTQxMWEtYjY0Yy0xYzY5M2FkYWNlMzcucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MWVkNDgxZWY1NTNhYWIxNzM0MWYwMzM1YTJjOWU0ODYzMWVlNWY0MzBiOTFmNjhjMGMyNDkzODJlNjQ5OWRiYiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.FFlkxc6eDLQ6q4rmtvsaiB_skDu4HBmS3AMQVSnegIw)
+            ![
+            four windows arranged in two columns; a big window to the left of three stacked windows.
+            a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
+            the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
+            the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
+            the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
+            ](assets/relative-to-window.png 'behaviour of relative-to="window"')
 
             If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
 
-            ![](https://private-user-images.githubusercontent.com/1794388/311415241-c3557d79-0c55-454e-aeb4-3255ce371009.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA4NDY0MDUsIm5iZiI6MTcxMDg0NjEwNSwicGF0aCI6Ii8xNzk0Mzg4LzMxMTQxNTI0MS1jMzU1N2Q3OS0wYzU1LTQ1NGUtYWViNC0zMjU1Y2UzNzEwMDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDMxOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDAzMTlUMTEwMTQ1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9YjIwN2FiYWVhYWE2MWY2OWMyYjYwMWFmN2I2MzEwNzhjYjVlOWExOGFjYjIxMzc3ZDE4NTQ3OTZiMWYxZDkyOSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.UBskp4iQJivkElv0JP8k7dR4-aRIEIMP9gjov9GE93Q)
+            ![
+            four windows arranged in two columns; a big window to the left of three stacked windows.
+            a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
+            it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
+            the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
+            the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
+            ](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
+
+            these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
           '';
         };
       }
