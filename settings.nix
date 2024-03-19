@@ -1291,14 +1291,6 @@ with docs.lib; rec {
         ) (pkg.patches or []);
 
       stable-patches = patches inputs.self.packages.x86_64-linux.niri-stable;
-
-      link-niri-commit = {
-        rev,
-        shortRev,
-      }: "[`${shortRev}`](https://github.com/YaLTeR/niri/tree/${rev})";
-      link-niri-release = tag: "[`${tag}`](https://github.com/YaLTeR/niri/releases/tag/${tag})";
-
-      link-stylix-opt = opt: "[`${opt}`](https://danth.github.io/stylix/options/hm.html#${anchor opt})";
     in {
       a.nonmodules = {
         _ = header "Packages provided by this flake";

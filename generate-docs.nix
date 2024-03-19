@@ -79,6 +79,14 @@ with lib; let
       ${contents}
     '';
 
+  link-niri-commit = {
+    rev,
+    shortRev,
+  }: "[`${shortRev}`](https://github.com/YaLTeR/niri/tree/${rev})";
+  link-niri-release = tag: "[`${tag}`](https://github.com/YaLTeR/niri/releases/tag/${tag})";
+
+  link-stylix-opt = opt: "[`${opt}`](https://danth.github.io/stylix/options/hm.html#${anchor opt})";
+
   test = pat: str: strings.match pat str != null;
 
   anchor = flip pipe [
@@ -147,6 +155,6 @@ with lib; let
 in {
   inherit make-docs;
   lib = {
-    inherit unstable-note section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link libinput-link libinput-doc;
+    inherit unstable-note section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link libinput-link libinput-doc link-niri-commit link-niri-release link-stylix-opt;
   };
 }
