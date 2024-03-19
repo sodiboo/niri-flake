@@ -1200,54 +1200,6 @@ with docs.lib; rec {
             '';
           };
       };
-
-      config.warnings =
-        pipe {
-          # the prefix here helps ensure that the cartesian product is taken in the correct order
-          a_decoration = ["border" "focus-ring"];
-          b_state = ["active" "inactive"];
-          c_field = ["color" "gradient"];
-        } [
-          cartesianProductOfSets
-          (map (concatMapAttrs (name: value: {${substring 2 (stringLength name - 2) name} = value;})))
-          (filter ({
-            decoration,
-            state,
-            field,
-          }:
-            cfg.settings.layout.${decoration}."${state}-${field}" or null != null))
-          (used:
-            mkIf (used != []) [
-              ''
-
-                Usage of deprecated options:
-
-                ${concatStrings (forEach used ({
-                  decoration,
-                  state,
-                  field,
-                  ...
-                }: ''
-                  - `programs.niri.settings.layout.${decoration}.${state}-${field}`
-                ''))}
-                They will be removed in a future version.
-                The reasoning for this is that the previous structure is incorrectly typed.
-
-                They are superseded by the following options:
-
-                ${concatStrings (forEach used ({
-                  decoration,
-                  state,
-                  field,
-                  ...
-                }: ''
-                  - `programs.niri.settings.layout.${decoration}.${state}.${field}`
-                ''))}
-                Note that you cannot set `color` and `gradient` for the same field anymore.
-                Previously, the gradient always took priority when non-null.
-              ''
-            ])
-        ];
     };
   fake-docs = {
     stable-tag,
@@ -1257,10 +1209,6 @@ with docs.lib; rec {
   }: {
     imports = [module];
 
-    options.warnings = mkOption {
-      type = types.listOf types.str;
-      visible = false;
-    };
     options._ = let
       pkg-output = name: desc:
         fake-option (pkg-header name) ''
