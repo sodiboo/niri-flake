@@ -849,37 +849,60 @@ Counter-clockwise rotation of this output in degrees.
 - default: `"default"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active-color -->
-## `programs.niri.settings.layout.border.active-color`
+<!-- sorting key: programs.niri.settings.i.layout.border -->
+## `programs.niri.settings.layout.border`
+
+
+The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to [`layout.border.active`](#programsnirisettingslayoutborderactive), and all other windows will be drawn according to [`layout.border.inactive`](#programsnirisettingslayoutborderinactive).
+
+If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.border.active -->
+## `programs.niri.settings.layout.border.active`
+- type: `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgb(255 200 127)";
+  }
+  ```
+
+
+The color of the border for the window that has keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.border.active.color -->
+## `programs.niri.settings.layout.border.active.color`
 - type: `string`
-- default: `"rgb(255 200 127)"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active-gradient -->
-## `programs.niri.settings.layout.border.active-gradient`
-- type: `null or (submodule)`
-- default: `null`
+<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient -->
+## `programs.niri.settings.layout.border.active.gradient`
+- type: `gradient`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active-gradient.angle -->
-## `programs.niri.settings.layout.border.active-gradient.angle`
+<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.angle -->
+## `programs.niri.settings.layout.border.active.gradient.angle`
 - type: `signed integer`
 - default: `180`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active-gradient.from -->
-## `programs.niri.settings.layout.border.active-gradient.from`
+<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.from -->
+## `programs.niri.settings.layout.border.active.gradient.from`
 - type: `string`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active-gradient.relative-to -->
-## `programs.niri.settings.layout.border.active-gradient.relative-to`
+<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.relative-to -->
+## `programs.niri.settings.layout.border.active.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active-gradient.to -->
-## `programs.niri.settings.layout.border.active-gradient.to`
+<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.to -->
+## `programs.niri.settings.layout.border.active.gradient.to`
 - type: `string`
 
 
@@ -888,38 +911,52 @@ Counter-clockwise rotation of this output in degrees.
 - type: `boolean`
 - default: `false`
 
+Whether to enable the border.
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive-color -->
-## `programs.niri.settings.layout.border.inactive-color`
+
+<!-- sorting key: programs.niri.settings.i.layout.border.inactive -->
+## `programs.niri.settings.layout.border.inactive`
+- type: `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgb(80 80 80)";
+  }
+  ```
+
+
+The color of the border for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.border.inactive.color -->
+## `programs.niri.settings.layout.border.inactive.color`
 - type: `string`
-- default: `"rgb(80 80 80)"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive-gradient -->
-## `programs.niri.settings.layout.border.inactive-gradient`
-- type: `null or (submodule)`
-- default: `null`
+<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient -->
+## `programs.niri.settings.layout.border.inactive.gradient`
+- type: `gradient`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive-gradient.angle -->
-## `programs.niri.settings.layout.border.inactive-gradient.angle`
+<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.angle -->
+## `programs.niri.settings.layout.border.inactive.gradient.angle`
 - type: `signed integer`
 - default: `180`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive-gradient.from -->
-## `programs.niri.settings.layout.border.inactive-gradient.from`
+<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.from -->
+## `programs.niri.settings.layout.border.inactive.gradient.from`
 - type: `string`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive-gradient.relative-to -->
-## `programs.niri.settings.layout.border.inactive-gradient.relative-to`
+<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.relative-to -->
+## `programs.niri.settings.layout.border.inactive.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive-gradient.to -->
-## `programs.niri.settings.layout.border.inactive-gradient.to`
+<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.to -->
+## `programs.niri.settings.layout.border.inactive.gradient.to`
 - type: `string`
 
 
@@ -927,6 +964,8 @@ Counter-clockwise rotation of this output in degrees.
 ## `programs.niri.settings.layout.border.width`
 - type: `signed integer`
 - default: `4`
+
+The width of the border drawn around each window.
 
 
 <!-- sorting key: programs.niri.settings.i.layout.center-focused-column -->
@@ -968,37 +1007,60 @@ The width of the column in logical pixels
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active-color -->
-## `programs.niri.settings.layout.focus-ring.active-color`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring -->
+## `programs.niri.settings.layout.focus-ring`
+
+
+The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive), and the last focused window on all other monitors will be drawn according to [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive).
+
+If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active -->
+## `programs.niri.settings.layout.focus-ring.active`
+- type: `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgb(127 200 255)";
+  }
+  ```
+
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.color -->
+## `programs.niri.settings.layout.focus-ring.active.color`
 - type: `string`
-- default: `"rgb(127 200 255)"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active-gradient -->
-## `programs.niri.settings.layout.focus-ring.active-gradient`
-- type: `null or (submodule)`
-- default: `null`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient -->
+## `programs.niri.settings.layout.focus-ring.active.gradient`
+- type: `gradient`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active-gradient.angle -->
-## `programs.niri.settings.layout.focus-ring.active-gradient.angle`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.angle -->
+## `programs.niri.settings.layout.focus-ring.active.gradient.angle`
 - type: `signed integer`
 - default: `180`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active-gradient.from -->
-## `programs.niri.settings.layout.focus-ring.active-gradient.from`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.from -->
+## `programs.niri.settings.layout.focus-ring.active.gradient.from`
 - type: `string`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active-gradient.relative-to -->
-## `programs.niri.settings.layout.focus-ring.active-gradient.relative-to`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.relative-to -->
+## `programs.niri.settings.layout.focus-ring.active.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active-gradient.to -->
-## `programs.niri.settings.layout.focus-ring.active-gradient.to`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.to -->
+## `programs.niri.settings.layout.focus-ring.active.gradient.to`
 - type: `string`
 
 
@@ -1007,38 +1069,52 @@ The width of the column as a proportion of the screen's width
 - type: `boolean`
 - default: `true`
 
+Whether to enable the focus ring.
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive-color -->
-## `programs.niri.settings.layout.focus-ring.inactive-color`
+
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive -->
+## `programs.niri.settings.layout.focus-ring.inactive`
+- type: `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgb(80 80 80)";
+  }
+  ```
+
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.color -->
+## `programs.niri.settings.layout.focus-ring.inactive.color`
 - type: `string`
-- default: `"rgb(80 80 80)"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive-gradient -->
-## `programs.niri.settings.layout.focus-ring.inactive-gradient`
-- type: `null or (submodule)`
-- default: `null`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient -->
+## `programs.niri.settings.layout.focus-ring.inactive.gradient`
+- type: `gradient`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive-gradient.angle -->
-## `programs.niri.settings.layout.focus-ring.inactive-gradient.angle`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.angle -->
+## `programs.niri.settings.layout.focus-ring.inactive.gradient.angle`
 - type: `signed integer`
 - default: `180`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive-gradient.from -->
-## `programs.niri.settings.layout.focus-ring.inactive-gradient.from`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.from -->
+## `programs.niri.settings.layout.focus-ring.inactive.gradient.from`
 - type: `string`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive-gradient.relative-to -->
-## `programs.niri.settings.layout.focus-ring.inactive-gradient.relative-to`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.relative-to -->
+## `programs.niri.settings.layout.focus-ring.inactive.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive-gradient.to -->
-## `programs.niri.settings.layout.focus-ring.inactive-gradient.to`
+<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.to -->
+## `programs.niri.settings.layout.focus-ring.inactive.gradient.to`
 - type: `string`
 
 
@@ -1046,6 +1122,8 @@ The width of the column as a proportion of the screen's width
 ## `programs.niri.settings.layout.focus-ring.width`
 - type: `signed integer`
 - default: `4`
+
+The width of the focus ring drawn around each focused window.
 
 
 <!-- sorting key: programs.niri.settings.i.layout.gaps -->

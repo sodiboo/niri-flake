@@ -14,8 +14,8 @@ in {
       layout.focus-ring.enable = mkDefault false;
       layout.border = with config.lib.stylix.colors; {
         enable = mkDefault true;
-        active-color = mkDefault "#${base0A}";
-        inactive-color = mkDefault "#${base03}";
+        active = mkDefault {color = "#${base0A}";};
+        inactive = mkDefault {color = "#${base03}";};
       };
     };
   };

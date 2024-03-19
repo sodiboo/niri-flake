@@ -23,8 +23,12 @@ with docs.lib; rec {
       then "unstable"
       else abort "unreachable") (attrNames (binds-stable // binds-unstable));
 
-    record = options: let
-      base = submodule {inherit options;};
+    record = opts: let
+      base = submodule (
+        if opts ? options && opts ? config
+        then opts
+        else {options = opts;}
+      );
     in
       mkOptionType {
         name = "record";
@@ -159,20 +163,97 @@ with docs.lib; rec {
     #   check = v: isList v && length v == 4 && all isInt v;
     # };
 
-    gradient = record {
-      from = required types.str;
-      to = required types.str;
-      angle = optional types.int 180;
-      relative-to = optional (enum ["window" "workspace-view"]) "window";
+    gradient =
+      record {
+        from = required types.str;
+        to = required types.str;
+        angle = optional types.int 180;
+        relative-to = optional (enum ["window" "workspace-view"]) "window";
+      }
+      // {
+        description = "gradient";
+        descriptionClass = "noun";
+      };
+
+    decoration = variant {
+      color = types.str;
+      gradient = gradient;
     };
 
-    borderish = default-active-color: {
-      width = optional types.int 4;
-      active-color = optional types.str default-active-color;
-      inactive-color = optional types.str "rgb(80 80 80)";
-      active-gradient = nullable gradient;
-      inactive-gradient = nullable gradient;
-    };
+    borderish = {
+      enable-by-default,
+      default-active-color,
+      name,
+      window,
+      description,
+    }:
+      make-section (submodule ({config, ...}: {
+        options = {
+          enable =
+            optional types.bool enable-by-default
+            // {
+              description = ''
+                Whether to enable the ${name}.
+              '';
+            };
+          width =
+            optional types.int 4
+            // {
+              description = ''
+                The width of the ${name} drawn around each ${window}.
+              '';
+            };
+          active =
+            optional decoration {color = default-active-color;}
+            // {
+              description = ''
+                The color of the ${name} for the window that has keyboard focus.
+              '';
+            };
+          inactive =
+            optional decoration {color = "rgb(80 80 80)";}
+            // {
+              description = ''
+                The color of the ${name} for windows that do not have keyboard focus.
+              '';
+            };
+          active-color =
+            nullable types.str
+            // {
+              visible = false;
+            };
+          inactive-color =
+            nullable types.str
+            // {
+              visible = false;
+            };
+          active-gradient =
+            nullable gradient
+            // {
+              visible = false;
+            };
+          inactive-gradient =
+            nullable gradient
+            // {
+              visible = false;
+            };
+        };
+
+        config = mkMerge (concatMap (state: let
+          color = "${state}-color";
+          gradient = "${state}-gradient";
+        in [
+          (mkIf (config.${gradient} != null) {
+            ${state}.gradient = config.${gradient};
+          })
+          (mkIf (config.${color} != null && config.${gradient} == null) {
+            ${state}.color = config.${color};
+          })
+        ]) ["active" "inactive"]);
+      }))
+      // {
+        inherit description;
+      };
 
     match =
       record {
@@ -511,20 +592,24 @@ with docs.lib; rec {
           trackpoint = basic-pointer false;
           tablet.map-to-output = nullable types.str;
           touch.map-to-output = nullable types.str;
-          warp-mouse-to-focus = optional types.bool false // {
-            description = ''
-              ${unstable-note}
+          warp-mouse-to-focus =
+            optional types.bool false
+            // {
+              description = ''
+                ${unstable-note}
 
-              Whether to warp the mouse to the focused window when switching focus.
-            '';
-          };
-          focus-follows-mouse = optional types.bool false // {
-            description = ''
-              ${unstable-note}
+                Whether to warp the mouse to the focused window when switching focus.
+              '';
+            };
+          focus-follows-mouse =
+            optional types.bool false
+            // {
+              description = ''
+                ${unstable-note}
 
-              Whether to focus the window under the mouse when the mouse moves.
-            '';
-          };
+                Whether to focus the window under the mouse when the mouse moves.
+              '';
+            };
 
           power-key-handling.enable =
             optional types.bool true
@@ -619,17 +704,33 @@ with docs.lib; rec {
 
       {
         layout = {
-          focus-ring =
-            (borderish "rgb(127 200 255)")
-            // {
-              enable = optional types.bool true;
-            };
+          focus-ring = borderish {
+            enable-by-default = true;
+            default-active-color = "rgb(127 200 255)";
+            name = "focus ring";
+            window = "focused window";
+            description = ''
+              The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
 
-          border =
-            (borderish "rgb(255 200 127)")
-            // {
-              enable = optional types.bool false;
-            };
+              The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.active"}, and the last focused window on all other monitors will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.inactive"}.
+
+              If you have ${link' "programs.niri.settings.layout.border"} enabled, the focus ring will be drawn around (and under) the border.
+            '';
+          };
+
+          border = borderish {
+            enable-by-default = false;
+            default-active-color = "rgb(255 200 127)";
+            name = "border";
+            window = "window";
+            description = ''
+              The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+              The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.border.active"}, and all other windows will be drawn according to ${link' "programs.niri.settings.layout.border.inactive"}.
+
+              If you have ${link' "programs.niri.settings.layout.focus-ring"} enabled, the border will be drawn inside (and over) the focus ring.
+            '';
+          };
           preset-column-widths =
             list preset-width
             // {
@@ -1009,6 +1110,54 @@ with docs.lib; rec {
             '';
           };
       };
+
+      config.warnings =
+        pipe {
+          # the prefix here helps ensure that the cartesian product is taken in the correct order
+          a_decoration = ["border" "focus-ring"];
+          b_state = ["active" "inactive"];
+          c_field = ["color" "gradient"];
+        } [
+          cartesianProductOfSets
+          (map (concatMapAttrs (name: value: {${substring 2 (stringLength name - 2) name} = value;})))
+          (filter ({
+            decoration,
+            state,
+            field,
+          }:
+            cfg.settings.layout.${decoration}."${state}-${field}" or null != null))
+          (used:
+            mkIf (used != []) [
+              ''
+
+                Usage of deprecated options:
+
+                ${concatStrings (forEach used ({
+                  decoration,
+                  state,
+                  field,
+                  ...
+                }: ''
+                  - `programs.niri.settings.layout.${decoration}.${state}-${field}`
+                ''))}
+                They will be removed in a future version.
+                The reasoning for this is that the previous structure is incorrectly typed.
+
+                They are superseded by the following options:
+
+                ${concatStrings (forEach used ({
+                  decoration,
+                  state,
+                  field,
+                  ...
+                }: ''
+                  - `programs.niri.settings.layout.${decoration}.${state}.${field}`
+                ''))}
+                Note that you cannot set `color` and `gradient` for the same field anymore.
+                Previously, the gradient always took priority when non-null.
+              ''
+            ])
+        ];
     };
   fake-docs = {
     stable-tag,
@@ -1018,6 +1167,10 @@ with docs.lib; rec {
   }: {
     imports = [module];
 
+    options.warnings = mkOption {
+      type = types.listOf types.str;
+      visible = false;
+    };
     options._ = let
       pkg-output = name: desc:
         fake-option (pkg-header name) ''
@@ -1246,10 +1399,10 @@ with docs.lib; rec {
             (
               toggle "off" cfg [
                 (leaf "width" cfg.width)
-                (leaf "active-color" cfg.active-color)
-                (leaf "inactive-color" cfg.inactive-color)
-                (nullable leaf "active-gradient" cfg.active-gradient)
-                (nullable leaf "inactive-gradient" cfg.inactive-gradient)
+                (nullable leaf "active-color" cfg.active.color or null)
+                (nullable leaf "active-gradient" cfg.active.gradient or null)
+                (nullable leaf "inactive-color" cfg.inactive.color or null)
+                (nullable leaf "inactive-gradient" cfg.inactive.gradient or null)
               ]
             )
           ];
