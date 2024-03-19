@@ -207,6 +207,16 @@
         inherit pkgs;
         src = niri-unstable;
       };
+
+    validated-config-for = pkgs: package: config:
+      pkgs.runCommand "config.kdl" {
+        inherit config;
+        passAsFile = ["config"];
+        buildInputs = [package];
+      } ''
+        niri validate -c $configPath
+        cp $configPath $out
+      '';
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -235,11 +245,25 @@
           default = self'.apps.niri-stable;
         };
 
+        checks = {
+          empty-config-valid-stable = let
+            eval = nixpkgs.lib.evalModules {
+              modules = [
+                settings.module
+                {
+                  config.programs.niri.settings = {};
+                }
+              ];
+            };
+          in
+            validated-config-for pkgs self'.packages.niri-stable eval.config.programs.niri.finalConfig;
+        };
+
         formatter = pkgs.alejandra;
       };
 
       flake = {
-        __docs = (docs.make-docs (settings.fake-docs {inherit stable-tag fmt-date fmt-time nixpkgs;}));
+        __docs = docs.make-docs (settings.fake-docs {inherit stable-tag fmt-date fmt-time nixpkgs;});
         inherit kdl;
         overlays.niri = final: prev: {
           niri-unstable = make-niri-unstable final;
@@ -269,15 +293,7 @@
             config.xdg.configFile.niri-config = {
               enable = cfg.finalConfig != null;
               target = "niri/config.kdl";
-              source =
-                pkgs.runCommand "config.kdl" {
-                  config = cfg.finalConfig;
-                  passAsFile = ["config"];
-                  buildInputs = [cfg.package];
-                } ''
-                  niri validate -c $configPath
-                  cp $configPath $out
-                '';
+              source = validated-config-for pkgs cfg.package cfg.finalConfig;
             };
 
             config.warnings =
