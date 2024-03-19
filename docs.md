@@ -33,7 +33,7 @@ The latest commit to the development branch of niri.
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and updates may break stuff at any time without warning. Here be dragons.
 
-Currently, this is exactly commit [`4740682`](https://github.com/YaLTeR/niri/tree/4740682904f7353f5969449f3f63afc6c787c7c1) which was authored on `2024-03-18 15:36:18`. It is refreshed hourly.
+Currently, this is exactly commit [`c3327d3`](https://github.com/YaLTeR/niri/tree/c3327d36da25f37e86eb8f89bd74f2a4bc1ea744) which was authored on `2024-03-19 05:00:00`. It is refreshed hourly.
 
 
 
