@@ -5,13 +5,13 @@
 
 if [[ ! -e .git/rebase-merge/done ]]; then
 
-nix run "git+file:.?ref=HEAD#generate-docs" > docs.md
+nix eval --raw "git+file:.?ref=HEAD#__docs" > docs.md
 git diff --quiet docs.md
 if [ $? -ne 0 ]; then
 
 git add docs.md
 git commit --no-verify --amend --no-edit
-nix run --no-warn-dirty .#generate-docs > docs.md
+nix eval --no-warn-dirty .#__docs > docs.md
 
 fi
 

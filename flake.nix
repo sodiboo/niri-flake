@@ -233,19 +233,13 @@
           };
 
           default = self'.apps.niri-stable;
-
-          generate-docs = {
-            type = "app";
-            program = let
-              docs-src = pkgs.writeText "settings-documentation.md" (docs.make-docs (settings.fake-docs {inherit stable-tag fmt-date fmt-time nixpkgs;}));
-            in "${pkgs.writeScript "generate-docs" "cat ${docs-src}"}";
-          };
         };
 
         formatter = pkgs.alejandra;
       };
 
       flake = {
+        __docs = (docs.make-docs (settings.fake-docs {inherit stable-tag fmt-date fmt-time nixpkgs;}));
         inherit kdl;
         overlays.niri = final: prev: {
           niri-unstable = make-niri-unstable final;
