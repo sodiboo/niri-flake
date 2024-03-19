@@ -23,6 +23,8 @@ Currently, this is release [`v0.1.3`](https://github.com/YaLTeR/niri/releases/ta
 - [`40cec34aa4a7f99ab12b30cba1a0ee83a706a413`](https://github.com/YaLTeR/niri/commit/40cec34aa4a7f99ab12b30cba1a0ee83a706a413)
 
 
+To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`](#overlaysniri).
+
 
 
 <!-- sorting key: _.a.nonmodules.a.packages.niri-unstable -->
@@ -30,11 +32,15 @@ Currently, this is release [`v0.1.3`](https://github.com/YaLTeR/niri/releases/ta
 
 The latest commit to the development branch of niri.
 
+Currently, this is exactly commit [`c3327d3`](https://github.com/YaLTeR/niri/tree/c3327d36da25f37e86eb8f89bd74f2a4bc1ea744) which was authored on `2024-03-19 05:00:00`.
+
 > [!warning]
-> `niri-unstable` is not a released version, there are no stability guarantees, and updates may break stuff at any time without warning. Here be dragons.
+> `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
+>
+> The specific package provided by this flake is automatically updated without any testing. The only guarantee is that it builds.
 
-Currently, this is exactly commit [`c3327d3`](https://github.com/YaLTeR/niri/tree/c3327d36da25f37e86eb8f89bd74f2a4bc1ea744) which was authored on `2024-03-19 05:00:00`. It is refreshed hourly.
 
+To access this package under `pkgs.niri-unstable`, you should use [`overlays.niri`](#overlaysniri).
 
 
 
@@ -86,15 +92,15 @@ This also enables the necessary system components for niri to function properly,
 ## `programs.niri.package`
 
 - type: `package`
-- default: [`packages.<system>.niri-stable`](#packagessystemniri-stable)
+- default: [`pkgs.niri-stable`](#packagessystemniri-stable)
 
 The package that niri will use.
 
 You may wish to set it to the following values:
 
 - [`pkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
-- [`packages.<system>.niri-stable`](#packagessystemniri-stable)
-- [`packages.<system>.niri-unstable`](#packagessystemniri-unstable)
+- [`pkgs.niri-stable`](#packagessystemniri-stable)
+- [`pkgs.niri-unstable`](#packagessystemniri-unstable)
 
 
 
@@ -108,7 +114,7 @@ Whether or not to enable the binary cache [`niri.cachix.org`](https://niri.cachi
 
 Using a binary cache can save you time, by avoiding redundant rebuilds.
 
-This cache is managed by me, sodiboo, and i use GitHub Actions to automaticaly upload builds of [`packages.<system>.niri-stable`](#packagessystemniri-stable) and [`packages.<system>.niri-unstable`](#packagessystemniri-unstable) (for nixpkgs unstable and stable). By using it, you are trusting me to not upload malicious builds, and as such you may disable it.
+This cache is managed by me, sodiboo, and i use GitHub Actions to automaticaly upload builds of [`pkgs.niri-stable`](#packagessystemniri-stable) and [`pkgs.niri-unstable`](#packagessystemniri-unstable) (for nixpkgs unstable and stable). By using it, you are trusting me to not upload malicious builds, and as such you may disable it.
 
 If you do not wish to use this cache, then you may wish to set [`programs.niri.package`](#programsniripackage) to [`pkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri), in order to take advantage of the NixOS cache.
 
@@ -139,15 +145,15 @@ This also enables the necessary system components for niri to function properly,
 ## `programs.niri.package`
 
 - type: `package`
-- default: [`packages.<system>.niri-stable`](#packagessystemniri-stable)
+- default: [`pkgs.niri-stable`](#packagessystemniri-stable)
 
 The package that niri will use.
 
 You may wish to set it to the following values:
 
 - [`pkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri)
-- [`packages.<system>.niri-stable`](#packagessystemniri-stable)
-- [`packages.<system>.niri-unstable`](#packagessystemniri-unstable)
+- [`pkgs.niri-stable`](#packagessystemniri-stable)
+- [`pkgs.niri-unstable`](#packagessystemniri-unstable)
 
 
 
@@ -204,7 +210,7 @@ You cannot set parameters for both, so `variant` is used here.
 ## `programs.niri.package`
 
 - type: `package`
-- default: [`packages.<system>.niri-stable`](#packagessystemniri-stable)
+- default: [`pkgs.niri-stable`](#packagessystemniri-stable)
 
 The `niri` package that the config is validated against. This cannot be modified if you set the identically-named option in [`nixosModules.niri`](#nixosmodulesniri) or [`homeModules.niri`](#homemodulesniri).
 
@@ -428,7 +434,7 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 > [!important]
 > This option is not yet available in stable niri.
 >
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`packages.<system>.niri-unstable`](#packagessystemniri-unstable).
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
 >
 > Otherwise, your system might fail to build.
 
@@ -619,7 +625,7 @@ Further reading:
 > [!important]
 > This option is not yet available in stable niri.
 >
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`packages.<system>.niri-unstable`](#packagessystemniri-unstable).
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
 >
 > Otherwise, your system might fail to build.
 
@@ -734,7 +740,7 @@ Further reading:
 > [!important]
 > This option is not yet available in stable niri.
 >
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`packages.<system>.niri-unstable`](#packagessystemniri-unstable).
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
 >
 > Otherwise, your system might fail to build.
 

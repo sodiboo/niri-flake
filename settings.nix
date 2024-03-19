@@ -1175,6 +1175,8 @@ with docs.lib; rec {
       pkg-output = name: desc:
         fake-option (pkg-header name) ''
           ${desc}
+
+          To access this package under `pkgs.${name}`, you should use ${link' "overlays.niri"}.
         '';
 
       enable-option = fake-option "programs.niri.enable" ''
@@ -1254,10 +1256,12 @@ with docs.lib; rec {
           niri-unstable = pkg-output "niri-unstable" ''
             The latest commit to the development branch of niri.
 
-            > [!warning]
-            > `niri-unstable` is not a released version, there are no stability guarantees, and updates may break stuff at any time without warning. Here be dragons.
+            Currently, this is exactly commit ${link-niri-commit {inherit (inputs.niri-unstable) shortRev rev;}} which was authored on `${fmt-date inputs.niri-unstable.lastModifiedDate} ${fmt-time inputs.niri-unstable.lastModifiedDate}`.
 
-            Currently, this is exactly commit ${link-niri-commit {inherit (inputs.niri-unstable) shortRev rev;}} which was authored on `${fmt-date inputs.niri-unstable.lastModifiedDate} ${fmt-time inputs.niri-unstable.lastModifiedDate}`. It is refreshed hourly.
+            > [!warning]
+            > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
+            >
+            > The specific package provided by this flake is automatically updated without any testing. The only guarantee is that it builds.
           '';
         };
 

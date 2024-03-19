@@ -103,7 +103,7 @@ with lib; let
     // opts;
 
   pkg-header = name: "packages.<system>.${name}";
-  pkg-link = name: link' (pkg-header name);
+  pkg-link = name: "[`pkgs.${name}`](#${anchor' (pkg-header name)})";
 
   nixpkgs-link = name: "[`pkgs.${name}`](https://search.nixos.org/packages?channel=unstable&show=${name})";
 
