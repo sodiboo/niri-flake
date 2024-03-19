@@ -47,7 +47,7 @@ with lib; let
 
   traverse = path: v: (
     if (v ? _type && v._type == "option")
-    then (describe path v) // (traverse path (v.type.getSubOptions v.loc))
+    then (optionalAttrs (v.visible or true != false) (describe path v)) // (optionalAttrs (v.visible or true == true) (traverse path (v.type.getSubOptions v.loc)))
     else concatMapAttrs (name: traverse (path ++ [name])) (filterAttrs (name: const (name != "_module")) v)
   );
 
