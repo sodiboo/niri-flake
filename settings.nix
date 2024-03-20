@@ -1085,6 +1085,26 @@ with docs.lib; rec {
                     '';
                   };
               }
+              (let
+                sizing-info = bound: ''
+                  ${unstable-note}
+
+                  Sets the ${bound} (in logical pixels) that niri will ever ask this window for.
+
+                  Keep in mind that the window itself always has a final say in its size, and may not respect the ${bound} set by this option.
+                '';
+
+                sizing-opt = bound:
+                  nullable types.int
+                  // {
+                    description = sizing-info bound;
+                  };
+              in {
+                min-width = sizing-opt "minimum width";
+                max-width = sizing-opt "maximum width";
+                min-height = sizing-opt "minimum height";
+                max-height = sizing-opt "maximum height";
+              })
             ]
             // {
               description = "window rule";
@@ -1474,6 +1494,10 @@ with docs.lib; rec {
             (nullable leaf "open-on-output" cfg.open-on-output)
             (nullable leaf "open-maximized" cfg.open-maximized)
             (nullable leaf "open-fullscreen" cfg.open-fullscreen)
+            (nullable leaf "min-width" cfg.min-width)
+            (nullable leaf "max-width" cfg.max-width)
+            (nullable leaf "min-height" cfg.min-height)
+            (nullable leaf "max-height" cfg.max-height)
           ];
         transform = cfg: let
           rotation = toString cfg.rotation;

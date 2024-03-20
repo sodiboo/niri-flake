@@ -1719,6 +1719,78 @@ If final value of this field is an output that exists, the new window will open 
 If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
 
 
+<!-- sorting key: programs.niri.settings.l.window-rules.d.max-height -->
+## `programs.niri.settings.window-rules.*.max-height`
+- type: `null or signed integer`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Sets the maximum height (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the maximum height set by this option.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.max-width -->
+## `programs.niri.settings.window-rules.*.max-width`
+- type: `null or signed integer`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Sets the maximum width (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.min-height -->
+## `programs.niri.settings.window-rules.*.min-height`
+- type: `null or signed integer`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Sets the minimum height (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.min-width -->
+## `programs.niri.settings.window-rules.*.min-width`
+- type: `null or signed integer`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Sets the minimum width (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
+
+
 <!-- sorting key: programs.niri.settings.m.debug -->
 ## `programs.niri.settings.debug`
 - type: `null or (attribute set of kdl arguments)`
