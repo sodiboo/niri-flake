@@ -1755,6 +1755,11 @@ Sets the maximum height (in logical pixels) that niri will ever ask this window 
 Keep in mind that the window itself always has a final say in its size, and may not respect the maximum height set by this option.
 
 
+Also, note that the maximum height is not taken into account when automatically sizing columns. That is, when a column is created normally, windows in it will be "automatically sized" to fill the vertical space. This algorithm will respect a minimum height, and not make windows any smaller than that, but the max height is only taken into account if it is equal to the min height. In other words, it will only accept a "fixed height" or a "minimum height". In practice, most windows do not set a max size unless it is equal to their min size, so this is usually not a problem without window rules.
+
+If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
+
+
 <!-- sorting key: programs.niri.settings.l.window-rules.e.max-width -->
 ## `programs.niri.settings.window-rules.*.max-width`
 - type: `null or signed integer`
