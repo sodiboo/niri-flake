@@ -749,6 +749,24 @@ Further reading:
 Whether to warp the mouse to the focused window when switching focus.
 
 
+<!-- sorting key: programs.niri.settings.f.input.workspace-auto-back-and-forth -->
+## `programs.niri.settings.input.workspace-auto-back-and-forth`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
+
+Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
+
+
 <!-- sorting key: programs.niri.settings.g.outputs -->
 ## `programs.niri.settings.outputs`
 - type: `attribute set of (submodule)`

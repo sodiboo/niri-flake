@@ -683,6 +683,18 @@ with docs.lib; rec {
               '';
             };
 
+          workspace-auto-back-and-forth =
+            optional types.bool false
+            // {
+              description = ''
+                ${unstable-note}
+
+                When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
+
+                Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
+              '';
+            };
+
           power-key-handling.enable =
             optional types.bool true
             // {
@@ -1516,6 +1528,7 @@ with docs.lib; rec {
           (plain "touch" (touchy cfg.input.touch))
           (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
           (flag' "focus-follows-mouse" cfg.input.focus-follows-mouse)
+          (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
           (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         ])
 
