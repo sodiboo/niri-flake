@@ -11,7 +11,7 @@ if [ $? -ne 0 ]; then
 
 git add docs.md
 git commit --no-verify --amend --no-edit
-nix eval --no-warn-dirty .#__docs > docs.md
+nix eval --no-warn-dirty --raw .#__docs > docs.md
 
 fi
 
