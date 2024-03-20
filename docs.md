@@ -1719,7 +1719,25 @@ If final value of this field is an output that exists, the new window will open 
 If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.max-height -->
+<!-- sorting key: programs.niri.settings.l.window-rules.d.draw-border-with-background -->
+## `programs.niri.settings.window-rules.*.draw-border-with-background`
+- type: `null or boolean`
+- default: `null`
+
+Whether to draw the focus ring and border with a background.
+
+Normally, for windows with server-side decorations, niri will draw an actual border around them, because it knows they will be rectangular.
+
+Because client-side decorations can take on arbitrary shapes, most notably including rounded corners, niri cannot really know the "correct" place to put a border, so for such windows it will draw a solid rectangle behind them instead.
+
+For most windows, this looks okay. At worst, you have some uneven/jagged borders, instead of a gaping hole in the region outside of the corner radius of the window but inside its bounds.
+
+If you wish to make windows sucha s your terminal transparent, and they use CSD, this is very undesirable. Instead of showing your wallpaper, you'll get a solid rectangle.
+
+You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.e.max-height -->
 ## `programs.niri.settings.window-rules.*.max-height`
 - type: `null or signed integer`
 - default: `null`
@@ -1737,7 +1755,7 @@ Sets the maximum height (in logical pixels) that niri will ever ask this window 
 Keep in mind that the window itself always has a final say in its size, and may not respect the maximum height set by this option.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.max-width -->
+<!-- sorting key: programs.niri.settings.l.window-rules.e.max-width -->
 ## `programs.niri.settings.window-rules.*.max-width`
 - type: `null or signed integer`
 - default: `null`
@@ -1755,7 +1773,7 @@ Sets the maximum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.min-height -->
+<!-- sorting key: programs.niri.settings.l.window-rules.e.min-height -->
 ## `programs.niri.settings.window-rules.*.min-height`
 - type: `null or signed integer`
 - default: `null`
@@ -1773,7 +1791,7 @@ Sets the minimum height (in logical pixels) that niri will ever ask this window 
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.min-width -->
+<!-- sorting key: programs.niri.settings.l.window-rules.e.min-width -->
 ## `programs.niri.settings.window-rules.*.min-width`
 - type: `null or signed integer`
 - default: `null`

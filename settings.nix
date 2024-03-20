@@ -1085,6 +1085,25 @@ with docs.lib; rec {
                     '';
                   };
               }
+              {
+                draw-border-with-background =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Whether to draw the focus ring and border with a background.
+
+                      Normally, for windows with server-side decorations, niri will draw an actual border around them, because it knows they will be rectangular.
+
+                      Because client-side decorations can take on arbitrary shapes, most notably including rounded corners, niri cannot really know the "correct" place to put a border, so for such windows it will draw a solid rectangle behind them instead.
+
+                      For most windows, this looks okay. At worst, you have some uneven/jagged borders, instead of a gaping hole in the region outside of the corner radius of the window but inside its bounds.
+
+                      If you wish to make windows sucha s your terminal transparent, and they use CSD, this is very undesirable. Instead of showing your wallpaper, you'll get a solid rectangle.
+
+                      You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
+                    '';
+                  };
+              }
               (let
                 sizing-info = bound: ''
                   ${unstable-note}
@@ -1494,6 +1513,7 @@ with docs.lib; rec {
             (nullable leaf "open-on-output" cfg.open-on-output)
             (nullable leaf "open-maximized" cfg.open-maximized)
             (nullable leaf "open-fullscreen" cfg.open-fullscreen)
+            (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
             (nullable leaf "min-width" cfg.min-width)
             (nullable leaf "max-width" cfg.max-width)
             (nullable leaf "min-height" cfg.min-height)
