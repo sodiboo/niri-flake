@@ -25,7 +25,7 @@ with lib; let
     ${node-name} = [];
     __functor = self: arg: {
       inherit (self) __functor;
-      ${node-name} = self.${node-name} ++ [arg];
+      ${node-name} = self.${node-name} ++ toList arg;
     };
   };
   flag = name: node name [] [];
