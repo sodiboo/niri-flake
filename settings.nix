@@ -484,7 +484,6 @@ with docs.lib; rec {
                 concatStringsSep "\n" (concatLists [
                   (map show-bind (filter (stable: all (unstable: stable.name != unstable.name) binds-unstable) binds-stable))
                   (map show-bind binds-unstable)
-                  # (forEach binds-for.both or [] (show-bind binds-unstable null))
                 ])}
             '';
           };
