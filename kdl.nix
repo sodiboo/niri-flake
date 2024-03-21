@@ -84,7 +84,7 @@ with lib; let
   # nested lists are not meaningful and neither are null nodes.
   transform-nodes = flip pipe [
     flatten
-    (filter (n: n != null))
+    (remove null)
   ];
 
   internal-serialize-nodes = flip pipe [

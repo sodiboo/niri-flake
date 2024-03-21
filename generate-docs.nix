@@ -140,7 +140,7 @@ with lib; let
           then "<!-- ${showOption opt.loc} -->"
           else
             (concatStringsSep "\n" (
-              filter (v: v != null) [
+              remove null [
                 "## `${showOption opt.loc}`"
                 (optionalString (opt.type.description != "submodule") "- type: `${opt.type.description}`${optionalString (opt.type ? nestedTypes.newtype-inner) ", which is a `${opt.type.nestedTypes.newtype-inner.description}`"}")
                 (maybe make-default opt.defaultText)
