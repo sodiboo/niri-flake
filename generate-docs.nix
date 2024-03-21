@@ -136,7 +136,7 @@ with lib; let
         + (
           if opt.type.name == "docs-override"
           then "${opt.description}"
-          else if opt.type.name == "submodule" && opt.description or null == null
+          else if elem opt.type.name ["record" "submodule"] && opt.description or null == null
           then "<!-- ${showOption opt.loc} -->"
           else
             (concatStringsSep "\n" (

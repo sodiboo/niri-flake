@@ -328,30 +328,35 @@ with docs.lib; rec {
         descriptionClass = "noun";
       };
 
+    alphabetize = sections:
+      mergeAttrsList (imap0 (i: section: {
+          ${elemAt strings.lowerChars i} = section;
+        })
+        sections);
+
     ordered-record = sections: let
-      base = record (concatMapAttrs (flip const) sections);
-      self = mkOptionType {
-        inherit (base) name description check merge nestedTypes;
-        getSubOptions = loc: mapAttrs (section: opts: (record opts).getSubOptions loc) sections;
-      };
+      normalize = map (flip removeAttrs ["__docs-only"]);
+      real-sections-flat = pipe sections [
+        (filter (s: !(s.__docs-only or false)))
+        normalize
+        mergeAttrsList
+      ];
+      ord-sections = pipe sections [
+        normalize
+        alphabetize
+      ];
     in
-      self;
+      mkOptionType {
+        inherit (record real-sections-flat) name description check merge nestedTypes;
+        getSubOptions = loc: mapAttrs (section: opts: (record opts).getSubOptions loc) ord-sections;
+      };
 
     make-section = flip optional {};
 
-    make-ordered = flip pipe [
-      (imap0 (i: section: {
-        name = elemAt strings.lowerChars i;
-        value = section;
-      }))
-      listToAttrs
-      ordered-record
-    ];
-
     section = flip pipe [record make-section];
-    # ordered-section = flip pipe [make-ordered make-section];
+    ordered-section = flip pipe [ordered-record make-section];
 
-    settings = make-ordered [
+    settings = ordered-record [
       {
         binds =
           attrs (either types.str kdl.types.kdl-leaf)
@@ -429,7 +434,7 @@ with docs.lib; rec {
 
               - `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
                 `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
-              
+
               > [!tip]
               > You can use partial application to create a spawn command with full support for shell syntax:
               > ```nix
@@ -450,7 +455,12 @@ with docs.lib; rec {
                 }: let
                   is-stable = any (a: a.name == name) binds-stable;
                   is-unstable = any (a: a.name == name) binds-unstable;
-                  exclusive = if is-stable && is-unstable then "" else if is-stable then " (only on niri-stable)" else " (only on niri-unstable)";
+                  exclusive =
+                    if is-stable && is-unstable
+                    then ""
+                    else if is-stable
+                    then " (only on niri-stable)"
+                    else " (only on niri-unstable)";
                   type-names = {
                     LayoutSwitchTarget = ''"next" | "prev"'';
                     SizeChange = "size-change";
@@ -459,14 +469,18 @@ with docs.lib; rec {
                     String = "string";
                   };
 
-                type-or = rust-name: fallback: type-names.${rust-name} or (warn "unhandled type `${rust-name}`" fallback);
+                  type-or = rust-name: fallback: type-names.${rust-name} or (warn "unhandled type `${rust-name}`" fallback);
 
-                base = content: "- `${content}`${exclusive}";
-                lambda = args: base "λ ${name} :: ${args}";
+                  base = content: "- `${content}`${exclusive}";
+                  lambda = args: base "λ ${name} :: ${args}";
                 in
                   {
                     empty = base "${name}";
-                    arg = lambda (type-or params.type (if params.as-str then "string" else params.type));
+                    arg = lambda (type-or params.type (
+                      if params.as-str
+                      then "string"
+                      else params.type
+                    ));
                     list = lambda "[${type-or params.type params.type}]";
                     prop = lambda "{ ${optionalString (!params.use-default) "*"}${params.field} :: ${type-names.${params.type} or (warn "unhandled type `${params.type}`" params.type)} }";
                     unknown = ''
@@ -971,10 +985,6 @@ with docs.lib; rec {
               curve = required (enum ["ease-out-cubic" "ease-out-expo"]);
             };
           };
-          opts = {
-            enable = optional types.bool true;
-            slowdown = optional types.float 1.0;
-          };
 
           defaults = {
             workspace-switch.spring = {
@@ -997,40 +1007,34 @@ with docs.lib; rec {
               curve = "ease-out-expo";
             };
           };
-
-          anims =
-            mapAttrs (const (
-              optional (nullOr (animation
+        in
+          ordered-section [
+            {
+              enable = optional types.bool true;
+              slowdown = optional types.float 1.0;
+            }
+            {
+              __docs-only = true;
+              "<name>" = required (animation
                 // {
                   description = "animation";
-                  descriptionClass = "noun";
-                  getSubOptions = const {};
-                }))
-            ))
-            defaults;
-          base = record (opts // anims);
-        in
-          make-section (mkOptionType {
-            inherit (base) name check merge nestedTypes;
-            description = "animations";
-            descriptionClass = "noun";
-            getSubOptions = loc: {
-              a.opts = (record opts).getSubOptions loc;
-              b.submodule =
-                (required (animation
+                  nestedTypes.newtype-inner = animation;
+                });
+            }
+            (mapAttrs (const (
+                v:
+                  optional (nullOr (animation
+                    // {
+                      description = "animation";
+                      descriptionClass = "noun";
+                    }))
+                  v
                   // {
-                    description = "animation";
-                    nestedTypes.newtype-inner = animation;
-                  }))
-                // {
-                  defaultText = null;
-                  loc = loc ++ ["<name>"];
-                };
-              c.defaults = {
-                anims = (record anims).getSubOptions loc;
-              };
-            };
-          });
+                    visible = "shallow";
+                  }
+              ))
+              defaults)
+          ];
       }
 
       {
@@ -1060,7 +1064,7 @@ with docs.lib; rec {
 
       {
         window-rules =
-          list (make-ordered [
+          list (ordered-record [
               {
                 matches =
                   list match

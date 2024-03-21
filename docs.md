@@ -1447,63 +1447,57 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 <!-- sorting key: programs.niri.settings.j.animations -->
-## `programs.niri.settings.animations`
-- type: `animations`
+<!-- programs.niri.settings.animations -->
 
-
-<!-- sorting key: programs.niri.settings.j.animations.a.opts.enable -->
+<!-- sorting key: programs.niri.settings.j.animations.a.enable -->
 ## `programs.niri.settings.animations.enable`
 - type: `boolean`
 - default: `true`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.a.opts.slowdown -->
+<!-- sorting key: programs.niri.settings.j.animations.a.slowdown -->
 ## `programs.niri.settings.animations.slowdown`
 - type: `floating point number`
 - default: `1.000000`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule -->
+<!-- sorting key: programs.niri.settings.j.animations.b.<name> -->
 ## `programs.niri.settings.animations.<name>`
 - type: `animation`, which is a `variant of: easing | spring`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule.easing -->
-## `programs.niri.settings.animations.<name>.easing`
+<!-- sorting key: programs.niri.settings.j.animations.b.<name>.easing -->
+<!-- programs.niri.settings.animations.<name>.easing -->
 
-
-
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule.easing.curve -->
+<!-- sorting key: programs.niri.settings.j.animations.b.<name>.easing.curve -->
 ## `programs.niri.settings.animations.<name>.easing.curve`
 - type: `one of "ease-out-cubic", "ease-out-expo"`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule.easing.duration-ms -->
+<!-- sorting key: programs.niri.settings.j.animations.b.<name>.easing.duration-ms -->
 ## `programs.niri.settings.animations.<name>.easing.duration-ms`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule.spring -->
-## `programs.niri.settings.animations.<name>.spring`
+<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring -->
+<!-- programs.niri.settings.animations.<name>.spring -->
 
-
-
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule.spring.damping-ratio -->
+<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring.damping-ratio -->
 ## `programs.niri.settings.animations.<name>.spring.damping-ratio`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule.spring.epsilon -->
+<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring.epsilon -->
 ## `programs.niri.settings.animations.<name>.spring.epsilon`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.submodule.spring.stiffness -->
+<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring.stiffness -->
 ## `programs.niri.settings.animations.<name>.spring.stiffness`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.defaults.anims.config-notification-open-close -->
+<!-- sorting key: programs.niri.settings.j.animations.c.config-notification-open-close -->
 ## `programs.niri.settings.animations.config-notification-open-close`
 - type: `null or animation`
 - default:
@@ -1519,7 +1513,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.defaults.anims.horizontal-view-movement -->
+<!-- sorting key: programs.niri.settings.j.animations.c.horizontal-view-movement -->
 ## `programs.niri.settings.animations.horizontal-view-movement`
 - type: `null or animation`
 - default:
@@ -1535,7 +1529,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.defaults.anims.window-open -->
+<!-- sorting key: programs.niri.settings.j.animations.c.window-open -->
 ## `programs.niri.settings.animations.window-open`
 - type: `null or animation`
 - default:
@@ -1550,7 +1544,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.defaults.anims.workspace-switch -->
+<!-- sorting key: programs.niri.settings.j.animations.c.workspace-switch -->
 ## `programs.niri.settings.animations.workspace-switch`
 - type: `null or animation`
 - default:
