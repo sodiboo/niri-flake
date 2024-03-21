@@ -185,7 +185,7 @@
     in
       workspace.workspaceMembers.niri.build
       // {
-        binds = binds src;
+        binds = abort "<package>.binds has been removed. use config.lib.niri.actions instead. it works even when using niri from nixpkgs.";
         inherit workspace;
       });
 
@@ -288,6 +288,16 @@
                 type = types.package;
                 default = make-niri-stable pkgs;
               };
+            };
+
+            config.lib.niri = {
+              actions = mergeAttrsList (map ({
+                name,
+                fn,
+                ...
+              }: {
+                ${name} = fn;
+              }) (binds cfg.package.src));
             };
 
             config.xdg.configFile.niri-config = {

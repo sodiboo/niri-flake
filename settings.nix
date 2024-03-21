@@ -14,15 +14,6 @@ with docs.lib; rec {
     binds-stable = binds inputs.niri-stable;
     binds-unstable = binds inputs.niri-unstable;
 
-    binds-for = groupBy (name:
-      if binds-stable ? ${name} && binds-unstable ? ${name}
-      then "both"
-      else if binds-stable ? ${name}
-      then "stable"
-      else if binds-unstable ? ${name}
-      then "unstable"
-      else abort "unreachable") (attrNames (binds-stable // binds-unstable));
-
     record = opts: let
       base = submodule (
         if opts ? options && opts ? config
@@ -402,16 +393,13 @@ with docs.lib; rec {
               }
               ```
 
-              There is also a `binds` attrset available under each of the packages from this flake. It has attributes for each action.
-
-              > [!note]
-              > Note that although this interface is stable, its location is *not* stable. I've only just implemented this "magic leaf" kind of varargs function. I put it under each package for now, but that may change in the near future.
+              There is also a set of functions available under `config.lib.niri.actions`.
 
               Usage is like so:
 
               ```nix
               {
-                programs.niri.settings.binds = with config.programs.niri.package.binds; {
+                programs.niri.settings.binds = with config.lib.niri.actions; {
                   "XF86AudioRaiseVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
                   "XF86AudioLowerVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
 
@@ -426,15 +414,78 @@ with docs.lib; rec {
               }
               ```
 
-              These are the available actions:
+              Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the *real* acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
 
-              ${concatStringsSep "\n" (concatLists [
-                (forEach binds-for.both or [] (a: "- `${a}`"))
-                (forEach binds-for.stable or [] (a: "- `${a}` (only on `niri-stable`)"))
-                (forEach binds-for.unstable or [] (a: "- `${a}` (only on `niri-unstable`)"))
-              ])}
+              For actions that don't take any arguments, just use the corresponding attribute from `config.lib.niri.actions`. They are listed as `action-name`. For actions that *do* take arguments, they are notated like so: `λ action-name :: <args>`, to clarify that they "should" be used as functions. Hopefully, `<args>` will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
 
-              No distinction is made between actions that take arguments and those that don't. Their usages are the exact same.
+              - `size-change`: This is a special argument type used for some actions by niri. It's a string. \
+                It can take either a fixed size as an integer number of logical pixels (`"480"`, `"1200"`) or a proportion of your screen as a percentage (`"30%"`, `"70%"`) \
+                Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
+                Relative size changes are written with a `+`/`-` prefix, and absolute size changes have no prefix.
+
+              - `{ field :: type }`: This means that the action takes a named argument (in kdl, we call it a property). \
+                To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
+                Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above).
+
+              - `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
+                `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
+              
+              > [!tip]
+              > You can use partial application to create a spawn command with full support for shell syntax:
+              > ```nix
+              > {
+              >   programs.niri.settings.binds = with config.lib.niri.actions; let
+              >     sh = spawn "sh" "-c";
+              >   in {
+              >     "Print" = sh '''grim -g "$(slurp)" - | wl-copy''';
+              >   };
+              > }
+              > ```
+
+              ${let
+                show-bind = {
+                  name,
+                  params,
+                  ...
+                }: let
+                  is-stable = any (a: a.name == name) binds-stable;
+                  is-unstable = any (a: a.name == name) binds-unstable;
+                  exclusive = if is-stable && is-unstable then "" else if is-stable then " (only on niri-stable)" else " (only on niri-unstable)";
+                  type-names = {
+                    LayoutSwitchTarget = ''"next" | "prev"'';
+                    SizeChange = "size-change";
+                    bool = "bool";
+                    u8 = "u8";
+                    String = "string";
+                  };
+
+                type-or = rust-name: fallback: type-names.${rust-name} or (warn "unhandled type `${rust-name}`" fallback);
+
+                base = content: "- `${content}`${exclusive}";
+                lambda = args: base "λ ${name} :: ${args}";
+                in
+                  {
+                    empty = base "${name}";
+                    arg = lambda (type-or params.type (if params.as-str then "string" else params.type));
+                    list = lambda "[${type-or params.type params.type}]";
+                    prop = lambda "{ ${optionalString (!params.use-default) "*"}${params.field} :: ${type-names.${params.type} or (warn "unhandled type `${params.type}`" params.type)} }";
+                    unknown = ''
+                      ${lambda "unknown"}
+
+                        The code that generates this documentation does not know how to parse the definition:
+                        ```rs
+                        ${params.raw-name}(${params.raw})
+                        ```
+                    '';
+                  }
+                  .${params.kind}
+                  or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
+              in
+                concatStringsSep "\n" (concatLists [
+                  (map show-bind (filter (stable: all (unstable: stable.name != unstable.name) binds-unstable) binds-stable))
+                  (map show-bind binds-unstable)
+                  # (forEach binds-for.both or [] (show-bind binds-unstable null))
+                ])}
             '';
           };
       }

@@ -292,16 +292,13 @@ For actions taking properties (named arguments), you can pass an attrset.
 }
 ```
 
-There is also a `binds` attrset available under each of the packages from this flake. It has attributes for each action.
-
-> [!note]
-> Note that although this interface is stable, its location is *not* stable. I've only just implemented this "magic leaf" kind of varargs function. I put it under each package for now, but that may change in the near future.
+There is also a set of functions available under `config.lib.niri.actions`.
 
 Usage is like so:
 
 ```nix
 {
-  programs.niri.settings.binds = with config.programs.niri.package.binds; {
+  programs.niri.settings.binds = with config.lib.niri.actions; {
     "XF86AudioRaiseVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
     "XF86AudioLowerVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
 
@@ -316,75 +313,99 @@ Usage is like so:
 }
 ```
 
-These are the available actions:
+Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the *real* acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
 
-- `center-column`
+For actions that don't take any arguments, just use the corresponding attribute from `config.lib.niri.actions`. They are listed as `action-name`. For actions that *do* take arguments, they are notated like so: `λ action-name :: <args>`, to clarify that they "should" be used as functions. Hopefully, `<args>` will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
+
+- `size-change`: This is a special argument type used for some actions by niri. It's a string. \
+  It can take either a fixed size as an integer number of logical pixels (`"480"`, `"1200"`) or a proportion of your screen as a percentage (`"30%"`, `"70%"`) \
+  Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
+  Relative size changes are written with a `+`/`-` prefix, and absolute size changes have no prefix.
+
+- `{ field :: type }`: This means that the action takes a named argument (in kdl, we call it a property). \
+  To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
+  Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above).
+
+- `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
+  `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
+
+> [!tip]
+> You can use partial application to create a spawn command with full support for shell syntax:
+> ```nix
+> {
+>   programs.niri.settings.binds = with config.lib.niri.actions; let
+>     sh = spawn "sh" "-c";
+>   in {
+>     "Print" = sh ''grim -g "$(slurp)" - | wl-copy'';
+>   };
+> }
+> ```
+
+- `λ quit :: { skip-confirmation :: bool }`
+- `suspend`
+- `power-off-monitors`
+- `toggle-debug-tint`
+- `λ spawn :: [string]`
+- `screenshot`
+- `screenshot-screen`
+- `screenshot-window`
 - `close-window`
-- `consume-or-expel-window-left`
-- `consume-or-expel-window-right`
-- `consume-window-into-column`
-- `expel-window-from-column`
-- `focus-column-first`
-- `focus-column-last`
+- `fullscreen-window`
 - `focus-column-left`
 - `focus-column-right`
-- `focus-monitor-down`
-- `focus-monitor-left`
-- `focus-monitor-right`
-- `focus-monitor-up`
+- `focus-column-first`
+- `focus-column-last`
 - `focus-window-down`
+- `focus-window-up`
 - `focus-window-or-workspace-down`
 - `focus-window-or-workspace-up`
-- `focus-window-up`
-- `focus-workspace`
-- `focus-workspace-down`
-- `focus-workspace-up`
-- `fullscreen-window`
-- `maximize-column`
 - `move-column-left`
 - `move-column-right`
 - `move-column-to-first`
 - `move-column-to-last`
-- `move-column-to-monitor-down`
-- `move-column-to-monitor-left`
-- `move-column-to-monitor-right`
-- `move-column-to-monitor-up`
-- `move-column-to-workspace`
-- `move-column-to-workspace-down`
-- `move-column-to-workspace-up`
 - `move-window-down`
+- `move-window-up`
 - `move-window-down-or-to-workspace-down`
-- `move-window-to-monitor-down`
-- `move-window-to-monitor-left`
-- `move-window-to-monitor-right`
-- `move-window-to-monitor-up`
-- `move-window-to-workspace`
+- `move-window-up-or-to-workspace-up`
+- `consume-or-expel-window-left`
+- `consume-or-expel-window-right`
+- `consume-window-into-column`
+- `expel-window-from-column`
+- `center-column`
+- `focus-workspace-down`
+- `focus-workspace-up`
+- `λ focus-workspace :: u8`
+- `focus-workspace-previous` (only on niri-unstable)
 - `move-window-to-workspace-down`
 - `move-window-to-workspace-up`
-- `move-window-up`
-- `move-window-up-or-to-workspace-up`
+- `λ move-window-to-workspace :: u8`
+- `move-column-to-workspace-down`
+- `move-column-to-workspace-up`
+- `λ move-column-to-workspace :: u8`
 - `move-workspace-down`
-- `move-workspace-to-monitor-down`
+- `move-workspace-up`
+- `focus-monitor-left`
+- `focus-monitor-right`
+- `focus-monitor-down`
+- `focus-monitor-up`
+- `move-window-to-monitor-left`
+- `move-window-to-monitor-right`
+- `move-window-to-monitor-down`
+- `move-window-to-monitor-up`
+- `move-column-to-monitor-left`
+- `move-column-to-monitor-right`
+- `move-column-to-monitor-down`
+- `move-column-to-monitor-up`
+- `λ set-window-height :: size-change`
+- `switch-preset-column-width`
+- `maximize-column`
+- `λ set-column-width :: size-change`
+- `λ switch-layout :: "next" | "prev"`
+- `show-hotkey-overlay`
 - `move-workspace-to-monitor-left`
 - `move-workspace-to-monitor-right`
+- `move-workspace-to-monitor-down`
 - `move-workspace-to-monitor-up`
-- `move-workspace-up`
-- `power-off-monitors`
-- `quit`
-- `screenshot`
-- `screenshot-screen`
-- `screenshot-window`
-- `set-column-width`
-- `set-window-height`
-- `show-hotkey-overlay`
-- `spawn`
-- `suspend`
-- `switch-layout`
-- `switch-preset-column-width`
-- `toggle-debug-tint`
-- `focus-workspace-previous` (only on `niri-unstable`)
-
-No distinction is made between actions that take arguments and those that don't. Their usages are the exact same.
 
 
 <!-- sorting key: programs.niri.settings.b.screenshot-path -->
