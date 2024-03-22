@@ -6,11 +6,20 @@
 if [[ ! -e .git/rebase-merge/done ]]; then
 
 nix eval --raw "git+file:.?ref=HEAD#__docs" > docs.md
+
+# GitHub Actions doesn't seem to have a HEAD ref (???)
+if [ $? -ne 0 ]; then
+echo "git didn't like the HEAD i gave it; falling back to working directory" >&2
+nix eval --raw .#__docs > docs.md
+fi
+
 git diff --quiet docs.md
 if [ $? -ne 0 ]; then
 
 git add docs.md
 git commit --no-verify --amend --no-edit
+
+# restore the docs from the working directory if you commit with unstaged changes
 nix eval --no-warn-dirty --raw .#__docs > docs.md
 
 fi
