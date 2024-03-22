@@ -47,11 +47,11 @@ jobs:
         if: ${{ steps.update.outputs.pull-request-number }}
 
       - name: Amend commit with human committer; ensure CI will run
-        run: git commit --amend --no-edit'
+        run: git commit --amend --no-edit
         if: ${{ steps.update.outputs.pull-request-number }}
       - name: Update docs via post-commit
-        run: bash ./post-commit'
+        run: bash ./post-commit
         if: ${{ steps.update.outputs.pull-request-number }}
       - name: Force push changes to CI branch
-        run: git push origin update_flake_lock_action --force'
+        run: git push origin update_flake_lock_action --force
         if: ${{ steps.update.outputs.pull-request-number }}
