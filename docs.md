@@ -254,7 +254,7 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 
 <!-- sorting key: programs.niri.settings.a.binds -->
 ## `programs.niri.settings.binds`
-- type: `attribute set of (string or kdl leaf)`
+- type: `attribute set of niri action`
 
 Keybindings for niri.
 
@@ -903,7 +903,10 @@ The name of the xcursor theme to use.
 This will also set the XCURSOR_THEME environment variable for all spawned processes.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border -->
+<!-- sorting key: programs.niri.settings.i.layout -->
+<!-- programs.niri.settings.layout -->
+
+<!-- sorting key: programs.niri.settings.i.layout.a.border -->
 ## `programs.niri.settings.layout.border`
 
 
@@ -914,9 +917,25 @@ The currently focused window, i.e. the window that can receive keyboard input, w
 If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active -->
+<!-- sorting key: programs.niri.settings.i.layout.a.border.a.enable -->
+## `programs.niri.settings.layout.border.enable`
+- type: `boolean`
+- default: `false`
+
+Whether to enable the border.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.a.border.a.width -->
+## `programs.niri.settings.layout.border.width`
+- type: `signed integer`
+- default: `4`
+
+The width of the border drawn around each window.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.a.border.b.active -->
 ## `programs.niri.settings.layout.border.active`
-- type: `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default:
   ```nix
   {
@@ -928,95 +947,9 @@ If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled
 The color of the border for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.active.color -->
-## `programs.niri.settings.layout.border.active.color`
-- type: `string`
-
-A solid color to use for the decoration.
-
-This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
-
-The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient -->
-## `programs.niri.settings.layout.border.active.gradient`
-- type: `gradient`
-
-A linear gradient to use for the decoration.
-
-This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.angle -->
-## `programs.niri.settings.layout.border.active.gradient.angle`
-- type: `signed integer`
-- default: `180`
-
-The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
-
-This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.from -->
-## `programs.niri.settings.layout.border.active.gradient.from`
-- type: `string`
-
-The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-For more details, see [`layout.border.active.color`](#programsnirisettingslayoutborderactivecolor).
-
-
-<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.relative-to -->
-## `programs.niri.settings.layout.border.active.gradient.relative-to`
-- type: `one of "window", "workspace-view"`
-- default: `"window"`
-
-The rectangle that this gradient is contained within.
-
-If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
-
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
-a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
-the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
-the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
-the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
-](assets/relative-to-window.png 'behaviour of relative-to="window"')
-
-If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
-
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
-a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
-it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
-the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
-the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
-](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
-
-these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
-
-
-<!-- sorting key: programs.niri.settings.i.layout.border.active.gradient.to -->
-## `programs.niri.settings.layout.border.active.gradient.to`
-- type: `string`
-
-The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-For more details, see [`layout.border.active.color`](#programsnirisettingslayoutborderactivecolor).
-
-
-<!-- sorting key: programs.niri.settings.i.layout.border.enable -->
-## `programs.niri.settings.layout.border.enable`
-- type: `boolean`
-- default: `false`
-
-Whether to enable the border.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive -->
+<!-- sorting key: programs.niri.settings.i.layout.a.border.b.inactive -->
 ## `programs.niri.settings.layout.border.inactive`
-- type: `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default:
   ```nix
   {
@@ -1028,8 +961,74 @@ Whether to enable the border.
 The color of the border for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive.color -->
-## `programs.niri.settings.layout.border.inactive.color`
+<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring -->
+## `programs.niri.settings.layout.focus-ring`
+
+
+The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive), and the last focused window on all other monitors will be drawn according to [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive).
+
+If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.a.enable -->
+## `programs.niri.settings.layout.focus-ring.enable`
+- type: `boolean`
+- default: `true`
+
+Whether to enable the focus ring.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.a.width -->
+## `programs.niri.settings.layout.focus-ring.width`
+- type: `signed integer`
+- default: `4`
+
+The width of the focus ring drawn around each focused window.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.b.active -->
+## `programs.niri.settings.layout.focus-ring.active`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgb(127 200 255)";
+  }
+  ```
+
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.b.inactive -->
+## `programs.niri.settings.layout.focus-ring.inactive`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgb(80 80 80)";
+  }
+  ```
+
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.i.layout.b.decoration -->
+## `<decoration>`
+- type: `variant of: color | gradient`
+
+A decoration is drawn around a surface, adding additional elements that are not necessarily part of an application, but are part of what we think of as a "window".
+
+This type specifically represents decorations drawn by niri: that is, [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) and/or [`layout.border`](#programsnirisettingslayoutborder).
+
+
+
+
+<!-- sorting key: programs.niri.settings.i.layout.b.decoration.color -->
+## `<decoration>.color`
 - type: `string`
 
 A solid color to use for the decoration.
@@ -1039,8 +1038,8 @@ This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color
 The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient -->
-## `programs.niri.settings.layout.border.inactive.gradient`
+<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient -->
+## `<decoration>.gradient`
 - type: `gradient`
 
 A linear gradient to use for the decoration.
@@ -1048,8 +1047,8 @@ A linear gradient to use for the decoration.
 This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.angle -->
-## `programs.niri.settings.layout.border.inactive.gradient.angle`
+<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.angle -->
+## `<decoration>.gradient.angle`
 - type: `signed integer`
 - default: `180`
 
@@ -1058,17 +1057,17 @@ The angle of the gradient, in degrees, measured clockwise from a gradient that s
 This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.from -->
-## `programs.niri.settings.layout.border.inactive.gradient.from`
+<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.from -->
+## `<decoration>.gradient.from`
 - type: `string`
 
 The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
 
-For more details, see [`layout.border.inactive.color`](#programsnirisettingslayoutborderinactivecolor).
+For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.relative-to -->
-## `programs.niri.settings.layout.border.inactive.gradient.relative-to`
+<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.relative-to -->
+## `<decoration>.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
 
@@ -1097,24 +1096,16 @@ the bottom edge of the big window is almost entirely yellow, and the top edge of
 these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.inactive.gradient.to -->
-## `programs.niri.settings.layout.border.inactive.gradient.to`
+<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.to -->
+## `<decoration>.gradient.to`
 - type: `string`
 
 The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
 
-For more details, see [`layout.border.inactive.color`](#programsnirisettingslayoutborderinactivecolor).
+For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.i.layout.border.width -->
-## `programs.niri.settings.layout.border.width`
-- type: `signed integer`
-- default: `4`
-
-The width of the border drawn around each window.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.center-focused-column -->
+<!-- sorting key: programs.niri.settings.i.layout.c.center-focused-column -->
 ## `programs.niri.settings.layout.center-focused-column`
 - type: `one of "never", "always", "on-overflow"`
 - default: `"never"`
@@ -1126,7 +1117,7 @@ When changing focus, niri can automatically center the focused column.
 - `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.default-column-width -->
+<!-- sorting key: programs.niri.settings.i.layout.c.default-column-width -->
 ## `programs.niri.settings.layout.default-column-width`
 - type: `{} or (variant of: fixed | proportion)`
 
@@ -1139,232 +1130,21 @@ See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-wid
 You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
-<!-- sorting key: programs.niri.settings.i.layout.default-column-width.fixed -->
+<!-- sorting key: programs.niri.settings.i.layout.c.default-column-width.fixed -->
 ## `programs.niri.settings.layout.default-column-width.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.i.layout.default-column-width.proportion -->
+<!-- sorting key: programs.niri.settings.i.layout.c.default-column-width.proportion -->
 ## `programs.niri.settings.layout.default-column-width.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring -->
-## `programs.niri.settings.layout.focus-ring`
-
-
-The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
-
-The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive), and the last focused window on all other monitors will be drawn according to [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive).
-
-If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active -->
-## `programs.niri.settings.layout.focus-ring.active`
-- type: `variant of: color | gradient`
-- default:
-  ```nix
-  {
-    color = "rgb(127 200 255)";
-  }
-  ```
-
-
-The color of the focus ring for the window that has keyboard focus.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.color -->
-## `programs.niri.settings.layout.focus-ring.active.color`
-- type: `string`
-
-A solid color to use for the decoration.
-
-This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
-
-The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient -->
-## `programs.niri.settings.layout.focus-ring.active.gradient`
-- type: `gradient`
-
-A linear gradient to use for the decoration.
-
-This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.angle -->
-## `programs.niri.settings.layout.focus-ring.active.gradient.angle`
-- type: `signed integer`
-- default: `180`
-
-The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
-
-This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.from -->
-## `programs.niri.settings.layout.focus-ring.active.gradient.from`
-- type: `string`
-
-The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-For more details, see [`layout.focus-ring.active.color`](#programsnirisettingslayoutfocus-ringactivecolor).
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.relative-to -->
-## `programs.niri.settings.layout.focus-ring.active.gradient.relative-to`
-- type: `one of "window", "workspace-view"`
-- default: `"window"`
-
-The rectangle that this gradient is contained within.
-
-If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
-
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
-a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
-the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
-the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
-the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
-](assets/relative-to-window.png 'behaviour of relative-to="window"')
-
-If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
-
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
-a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
-it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
-the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
-the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
-](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
-
-these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.active.gradient.to -->
-## `programs.niri.settings.layout.focus-ring.active.gradient.to`
-- type: `string`
-
-The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-For more details, see [`layout.focus-ring.active.color`](#programsnirisettingslayoutfocus-ringactivecolor).
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.enable -->
-## `programs.niri.settings.layout.focus-ring.enable`
-- type: `boolean`
-- default: `true`
-
-Whether to enable the focus ring.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive -->
-## `programs.niri.settings.layout.focus-ring.inactive`
-- type: `variant of: color | gradient`
-- default:
-  ```nix
-  {
-    color = "rgb(80 80 80)";
-  }
-  ```
-
-
-The color of the focus ring for windows that do not have keyboard focus.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.color -->
-## `programs.niri.settings.layout.focus-ring.inactive.color`
-- type: `string`
-
-A solid color to use for the decoration.
-
-This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
-
-The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient -->
-## `programs.niri.settings.layout.focus-ring.inactive.gradient`
-- type: `gradient`
-
-A linear gradient to use for the decoration.
-
-This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.angle -->
-## `programs.niri.settings.layout.focus-ring.inactive.gradient.angle`
-- type: `signed integer`
-- default: `180`
-
-The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
-
-This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.from -->
-## `programs.niri.settings.layout.focus-ring.inactive.gradient.from`
-- type: `string`
-
-The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-For more details, see [`layout.focus-ring.inactive.color`](#programsnirisettingslayoutfocus-ringinactivecolor).
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.relative-to -->
-## `programs.niri.settings.layout.focus-ring.inactive.gradient.relative-to`
-- type: `one of "window", "workspace-view"`
-- default: `"window"`
-
-The rectangle that this gradient is contained within.
-
-If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
-
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
-a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
-the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
-the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
-the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
-](assets/relative-to-window.png 'behaviour of relative-to="window"')
-
-If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
-
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
-a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
-it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
-the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
-the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
-](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
-
-these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.inactive.gradient.to -->
-## `programs.niri.settings.layout.focus-ring.inactive.gradient.to`
-- type: `string`
-
-The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-For more details, see [`layout.focus-ring.inactive.color`](#programsnirisettingslayoutfocus-ringinactivecolor).
-
-
-<!-- sorting key: programs.niri.settings.i.layout.focus-ring.width -->
-## `programs.niri.settings.layout.focus-ring.width`
-- type: `signed integer`
-- default: `4`
-
-The width of the focus ring drawn around each focused window.
-
-
-<!-- sorting key: programs.niri.settings.i.layout.gaps -->
+<!-- sorting key: programs.niri.settings.i.layout.c.gaps -->
 ## `programs.niri.settings.layout.gaps`
 - type: `signed integer`
 - default: `16`
@@ -1372,7 +1152,7 @@ The width of the focus ring drawn around each focused window.
 The gap between windows in the layout, measured in logical pixels.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.preset-column-widths -->
+<!-- sorting key: programs.niri.settings.i.layout.c.preset-column-widths -->
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of variant of: fixed | proportion`
 
@@ -1395,21 +1175,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.i.layout.preset-column-widths.fixed -->
+<!-- sorting key: programs.niri.settings.i.layout.c.preset-column-widths.fixed -->
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.i.layout.preset-column-widths.proportion -->
+<!-- sorting key: programs.niri.settings.i.layout.c.preset-column-widths.proportion -->
 ## `programs.niri.settings.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.i.layout.struts -->
+<!-- sorting key: programs.niri.settings.i.layout.c.struts -->
 ## `programs.niri.settings.layout.struts`
 
 
@@ -1422,25 +1202,25 @@ Struts are computed in addition to layer-shell surfaces. If you have a waybar of
 The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
 
 
-<!-- sorting key: programs.niri.settings.i.layout.struts.bottom -->
+<!-- sorting key: programs.niri.settings.i.layout.c.struts.bottom -->
 ## `programs.niri.settings.layout.struts.bottom`
 - type: `signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.struts.left -->
+<!-- sorting key: programs.niri.settings.i.layout.c.struts.left -->
 ## `programs.niri.settings.layout.struts.left`
 - type: `signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.struts.right -->
+<!-- sorting key: programs.niri.settings.i.layout.c.struts.right -->
 ## `programs.niri.settings.layout.struts.right`
 - type: `signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.struts.top -->
+<!-- sorting key: programs.niri.settings.i.layout.c.struts.top -->
 ## `programs.niri.settings.layout.struts.top`
 - type: `signed integer`
 - default: `0`
@@ -1461,45 +1241,9 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `1.000000`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.<name> -->
-## `programs.niri.settings.animations.<name>`
-- type: `animation`, which is a `variant of: easing | spring`
-
-
-<!-- sorting key: programs.niri.settings.j.animations.b.<name>.easing -->
-<!-- programs.niri.settings.animations.<name>.easing -->
-
-<!-- sorting key: programs.niri.settings.j.animations.b.<name>.easing.curve -->
-## `programs.niri.settings.animations.<name>.easing.curve`
-- type: `one of "ease-out-cubic", "ease-out-expo"`
-
-
-<!-- sorting key: programs.niri.settings.j.animations.b.<name>.easing.duration-ms -->
-## `programs.niri.settings.animations.<name>.easing.duration-ms`
-- type: `signed integer`
-
-
-<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring -->
-<!-- programs.niri.settings.animations.<name>.spring -->
-
-<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring.damping-ratio -->
-## `programs.niri.settings.animations.<name>.spring.damping-ratio`
-- type: `floating point number`
-
-
-<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring.epsilon -->
-## `programs.niri.settings.animations.<name>.spring.epsilon`
-- type: `floating point number`
-
-
-<!-- sorting key: programs.niri.settings.j.animations.b.<name>.spring.stiffness -->
-## `programs.niri.settings.animations.<name>.spring.stiffness`
-- type: `signed integer`
-
-
-<!-- sorting key: programs.niri.settings.j.animations.c.config-notification-open-close -->
+<!-- sorting key: programs.niri.settings.j.animations.b.config-notification-open-close -->
 ## `programs.niri.settings.animations.config-notification-open-close`
-- type: `null or animation`
+- type: `null or `[`<animation>`](#animation)
 - default:
   ```nix
   {
@@ -1513,9 +1257,9 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.horizontal-view-movement -->
+<!-- sorting key: programs.niri.settings.j.animations.b.horizontal-view-movement -->
 ## `programs.niri.settings.animations.horizontal-view-movement`
-- type: `null or animation`
+- type: `null or `[`<animation>`](#animation)
 - default:
   ```nix
   {
@@ -1529,9 +1273,9 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.window-open -->
+<!-- sorting key: programs.niri.settings.j.animations.b.window-open -->
 ## `programs.niri.settings.animations.window-open`
-- type: `null or animation`
+- type: `null or `[`<animation>`](#animation)
 - default:
   ```nix
   {
@@ -1544,9 +1288,9 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.workspace-switch -->
+<!-- sorting key: programs.niri.settings.j.animations.b.workspace-switch -->
 ## `programs.niri.settings.animations.workspace-switch`
-- type: `null or animation`
+- type: `null or `[`<animation>`](#animation)
 - default:
   ```nix
   {
@@ -1558,6 +1302,42 @@ The left and right structs work in a similar way, except the padded space is not
   }
   ```
 
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation> -->
+## `<animation>`
+- type: `variant of: easing | spring`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing -->
+<!-- <animation>.easing -->
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing.curve -->
+## `<animation>.easing.curve`
+- type: `one of "ease-out-cubic", "ease-out-expo"`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing.duration-ms -->
+## `<animation>.easing.duration-ms`
+- type: `signed integer`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring -->
+<!-- <animation>.spring -->
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring.damping-ratio -->
+## `<animation>.spring.damping-ratio`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring.epsilon -->
+## `<animation>.spring.epsilon`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring.stiffness -->
+## `<animation>.spring.stiffness`
+- type: `signed integer`
 
 
 <!-- sorting key: programs.niri.settings.k.environment -->

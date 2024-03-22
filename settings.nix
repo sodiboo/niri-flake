@@ -16,7 +16,7 @@ with docs.lib; rec {
 
     record = opts: let
       base = submodule (
-        if opts ? options && opts ? config
+        if builtins.isFunction opts || (opts ? options && opts ? config)
         then opts
         else {options = opts;}
       );
@@ -146,6 +146,27 @@ with docs.lib; rec {
 
     default-width = emptyOr preset-width;
 
+    link-type = name:
+      mkOptionType {
+        name = "shorthand";
+        description = name;
+        descriptionClass = "noun";
+      };
+    plain-type = description:
+      mkOptionType
+      {
+        name = "plain";
+        inherit description;
+        descriptionClass = "noun";
+      };
+    newtype = display: inner:
+      mkOptionType {
+        name = "newtype";
+        inherit (display) description descriptionClass;
+        inherit (inner) check merge getSubOptions;
+        nestedTypes = {inherit display inner;};
+      };
+
     # niri seems to have deprecated this way of defining colors; so we won't support it
     # color-array = mkOptionType {
     #   name = "color";
@@ -155,7 +176,7 @@ with docs.lib; rec {
     # };
 
     gradient = path:
-      record {
+      newtype (plain-type "gradient") (record {
         from =
           required types.str
           // {
@@ -212,11 +233,7 @@ with docs.lib; rec {
               these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
             '';
           };
-      }
-      // {
-        description = "gradient";
-        descriptionClass = "noun";
-      };
+      });
 
     decoration = path:
       variant {
@@ -250,8 +267,8 @@ with docs.lib; rec {
       window,
       description,
     }:
-      make-section (submodule ({config, ...}: {
-        options = {
+      ordered-section [
+        {
           enable =
             optional types.bool enable-by-default
             // {
@@ -266,20 +283,27 @@ with docs.lib; rec {
                 The width of the ${name} drawn around each ${window}.
               '';
             };
+        }
+
+        {
           active =
-            optional (decoration "${path}.active") {color = default-active-color;}
+            optional (newtype (link-type "decoration") (decoration "${path}.active")) {color = default-active-color;}
             // {
+              visible = "shallow";
               description = ''
                 The color of the ${name} for the window that has keyboard focus.
               '';
             };
           inactive =
-            optional (decoration "${path}.inactive") {color = "rgb(80 80 80)";}
+            optional (newtype (link-type "decoration") (decoration "${path}.inactive")) {color = "rgb(80 80 80)";}
             // {
+              visible = "shallow";
               description = ''
                 The color of the ${name} for windows that do not have keyboard focus.
               '';
             };
+        }
+        {
           active-color =
             nullable types.str
             // {
@@ -300,33 +324,30 @@ with docs.lib; rec {
             // {
               visible = false;
             };
-        };
-
-        config = mkMerge (concatMap (state: let
-          color = "${state}-color";
-          gradient = "${state}-gradient";
-        in [
-          (mkIf (config.${gradient} != null) {
-            ${state}.gradient = config.${gradient};
-          })
-          (mkIf (config.${color} != null && config.${gradient} == null) {
-            ${state}.color = config.${color};
-          })
-        ]) ["active" "inactive"]);
-      }))
+        }
+        {
+          __config = cfg:
+            mkMerge (concatMap (state: let
+              color = "${state}-color";
+              gradient = "${state}-gradient";
+            in [
+              (mkIf (cfg.${gradient} != null) {
+                ${state}.gradient = cfg.${gradient};
+              })
+              (mkIf (cfg.${color} != null && cfg.${gradient} == null) {
+                ${state}.color = cfg.${color};
+              })
+            ]) ["active" "inactive"]);
+        }
+      ]
       // {
         inherit description;
       };
 
-    match =
-      record {
-        app-id = nullable types.str;
-        title = nullable types.str;
-      }
-      // {
-        description = "match rule";
-        descriptionClass = "noun";
-      };
+    match = newtype (plain-type "match rule") (record {
+      app-id = nullable types.str;
+      title = nullable types.str;
+    });
 
     alphabetize = sections:
       mergeAttrsList (imap0 (i: section: {
@@ -335,19 +356,40 @@ with docs.lib; rec {
         sections);
 
     ordered-record = sections: let
+      grouped = groupBy (s:
+        if s ? __config
+        then "config"
+        else "options")
+      sections;
+
+      options' = grouped.options or [];
+      config' = map (getAttr "__config") grouped.config or [];
+
       normalize = map (flip removeAttrs ["__docs-only"]);
-      real-sections-flat = pipe sections [
+      real-sections-flat = pipe options' [
         (filter (s: !(s.__docs-only or false)))
         normalize
         mergeAttrsList
       ];
-      ord-sections = pipe sections [
+      ord-sections = pipe options' [
         normalize
         alphabetize
       ];
     in
       mkOptionType {
-        inherit (record real-sections-flat) name description check merge nestedTypes;
+        inherit
+          (record (
+            {config, ...}: {
+              options = real-sections-flat;
+              config = mkMerge (map (f: f config) config');
+            }
+          ))
+          name
+          description
+          check
+          merge
+          nestedTypes
+          ;
         getSubOptions = loc: mapAttrs (section: opts: (record opts).getSubOptions loc) ord-sections;
       };
 
@@ -359,7 +401,7 @@ with docs.lib; rec {
     settings = ordered-record [
       {
         binds =
-          attrs (either types.str kdl.types.kdl-leaf)
+          attrs (newtype (plain-type "niri action") (either types.str kdl.types.kdl-leaf))
           // {
             description = ''
               Keybindings for niri.
@@ -867,109 +909,128 @@ with docs.lib; rec {
       }
 
       {
-        layout = {
-          focus-ring = borderish {
-            enable-by-default = true;
-            default-active-color = "rgb(127 200 255)";
-            path = "programs.niri.settings.layout.focus-ring";
-            name = "focus ring";
-            window = "focused window";
-            description = ''
-              The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
-
-              The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.active"}, and the last focused window on all other monitors will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.inactive"}.
-
-              If you have ${link' "programs.niri.settings.layout.border"} enabled, the focus ring will be drawn around (and under) the border.
-            '';
-          };
-
-          border = borderish {
-            enable-by-default = false;
-            default-active-color = "rgb(255 200 127)";
-            path = "programs.niri.settings.layout.border";
-            name = "border";
-            window = "window";
-            description = ''
-              The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
-
-              The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.border.active"}, and all other windows will be drawn according to ${link' "programs.niri.settings.layout.border.inactive"}.
-
-              If you have ${link' "programs.niri.settings.layout.focus-ring"} enabled, the border will be drawn inside (and over) the focus ring.
-            '';
-          };
-          preset-column-widths =
-            list preset-width
-            // {
+        layout = ordered-section [
+          {
+            focus-ring = borderish {
+              enable-by-default = true;
+              default-active-color = "rgb(127 200 255)";
+              path = "programs.niri.settings.layout.focus-ring";
+              name = "focus ring";
+              window = "focused window";
               description = ''
-                The widths that `switch-preset-column-width` will cycle through.
+                The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
 
-                Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+                The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.active"}, and the last focused window on all other monitors will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.inactive"}.
 
-                Example:
-
-                ```nix
-                {
-                  programs.niri.settings.layout.preset-coumn-widths = [
-                    { proportion = 1./3.; }
-                    { proportion = 1./2.; }
-                    { proportion = 2./3.; }
-
-                    # { fixed = 1920; }
-                  ];
-                }
-                ```
+                If you have ${link' "programs.niri.settings.layout.border"} enabled, the focus ring will be drawn around (and under) the border.
               '';
             };
-          default-column-width =
-            optional default-width {}
-            // {
+
+            border = borderish {
+              enable-by-default = false;
+              default-active-color = "rgb(255 200 127)";
+              path = "programs.niri.settings.layout.border";
+              name = "border";
+              window = "window";
               description = ''
-                The default width for new columns.
+                The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
 
-                When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+                The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.border.active"}, and all other windows will be drawn according to ${link' "programs.niri.settings.layout.border.inactive"}.
 
-                See ${link' "programs.niri.settings.layout.preset-column-widths"} for more information.
-
-                You can override this for specific windows using ${link' "programs.niri.settings.window-rules.*.default-column-width"}
+                If you have ${link' "programs.niri.settings.layout.focus-ring"} enabled, the border will be drawn inside (and over) the focus ring.
               '';
             };
-          center-focused-column =
-            optional (enum ["never" "always" "on-overflow"]) "never"
-            // {
-              description = ''
-                When changing focus, niri can automatically center the focused column.
+          }
+          {
+            __docs-only = true;
+            decoration =
+              required (decoration "<decoration>")
+              // {
+                override-loc = const ["<decoration>"];
+                description = ''
+                  A decoration is drawn around a surface, adding additional elements that are not necessarily part of an application, but are part of what we think of as a "window".
 
-                - `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
-                - `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
-                - `"always"`: the focused column will always be centered, even if it was already fully visible.
-              '';
-            };
-          gaps =
-            optional types.int 16
-            // {
-              description = ''
-                The gap between windows in the layout, measured in logical pixels.
-              '';
-            };
-          struts =
-            section {
-              left = optional types.int 0;
-              right = optional types.int 0;
-              top = optional types.int 0;
-              bottom = optional types.int 0;
-            }
-            // {
-              description = ''
-                The distances from the edges of the screen to the eges of the working area.
+                  This type specifically represents decorations drawn by niri: that is, ${link' "programs.niri.settings.layout.focus-ring"} and/or ${link' "programs.niri.settings.layout.border"}.
 
-                The top and bottom struts are absolute gaps from the edges of the screen. If you set a bottom strut of 64px and the scale is 2.0, then the output will have 128 physical pixels under the scrollable working area where it only shows the wallpaper.
 
-                Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+                '';
+              };
+          }
+          {
+            preset-column-widths =
+              list preset-width
+              // {
+                description = ''
+                  The widths that `switch-preset-column-width` will cycle through.
 
-                The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
-              '';
-            };
-        };
+                  Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+
+                  Example:
+
+                  ```nix
+                  {
+                    programs.niri.settings.layout.preset-coumn-widths = [
+                      { proportion = 1./3.; }
+                      { proportion = 1./2.; }
+                      { proportion = 2./3.; }
+
+                      # { fixed = 1920; }
+                    ];
+                  }
+                  ```
+                '';
+              };
+            default-column-width =
+              optional default-width {}
+              // {
+                description = ''
+                  The default width for new columns.
+
+                  When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+
+                  See ${link' "programs.niri.settings.layout.preset-column-widths"} for more information.
+
+                  You can override this for specific windows using ${link' "programs.niri.settings.window-rules.*.default-column-width"}
+                '';
+              };
+            center-focused-column =
+              optional (enum ["never" "always" "on-overflow"]) "never"
+              // {
+                description = ''
+                  When changing focus, niri can automatically center the focused column.
+
+                  - `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+                  - `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+                  - `"always"`: the focused column will always be centered, even if it was already fully visible.
+                '';
+              };
+            gaps =
+              optional types.int 16
+              // {
+                description = ''
+                  The gap between windows in the layout, measured in logical pixels.
+                '';
+              };
+            struts =
+              section {
+                left = optional types.int 0;
+                right = optional types.int 0;
+                top = optional types.int 0;
+                bottom = optional types.int 0;
+              }
+              // {
+                description = ''
+                  The distances from the edges of the screen to the eges of the working area.
+
+                  The top and bottom struts are absolute gaps from the edges of the screen. If you set a bottom strut of 64px and the scale is 2.0, then the output will have 128 physical pixels under the scrollable working area where it only shows the wallpaper.
+
+                  Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+                  The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
+                '';
+              };
+          }
+        ];
       }
 
       {
@@ -1013,27 +1074,15 @@ with docs.lib; rec {
               enable = optional types.bool true;
               slowdown = optional types.float 1.0;
             }
+            (mapAttrs (const (v: optional (nullOr (newtype (link-type "animation") animation)) v // {visible = "shallow";})) defaults)
             {
               __docs-only = true;
-              "<name>" = required (animation
+              "<animation>" =
+                required animation
                 // {
-                  description = "animation";
-                  nestedTypes.newtype-inner = animation;
-                });
+                  override-loc = const ["<animation>"];
+                };
             }
-            (mapAttrs (const (
-                v:
-                  optional (nullOr (animation
-                    // {
-                      description = "animation";
-                      descriptionClass = "noun";
-                    }))
-                  v
-                  // {
-                    visible = "shallow";
-                  }
-              ))
-              defaults)
           ];
       }
 

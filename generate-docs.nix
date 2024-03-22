@@ -1,5 +1,6 @@
 {lib, ...}:
 with lib; let
+  showOption = concatStringsSep ".";
   match = name: cases: cases.${name} or cases._;
   indent = entries: "${pipe entries [
     toList
@@ -47,7 +48,7 @@ with lib; let
 
   traverse = path: v: (
     if (v ? _type && v._type == "option")
-    then (optionalAttrs (v.visible or true != false) (describe path v)) // (optionalAttrs (v.visible or true == true) (traverse path (v.type.getSubOptions v.loc)))
+    then let v' = v // {loc = v.override-loc or id v.loc;}; in (optionalAttrs (v.visible or true != false) (describe path v')) // (optionalAttrs (v.visible or true == true) (traverse path (v.type.getSubOptions v'.loc)))
     else concatMapAttrs (name: traverse (path ++ [name])) (filterAttrs (name: const (name != "_module")) v)
   );
 
@@ -126,6 +127,36 @@ with lib; let
       - default:
       ${indent (delimit "```nix" text "```")}
     '';
+
+  nested-newtype = type:
+    if type == null then null else
+    if type.name == "newtype"
+    then type
+    else
+      nested-newtype (
+        type.nestedTypes.elemType or null
+      );
+
+  describe-type = type:
+    match type.name {
+      newtype = let
+        display' = describe-type type.nestedTypes.display;
+        inner' = describe-type type.nestedTypes.inner;
+      in
+        display' + optionalString (inner' != null) ", which is a ${inner'}";
+      shorthand = link' "<${type.description}>";
+      _ = match type.description {
+        submodule = null;
+        _ = let
+          type' = nested-newtype type;
+          desc = "`${type.description}`";
+        in
+          if type' != null && type'.nestedTypes.display.name == "shorthand"
+          then trace type'.nestedTypes.display.description replaceStrings ["``"] [""] (replaceStrings [type'.nestedTypes.display.description] ["`${describe-type type'.nestedTypes.display}`"] desc)
+          else desc;
+      };
+    };
+
   make-docs = flip pipe [
     types.submodule
     (m: m.getSubOptions [])
@@ -141,8 +172,9 @@ with lib; let
           else
             (concatStringsSep "\n" (
               remove null [
-                "## `${showOption opt.loc}`"
-                (optionalString (opt.type.description != "submodule") "- type: `${opt.type.description}`${optionalString (opt.type ? nestedTypes.newtype-inner) ", which is a `${opt.type.nestedTypes.newtype-inner.description}`"}")
+                "## ${opt.override-header or "`${showOption opt.loc}`"}"
+                (optionalString (opt.type.description != "submodule")
+                  "- type: ${describe-type opt.type}")
                 (maybe make-default opt.defaultText)
                 ""
                 (maybe id opt.description or null)
