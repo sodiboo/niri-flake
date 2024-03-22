@@ -1,0 +1,57 @@
+name: Update flake.lock
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *' # Hourly. We want it to run frequently.
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v9
+      - uses: cachix/cachix-action@v14
+        with:
+          name: niri
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Update flake.lock
+        id: update
+        uses: DeterminateSystems/update-flake-lock@v20
+        with:
+          commit-msg: "Update flake.lock"
+          pr-title: "Update flake.lock"
+          pr-body: |
+            ```
+            {{ env.GIT_COMMIT_MESSAGE }}
+            ```
+
+            sodiboo will now force-push my branch in order for the cachix action to run. This is also an automated action.
+          pr-labels: |
+            dependencies
+            automated
+
+
+        # This is workaround to force the cachix action to run after the update-flake-lock action.
+        # Normally, it does not occur because the PR is created by github-actions[bot]
+        # But here, we force push it with my own token, so the action runs after a push "by me".
+      - name: Checkout repository as sodiboo
+        if: ${{ steps.update.outputs.pull-request-number }}
+        uses: actions/checkout@v4
+        with:
+            token: '${{ secrets.UPDATE_TOKEN }}'
+            ref: update_flake_lock_action
+      - name: Build niri-unstable ahead of time
+        run: nix-store --query --requisites $(nix-store --query --deriver $(nix build --print-out-paths .#niri-unstable)) | cachix push niri
+        if: ${{ steps.update.outputs.pull-request-number }}
+
+      - name: Amend commit with human committer; ensure CI will run
+        run: git commit --amend --no-edit
+        if: ${{ steps.update.outputs.pull-request-number }}
+      - name: Update docs via post-commit
+        run: bash ./post-commit
+        if: ${{ steps.update.outputs.pull-request-number }}
+      - name: Force push changes to CI branch
+        run: git push origin update_flake_lock_action --force
+        if: ${{ steps.update.outputs.pull-request-number }}
