@@ -41,9 +41,7 @@ jobs:
         uses: actions/checkout@v4
         with:
             token: '${{ secrets.UPDATE_TOKEN }}'
-      - name: Checkout CI branch
-        run: git checkout update_flake_lock_action'
-        if: ${{ steps.update.outputs.pull-request-number }}
+            ref: update_flake_lock_action
       - name: Build niri-unstable ahead of time
         run: nix-store --query --requisites $(nix-store --query --deriver $(nix build --print-out-paths .#niri-unstable)) | cachix push niri
         if: ${{ steps.update.outputs.pull-request-number }}
