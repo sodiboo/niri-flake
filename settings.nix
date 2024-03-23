@@ -1620,8 +1620,8 @@ with docs.lib; rec {
 
         window-rule = cfg:
           plain "window-rule" [
-            (map (leaf "matches") (filter-match cfg.matches))
-            (map (leaf "excludes") (filter-match cfg.excludes))
+            (map (leaf "match") (filter-match cfg.matches))
+            (map (leaf "exclude") (filter-match cfg.excludes))
             (nullable preset-widths "default-column-width" cfg.default-column-width)
             (nullable leaf "open-on-output" cfg.open-on-output)
             (nullable leaf "open-maximized" cfg.open-maximized)
