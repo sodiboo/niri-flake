@@ -1,0 +1,7 @@
+pull_request_rules:
+  - name: "merge when finished building"
+    conditions:
+      - "author=github-actions[bot]"
+    actions:
+      merge:
+        method: rebase
