@@ -344,10 +344,52 @@ with docs.lib; rec {
         inherit description;
       };
 
-    match = newtype (plain-type "match rule") (record {
-      app-id = nullable types.str;
-      title = nullable types.str;
-    });
+    regex = newtype (plain-type "regular expression") types.str;
+
+    match = newtype (plain-type "match rule") (ordered-record [
+      {
+        app-id =
+          nullable regex
+          // {
+            description = ''
+              A regular expression to match against the app id of the window.
+
+              When non-null, for this field to match a window, a client must set the app id of its window and the app id must match this regex.
+            '';
+          };
+        title =
+          nullable regex
+          // {
+            description = ''
+              A regular expression to match against the title of the window.
+
+              When non-null, for this field to match a window, a client must set the title of its window and the title must match this regex.
+            '';
+          };
+      }
+      {
+        is-active =
+          nullable types.bool
+          // {
+            description = ''
+              When non-null, for this field to match a window, the value must match whether the window is active or not.
+
+              Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
+            '';
+          };
+        is-focused =
+          nullable types.bool
+          // {
+            description = ''
+              When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
+
+              A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
+
+              For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
+            '';
+          };
+      }
+    ]);
 
     alphabetize = sections:
       mergeAttrsList (imap0 (i: section: {

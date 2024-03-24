@@ -1424,16 +1424,46 @@ If any of these rules match a window (or there are none), that window rule will 
 If all of the rules do not match a window, then this window rule will not apply to that window.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.app-id -->
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.a.app-id -->
 ## `programs.niri.settings.window-rules.*.matches.*.app-id`
-- type: `null or string`
+- type: `null or regular expression`
 - default: `null`
 
+A regular expression to match against the app id of the window.
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.title -->
+When non-null, for this field to match a window, a client must set the app id of its window and the app id must match this regex.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.a.title -->
 ## `programs.niri.settings.window-rules.*.matches.*.title`
-- type: `null or string`
+- type: `null or regular expression`
 - default: `null`
+
+A regular expression to match against the title of the window.
+
+When non-null, for this field to match a window, a client must set the title of its window and the title must match this regex.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.b.is-active -->
+## `programs.niri.settings.window-rules.*.matches.*.is-active`
+- type: `null or boolean`
+- default: `null`
+
+When non-null, for this field to match a window, the value must match whether the window is active or not.
+
+Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.b.is-focused -->
+## `programs.niri.settings.window-rules.*.matches.*.is-focused`
+- type: `null or boolean`
+- default: `null`
+
+When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
+
+A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
+
+For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.b.excludes -->
@@ -1447,16 +1477,46 @@ If any of these rules match a window, then this window rule will not apply to th
 If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.app-id -->
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.a.app-id -->
 ## `programs.niri.settings.window-rules.*.excludes.*.app-id`
-- type: `null or string`
+- type: `null or regular expression`
 - default: `null`
 
+A regular expression to match against the app id of the window.
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.title -->
+When non-null, for this field to match a window, a client must set the app id of its window and the app id must match this regex.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.a.title -->
 ## `programs.niri.settings.window-rules.*.excludes.*.title`
-- type: `null or string`
+- type: `null or regular expression`
 - default: `null`
+
+A regular expression to match against the title of the window.
+
+When non-null, for this field to match a window, a client must set the title of its window and the title must match this regex.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.b.is-active -->
+## `programs.niri.settings.window-rules.*.excludes.*.is-active`
+- type: `null or boolean`
+- default: `null`
+
+When non-null, for this field to match a window, the value must match whether the window is active or not.
+
+Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.b.is-focused -->
+## `programs.niri.settings.window-rules.*.excludes.*.is-focused`
+- type: `null or boolean`
+- default: `null`
+
+When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
+
+A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
+
+For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width -->
