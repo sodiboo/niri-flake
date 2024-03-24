@@ -372,6 +372,8 @@ with docs.lib; rec {
           nullable types.bool
           // {
             description = ''
+              ${unstable-note}
+
               When non-null, for this field to match a window, the value must match whether the window is active or not.
 
               Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
@@ -381,6 +383,8 @@ with docs.lib; rec {
           nullable types.bool
           // {
             description = ''
+              ${unstable-note}
+
               When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
 
               A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
@@ -448,6 +452,8 @@ with docs.lib; rec {
               nullable types.int
               // {
                 description = ''
+                  ${unstable-note}
+
                   The minimum cooldown before a keybind can be triggered again, in milliseconds.
 
                   This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
@@ -1277,6 +1283,8 @@ with docs.lib; rec {
                   nullable types.bool
                   // {
                     description = ''
+                      ${unstable-note}
+
                       Whether to draw the focus ring and border with a background.
 
                       Normally, for windows with server-side decorations, niri will draw an actual border around them, because it knows they will be rectangular.

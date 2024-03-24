@@ -414,6 +414,14 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - type: `null or signed integer`
 - default: `null`
 
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
 The minimum cooldown before a keybind can be triggered again, in milliseconds.
 
 This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
@@ -1449,6 +1457,14 @@ When non-null, for this field to match a window, a client must set the title of 
 - type: `null or boolean`
 - default: `null`
 
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
 When non-null, for this field to match a window, the value must match whether the window is active or not.
 
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
@@ -1458,6 +1474,14 @@ Every monitor has up to one active window, and `is-active=true` will match the a
 ## `programs.niri.settings.window-rules.*.matches.*.is-focused`
 - type: `null or boolean`
 - default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
 
 When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
 
@@ -1502,6 +1526,14 @@ When non-null, for this field to match a window, a client must set the title of 
 - type: `null or boolean`
 - default: `null`
 
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
 When non-null, for this field to match a window, the value must match whether the window is active or not.
 
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
@@ -1511,6 +1543,14 @@ Every monitor has up to one active window, and `is-active=true` will match the a
 ## `programs.niri.settings.window-rules.*.excludes.*.is-focused`
 - type: `null or boolean`
 - default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
 
 When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
 
@@ -1587,6 +1627,14 @@ If the final value is an output that does not exist, or it is null, then the win
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
 - default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
 
 Whether to draw the focus ring and border with a background.
 
