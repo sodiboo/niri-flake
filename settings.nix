@@ -1298,6 +1298,19 @@ with docs.lib; rec {
                       You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
                     '';
                   };
+                opacity =
+                  nullable types.float
+                  // {
+                    description = ''
+                      ${unstable-note}
+
+                      The opacity of the window, ranging from 0 to 1.
+
+                      If the final value of this field is null, niri will fall back to a value of 1.
+
+                      Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
+                    '';
+                  };
               }
               (let
                 sizing-info = bound: ''
@@ -1718,6 +1731,7 @@ with docs.lib; rec {
             (nullable leaf "open-maximized" cfg.open-maximized)
             (nullable leaf "open-fullscreen" cfg.open-fullscreen)
             (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
+            (nullable leaf "opacity" cfg.opacity)
             (nullable leaf "min-width" cfg.min-width)
             (nullable leaf "max-width" cfg.max-width)
             (nullable leaf "min-height" cfg.min-height)
