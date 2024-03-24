@@ -402,6 +402,15 @@ with docs.lib; rec {
       {
         binds = let
           base = record {
+            cooldown-ms =
+              nullable types.int
+              // {
+                description = ''
+                  The minimum cooldown before a keybind can be triggered again, in milliseconds.
+
+                  This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
+                '';
+              };
             action =
               required (newtype (plain-type "niri action") (kdl.types.kdl-leaf))
               // {
@@ -544,7 +553,9 @@ with docs.lib; rec {
           };
 
           bind = mkOptionType {
-            inherit (base) name description descriptionClass getSubOptions nestedTypes;
+            inherit (base) name getSubOptions nestedTypes;
+            description = "niri keybind";
+            descriptionClass = "noun";
             check = v: isString v || isAttrs v || base.check v;
             merge = loc: defs:
               base.merge loc (map (def:
@@ -1653,12 +1664,11 @@ with docs.lib; rec {
           (nullable leaf "spring" cfg.spring or null)
         ]);
 
-        filter-match = map (filterAttrs (name: value: value != null));
-
+        opt-props = filterAttrs (const (value: value != null));
         window-rule = cfg:
           plain "window-rule" [
-            (map (leaf "match") (filter-match cfg.matches))
-            (map (leaf "exclude") (filter-match cfg.excludes))
+            (map (leaf "match") (map opt-props cfg.matches))
+            (map (leaf "exclude") (map opt-props cfg.excludes))
             (nullable preset-widths "default-column-width" cfg.default-column-width)
             (nullable leaf "open-on-output" cfg.open-on-output)
             (nullable leaf "open-maximized" cfg.open-maximized)
@@ -1688,7 +1698,9 @@ with docs.lib; rec {
           else "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
 
         bind = name: cfg:
-          node name [] [
+          node name (opt-props {
+            inherit (cfg) cooldown-ms;
+          }) [
             (mapAttrsToList leaf cfg.action)
           ];
       in [

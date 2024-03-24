@@ -254,7 +254,7 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 
 <!-- sorting key: programs.niri.settings.a.binds -->
 ## `programs.niri.settings.binds`
-- type: `attribute set of (submodule)`
+- type: `attribute set of niri keybind`
 
 
 <!-- sorting key: programs.niri.settings.a.binds.action -->
@@ -407,6 +407,16 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-workspace-to-monitor-right`
 - `move-workspace-to-monitor-down`
 - `move-workspace-to-monitor-up`
+
+
+<!-- sorting key: programs.niri.settings.a.binds.cooldown-ms -->
+## `programs.niri.settings.binds.<name>.cooldown-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The minimum cooldown before a keybind can be triggered again, in milliseconds.
+
+This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
 
 
 <!-- sorting key: programs.niri.settings.b.screenshot-path -->
