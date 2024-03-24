@@ -152,7 +152,7 @@ with lib; let
           desc = "`${type.description}`";
         in
           if type' != null && type'.nestedTypes.display.name == "shorthand"
-          then trace type'.nestedTypes.display.description replaceStrings ["``"] [""] (replaceStrings [type'.nestedTypes.display.description] ["`${describe-type type'.nestedTypes.display}`"] desc)
+          then replaceStrings ["``"] [""] (replaceStrings [type'.nestedTypes.display.description] ["`${describe-type type'.nestedTypes.display}`"] desc)
           else desc;
       };
     };
