@@ -10,27 +10,48 @@ with lib; let
     (concatStringsSep "\n")
   ]}";
 
-  delimit = start: content: end: concatStringsSep "\n" [start content end];
-  render = v:
-    match (builtins.typeOf v) {
-      string = lib.strings.escapeNixString v;
-      int = toString v;
-      float = toString v;
-      bool =
-        if v
-        then "true"
-        else "false";
-      set =
-        if v == {}
-        then null
-        else delimit "{" (indent (mapAttrsToList (name: val: "${name} = ${render val};") v)) "}";
-      null = "null";
-      list =
-        if v == []
-        then null
-        else delimit "[" (indent (map render v)) "]";
-      _ = "<${(builtins.typeOf v)}>";
-    };
+  delimit-pretty = start: content: end: concatStringsSep "\n" [start content end];
+  delimit-min = start: content: end: concatStrings [start content end];
+  display-value = {
+    pretty ? true,
+    omit-empty-composites ? false,
+  }: let
+    display-value' = display-value {inherit pretty;};
+    indent' =
+      if pretty
+      then indent
+      else id;
+    delimit' =
+      if pretty
+      then delimit-pretty
+      else delimit-min;
+  in
+    v:
+      match (builtins.typeOf v) {
+        string = lib.strings.escapeNixString v;
+        int = toString v;
+        float = toString v;
+        bool =
+          if v
+          then "true"
+          else "false";
+        set =
+          if v == {}
+          then
+            if omit-empty-composites
+            then null
+            else "{}"
+          else delimit' "{" (indent' (mapAttrsToList (name: val: "${name} = ${display-value' val};") v)) "}";
+        null = "null";
+        list =
+          if v == []
+          then
+            if omit-empty-composites
+            then null
+            else "[]"
+          else delimit' "[" (indent' (map display-value' v)) "]";
+        _ = "<${(builtins.typeOf v)}>";
+      };
 
   describe = path: opt: {
     ${showOption path} =
@@ -40,7 +61,7 @@ with lib; let
           opt.defaultText
           or (
             if opt ? default
-            then render opt.default
+            then display-value {omit-empty-composites = true;} opt.default
             else null
           );
       };
@@ -125,12 +146,13 @@ with lib; let
     then "- default: `${text}`"
     else ''
       - default:
-      ${indent (delimit "```nix" text "```")}
+      ${indent (delimit-pretty "```nix" text "```")}
     '';
 
   nested-newtype = type:
-    if type == null then null else
-    if type.name == "newtype"
+    if type == null
+    then null
+    else if type.name == "newtype"
     then type
     else
       nested-newtype (
