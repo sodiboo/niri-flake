@@ -254,19 +254,20 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 
 <!-- sorting key: programs.niri.settings.a.binds -->
 ## `programs.niri.settings.binds`
-- type: `attribute set of niri action`
+- type: `attribute set of (submodule)`
 
-Keybindings for niri.
 
-This is a mapping of keybindings to "actions".
+<!-- sorting key: programs.niri.settings.a.binds.action -->
+## `programs.niri.settings.binds.<name>.action`
+- type: `niri action`, which is a `kdl leaf`
 
-An action is an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
+An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
 ```nix
 {
   programs.niri.settings.binds = {
-    "XF86AudioRaiseVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
-    "XF86AudioLowerVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
+    "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
+    "XF86AudioLowerVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
   };
 }
 ```
@@ -276,8 +277,8 @@ If there is only a single argument, you can pass it directly. It will be implici
 ```nix
 {
   programs.niri.settings.binds = {
-    "Mod+D".spawn = "fuzzel";
-    "Mod+1".focus-workspace = 1;
+    "Mod+D".action.spawn = "fuzzel";
+    "Mod+1".action.focus-workspace = 1;
   };
 }
 ```
@@ -287,7 +288,7 @@ For actions taking properties (named arguments), you can pass an attrset.
 ```nix
 {
   programs.niri.settings.binds = {
-    "Mod+Shift+E".quit.skip-confirmation = true;
+    "Mod+Shift+E".action.quit.skip-confirmation = true;
   };
 }
 ```
@@ -299,16 +300,16 @@ Usage is like so:
 ```nix
 {
   programs.niri.settings.binds = with config.lib.niri.actions; {
-    "XF86AudioRaiseVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
-    "XF86AudioLowerVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
+    "XF86AudioRaiseVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
+    "XF86AudioLowerVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
 
-    "Mod+D" = spawn "fuzzel";
-    "Mod+1" = focus-workspace 1;
+    "Mod+D".action = spawn "fuzzel";
+    "Mod+1".action = focus-workspace 1;
 
-    "Mod+Shift+E" = quit;
-    "Mod+Ctrl+Shift+E" = quit { skip-confirmation=true; };
+    "Mod+Shift+E".action = quit;
+    "Mod+Ctrl+Shift+E".action = quit { skip-confirmation=true; };
 
-    "Mod+Plus" = set-column-width "+10%";
+    "Mod+Plus".action = set-column-width "+10%";
   }
 }
 ```
@@ -336,7 +337,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 >   programs.niri.settings.binds = with config.lib.niri.actions; let
 >     sh = spawn "sh" "-c";
 >   in {
->     "Print" = sh ''grim -g "$(slurp)" - | wl-copy'';
+>     "Print".action = sh ''grim -g "$(slurp)" - | wl-copy'';
 >   };
 > }
 > ```

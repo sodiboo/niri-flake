@@ -1,4 +1,8 @@
-{lib, ...}:
+{
+  inputs,
+  lib,
+  ...
+}:
 with lib; let
   showOption = concatStringsSep ".";
   match = name: cases: cases.${name} or cases._;
@@ -109,6 +113,8 @@ with lib; let
 
   link-stylix-opt = opt: "[`${opt}`](https://danth.github.io/stylix/options/hm.html#${anchor opt})";
 
+  link-this-github = path: "https://github.com/sodiboo/niri-flake/blob/${inputs.self.rev or "main"}/${path}";
+
   test = pat: str: strings.match pat str != null;
 
   anchor = flip pipe [
@@ -209,6 +215,6 @@ with lib; let
 in {
   inherit make-docs;
   lib = {
-    inherit unstable-note section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link libinput-link libinput-doc link-niri-commit link-niri-release link-stylix-opt;
+    inherit unstable-note section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link libinput-link libinput-doc link-niri-commit link-niri-release link-stylix-opt link-this-github display-value;
   };
 }

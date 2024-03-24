@@ -9,7 +9,7 @@
 with lib;
 with docs.lib; rec {
   module = let
-    inherit (types) nullOr attrsOf listOf submodule enum either;
+    inherit (types) nullOr attrsOf listOf submodule enum;
 
     binds-stable = binds inputs.niri-stable;
     binds-unstable = binds inputs.niri-unstable;
@@ -400,149 +400,186 @@ with docs.lib; rec {
 
     settings = ordered-record [
       {
-        binds =
-          attrs (newtype (plain-type "niri action") (either types.str kdl.types.kdl-leaf))
-          // {
-            description = ''
-              Keybindings for niri.
+        binds = let
+          base = record {
+            action =
+              required (newtype (plain-type "niri action") (kdl.types.kdl-leaf))
+              // {
+                description = ''
+                  An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
-              This is a mapping of keybindings to "actions".
-
-              An action is an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "XF86AudioRaiseVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
-                  "XF86AudioLowerVolume".spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
-                };
-              }
-              ```
-
-              If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "Mod+D".spawn = "fuzzel";
-                  "Mod+1".focus-workspace = 1;
-                };
-              }
-              ```
-
-              For actions taking properties (named arguments), you can pass an attrset.
-
-              ```nix
-              {
-                programs.niri.settings.binds = {
-                  "Mod+Shift+E".quit.skip-confirmation = true;
-                };
-              }
-              ```
-
-              There is also a set of functions available under `config.lib.niri.actions`.
-
-              Usage is like so:
-
-              ```nix
-              {
-                programs.niri.settings.binds = with config.lib.niri.actions; {
-                  "XF86AudioRaiseVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
-                  "XF86AudioLowerVolume" = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
-
-                  "Mod+D" = spawn "fuzzel";
-                  "Mod+1" = focus-workspace 1;
-
-                  "Mod+Shift+E" = quit;
-                  "Mod+Ctrl+Shift+E" = quit { skip-confirmation=true; };
-
-                  "Mod+Plus" = set-column-width "+10%";
-                }
-              }
-              ```
-
-              Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the *real* acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
-
-              For actions that don't take any arguments, just use the corresponding attribute from `config.lib.niri.actions`. They are listed as `action-name`. For actions that *do* take arguments, they are notated like so: `λ action-name :: <args>`, to clarify that they "should" be used as functions. Hopefully, `<args>` will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
-
-              - `size-change`: This is a special argument type used for some actions by niri. It's a string. \
-                It can take either a fixed size as an integer number of logical pixels (`"480"`, `"1200"`) or a proportion of your screen as a percentage (`"30%"`, `"70%"`) \
-                Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
-                Relative size changes are written with a `+`/`-` prefix, and absolute size changes have no prefix.
-
-              - `{ field :: type }`: This means that the action takes a named argument (in kdl, we call it a property). \
-                To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
-                Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above).
-
-              - `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
-                `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
-
-              > [!tip]
-              > You can use partial application to create a spawn command with full support for shell syntax:
-              > ```nix
-              > {
-              >   programs.niri.settings.binds = with config.lib.niri.actions; let
-              >     sh = spawn "sh" "-c";
-              >   in {
-              >     "Print" = sh '''grim -g "$(slurp)" - | wl-copy''';
-              >   };
-              > }
-              > ```
-
-              ${let
-                show-bind = {
-                  name,
-                  params,
-                  ...
-                }: let
-                  is-stable = any (a: a.name == name) binds-stable;
-                  is-unstable = any (a: a.name == name) binds-unstable;
-                  exclusive =
-                    if is-stable && is-unstable
-                    then ""
-                    else if is-stable
-                    then " (only on niri-stable)"
-                    else " (only on niri-unstable)";
-                  type-names = {
-                    LayoutSwitchTarget = ''"next" | "prev"'';
-                    SizeChange = "size-change";
-                    bool = "bool";
-                    u8 = "u8";
-                    String = "string";
-                  };
-
-                  type-or = rust-name: fallback: type-names.${rust-name} or (warn "unhandled type `${rust-name}`" fallback);
-
-                  base = content: "- `${content}`${exclusive}";
-                  lambda = args: base "λ ${name} :: ${args}";
-                in
+                  ```nix
                   {
-                    empty = base "${name}";
-                    arg = lambda (type-or params.type (
-                      if params.as-str
-                      then "string"
-                      else params.type
-                    ));
-                    list = lambda "[${type-or params.type params.type}]";
-                    prop = lambda "{ ${optionalString (!params.use-default) "*"}${params.field} :: ${type-names.${params.type} or (warn "unhandled type `${params.type}`" params.type)} }";
-                    unknown = ''
-                      ${lambda "unknown"}
-
-                        The code that generates this documentation does not know how to parse the definition:
-                        ```rs
-                        ${params.raw-name}(${params.raw})
-                        ```
-                    '';
+                    programs.niri.settings.binds = {
+                      "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
+                      "XF86AudioLowerVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
+                    };
                   }
-                  .${params.kind}
-                  or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
-              in
-                concatStringsSep "\n" (concatLists [
-                  (map show-bind (filter (stable: all (unstable: stable.name != unstable.name) binds-unstable) binds-stable))
-                  (map show-bind binds-unstable)
-                ])}
-            '';
+                  ```
+
+                  If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
+
+                  ```nix
+                  {
+                    programs.niri.settings.binds = {
+                      "Mod+D".action.spawn = "fuzzel";
+                      "Mod+1".action.focus-workspace = 1;
+                    };
+                  }
+                  ```
+
+                  For actions taking properties (named arguments), you can pass an attrset.
+
+                  ```nix
+                  {
+                    programs.niri.settings.binds = {
+                      "Mod+Shift+E".action.quit.skip-confirmation = true;
+                    };
+                  }
+                  ```
+
+                  There is also a set of functions available under `config.lib.niri.actions`.
+
+                  Usage is like so:
+
+                  ```nix
+                  {
+                    programs.niri.settings.binds = with config.lib.niri.actions; {
+                      "XF86AudioRaiseVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
+                      "XF86AudioLowerVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
+
+                      "Mod+D".action = spawn "fuzzel";
+                      "Mod+1".action = focus-workspace 1;
+
+                      "Mod+Shift+E".action = quit;
+                      "Mod+Ctrl+Shift+E".action = quit { skip-confirmation=true; };
+
+                      "Mod+Plus".action = set-column-width "+10%";
+                    }
+                  }
+                  ```
+
+                  Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the *real* acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
+
+                  For actions that don't take any arguments, just use the corresponding attribute from `config.lib.niri.actions`. They are listed as `action-name`. For actions that *do* take arguments, they are notated like so: `λ action-name :: <args>`, to clarify that they "should" be used as functions. Hopefully, `<args>` will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
+
+                  - `size-change`: This is a special argument type used for some actions by niri. It's a string. \
+                    It can take either a fixed size as an integer number of logical pixels (`"480"`, `"1200"`) or a proportion of your screen as a percentage (`"30%"`, `"70%"`) \
+                    Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
+                    Relative size changes are written with a `+`/`-` prefix, and absolute size changes have no prefix.
+
+                  - `{ field :: type }`: This means that the action takes a named argument (in kdl, we call it a property). \
+                    To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
+                    Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above).
+
+                  - `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
+                    `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
+
+                  > [!tip]
+                  > You can use partial application to create a spawn command with full support for shell syntax:
+                  > ```nix
+                  > {
+                  >   programs.niri.settings.binds = with config.lib.niri.actions; let
+                  >     sh = spawn "sh" "-c";
+                  >   in {
+                  >     "Print".action = sh '''grim -g "$(slurp)" - | wl-copy''';
+                  >   };
+                  > }
+                  > ```
+
+                  ${let
+                    show-bind = {
+                      name,
+                      params,
+                      ...
+                    }: let
+                      is-stable = any (a: a.name == name) binds-stable;
+                      is-unstable = any (a: a.name == name) binds-unstable;
+                      exclusive =
+                        if is-stable && is-unstable
+                        then ""
+                        else if is-stable
+                        then " (only on niri-stable)"
+                        else " (only on niri-unstable)";
+                      type-names = {
+                        LayoutSwitchTarget = ''"next" | "prev"'';
+                        SizeChange = "size-change";
+                        bool = "bool";
+                        u8 = "u8";
+                        String = "string";
+                      };
+
+                      type-or = rust-name: fallback: type-names.${rust-name} or (warn "unhandled type `${rust-name}`" fallback);
+
+                      base = content: "- `${content}`${exclusive}";
+                      lambda = args: base "λ ${name} :: ${args}";
+                    in
+                      {
+                        empty = base "${name}";
+                        arg = lambda (type-or params.type (
+                          if params.as-str
+                          then "string"
+                          else params.type
+                        ));
+                        list = lambda "[${type-or params.type params.type}]";
+                        prop = lambda "{ ${optionalString (!params.use-default) "*"}${params.field} :: ${type-names.${params.type} or (warn "unhandled type `${params.type}`" params.type)} }";
+                        unknown = ''
+                          ${lambda "unknown"}
+
+                            The code that generates this documentation does not know how to parse the definition:
+                            ```rs
+                            ${params.raw-name}(${params.raw})
+                            ```
+                        '';
+                      }
+                      .${params.kind}
+                      or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
+                  in
+                    concatStringsSep "\n" (concatLists [
+                      (map show-bind (filter (stable: all (unstable: stable.name != unstable.name) binds-unstable) binds-stable))
+                      (map show-bind binds-unstable)
+                    ])}
+                '';
+              };
           };
+
+          bind = mkOptionType {
+            inherit (base) name description descriptionClass getSubOptions nestedTypes;
+            check = v: isString v || isAttrs v || base.check v;
+            merge = loc: defs:
+              base.merge loc (map (def:
+                def
+                // {
+                  value =
+                    if def.value ? action
+                    then def.value
+                    else
+                      warn ''
+
+                        Deprecated definition of binds used for ${showOption loc}
+
+                        New properties in niri require a new schema.
+
+                        Replace binds like `programs.niri.settings.binds."Mod+T".spawn = "alacritty";` with `programs.niri.settings.binds."Mod+T".action.spawn = "alacritty";`.
+
+                        String actions will also not be supported anymore.
+
+                        Replace binds like `programs.niri.settings."Mod+Q" = "close-window";` with `programs.niri.settings.binds."Mod+Q".action.close-window = [];`.
+
+                        This is not an error, and your configuration will still work, but it that will not be the case in the future.
+
+                        Please see the documentation on GitHub for more information: ${link-this-github "docs.md#${anchor' "programs.niri.settings.binds"}"}
+                      ''
+                      (
+                        if isString def.value
+                        then {action.${def.value} = [];}
+                        else {action = def.value;}
+                      );
+                })
+              defs);
+          };
+        in
+          attrs bind;
       }
 
       {
@@ -1650,13 +1687,10 @@ with docs.lib; rec {
           then "${cfg'.width}x${cfg'.height}"
           else "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
 
-        normalize-bind = bind: [
-          (
-            if isString bind
-            then flag bind
-            else mapAttrsToList leaf bind
-          )
-        ];
+        bind = name: cfg:
+          node name [] [
+            (mapAttrsToList leaf cfg.action)
+          ];
       in [
         (plain "input" [
           (plain "keyboard" [
@@ -1728,7 +1762,7 @@ with docs.lib; rec {
         ])
 
         (plain "environment" (mapAttrsToList leaf cfg.environment))
-        (plain "binds" (mapAttrsToList (map' plain normalize-bind) cfg.binds))
+        (plain "binds" (mapAttrsToList bind cfg.binds))
 
         (map (map' leaf (getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
         (map window-rule cfg.window-rules)
