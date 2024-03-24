@@ -1,0 +1,6 @@
+#!/run/current-system/sw/bin/bash
+# (that shebang is nixos-specific)
+
+# ln -s ../../pre-commit .git/hooks/pre-commit
+
+just check-docs
