@@ -577,7 +577,7 @@ with docs.lib; rec {
 
                         Replace binds like `programs.niri.settings."Mod+Q" = "close-window";` with `programs.niri.settings.binds."Mod+Q".action.close-window = [];`.
 
-                        This is not an error, and your configuration will still work, but it that will not be the case in the future.
+                        This is not an error, and your configuration will still work, but this will not continue to be the case in the future.
 
                         Please see the documentation on GitHub for more information: ${link-this-github "docs.md#${anchor' "programs.niri.settings.binds"}"}
                       ''
