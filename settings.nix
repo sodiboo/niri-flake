@@ -649,17 +649,11 @@ with docs.lib; rec {
               nullable-fallback = default-env "null";
 
               base = {
-                # niri doesn't default its config repr to "us", but it is Option<String>
-                # however, when passed to xkb, it needs to be &str (None is not allowed)
-                # and there, niri will `.unwrap_or("us")`
-                # https://github.com/YaLTeR/niri/blob/0c57815fbf47c69af9ed11fa8ebc1b52158a3ba2/niri-config/src/lib.rs#L106
                 layout =
-                  optional types.str "us"
+                  optional types.str ""
                   // {
                     description = ''
                       A comma-separated list of layouts (languages) to include in the keymap.
-
-                      Note that niri will set this to `"us"` by default, when unspecified.
 
                       See ${arch-man-xkb "LAYOUTS"} for a list of available layouts and their variants.
 

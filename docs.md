@@ -514,11 +514,9 @@ Further reading:
 <!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.layout -->
 ## `programs.niri.settings.input.keyboard.xkb.layout`
 - type: `string`
-- default: `"us"`
+- default: `""`
 
 A comma-separated list of layouts (languages) to include in the keymap.
-
-Note that niri will set this to `"us"` by default, when unspecified.
 
 See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available layouts and their variants.
 
