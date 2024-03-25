@@ -1623,6 +1623,54 @@ If final value of this field is an output that exists, the new window will open 
 If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
 
 
+<!-- sorting key: programs.niri.settings.l.window-rules.d.block-out-from -->
+## `programs.niri.settings.window-rules.*.block-out-from`
+- type: `null or one of "screencast", "screen-capture"`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked from screen captures.
+
+This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+
+This may be obvious, but in general, a window is never meant to be blocked out from the actual physical output.
+
+There are three methods of screencapture in niri:
+
+1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast.When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak, but depending on the screenshot tool it will also be blocked out from the real screen.
+
+1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. TODO: how does it affect the result?
+
+1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to OBS or similar tools.
+
+> [!caution]
+> **Streamers: Do not accidentally leak window contents via screenshots.**
+>
+> For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
+>
+> If you are a streamer, either:
+> - make sure not to use `wlr-screencopy` tools like `grim` during your stream, or
+> - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
+
+> [!caution]
+> **Those with ultra-sensitive information: Do not let malicious `wlr-screencopy` clients snoop your windows.**
+>
+> For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+>
+> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
+>
+> **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
+Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (note: this is not a guarantee, as some tools may still leak the window contents, see above)
+
+
 <!-- sorting key: programs.niri.settings.l.window-rules.d.draw-border-with-background -->
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
