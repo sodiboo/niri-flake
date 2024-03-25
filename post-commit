@@ -16,7 +16,7 @@ nix eval --raw "git+file:.?ref=HEAD#__docs" > $tmp
 # GitHub Actions doesn't seem to have a HEAD ref (???)
 if [ $? -ne 0 ]; then
 echo "git didn't like the HEAD i gave it; falling back to working directory" >&2
-nix eval --raw .#__docs $tmp
+nix eval --raw .#__docs > $tmp
 fi
 
 mv $tmp docs.md
