@@ -12,7 +12,7 @@ with lib; let
     steps);
 
   coalesce = flip pipe [
-    (filter (x: x != null))
+    (remove null)
     head
   ];
 
