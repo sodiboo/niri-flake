@@ -372,8 +372,6 @@ with docs.lib; rec {
           nullable types.bool
           // {
             description = ''
-              ${unstable-note}
-
               When non-null, for this field to match a window, the value must match whether the window is active or not.
 
               Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
@@ -383,8 +381,6 @@ with docs.lib; rec {
           nullable types.bool
           // {
             description = ''
-              ${unstable-note}
-
               When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
 
               A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
@@ -452,8 +448,6 @@ with docs.lib; rec {
               nullable types.int
               // {
                 description = ''
-                  ${unstable-note}
-
                   The minimum cooldown before a keybind can be triggered again, in milliseconds.
 
                   This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
@@ -840,8 +834,6 @@ with docs.lib; rec {
                 nullable (enum ["button-areas" "clickfinger"])
                 // {
                   description = ''
-                    ${unstable-note}
-
                     Method to determine which mouse button is pressed when you click the touchpad.
 
                     - `"button-areas"`: ${libinput-doc "clickpad-softbuttons" "Software button areas"} \
@@ -864,8 +856,6 @@ with docs.lib; rec {
             optional types.bool false
             // {
               description = ''
-                ${unstable-note}
-
                 Whether to warp the mouse to the focused window when switching focus.
               '';
             };
@@ -873,8 +863,6 @@ with docs.lib; rec {
             optional types.bool false
             // {
               description = ''
-                ${unstable-note}
-
                 Whether to focus the window under the mouse when the mouse moves.
               '';
             };
@@ -883,8 +871,6 @@ with docs.lib; rec {
             optional types.bool false
             // {
               description = ''
-                ${unstable-note}
-
                 When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
 
                 Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
@@ -1283,8 +1269,6 @@ with docs.lib; rec {
                   nullable (enum ["screencast" "screen-capture"])
                   // {
                     description = ''
-                      ${unstable-note}
-
                       Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked from screen captures.
 
                       This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
@@ -1335,8 +1319,6 @@ with docs.lib; rec {
                   nullable types.bool
                   // {
                     description = ''
-                      ${unstable-note}
-
                       Whether to draw the focus ring and border with a background.
 
                       Normally, for windows with server-side decorations, niri will draw an actual border around them, because it knows they will be rectangular.
@@ -1354,8 +1336,6 @@ with docs.lib; rec {
                   nullable types.float
                   // {
                     description = ''
-                      ${unstable-note}
-
                       The opacity of the window, ranging from 0 to 1.
 
                       If the final value of this field is null, niri will fall back to a value of 1.
@@ -1366,8 +1346,6 @@ with docs.lib; rec {
               }
               (let
                 sizing-info = bound: ''
-                  ${unstable-note}
-
                   Sets the ${bound} (in logical pixels) that niri will ever ask this window for.
 
                   Keep in mind that the window itself always has a final say in its size, and may not respect the ${bound} set by this option.

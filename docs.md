@@ -18,9 +18,9 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3) plus the following patches:
+Currently, this is release [`v0.1.4`](https://github.com/YaLTeR/niri/releases/tag/v0.1.4) with no additional patches.
 
-- [`40cec34aa4a7f99ab12b30cba1a0ee83a706a413`](https://github.com/YaLTeR/niri/commit/40cec34aa4a7f99ab12b30cba1a0ee83a706a413)
+
 
 
 To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`](#overlaysniri).
@@ -376,7 +376,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-workspace-down`
 - `focus-workspace-up`
 - `λ focus-workspace :: u8`
-- `focus-workspace-previous` (only on niri-unstable)
+- `focus-workspace-previous`
 - `move-window-to-workspace-down`
 - `move-window-to-workspace-up`
 - `λ move-window-to-workspace :: u8`
@@ -413,14 +413,6 @@ For actions that don't take any arguments, just use the corresponding attribute 
 ## `programs.niri.settings.binds.<name>.cooldown-ms`
 - type: `null or signed integer`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 The minimum cooldown before a keybind can be triggered again, in milliseconds.
 
@@ -471,14 +463,6 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 ## `programs.niri.settings.input.focus-follows-mouse`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 Whether to focus the window under the mouse when the mouse moves.
 
@@ -661,14 +645,6 @@ Further reading:
 - type: `null or one of "button-areas", "clickfinger"`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Method to determine which mouse button is pressed when you click the touchpad.
 
 - `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html.html#software-button-areas) \
@@ -776,14 +752,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether to warp the mouse to the focused window when switching focus.
 
 
@@ -791,14 +759,6 @@ Whether to warp the mouse to the focused window when switching focus.
 ## `programs.niri.settings.input.workspace-auto-back-and-forth`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
 
@@ -1457,14 +1417,6 @@ When non-null, for this field to match a window, a client must set the title of 
 - type: `null or boolean`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 When non-null, for this field to match a window, the value must match whether the window is active or not.
 
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
@@ -1474,14 +1426,6 @@ Every monitor has up to one active window, and `is-active=true` will match the a
 ## `programs.niri.settings.window-rules.*.matches.*.is-focused`
 - type: `null or boolean`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
 
@@ -1526,14 +1470,6 @@ When non-null, for this field to match a window, a client must set the title of 
 - type: `null or boolean`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 When non-null, for this field to match a window, the value must match whether the window is active or not.
 
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
@@ -1543,14 +1479,6 @@ Every monitor has up to one active window, and `is-active=true` will match the a
 ## `programs.niri.settings.window-rules.*.excludes.*.is-focused`
 - type: `null or boolean`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 When non-null, for this field to match a window, the value must match whether the window has keyboard focus or not.
 
@@ -1628,14 +1556,6 @@ If the final value is an output that does not exist, or it is null, then the win
 - type: `null or one of "screencast", "screen-capture"`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked from screen captures.
 
 This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
@@ -1687,14 +1607,6 @@ Essentially, use `block-out-from = "screen-capture";` if you want to be sure tha
 - type: `null or boolean`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether to draw the focus ring and border with a background.
 
 Normally, for windows with server-side decorations, niri will draw an actual border around them, because it knows they will be rectangular.
@@ -1713,14 +1625,6 @@ You can set this option per window to override niri's default behaviour, and ins
 - type: `null or floating point number`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 The opacity of the window, ranging from 0 to 1.
 
 If the final value of this field is null, niri will fall back to a value of 1.
@@ -1732,14 +1636,6 @@ Note that this is applied in addition to the opacity set by the client. Setting 
 ## `programs.niri.settings.window-rules.*.max-height`
 - type: `null or signed integer`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 Sets the maximum height (in logical pixels) that niri will ever ask this window for.
 
@@ -1756,14 +1652,6 @@ If you manually change the window heights, then max-height will be taken into ac
 - type: `null or signed integer`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Sets the maximum width (in logical pixels) that niri will ever ask this window for.
 
 Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
@@ -1774,14 +1662,6 @@ Keep in mind that the window itself always has a final say in its size, and may 
 - type: `null or signed integer`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Sets the minimum height (in logical pixels) that niri will ever ask this window for.
 
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
@@ -1791,14 +1671,6 @@ Keep in mind that the window itself always has a final say in its size, and may 
 ## `programs.niri.settings.window-rules.*.min-width`
 - type: `null or signed integer`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 Sets the minimum width (in logical pixels) that niri will ever ask this window for.
 
