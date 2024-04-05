@@ -15,7 +15,7 @@ with builtins;
 
     (map (x: ''"${x.object.sha}" = "${x.tag}";''))
 
-    (builtins.concatStringsSep "\n  ")
+    (concatStringsSep "\n  ")
     (tags: ''
       # This file is generated automatically by fetch-refs.nix
       # Do not edit it manually, your changes will be lost.
