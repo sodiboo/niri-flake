@@ -21,10 +21,13 @@ fi
 
 mv $tmp docs.md
 
-git diff --quiet docs.md
+nix eval --raw --file fetch-refs.nix > refs.nix
+
+git diff --quiet docs.md refs.nix
 if [ $? -ne 0 ]; then
 
 git add docs.md
+git add refs.nix
 git commit --no-verify --amend --no-edit
 
 # restore the docs from the working directory if you commit with unstaged changes

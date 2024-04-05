@@ -12,6 +12,9 @@ hook:
     -ln -s ../../pre-commit .git/hooks/pre-commit
     -ln -s ../../post-commit .git/hooks/post-commit
 
+ref:
+    nix eval --raw --file fetch-refs.nix > refs.nix
+
 check: fmt
     nix flake check --quiet --quiet --show-trace
 

@@ -33,7 +33,7 @@
     settings = call ./settings.nix;
     stylix-module = call ./stylix.nix;
 
-    stable-rev = niri-stable.rev;
+    stable-revs = import ./refs.nix;
 
     date = {
       year = builtins.substring 0 4;
@@ -48,12 +48,12 @@
     fmt-time = raw: "${date.hour raw}:${date.minute raw}:${date.second raw}";
 
     version-string = orig: src:
-      if src.rev == stable-rev
+      if stable-revs ? ${src.rev}
       then "stable ${orig.version}"
       else "unstable ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
 
     package-version = orig: src:
-      if src.rev == stable-rev
+      if stable-revs ? ${src.rev}
       then orig.version
       else "${orig.version}-unstable-${src.shortRev}";
 
