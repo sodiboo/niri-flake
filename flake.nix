@@ -33,9 +33,7 @@
     settings = call ./settings.nix;
     stylix-module = call ./stylix.nix;
 
-    lock = builtins.fromJSON (builtins.readFile ./flake.lock);
-    stable-tag = lock.nodes.niri-stable.original.ref;
-    stable-rev = lock.nodes.niri-stable.locked.rev;
+    stable-rev = niri-stable.rev;
 
     date = {
       year = builtins.substring 0 4;
@@ -49,10 +47,15 @@
     fmt-date = raw: "${date.year raw}-${date.month raw}-${date.day raw}";
     fmt-time = raw: "${date.hour raw}:${date.minute raw}:${date.second raw}";
 
-    version-string = src:
+    version-string = orig: src:
       if src.rev == stable-rev
-      then "stable ${stable-tag}"
+      then "stable ${orig.version}"
       else "unstable ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
+
+    package-version = orig: src:
+      if src.rev == stable-rev
+      then orig.version
+      else "${orig.version}-unstable-${src.shortRev}";
 
     make-niri = nixpkgs.lib.makeOverridable ({
       src,
@@ -122,17 +125,32 @@
                 #
                 # Everything builds the same way without this. But the hash is different.
                 # And for binary caching to work, the hash must be identical.
+                #
+                # ---
+                #
+                # I'm also overriding the version.
+                # This is unrelated to reproducibility, but looks similarly weird to src
+                # The reason for overriding the version is:
+                #
+                # For stable: follow nix convention `X.Y.Z` instead of `vX.Y.Z`
+                #
+                # For unstable: include the date and commit hash;
+                # => otherwise tools like `nix profile diff-closures` will miss differences in the niri version
+                #    and might show an empty diff, even when niri version (commit) changes
                 niri-ipc = attrs: {
                   src = "${src}/niri-ipc";
+                  version = package-version attrs src;
                 };
 
                 niri-config = attrs: {
                   src = "${src}/niri-config";
+                  version = package-version attrs src;
                   postPatch = "substituteInPlace src/lib.rs --replace ../.. ${src}";
                 };
 
                 niri = attrs: {
                   src = "${src}";
+                  version = package-version attrs src;
 
                   inherit patches;
 
@@ -143,7 +161,7 @@
                       ''
                         #[allow(unreachable_code)]
                         pub fn version() -> String {
-                          return "${version-string src}".into();
+                          return "${version-string attrs src}".into();
                       ''
                     ];
                   buildInputs = [libxkbcommon libinput mesa libglvnd wayland pixman];
@@ -257,7 +275,7 @@
       };
 
       flake = {
-        __docs = docs.make-docs (settings.fake-docs {inherit stable-tag fmt-date fmt-time nixpkgs;});
+        __docs = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time nixpkgs;});
         inherit kdl;
         overlays.niri = final: prev: {
           niri-unstable = make-niri-unstable final;

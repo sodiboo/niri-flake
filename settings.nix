@@ -230,7 +230,7 @@ with docs.lib; rec {
               the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
               ](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
 
-              these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
+              these beautiful images are sourced from the release notes for ${link-niri-release "0.1.3"}
             '';
           };
       });
@@ -1501,7 +1501,6 @@ with docs.lib; rec {
       };
     };
   fake-docs = {
-    stable-tag,
     fmt-date,
     fmt-time,
     nixpkgs,
@@ -1570,7 +1569,7 @@ with docs.lib; rec {
           niri-stable = pkg-output "niri-stable" ''
             The latest stable tagged version of niri, along with potential patches.
 
-            Currently, this is release ${link-niri-release stable-tag}${
+            Currently, this is release ${link-niri-release inputs.self.packages.x86_64-linux.niri-stable.version}${
               if stable-patches != []
               then " plus the following patches:"
               else " with no additional patches."
