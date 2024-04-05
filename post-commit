@@ -34,6 +34,4 @@ mv $tmp docs.md
 
 fi
 
-rm $tmp | true
-
 fi
