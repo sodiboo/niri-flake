@@ -91,6 +91,21 @@ with lib; let
     > Otherwise, your system might fail to build.
   '';
 
+  unstable-enum = values: ''
+    > [!important]
+    > The following values for this option are not yet available in stable niri:
+    >
+    ${pipe values [
+      (map (display-value {pretty = false;}))
+      (map (s: "> - `${s}`"))
+      (concatStringsSep "\n")
+    ]}
+    >
+    > If you wish to use one of the mentioned values, you should make sure ${link' "programs.niri.package"} is set to ${pkg-link "niri-unstable"}.
+    >
+    > Otherwise, your system might fail to build.
+  '';
+
   section = contents:
     mkOption {
       type = mkOptionType {name = "docs-override";};
@@ -215,6 +230,6 @@ with lib; let
 in {
   inherit make-docs;
   lib = {
-    inherit unstable-note section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link libinput-link libinput-doc link-niri-commit link-niri-release link-stylix-opt link-this-github display-value;
+    inherit unstable-note unstable-enum section header fake-option test anchor anchor' link link' module-doc pkg-header pkg-link nixpkgs-link libinput-link libinput-doc link-niri-commit link-niri-release link-stylix-opt link-this-github display-value;
   };
 }

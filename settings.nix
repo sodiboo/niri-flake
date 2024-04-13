@@ -29,6 +29,7 @@ with docs.lib; rec {
     required = type: mkOption {inherit type;};
     nullable = type: optional (nullOr type) null;
     optional = type: default: mkOption {inherit type default;};
+    readonly = type: value: optional type value // {readOnly = true;};
 
     attrs = type: optional (attrsOf type) {};
     list = type: optional (listOf type) [];
@@ -399,13 +400,16 @@ with docs.lib; rec {
 
     ordered-record = sections: let
       grouped = groupBy (s:
-        if s ? __config
+        if s ? __module
+        then "module"
+        else if s ? __config
         then "config"
         else "options")
       sections;
 
       options' = grouped.options or [];
       config' = map (getAttr "__config") grouped.config or [];
+      module' = map (getAttr "__module") grouped.module or [];
 
       normalize = map (flip removeAttrs ["__docs-only"]);
       real-sections-flat = pipe options' [
@@ -422,8 +426,11 @@ with docs.lib; rec {
         inherit
           (record (
             {config, ...}: {
+              imports = module';
               options = real-sections-flat;
-              config = mkMerge (map (f: f config) config');
+              config = mkMerge (map (f:
+                f config)
+              config');
             }
           ))
           name
@@ -1119,7 +1126,15 @@ with docs.lib; rec {
             };
             easing = record {
               duration-ms = required types.int;
-              curve = required (enum ["ease-out-cubic" "ease-out-expo"]);
+              curve =
+                required (enum ["ease-out-quad" "ease-out-cubic" "ease-out-expo"])
+                // {
+                  description = ''
+                    ${unstable-enum ["ease-out-quad"]}
+
+                    The curve to use for the easing function.
+                  '';
+                };
             };
           };
 
@@ -1139,9 +1154,20 @@ with docs.lib; rec {
               stiffness = 1000;
               epsilon = 0.001;
             };
+            window-movement.unstable = true;
+            window-movement.spring = {
+              damping-ratio = 1.0;
+              stiffness = 800;
+              epsilon = 0.0001;
+            };
             window-open.easing = {
               duration-ms = 150;
               curve = "ease-out-expo";
+            };
+            window-close.unstable = true;
+            window-close.easing = {
+              duration-ms = 150;
+              curve = "ease-out-quad";
             };
           };
         in
@@ -1150,7 +1176,36 @@ with docs.lib; rec {
               enable = optional types.bool true;
               slowdown = optional types.float 1.0;
             }
-            (mapAttrs (const (v: optional (nullOr (newtype (link-type "animation") animation)) v // {visible = "shallow";})) defaults)
+            (mapAttrs (const (v:
+              optional (nullOr (newtype (link-type "animation") animation)) (removeAttrs v ["unstable"])
+              // {visible = "shallow";}
+              // optionalAttrs (v.unstable or false) {
+                description = ''
+                  ${unstable-note}
+                '';
+              }))
+            defaults)
+            {
+              __module = {
+                config,
+                options,
+                ...
+              }: {
+                options._internal_niri_flake =
+                  readonly
+                  (record (
+                    concatMapAttrs (name:
+                      const {
+                        ${name} = readonly (record {
+                          is-defined =
+                            readonly types.bool (config.${name} != (removeAttrs defaults.${name} ["unstable"]));
+                        }) {};
+                      })
+                    defaults
+                  )) {}
+                  // {visible = false;};
+              };
+            }
             {
               __docs-only = true;
               "<animation>" =
@@ -1750,6 +1805,8 @@ with docs.lib; rec {
           (nullable leaf "spring" cfg.spring or null)
         ]);
 
+        animation' = name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined) (animation name cfg.${name});
+
         opt-props = filterAttrs (const (value: value != null));
         window-rule = cfg:
           plain "window-rule" [
@@ -1870,10 +1927,12 @@ with docs.lib; rec {
         (plain "animations" [
           (toggle "off" cfg.animations [
             (leaf "slowdown" cfg.animations.slowdown)
-            (animation "workspace-switch" cfg.animations.workspace-switch)
-            (animation "horizontal-view-movement" cfg.animations.horizontal-view-movement)
-            (animation "window-open" cfg.animations.window-open)
-            (animation "config-notification-open-close" cfg.animations.config-notification-open-close)
+            (animation' "workspace-switch" cfg.animations)
+            (animation' "horizontal-view-movement" cfg.animations)
+            (animation' "config-notification-open-close" cfg.animations)
+            (animation' "window-movement" cfg.animations)
+            (animation' "window-open" cfg.animations)
+            (animation' "window-close" cfg.animations)
           ])
         ])
 

@@ -1250,6 +1250,53 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
+<!-- sorting key: programs.niri.settings.j.animations.b.window-close -->
+## `programs.niri.settings.animations.window-close`
+- type: `null or `[`<animation>`](#animation)
+- default:
+  ```nix
+  {
+    easing = {
+      curve = "ease-out-quad";
+      duration-ms = 150;
+    };
+  }
+  ```
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.j.animations.b.window-movement -->
+## `programs.niri.settings.animations.window-movement`
+- type: `null or `[`<animation>`](#animation)
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 1.000000;
+      epsilon = 0.000100;
+      stiffness = 800;
+    };
+  }
+  ```
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
 <!-- sorting key: programs.niri.settings.j.animations.b.window-open -->
 ## `programs.niri.settings.animations.window-open`
 - type: `null or `[`<animation>`](#animation)
@@ -1291,7 +1338,19 @@ The left and right structs work in a similar way, except the padded space is not
 
 <!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing.curve -->
 ## `<animation>.easing.curve`
-- type: `one of "ease-out-cubic", "ease-out-expo"`
+- type: `one of "ease-out-quad", "ease-out-cubic", "ease-out-expo"`
+
+> [!important]
+> The following values for this option are not yet available in stable niri:
+>
+> - `"ease-out-quad"`
+>
+> If you wish to use one of the mentioned values, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+The curve to use for the easing function.
 
 
 <!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing.duration-ms -->
