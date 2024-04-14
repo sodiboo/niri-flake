@@ -396,6 +396,15 @@
                   trusted-public-keys = ["niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="];
                 };
               })
+              ({
+                # mkIf doesn't work here
+                services =
+                if options ? services.displayManager.sessionPackages then
+                  { displayManager.sessionPackages = [cfg.package]; }
+                else if options ? services.xserver.displayManager.sessionPackages then
+                  { xserver.displayManager.sessionPackages = [cfg.package]; }
+                else {};
+              })
               {
                 environment.systemPackages = [pkgs.xdg-utils];
                 xdg = {
@@ -407,7 +416,6 @@
               }
               (mkIf cfg.enable {
                 environment.systemPackages = [cfg.package];
-                services.xserver.displayManager.sessionPackages = [cfg.package];
                 xdg.portal = {
                   enable = true;
                   extraPortals = [pkgs.xdg-desktop-portal-gnome];
