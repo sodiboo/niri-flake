@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.11";
+
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     crate2nix.url = "github:nix-community/crate2nix";
@@ -21,6 +23,7 @@
     niri-unstable,
     niri-stable,
     nixpkgs,
+    nixpkgs-stable,
     ...
   }: let
     call = nixpkgs.lib.flip import {
@@ -257,7 +260,27 @@
           default = self'.apps.niri-stable;
         };
 
-        checks = {
+        checks = let
+          test-nixos-for = nixpkgs: modules:
+            (nixpkgs.lib.nixosSystem {
+              inherit system;
+              modules =
+                [
+                  {
+                    # This doesn't need to be a bootable system. It just needs to build.
+                    system.stateVersion = "23.11";
+                    fileSystems."/".fsType = "ext4";
+                    fileSystems."/".device = "/dev/sda1";
+                    boot.loader.systemd-boot.enable = true;
+                  }
+                ]
+                ++ modules;
+            })
+            .config
+            .system
+            .build
+            .toplevel;
+        in {
           empty-config-valid-stable = let
             eval = nixpkgs.lib.evalModules {
               modules = [
@@ -269,6 +292,20 @@
             };
           in
             validated-config-for pkgs self'.packages.niri-stable eval.config.programs.niri.finalConfig;
+
+          nixos-unstable = test-nixos-for nixpkgs [
+            self.nixosModules.niri
+            {
+              programs.niri.enable = true;
+            }
+          ];
+
+          nixos-stable = test-nixos-for nixpkgs-stable [
+            self.nixosModules.niri
+            {
+              programs.niri.enable = true;
+            }
+          ];
         };
 
         formatter = pkgs.alejandra;
@@ -406,8 +443,17 @@
                 };
               }
               (mkIf cfg.enable {
+                services =
+                  if config.system.nixos.release == "24.05"
+                  then {
+                    displayManager.sessionPackages = [cfg.package];
+                  }
+                  else {
+                    xserver.displayManager.sessionPackages = [cfg.package];
+                  };
+              })
+              (mkIf cfg.enable {
                 environment.systemPackages = [cfg.package];
-                services.displayManager.sessionPackages = [cfg.package];
                 xdg.portal = {
                   enable = true;
                   extraPortals = [pkgs.xdg-desktop-portal-gnome];
