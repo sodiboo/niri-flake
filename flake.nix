@@ -237,14 +237,17 @@
       systems = ["x86_64-linux" "aarch64-linux"];
       perSystem = {
         self',
+        inputs',
         config,
         system,
-        pkgs,
         ...
       }: {
         packages = {
-          niri-unstable = make-niri-unstable pkgs;
-          niri-stable = make-niri-stable pkgs;
+          niri-unstable = make-niri-unstable inputs'.nixpkgs.legacyPackages;
+          niri-stable = make-niri-stable inputs'.nixpkgs.legacyPackages;
+
+          niri-unstable-for-nixos-stable = make-niri-unstable inputs'.nixpkgs-stable.legacyPackages;
+          niri-stable-for-nixos-stable = make-niri-stable inputs'.nixpkgs-stable.legacyPackages;
         };
 
         apps = {
@@ -291,7 +294,7 @@
               ];
             };
           in
-            validated-config-for pkgs self'.packages.niri-stable eval.config.programs.niri.finalConfig;
+            validated-config-for inputs'.nixpkgs.legacyPackages self'.packages.niri-stable eval.config.programs.niri.finalConfig;
 
           nixos-unstable = test-nixos-for nixpkgs [
             self.nixosModules.niri
@@ -308,7 +311,7 @@
           ];
         };
 
-        formatter = pkgs.alejandra;
+        formatter = inputs'.nixpkgs.legacyPackages.alejandra;
       };
 
       flake = {
