@@ -1,18 +1,12 @@
 {lib, ...}:
 with lib; let
   node = name: args: children:
-    foldl (self: this:
-      if isAttrs this
-      then
-        self
-        // {
-          props = self.props // this;
-        }
-      else
-        self
-        // {
-          args = self.args ++ [this];
-        }) {
+    foldl (
+      self: this:
+        if isAttrs this
+        then self // {props = self.props // this;}
+        else self // {args = self.args ++ [this];}
+    ) {
       inherit name;
       children = toList children;
       args = [];
