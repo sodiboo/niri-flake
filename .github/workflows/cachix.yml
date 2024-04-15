@@ -1,6 +1,7 @@
 name: "cachix"
 on:
   push:
+  pull_request:
 jobs:
   nixos-unstable:
     name: build
