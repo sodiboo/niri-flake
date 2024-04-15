@@ -1,8 +1,30 @@
 This flake contains nix packages for [niri](https://github.com/YaLTeR/niri), a scrollable-tiling Wayland compositor. You can try it right now: add the binary cache with `cachix use niri` and then `nix run github:sodiboo/niri-flake`. You can also try the latest commit to the `main` branch with `nix run github:sodiboo/niri-flake#niri-unstable`.
 
-This flake also contains NixOS and home-manager modules to install all necessary components of a working Wayland environment, and to let you manage your configuration declaratively, validating it at build-time. This ensures that your config's schema is always in sync with the installed version of niri. Everything is documented under [`docs.md`](./docs.md)
+This flake also contains NixOS and home-manager modules to install all necessary components of a working Wayland environment, and to let you manage your configuration declaratively, validating it at build-time. This ensures that your config's schema is always in sync with the installed version of niri.
+
+**The main location for documentation is [`docs.md`](./docs.md)**. The most important outputs are `overlays.niri` and `nixosModules.niri`. You may also use my configuration as a reference at [`github:sodiboo/nix-config`](https://github.com/sodiboo/nix-config/blob/main/niri.mod.nix)
+
+The rest of this README covers miscellaneous topics related to this flake or repo as a whole.
 
 Feel free to contact me at [`@sodiboo:arcticfoxes.net`](https://matrix.to/#/@sodiboo:arcticfoxes.net) in the [`#niri:matrix.org`](https://matrix.to/#/#niri:matrix.org) channel or through GitHub issues if you have any questions or concerns.
+
+# A note on the automated pull requests in this repository
+
+This repository uses automated pull requests extensively in order to automatically update the lockfile. If you wish to view pull requests made by humans, you can filter for [`is:pr -label:automated`](https://github.com/sodiboo/niri-flake/pulls?q=is%3Apr+-label%3Aautomated).
+
+This is done in order to keep the `niri-unstable` version up-to-date. Niri doesn't have an inherent "unstable" versioning scheme (like e.g. Rust or NixOS does) and that terminology is specific to this flake. It is just the latest commit to main. It's equivalent to `niri-git` on the AUR.
+
+Previously, this was done by telling you to override the niri-src input with the latest version (which puts it in your lockfile), but doing it here has two main benefits:
+
+1. I can run various hooks to automatically update documentation with, at the very least, the niri version, but also other generated items such as listing the available actions (parsed from source code and enumerated in `docs.md`).
+2. I can perform checks on the updated lockfile to ensure that nothing breaks with new niri updates.
+
+There are two less obvious benefits:
+
+3. By requiring the build job to succeed, i can ensure that the latest niri versions are always in my binary cache before the pull request is merged. This means you won't need to build it locally.
+4. By also automatically updating nixpkgs, i can run checks to ensure the modules keep working with the latest nixpkgs.
+
+Currently, there is no `home-manager` input to this flake since i felt it was unnecessary for *just* checks, and therefore configurations involving home-manager are *not* automatically tested at this time.
 
 # Binary Cache
 
