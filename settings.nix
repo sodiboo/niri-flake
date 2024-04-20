@@ -455,8 +455,6 @@ with docs.lib; rec {
               optional types.bool false
               // {
                 description = ''
-                  ${unstable-note}
-
                   Whether this keybind should be allowed when the screen is locked.
 
                   This is only applicable for `spawn` keybinds.
@@ -981,8 +979,6 @@ with docs.lib; rec {
             optional types.bool false
             // {
               description = ''
-                ${unstable-note}
-
                 Whether to enable variable refresh rate (VRR) on this output.
 
                 VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
@@ -1177,7 +1173,6 @@ with docs.lib; rec {
               stiffness = 1000;
               epsilon = 0.001;
             };
-            window-movement.unstable = true;
             window-movement.spring = {
               damping-ratio = 1.0;
               stiffness = 800;
@@ -1187,12 +1182,10 @@ with docs.lib; rec {
               duration-ms = 150;
               curve = "ease-out-expo";
             };
-            window-close.unstable = true;
             window-close.easing = {
               duration-ms = 150;
               curve = "ease-out-quad";
             };
-            window-resize.unstable = true;
             window-resize.spring = {
               damping-ratio = 1.0;
               stiffness = 800;

@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.4`](https://github.com/YaLTeR/niri/releases/tag/v0.1.4) with no additional patches.
+Currently, this is release [`v0.1.5`](https://github.com/YaLTeR/niri/releases/tag/v0.1.5) with no additional patches.
 
 
 
@@ -413,14 +413,6 @@ For actions that don't take any arguments, just use the corresponding attribute 
 ## `programs.niri.settings.binds.<name>.allow-when-locked`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 Whether this keybind should be allowed when the screen is locked.
 
@@ -883,14 +875,6 @@ Counter-clockwise rotation of this output in degrees.
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether to enable variable refresh rate (VRR) on this output.
 
 VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
@@ -1300,14 +1284,6 @@ The left and right structs work in a similar way, except the padded space is not
   ```
 
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 
 <!-- sorting key: programs.niri.settings.j.animations.b.window-movement -->
 ## `programs.niri.settings.animations.window-movement`
@@ -1322,14 +1298,6 @@ The left and right structs work in a similar way, except the padded space is not
     };
   }
   ```
-
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 
 
@@ -1361,14 +1329,6 @@ The left and right structs work in a similar way, except the padded space is not
     };
   }
   ```
-
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 
 
