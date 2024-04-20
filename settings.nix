@@ -1866,8 +1866,11 @@ with docs.lib; rec {
 
         bind = name: cfg:
           node name (opt-props {
-            inherit (cfg) allow-when-locked cooldown-ms;
-          }) [
+              inherit (cfg) cooldown-ms;
+            }
+            // (optionalAttrs cfg.allow-when-locked {
+              allow-when-locked = true;
+            })) [
             (mapAttrsToList leaf cfg.action)
           ];
       in [
@@ -1909,7 +1912,7 @@ with docs.lib; rec {
               (map' leaf transform "transform" cfg.transform)
               (nullable leaf "position" cfg.position)
               (nullable (map' leaf mode) "mode" cfg.mode)
-              (flag "variable-refresh-rate" cfg.variable-refresh-rate)
+              (flag' "variable-refresh-rate" cfg.variable-refresh-rate)
             ])
           ])
         cfg.outputs)
