@@ -451,6 +451,17 @@ with docs.lib; rec {
       {
         binds = let
           base = record {
+            allow-when-locked =
+              optional types.bool false
+              // {
+                description = ''
+                  ${unstable-note}
+
+                  Whether this keybind should be allowed when the screen is locked.
+
+                  This is only applicable for `spawn` keybinds.
+                '';
+              };
             cooldown-ms =
               nullable types.int
               // {
@@ -965,6 +976,18 @@ with docs.lib; rec {
                 If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
               '';
             };
+
+          variable-refresh-rate =
+            optional types.bool false
+            // {
+              description = ''
+                ${unstable-note}
+
+                Whether to enable variable refresh rate (VRR) on this output.
+
+                VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
+              '';
+            };
         });
       }
 
@@ -1168,6 +1191,12 @@ with docs.lib; rec {
             window-close.easing = {
               duration-ms = 150;
               curve = "ease-out-quad";
+            };
+            window-resize.unstable = true;
+            window-resize.spring = {
+              damping-ratio = 1.0;
+              stiffness = 800;
+              epsilon = 0.0001;
             };
           };
         in
@@ -1844,7 +1873,7 @@ with docs.lib; rec {
 
         bind = name: cfg:
           node name (opt-props {
-            inherit (cfg) cooldown-ms;
+            inherit (cfg) allow-when-locked cooldown-ms;
           }) [
             (mapAttrsToList leaf cfg.action)
           ];
@@ -1887,6 +1916,7 @@ with docs.lib; rec {
               (map' leaf transform "transform" cfg.transform)
               (nullable leaf "position" cfg.position)
               (nullable (map' leaf mode) "mode" cfg.mode)
+              (flag "variable-refresh-rate" cfg.variable-refresh-rate)
             ])
           ])
         cfg.outputs)
@@ -1933,6 +1963,7 @@ with docs.lib; rec {
             (animation' "window-movement" cfg.animations)
             (animation' "window-open" cfg.animations)
             (animation' "window-close" cfg.animations)
+            (animation' "window-resize" cfg.animations)
           ])
         ])
 

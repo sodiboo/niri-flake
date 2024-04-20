@@ -409,6 +409,24 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-workspace-to-monitor-up`
 
 
+<!-- sorting key: programs.niri.settings.a.binds.allow-when-locked -->
+## `programs.niri.settings.binds.<name>.allow-when-locked`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether this keybind should be allowed when the screen is locked.
+
+This is only applicable for `spawn` keybinds.
+
+
 <!-- sorting key: programs.niri.settings.a.binds.cooldown-ms -->
 ## `programs.niri.settings.binds.<name>.cooldown-ms`
 - type: `null or signed integer`
@@ -860,6 +878,24 @@ Whether to flip this output vertically.
 Counter-clockwise rotation of this output in degrees.
 
 
+<!-- sorting key: programs.niri.settings.g.outputs.variable-refresh-rate -->
+## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether to enable variable refresh rate (VRR) on this output.
+
+VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
+
+
 <!-- sorting key: programs.niri.settings.h.cursor.size -->
 ## `programs.niri.settings.cursor.size`
 - type: `signed integer`
@@ -1309,6 +1345,30 @@ The left and right structs work in a similar way, except the padded space is not
     };
   }
   ```
+
+
+
+<!-- sorting key: programs.niri.settings.j.animations.b.window-resize -->
+## `programs.niri.settings.animations.window-resize`
+- type: `null or `[`<animation>`](#animation)
+- default:
+  ```nix
+  {
+    spring = {
+      damping-ratio = 1.000000;
+      epsilon = 0.000100;
+      stiffness = 800;
+    };
+  }
+  ```
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
 
 
 
