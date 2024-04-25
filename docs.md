@@ -1238,6 +1238,28 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `1.000000`
 
 
+<!-- sorting key: programs.niri.settings.j.animations.a.window-resize-shader -->
+## `programs.niri.settings.animations.window-resize-shader`
+- type: `null or string`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+This option is unstable in niri-flake. It will be renamed/moved in the future.
+
+This option should contain the *source code* for a GLSL shader.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+Note that multiline strings are borked lmao. For the shader, it'll work probably but this is a bug in my own kdl serializer.
+
+
 <!-- sorting key: programs.niri.settings.j.animations.b.config-notification-open-close -->
 ## `programs.niri.settings.animations.config-notification-open-close`
 - type: `null or `[`<animation>`](#animation)

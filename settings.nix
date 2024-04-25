@@ -1197,6 +1197,21 @@ with docs.lib; rec {
             {
               enable = optional types.bool true;
               slowdown = optional types.float 1.0;
+              window-resize-shader =
+                nullable types.str
+                // {
+                  description = ''
+                    ${unstable-note}
+
+                    This option is unstable in niri-flake. It will be renamed/moved in the future.
+
+                    This option should contain the *source code* for a GLSL shader.
+
+                    See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+                    Note that multiline strings are borked lmao. For the shader, it'll work probably but this is a bug in my own kdl serializer.
+                  '';
+                };
             }
             (mapAttrs (const (v:
               optional (nullOr (newtype (link-type "animation") animation)) (removeAttrs v ["unstable"])
@@ -1818,16 +1833,18 @@ with docs.lib; rec {
 
         preset-widths = map' plain (cfg: map (mapAttrsToList leaf) (toList cfg));
 
-        animation = map' plain (cfg: [
-          (flag' "off" (cfg == null))
-          (optional-node (cfg ? easing) [
-            (leaf "duration-ms" cfg.easing.duration-ms)
-            (leaf "curve" cfg.easing.curve)
-          ])
-          (nullable leaf "spring" cfg.spring or null)
-        ]);
+        animation = shader:
+          map' plain (cfg: [
+            (flag' "off" (cfg == null))
+            (optional-node (cfg ? easing) [
+              (leaf "duration-ms" cfg.easing.duration-ms)
+              (leaf "curve" cfg.easing.curve)
+            ])
+            (nullable leaf "spring" cfg.spring or null)
+            (nullable leaf "custom-shader" shader)
+          ]);
 
-        animation' = name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined) (animation name cfg.${name});
+        animation' = shader: name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined || shader != null) (animation shader name cfg.${name});
 
         opt-props = filterAttrs (const (value: value != null));
         window-rule = cfg:
@@ -1953,13 +1970,13 @@ with docs.lib; rec {
         (plain "animations" [
           (toggle "off" cfg.animations [
             (leaf "slowdown" cfg.animations.slowdown)
-            (animation' "workspace-switch" cfg.animations)
-            (animation' "horizontal-view-movement" cfg.animations)
-            (animation' "config-notification-open-close" cfg.animations)
-            (animation' "window-movement" cfg.animations)
-            (animation' "window-open" cfg.animations)
-            (animation' "window-close" cfg.animations)
-            (animation' "window-resize" cfg.animations)
+            (animation' null "workspace-switch" cfg.animations)
+            (animation' null "horizontal-view-movement" cfg.animations)
+            (animation' null "config-notification-open-close" cfg.animations)
+            (animation' null "window-movement" cfg.animations)
+            (animation' null "window-open" cfg.animations)
+            (animation' null "window-close" cfg.animations)
+            (animation' cfg.animations.window-resize-shader "window-resize" cfg.animations)
           ])
         ])
 
