@@ -1703,6 +1703,53 @@ There are three methods of screencapture in niri:
 Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
 
 
+<!-- sorting key: programs.niri.settings.l.window-rules.d.border -->
+## `programs.niri.settings.window-rules.*.border`
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+See [`layout.border`](#programsnirisettingslayoutborder).
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.border.a.enable -->
+## `programs.niri.settings.window-rules.*.border.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the border.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.border.a.width -->
+## `programs.niri.settings.window-rules.*.border.width`
+- type: `null or signed integer`
+- default: `null`
+
+The width of the border drawn around each matched window.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.border.b.active -->
+## `programs.niri.settings.window-rules.*.border.active`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for the window that has keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.border.b.inactive -->
+## `programs.niri.settings.window-rules.*.border.inactive`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that do not have keyboard focus.
+
+
 <!-- sorting key: programs.niri.settings.l.window-rules.d.draw-border-with-background -->
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
@@ -1719,6 +1766,53 @@ For most windows, this looks okay. At worst, you have some uneven/jagged borders
 If you wish to make windows sucha s your terminal transparent, and they use CSD, this is very undesirable. Instead of showing your wallpaper, you'll get a solid rectangle.
 
 You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring -->
+## `programs.niri.settings.window-rules.*.focus-ring`
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.a.enable -->
+## `programs.niri.settings.window-rules.*.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the focus ring.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.a.width -->
+## `programs.niri.settings.window-rules.*.focus-ring.width`
+- type: `null or signed integer`
+- default: `null`
+
+The width of the focus ring drawn around each matched window with focus.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.b.active -->
+## `programs.niri.settings.window-rules.*.focus-ring.active`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.b.inactive -->
+## `programs.niri.settings.window-rules.*.focus-ring.inactive`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that do not have keyboard focus.
 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.d.opacity -->

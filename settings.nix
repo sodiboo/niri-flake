@@ -345,6 +345,53 @@ with docs.lib; rec {
         inherit description;
       };
 
+    border-rule = {
+      name,
+      path,
+      description,
+      window,
+    }:
+      ordered-section [
+        {
+          enable =
+            nullable types.bool
+            // {
+              description = ''
+                Whether to enable the ${name}.
+              '';
+            };
+          width =
+            nullable types.int
+            // {
+              description = ''
+                The width of the ${name} drawn around each ${window}.
+              '';
+            };
+        }
+
+        {
+          active =
+            nullable (newtype (link-type "decoration") (decoration "${path}.active"))
+            // {
+              visible = "shallow";
+              description = ''
+                The color of the ${name} for the window that has keyboard focus.
+              '';
+            };
+          inactive =
+            nullable (newtype (link-type "decoration") (decoration "${path}.inactive"))
+            // {
+              visible = "shallow";
+              description = ''
+                The color of the ${name} for windows that do not have keyboard focus.
+              '';
+            };
+        }
+      ]
+      // {
+        inherit description;
+      };
+
     regex = newtype (plain-type "regular expression") types.str;
 
     match = newtype (plain-type "match rule") (ordered-record [
@@ -1407,6 +1454,26 @@ with docs.lib; rec {
                       Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
                     '';
                   };
+                border = border-rule {
+                  name = "border";
+                  window = "matched window";
+                  path = "programs.niri.settings.window-rules.*.border";
+                  description = ''
+                    ${unstable-note}
+
+                    See ${link' "programs.niri.settings.layout.border"}.
+                  '';
+                };
+                focus-ring = border-rule {
+                  name = "focus ring";
+                  window = "matched window with focus";
+                  path = "programs.niri.settings.window-rules.*.focus-ring";
+                  description = ''
+                    ${unstable-note}
+
+                    See ${link' "programs.niri.settings.layout.focus-ring"}.
+                  '';
+                };
                 draw-border-with-background =
                   nullable types.bool
                   // {
@@ -1847,6 +1914,18 @@ with docs.lib; rec {
         animation' = shader: name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined || shader != null) (animation shader name cfg.${name});
 
         opt-props = filterAttrs (const (value: value != null));
+        border-rule = name: cfg:
+          optional-node (opt-props cfg != {}) (
+            plain name [
+              (flag' "on" (cfg.enable == true))
+              (flag' "off" (cfg.enable == false))
+              (nullable leaf "width" cfg.width)
+              (nullable leaf "active-color" cfg.active.color or null)
+              (nullable leaf "active-gradient" cfg.active.gradient or null)
+              (nullable leaf "inactive-color" cfg.inactive.color or null)
+              (nullable leaf "inactive-gradient" cfg.inactive.gradient or null)
+            ]
+          );
         window-rule = cfg:
           plain "window-rule" [
             (map (leaf "match") (map opt-props cfg.matches))
@@ -1856,6 +1935,8 @@ with docs.lib; rec {
             (nullable leaf "open-maximized" cfg.open-maximized)
             (nullable leaf "open-fullscreen" cfg.open-fullscreen)
             (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
+            (border-rule "border" cfg.border)
+            (border-rule "focus-ring" cfg.focus-ring)
             (nullable leaf "opacity" cfg.opacity)
             (nullable leaf "min-width" cfg.min-width)
             (nullable leaf "max-width" cfg.max-width)
