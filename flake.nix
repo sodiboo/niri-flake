@@ -315,11 +315,17 @@
       };
 
       flake = {
-        __docs = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time nixpkgs;});
-        inherit kdl;
+        kdl = nixpkgs.lib.warn "niri.kdl is deprecated. use niri.lib.kdl instead." kdl;
         overlays.niri = final: prev: {
           niri-unstable = make-niri-unstable final;
           niri-stable = make-niri-stable final;
+        };
+        lib = {
+          inherit kdl;
+          internal = {
+            inherit make-niri validated-config-for;
+            docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time nixpkgs;});
+          };
         };
         homeModules.stylix = stylix-module;
         homeModules.config = {

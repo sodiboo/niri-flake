@@ -19,10 +19,10 @@ check: fmt
     nix flake check --quiet --quiet --show-trace
 
 check-docs: check
-    nix eval --quiet --quiet --raw .#__docs > /dev/null
+    nix eval --quiet --quiet --raw .#lib.internal.docs-markdown > /dev/null
 
 doc: check
-    nix eval --quiet --quiet --raw .#__docs | sponge docs.md
+    nix eval --quiet --quiet --raw .#lib.internal.docs-markdown | sponge docs.md
 
 watch:
     fd .nix . | entr just doc

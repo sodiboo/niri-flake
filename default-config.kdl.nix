@@ -45,7 +45,7 @@ inputs: # This is your flake inputs. It contains the `niri` flake (github:sodibo
   lib,
   ...
 }: let
-  inherit (inputs.niri.kdl) node plain leaf flag;
+  inherit (inputs.niri.lib.kdl) node plain leaf flag;
 in {
   programs.niri.config = [
     (plain "input" [

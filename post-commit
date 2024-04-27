@@ -11,12 +11,12 @@ if [[ ! -e .git/rebase-merge/done ]]; then
 # why not just use sponge? because this runs in CI (which doesn't have sponge)
 tmp="$(mktemp)"
 
-nix eval --raw "git+file:.?ref=HEAD#__docs" > $tmp
+nix eval --raw "git+file:.?ref=HEAD#lib.internal.docs-markdown" > $tmp
 
 # GitHub Actions doesn't seem to have a HEAD ref (???)
 if [ $? -ne 0 ]; then
 echo "git didn't like the HEAD i gave it; falling back to working directory" >&2
-nix eval --raw .#__docs > $tmp
+nix eval --raw .#lib.internal.docs-markdown > $tmp
 fi
 
 mv $tmp docs.md
@@ -31,7 +31,7 @@ git add refs.nix
 git commit --no-verify --amend --no-edit
 
 # restore the docs from the working directory if you commit with unstaged changes
-nix eval --no-warn-dirty --raw .#__docs > $tmp
+nix eval --no-warn-dirty --raw .#lib.internal.docs-markdown > $tmp
 
 mv $tmp docs.md
 
