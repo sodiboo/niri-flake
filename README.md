@@ -67,11 +67,11 @@ You can also set the package to the one from nixpkgs (`pkgs.niri`), which will l
 ```
 
 If for whatever reason you want or need to override this, you can set `programs.niri.config`.
-You should give this option structured output from the `niri.kdl` library.
+You should give this option structured output from `niri.lib.kdl`.
 
 ```nix
 {
-  programs.niri.config = with inputs.niri.kdl; [
+  programs.niri.config = with inputs.niri.lib.kdl; [
     (node "output" "eDP-1" [
       (leaf "scale" 2.0)
     ])
