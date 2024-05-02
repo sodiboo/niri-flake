@@ -1454,6 +1454,36 @@ with docs.lib; rec {
                       Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
                     '';
                   };
+
+                geometry-corner-radius =
+                  nullable (record {
+                    top-left = required types.float;
+                    top-right = required types.float;
+                    bottom-right = required types.float;
+                    bottom-left = required types.float;
+                  })
+                  // {
+                    description = ''
+                      ${unstable-note}
+
+                      The corner radii of the window decorations (border and focus ring) in logical pixels.
+
+                      By default, the actual window surface will be unaffected by this.
+
+                      Set ${link' "programs.niri.settings.window-rules.*.clip-to-geometry"} to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
+                    '';
+                  };
+
+                clip-to-geometry =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      ${unstable-note}
+
+                      Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
+                    '';
+                  };
+
                 border = border-rule {
                   name = "border";
                   window = "matched window";
@@ -1926,6 +1956,12 @@ with docs.lib; rec {
               (nullable leaf "inactive-gradient" cfg.inactive.gradient or null)
             ]
           );
+
+        corner-radius = cfg:
+          optional-node (cfg != null) (
+            leaf "geometry-corner-radius" [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left]
+          );
+
         window-rule = cfg:
           plain "window-rule" [
             (map (leaf "match") (map opt-props cfg.matches))
@@ -1935,6 +1971,8 @@ with docs.lib; rec {
             (nullable leaf "open-maximized" cfg.open-maximized)
             (nullable leaf "open-fullscreen" cfg.open-fullscreen)
             (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
+            (corner-radius cfg.geometry-corner-radius)
+            (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
             (border-rule "border" cfg.border)
             (border-rule "focus-ring" cfg.focus-ring)
             (nullable leaf "opacity" cfg.opacity)
