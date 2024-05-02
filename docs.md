@@ -1750,6 +1750,22 @@ The color of the border for the window that has keyboard focus.
 The color of the border for windows that do not have keyboard focus.
 
 
+<!-- sorting key: programs.niri.settings.l.window-rules.d.clip-to-geometry -->
+## `programs.niri.settings.window-rules.*.clip-to-geometry`
+- type: `null or boolean`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
+
+
 <!-- sorting key: programs.niri.settings.l.window-rules.d.draw-border-with-background -->
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
@@ -1813,6 +1829,46 @@ The color of the focus ring for the window that has keyboard focus.
 - default: `null`
 
 The color of the focus ring for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius -->
+## `programs.niri.settings.window-rules.*.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+The corner radii of the window decorations (border and focus ring) in logical pixels.
+
+By default, the actual window surface will be unaffected by this.
+
+Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to-geometry) to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.bottom-left -->
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.bottom-right -->
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.top-left -->
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.top-right -->
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-right`
+- type: `floating point number`
 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.d.opacity -->
