@@ -325,6 +325,7 @@
           internal = {
             inherit make-niri validated-config-for;
             docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time nixpkgs;});
+            settings-module = settings.module;
           };
         };
         homeModules.stylix = stylix-module;
