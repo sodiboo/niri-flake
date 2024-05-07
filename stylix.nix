@@ -3,9 +3,12 @@
   config,
   ...
 }: let
-  inherit (lib) mkDefault mkIf;
+  inherit (lib) mkDefault mkEnableOption mkIf;
 in {
-  options.stylix.targets.niri.enable = (config.lib.stylix.mkEnableTarget) "niri" true;
+  options.stylix.targets.niri.enable =
+    if (config.lib ? stylix)
+    then (config.lib.stylix.mkEnableTarget) "niri" true
+    else mkEnableOption "niri";
 
   config = mkIf config.stylix.targets.niri.enable {
     programs.niri.settings = {
