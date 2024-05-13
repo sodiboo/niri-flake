@@ -32,7 +32,7 @@ with lib; let
     if v
     then "true"
     else "false";
-  serialize.null = "null";
+  serialize.null = _: "null";
 
   serialize.value = v: serialize.${builtins.typeOf v} v;
 
