@@ -24,7 +24,13 @@ with lib; let
   };
   flag = name: node name [] [];
 
-  serialize.string = v: "\"${escape ["\\" "\""] (toString v)}\"";
+  serialize.string = flip pipe [
+    (escape ["\\" "\""])
+    # including newlines will cause the serialized output to contain additional indentation
+    # so we escape them
+    (replaceStrings ["\n"] ["\\n"])
+    (v: "\"${v}\"")
+  ];
   serialize.path = serialize.string;
   serialize.int = toString;
   serialize.float = toString;
