@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.5`](https://github.com/YaLTeR/niri/releases/tag/v0.1.5) with no additional patches.
+Currently, this is release [`v0.1.6`](https://github.com/YaLTeR/niri/releases/tag/v0.1.6) with no additional patches.
 
 
 
@@ -346,10 +346,10 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `suspend`
 - `power-off-monitors`
 - `toggle-debug-tint`
-- `debug-toggle-opaque-regions` (only on niri-unstable)
-- `debug-toggle-damage` (only on niri-unstable)
+- `debug-toggle-opaque-regions`
+- `debug-toggle-damage`
 - `λ spawn :: [string]`
-- `λ do-screen-transition :: unknown` (only on niri-unstable)
+- `λ do-screen-transition :: unknown`
 
   The code that generates this documentation does not know how to parse the definition:
   ```rs
@@ -407,7 +407,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-column-to-monitor-down`
 - `move-column-to-monitor-up`
 - `λ set-window-height :: size-change`
-- `reset-window-height` (only on niri-unstable)
+- `reset-window-height`
 - `switch-preset-column-width`
 - `maximize-column`
 - `λ set-column-width :: size-change`
