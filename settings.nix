@@ -2127,7 +2127,7 @@ with docs.lib; rec {
         (mapAttrsToList (name: cfg:
           node "output" name [
             (toggle "off" cfg [
-              (leaf "scale" cfg.scale)
+              (nullable leaf "scale" cfg.scale)
               (map' leaf transform "transform" cfg.transform)
               (nullable leaf "position" cfg.position)
               (nullable (map' leaf mode) "mode" cfg.mode)
