@@ -330,12 +330,11 @@
         };
         homeModules.stylix = stylix-module;
         homeModules.config = {
-          lib,
           config,
           pkgs,
           ...
         }:
-          with lib; let
+          with nixpkgs.lib; let
             cfg = config.programs.niri;
           in {
             imports = [
@@ -414,7 +413,6 @@
               ];
           };
         nixosModules.niri = {
-          lib,
           config,
           options,
           pkgs,
@@ -422,7 +420,7 @@
         }: let
           cfg = config.programs.niri;
         in
-          with lib; {
+          with nixpkgs.lib; {
             options.programs.niri = {
               enable = mkEnableOption "niri";
               package = mkOption {
@@ -502,12 +500,11 @@
             ];
           };
         homeModules.niri = {
-          lib,
           config,
           pkgs,
           ...
         }:
-          with lib; let
+          with nixpkgs.lib; let
             cfg = config.programs.niri;
           in {
             imports = [
