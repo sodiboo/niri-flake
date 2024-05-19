@@ -1236,6 +1236,14 @@ with docs.lib; rec {
 
       {
         animations = let
+          curve = required (enum ["ease-out-quad" "ease-out-cubic" "ease-out-expo" "linear"])
+                // {
+                  description = ''
+                    ${unstable-enum ["ease-out-quad"]}
+
+                    The curve to use for the easing function.
+                  '';
+                };
           animation = variant {
             spring = record {
               damping-ratio = required types.float;
@@ -1244,15 +1252,12 @@ with docs.lib; rec {
             };
             easing = record {
               duration-ms = required types.int;
-              curve =
-                required (enum ["ease-out-quad" "ease-out-cubic" "ease-out-expo" "linear"])
-                // {
-                  description = ''
-                    ${unstable-enum ["ease-out-quad"]}
-
-                    The curve to use for the easing function.
-                  '';
-                };
+              curve = curve;
+            };
+            custom = record {
+              duration-ms = required types.int;
+              curve = curve;
+              shader = required types.str;
             };
           };
 
@@ -2001,7 +2006,12 @@ with docs.lib; rec {
               (leaf "curve" cfg.easing.curve)
             ])
             (nullable leaf "spring" cfg.spring or null)
-            (nullable leaf "custom-shader" shader)
+            (optional-node (cfg ? custom) [
+              (leaf "duration-ms" cfg.custom.duration-ms)
+              (leaf "curve" cfg.custom.curve)
+              (leaf "custom-shader" cfg.custom.shader)
+            ])
+            #(nullable leaf "custom-shader" shader)
           ]);
 
         animation' = shader: name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined || shader != null) (animation shader name cfg.${name});
