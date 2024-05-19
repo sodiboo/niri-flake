@@ -1359,14 +1359,6 @@ The left and right structs work in a similar way, except the padded space is not
 ## `programs.niri.settings.animations.shaders`
 
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 These options should contain the *source code* for GLSL shaders.
 
 See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
@@ -1401,17 +1393,6 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 <!-- sorting key: programs.niri.settings.j.animations.d.<animation>.easing.curve -->
 ## `<animation>.easing.curve`
 - type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo"`
-
-> [!important]
-> The following values for this option are not yet available in stable niri:
->
-> - `"linear"`
-> - `"ease-out-quad"`
->
-> If you wish to use one of the mentioned values, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 The curve to use for the easing function.
 
@@ -1549,14 +1530,6 @@ Every monitor has up to one active window, and `is-active=true` will match the a
 - type: `null or boolean`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 When non-null, for this field to match a window, the value must match whether the window is active in its column or not.
 
 Every column has exactly one active-in-column window. If it is the active column, this window is also the active window. A column may not have zero active-in-column windows, or more than one active-in-column window.
@@ -1629,14 +1602,6 @@ Every monitor has up to one active window, and `is-active=true` will match the a
 ## `programs.niri.settings.window-rules.*.excludes.*.is-active-in-column`
 - type: `null or boolean`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 When non-null, for this field to match a window, the value must match whether the window is active in its column or not.
 
@@ -1784,14 +1749,6 @@ Essentially, use `block-out-from = "screen-capture";` if you want to be sure tha
 ## `programs.niri.settings.window-rules.*.border`
 
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 See [`layout.border`](#programsnirisettingslayoutborder).
 
 
@@ -1832,14 +1789,6 @@ The color of the border for windows that do not have keyboard focus.
 - type: `null or boolean`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
 
 
@@ -1863,14 +1812,6 @@ You can set this option per window to override niri's default behaviour, and ins
 
 <!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring -->
 ## `programs.niri.settings.window-rules.*.focus-ring`
-
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 
 See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
@@ -1912,14 +1853,6 @@ The color of the focus ring for windows that do not have keyboard focus.
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius`
 - type: `null or (submodule)`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 The corner radii of the window decorations (border and focus ring) in logical pixels.
 

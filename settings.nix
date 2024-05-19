@@ -429,8 +429,6 @@ with docs.lib; rec {
           nullable types.bool
           // {
             description = ''
-              ${unstable-note}
-
               When non-null, for this field to match a window, the value must match whether the window is active in its column or not.
 
               Every column has exactly one active-in-column window. If it is the active column, this window is also the active window. A column may not have zero active-in-column windows, or more than one active-in-column window.
@@ -1223,8 +1221,6 @@ with docs.lib; rec {
                 required (enum ["linear" "ease-out-quad" "ease-out-cubic" "ease-out-expo"])
                 // {
                   description = ''
-                    ${unstable-enum ["linear" "ease-out-quad"]}
-
                     The curve to use for the easing function.
                   '';
                 };
@@ -1290,8 +1286,6 @@ with docs.lib; rec {
                 }
                 // {
                   description = ''
-                    ${unstable-note}
-
                     These options should contain the *source code* for GLSL shaders.
 
                     See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
@@ -1493,8 +1487,6 @@ with docs.lib; rec {
                   })
                   // {
                     description = ''
-                      ${unstable-note}
-
                       The corner radii of the window decorations (border and focus ring) in logical pixels.
 
                       By default, the actual window surface will be unaffected by this.
@@ -1507,8 +1499,6 @@ with docs.lib; rec {
                   nullable types.bool
                   // {
                     description = ''
-                      ${unstable-note}
-
                       Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
                     '';
                   };
@@ -1518,8 +1508,6 @@ with docs.lib; rec {
                   window = "matched window";
                   path = "programs.niri.settings.window-rules.*.border";
                   description = ''
-                    ${unstable-note}
-
                     See ${link' "programs.niri.settings.layout.border"}.
                   '';
                 };
@@ -1528,8 +1516,6 @@ with docs.lib; rec {
                   window = "matched window with focus";
                   path = "programs.niri.settings.window-rules.*.focus-ring";
                   description = ''
-                    ${unstable-note}
-
                     See ${link' "programs.niri.settings.layout.focus-ring"}.
                   '';
                 };
