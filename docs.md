@@ -851,12 +851,14 @@ If the position is unset or multiple outputs overlap, niri will instead place th
 
 <!-- sorting key: programs.niri.settings.g.outputs.scale -->
 ## `programs.niri.settings.outputs.<name>.scale`
-- type: `floating point number`
-- default: `1.000000`
+- type: `null or floating point number`
+- default: `null`
 
 The scale of this output, which represents how many physical pixels fit in one logical pixel.
 
 Although this is a floating-point number, niri currently only accepts integer values. It does not support fractional scaling.
+
+If this is null, niri will automatically pick a scale for you.
 
 
 <!-- sorting key: programs.niri.settings.g.outputs.transform.flipped -->

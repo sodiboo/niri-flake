@@ -959,12 +959,14 @@ with docs.lib; rec {
         outputs = attrs (record {
           enable = optional types.bool true;
           scale =
-            optional types.float 1.0
+            nullable types.float
             // {
               description = ''
                 The scale of this output, which represents how many physical pixels fit in one logical pixel.
 
                 Although this is a floating-point number, niri currently only accepts integer values. It does not support fractional scaling.
+
+                If this is null, niri will automatically pick a scale for you.
               '';
             };
           transform = {
