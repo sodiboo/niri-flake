@@ -425,6 +425,19 @@ with docs.lib; rec {
               Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
             '';
           };
+        is-active-in-column =
+          nullable types.bool
+          // {
+            description = ''
+              ${unstable-note}
+
+              When non-null, for this field to match a window, the value must match whether the window is active in its column or not.
+
+              Every column has exactly one active-in-column window. If it is the active column, this window is also the active window. A column may not have zero active-in-column windows, or more than one active-in-column window.
+
+              The active-in-column window is the window that was last focused in that column. When you switch focus to a column, the active-in-column window will be the new focused window.
+            '';
+          };
         is-focused =
           nullable types.bool
           // {
@@ -434,6 +447,15 @@ with docs.lib; rec {
               A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
 
               For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
+            '';
+          };
+      }
+      {
+        at-startup =
+          nullable types.bool
+          // {
+            description = ''
+              When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
             '';
           };
       }
@@ -1198,10 +1220,10 @@ with docs.lib; rec {
             easing = record {
               duration-ms = required types.int;
               curve =
-                required (enum ["ease-out-quad" "ease-out-cubic" "ease-out-expo"])
+                required (enum ["linear" "ease-out-quad" "ease-out-cubic" "ease-out-expo"])
                 // {
                   description = ''
-                    ${unstable-enum ["ease-out-quad"]}
+                    ${unstable-enum ["linear" "ease-out-quad"]}
 
                     The curve to use for the easing function.
                   '';
@@ -1249,21 +1271,6 @@ with docs.lib; rec {
             {
               enable = optional types.bool true;
               slowdown = optional types.float 1.0;
-              window-resize-shader =
-                nullable types.str
-                // {
-                  description = ''
-                    ${unstable-note}
-
-                    This option is unstable in niri-flake. It will be renamed/moved in the future.
-
-                    This option should contain the *source code* for a GLSL shader.
-
-                    See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-                    Note that multiline strings are borked lmao. For the shader, it'll work probably but this is a bug in my own kdl serializer.
-                  '';
-                };
             }
             (mapAttrs (const (v:
               optional (nullOr (newtype (link-type "animation") animation)) (removeAttrs v ["unstable"])
@@ -1274,6 +1281,23 @@ with docs.lib; rec {
                 '';
               }))
             defaults)
+            {
+              shaders =
+                section {
+                  window-open = nullable types.str;
+                  window-close = nullable types.str;
+                  window-resize = nullable types.str;
+                }
+                // {
+                  description = ''
+                    ${unstable-note}
+
+                    These options should contain the *source code* for GLSL shaders.
+
+                    See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+                  '';
+                };
+            }
             {
               __module = {
                 config,
@@ -2098,9 +2122,9 @@ with docs.lib; rec {
             (animation' null "horizontal-view-movement" cfg.animations)
             (animation' null "config-notification-open-close" cfg.animations)
             (animation' null "window-movement" cfg.animations)
-            (animation' null "window-open" cfg.animations)
-            (animation' null "window-close" cfg.animations)
-            (animation' cfg.animations.window-resize-shader "window-resize" cfg.animations)
+            (animation' cfg.animations.shaders.window-open "window-open" cfg.animations)
+            (animation' cfg.animations.shaders.window-close "window-close" cfg.animations)
+            (animation' cfg.animations.shaders.window-resize "window-resize" cfg.animations)
           ])
         ])
 

@@ -1245,28 +1245,6 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `1.000000`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.a.window-resize-shader -->
-## `programs.niri.settings.animations.window-resize-shader`
-- type: `null or string`
-- default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
-This option is unstable in niri-flake. It will be renamed/moved in the future.
-
-This option should contain the *source code* for a GLSL shader.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-Note that multiline strings are borked lmao. For the shader, it'll work probably but this is a bug in my own kdl serializer.
-
-
 <!-- sorting key: programs.niri.settings.j.animations.b.config-notification-open-close -->
 ## `programs.niri.settings.animations.config-notification-open-close`
 - type: `null or `[`<animation>`](#animation)
@@ -1377,21 +1355,57 @@ Note that multiline strings are borked lmao. For the shader, it'll work probably
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation> -->
+<!-- sorting key: programs.niri.settings.j.animations.c.shaders -->
+## `programs.niri.settings.animations.shaders`
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+These options should contain the *source code* for GLSL shaders.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.shaders.window-close -->
+## `programs.niri.settings.animations.shaders.window-close`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.shaders.window-open -->
+## `programs.niri.settings.animations.shaders.window-open`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.c.shaders.window-resize -->
+## `programs.niri.settings.animations.shaders.window-resize`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation> -->
 ## `<animation>`
 - type: `variant of: easing | spring`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing -->
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.easing -->
 <!-- <animation>.easing -->
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing.curve -->
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.easing.curve -->
 ## `<animation>.easing.curve`
-- type: `one of "ease-out-quad", "ease-out-cubic", "ease-out-expo"`
+- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo"`
 
 > [!important]
 > The following values for this option are not yet available in stable niri:
 >
+> - `"linear"`
 > - `"ease-out-quad"`
 >
 > If you wish to use one of the mentioned values, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
@@ -1402,25 +1416,25 @@ Note that multiline strings are borked lmao. For the shader, it'll work probably
 The curve to use for the easing function.
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.easing.duration-ms -->
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.easing.duration-ms -->
 ## `<animation>.easing.duration-ms`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring -->
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring -->
 <!-- <animation>.spring -->
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring.damping-ratio -->
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring.damping-ratio -->
 ## `<animation>.spring.damping-ratio`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring.epsilon -->
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring.epsilon -->
 ## `<animation>.spring.epsilon`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.<animation>.spring.stiffness -->
+<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring.stiffness -->
 ## `<animation>.spring.stiffness`
 - type: `signed integer`
 
@@ -1530,6 +1544,26 @@ When non-null, for this field to match a window, the value must match whether th
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
 
 
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.b.is-active-in-column -->
+## `programs.niri.settings.window-rules.*.matches.*.is-active-in-column`
+- type: `null or boolean`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+When non-null, for this field to match a window, the value must match whether the window is active in its column or not.
+
+Every column has exactly one active-in-column window. If it is the active column, this window is also the active window. A column may not have zero active-in-column windows, or more than one active-in-column window.
+
+The active-in-column window is the window that was last focused in that column. When you switch focus to a column, the active-in-column window will be the new focused window.
+
+
 <!-- sorting key: programs.niri.settings.l.window-rules.a.matches.b.is-focused -->
 ## `programs.niri.settings.window-rules.*.matches.*.is-focused`
 - type: `null or boolean`
@@ -1540,6 +1574,14 @@ When non-null, for this field to match a window, the value must match whether th
 A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
 
 For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.c.at-startup -->
+## `programs.niri.settings.window-rules.*.matches.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.b.excludes -->
@@ -1583,6 +1625,26 @@ When non-null, for this field to match a window, the value must match whether th
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
 
 
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.b.is-active-in-column -->
+## `programs.niri.settings.window-rules.*.excludes.*.is-active-in-column`
+- type: `null or boolean`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+When non-null, for this field to match a window, the value must match whether the window is active in its column or not.
+
+Every column has exactly one active-in-column window. If it is the active column, this window is also the active window. A column may not have zero active-in-column windows, or more than one active-in-column window.
+
+The active-in-column window is the window that was last focused in that column. When you switch focus to a column, the active-in-column window will be the new focused window.
+
+
 <!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.b.is-focused -->
 ## `programs.niri.settings.window-rules.*.excludes.*.is-focused`
 - type: `null or boolean`
@@ -1593,6 +1655,14 @@ When non-null, for this field to match a window, the value must match whether th
 A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
 
 For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.c.at-startup -->
+## `programs.niri.settings.window-rules.*.excludes.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
 
 
 <!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width -->
