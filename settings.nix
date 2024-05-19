@@ -617,6 +617,7 @@ with docs.lib; rec {
                         else " (only on niri-unstable)";
                       type-names = {
                         LayoutSwitchTarget = ''"next" | "prev"'';
+                        WorkspaceReference = "u8 | string";
                         SizeChange = "size-change";
                         bool = "bool";
                         u8 = "u8";

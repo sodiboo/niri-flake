@@ -384,14 +384,14 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `center-column`
 - `focus-workspace-down`
 - `focus-workspace-up`
-- `λ focus-workspace :: WorkspaceReference`
+- `λ focus-workspace :: u8 | string`
 - `focus-workspace-previous`
 - `move-window-to-workspace-down`
 - `move-window-to-workspace-up`
-- `λ move-window-to-workspace :: WorkspaceReference`
+- `λ move-window-to-workspace :: u8 | string`
 - `move-column-to-workspace-down`
 - `move-column-to-workspace-up`
-- `λ move-column-to-workspace :: WorkspaceReference`
+- `λ move-column-to-workspace :: u8 | string`
 - `move-workspace-down`
 - `move-workspace-up`
 - `focus-monitor-left`
