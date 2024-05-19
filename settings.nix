@@ -1245,7 +1245,7 @@ with docs.lib; rec {
             easing = record {
               duration-ms = required types.int;
               curve =
-                required (enum ["ease-out-quad" "ease-out-cubic" "ease-out-expo"])
+                required (enum ["ease-out-quad" "ease-out-cubic" "ease-out-expo" "linear"])
                 // {
                   description = ''
                     ${unstable-enum ["ease-out-quad"]}
