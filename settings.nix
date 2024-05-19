@@ -584,7 +584,8 @@ with docs.lib; rec {
 
                   - `{ field :: type }`: This means that the action takes a named argument (in kdl, we call it a property). \
                     To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
-                    Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above).
+                    Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above). \
+                    If a field is marked with `?`, then omitting it is meaningful. (without `?`, it will have a default value)
 
                   - `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
                     `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
@@ -621,6 +622,7 @@ with docs.lib; rec {
                         SizeChange = "size-change";
                         bool = "bool";
                         u8 = "u8";
+                        u16 = "u16";
                         String = "string";
                       };
 
@@ -637,7 +639,7 @@ with docs.lib; rec {
                           else params.type
                         ));
                         list = lambda "[${type-or params.type params.type}]";
-                        prop = lambda "{ ${optionalString (!params.use-default) "*"}${params.field} :: ${type-names.${params.type} or (warn "unhandled type `${params.type}`" params.type)} }";
+                        prop = lambda "{ ${optionalString (!params.use-default) "*"}${params.field}${optionalString params.none-important "?"} :: ${type-names.${params.type} or (warn "unhandled type `${params.type}`" params.type)} }";
                         unknown = ''
                           ${lambda "unknown"}
 

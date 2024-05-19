@@ -85,7 +85,22 @@ in
                       type = elemAt m 2;
                     in {
                       kind = "prop";
+                      none-important = false;
                       inherit field use-default type;
+                    })
+                  ])
+                  (short-circuit raw [
+                    (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)\)] Option<([A-Za-z0-9]+)>'')
+                    (m: let
+                      field = elemAt m 0;
+                      type = elemAt m 1;
+                    in {
+                      kind = "prop";
+                      # Option<T> always has a default value.
+                      use-default = true;
+                      # And it is actively meaningful to omit.
+                      none-important = true;
+                      inherit field type;
                     })
                   ])
                   {
