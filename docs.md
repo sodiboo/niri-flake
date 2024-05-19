@@ -474,7 +474,56 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 - type: `list of string`
 
 
-<!-- sorting key: programs.niri.settings.f.input.focus-follows-mouse -->
+<!-- sorting key: programs.niri.settings.f.workspaces -->
+## `programs.niri.settings.workspaces`
+- type: `attribute set of (submodule)`
+
+Declare named workspaces.
+
+Named workspaces are similar to regular, dynamic workspaces, except they can be
+referred to by name, and they are persistent, they do not close when there are
+no more windows left on them.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.workspaces."name" = {};
+  programs.niri.settings.workspaces."01-another-one" = {
+    open-on-output = "DP-1";
+    name = "another-one";
+  };
+}
+```
+
+Unless a `name` is declared, the workspace will use the attribute key as the name.
+
+Workspaces will be created in a specific order: sorted by key. If you do not care
+about the order of named workspaces, you can skip using the `name` attribute, and
+use the key instead. If you do care about it, you can use the key to order them,
+and a `name` attribute to have a friendlier name.
+
+
+<!-- sorting key: programs.niri.settings.f.workspaces.name -->
+## `programs.niri.settings.workspaces.<name>.name`
+- type: `null or string`
+- default: `null`
+
+An (optional) name for the workspace. Defaults to the value of the key.
+
+This attribute is intended to be used when you wish to preserve a specific
+order for the named workspaces.
+
+
+<!-- sorting key: programs.niri.settings.f.workspaces.open-on-output -->
+## `programs.niri.settings.workspaces.<name>.open-on-output`
+- type: `null or string`
+- default: `null`
+
+The name of the output the workspace should be assigned to.
+
+
+<!-- sorting key: programs.niri.settings.g.input.focus-follows-mouse -->
 ## `programs.niri.settings.input.focus-follows-mouse`
 - type: `boolean`
 - default: `false`
@@ -482,7 +531,7 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 Whether to focus the window under the mouse when the mouse moves.
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.repeat-delay -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.repeat-delay -->
 ## `programs.niri.settings.input.keyboard.repeat-delay`
 - type: `signed integer`
 - default: `600`
@@ -490,7 +539,7 @@ Whether to focus the window under the mouse when the mouse moves.
 The delay in milliseconds before a key starts repeating.
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.repeat-rate -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.repeat-rate -->
 ## `programs.niri.settings.input.keyboard.repeat-rate`
 - type: `signed integer`
 - default: `25`
@@ -498,7 +547,7 @@ The delay in milliseconds before a key starts repeating.
 The rate in characters per second at which a key repeats.
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.track-layout -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.track-layout -->
 ## `programs.niri.settings.input.keyboard.track-layout`
 - type: `one of "global", "window"`
 - default: `"global"`
@@ -508,7 +557,7 @@ The keyboard layout can be remembered per `"window"`, such that when you switch 
 By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.xkb -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.xkb -->
 ## `programs.niri.settings.input.keyboard.xkb`
 
 
@@ -518,7 +567,7 @@ Further reading:
 - [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.layout -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.xkb.layout -->
 ## `programs.niri.settings.input.keyboard.xkb.layout`
 - type: `string`
 - default: `""`
@@ -531,7 +580,7 @@ If this is set to an empty string, the layout will be read from the `XKB_DEFAULT
 
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.model -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.xkb.model -->
 ## `programs.niri.settings.input.keyboard.xkb.model`
 - type: `string`
 - default: `""`
@@ -544,7 +593,7 @@ If this is set to an empty string, the model will be read from the `XKB_DEFAULT_
 
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.options -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.xkb.options -->
 ## `programs.niri.settings.input.keyboard.xkb.options`
 - type: `null or string`
 - default: `null`
@@ -559,7 +608,7 @@ If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` 
 
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.rules -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.xkb.rules -->
 ## `programs.niri.settings.input.keyboard.xkb.rules`
 - type: `string`
 - default: `""`
@@ -572,7 +621,7 @@ If this is set to an empty string, the rules will be read from the `XKB_DEFAULT_
 
 
 
-<!-- sorting key: programs.niri.settings.f.input.keyboard.xkb.variant -->
+<!-- sorting key: programs.niri.settings.g.input.keyboard.xkb.variant -->
 ## `programs.niri.settings.input.keyboard.xkb.variant`
 - type: `string`
 - default: `""`
@@ -585,7 +634,7 @@ If this is set to an empty string, the variant will be read from the `XKB_DEFAUL
 
 
 
-<!-- sorting key: programs.niri.settings.f.input.mouse.accel-profile -->
+<!-- sorting key: programs.niri.settings.g.input.mouse.accel-profile -->
 ## `programs.niri.settings.input.mouse.accel-profile`
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
@@ -594,7 +643,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
-<!-- sorting key: programs.niri.settings.f.input.mouse.accel-speed -->
+<!-- sorting key: programs.niri.settings.g.input.mouse.accel-speed -->
 ## `programs.niri.settings.input.mouse.accel-speed`
 - type: `floating point number`
 - default: `0.000000`
@@ -603,7 +652,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
-<!-- sorting key: programs.niri.settings.f.input.mouse.natural-scroll -->
+<!-- sorting key: programs.niri.settings.g.input.mouse.natural-scroll -->
 ## `programs.niri.settings.input.mouse.natural-scroll`
 - type: `boolean`
 - default: `false`
@@ -615,7 +664,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
-<!-- sorting key: programs.niri.settings.f.input.power-key-handling.enable -->
+<!-- sorting key: programs.niri.settings.g.input.power-key-handling.enable -->
 ## `programs.niri.settings.input.power-key-handling.enable`
 - type: `boolean`
 - default: `true`
@@ -625,19 +674,19 @@ By default, niri will take over the power button to make it sleep instead of pow
 You can disable this behaviour if you prefer to configure the power button elsewhere.
 
 
-<!-- sorting key: programs.niri.settings.f.input.tablet.map-to-output -->
+<!-- sorting key: programs.niri.settings.g.input.tablet.map-to-output -->
 ## `programs.niri.settings.input.tablet.map-to-output`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.f.input.touch.map-to-output -->
+<!-- sorting key: programs.niri.settings.g.input.touch.map-to-output -->
 ## `programs.niri.settings.input.touch.map-to-output`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.accel-profile -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.accel-profile -->
 ## `programs.niri.settings.input.touchpad.accel-profile`
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
@@ -646,7 +695,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.accel-speed -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.accel-speed -->
 ## `programs.niri.settings.input.touchpad.accel-speed`
 - type: `floating point number`
 - default: `0.000000`
@@ -655,7 +704,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.click-method -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.click-method -->
 ## `programs.niri.settings.input.touchpad.click-method`
 - type: `null or one of "button-areas", "clickfinger"`
 - default: `null`
@@ -673,7 +722,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.dwt -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.dwt -->
 ## `programs.niri.settings.input.touchpad.dwt`
 - type: `boolean`
 - default: `false`
@@ -685,7 +734,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-typing
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.dwtp -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.dwtp -->
 ## `programs.niri.settings.input.touchpad.dwtp`
 - type: `boolean`
 - default: `false`
@@ -697,7 +746,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.natural-scroll -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.natural-scroll -->
 ## `programs.niri.settings.input.touchpad.natural-scroll`
 - type: `boolean`
 - default: `true`
@@ -709,7 +758,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.tap -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.tap -->
 ## `programs.niri.settings.input.touchpad.tap`
 - type: `boolean`
 - default: `true`
@@ -721,7 +770,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-to-click-behaviour
 
 
-<!-- sorting key: programs.niri.settings.f.input.touchpad.tap-button-map -->
+<!-- sorting key: programs.niri.settings.g.input.touchpad.tap-button-map -->
 ## `programs.niri.settings.input.touchpad.tap-button-map`
 - type: `null or one of "left-middle-right", "left-right-middle"`
 - default: `null`
@@ -732,7 +781,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
 
 
-<!-- sorting key: programs.niri.settings.f.input.trackpoint.accel-profile -->
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.accel-profile -->
 ## `programs.niri.settings.input.trackpoint.accel-profile`
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
@@ -741,7 +790,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
-<!-- sorting key: programs.niri.settings.f.input.trackpoint.accel-speed -->
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.accel-speed -->
 ## `programs.niri.settings.input.trackpoint.accel-speed`
 - type: `floating point number`
 - default: `0.000000`
@@ -750,7 +799,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
-<!-- sorting key: programs.niri.settings.f.input.trackpoint.natural-scroll -->
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.natural-scroll -->
 ## `programs.niri.settings.input.trackpoint.natural-scroll`
 - type: `boolean`
 - default: `false`
@@ -762,7 +811,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
-<!-- sorting key: programs.niri.settings.f.input.warp-mouse-to-focus -->
+<!-- sorting key: programs.niri.settings.g.input.warp-mouse-to-focus -->
 ## `programs.niri.settings.input.warp-mouse-to-focus`
 - type: `boolean`
 - default: `false`
@@ -770,7 +819,7 @@ Further reading:
 Whether to warp the mouse to the focused window when switching focus.
 
 
-<!-- sorting key: programs.niri.settings.f.input.workspace-auto-back-and-forth -->
+<!-- sorting key: programs.niri.settings.g.input.workspace-auto-back-and-forth -->
 ## `programs.niri.settings.input.workspace-auto-back-and-forth`
 - type: `boolean`
 - default: `false`
@@ -780,18 +829,18 @@ When invoking `focus-workspace` to switch to a workspace by index, if the worksp
 Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
 
 
-<!-- sorting key: programs.niri.settings.g.outputs -->
+<!-- sorting key: programs.niri.settings.h.outputs -->
 ## `programs.niri.settings.outputs`
 - type: `attribute set of (submodule)`
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.enable -->
+<!-- sorting key: programs.niri.settings.h.outputs.enable -->
 ## `programs.niri.settings.outputs.<name>.enable`
 - type: `boolean`
 - default: `true`
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.mode -->
+<!-- sorting key: programs.niri.settings.h.outputs.mode -->
 ## `programs.niri.settings.outputs.<name>.mode`
 - type: `null or (submodule)`
 - default: `null`
@@ -803,12 +852,12 @@ By default, when this is null, niri will automatically pick a mode for you.
 If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.mode.height -->
+<!-- sorting key: programs.niri.settings.h.outputs.mode.height -->
 ## `programs.niri.settings.outputs.<name>.mode.height`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.mode.refresh -->
+<!-- sorting key: programs.niri.settings.h.outputs.mode.refresh -->
 ## `programs.niri.settings.outputs.<name>.mode.refresh`
 - type: `null or floating point number`
 - default: `null`
@@ -816,12 +865,12 @@ If this is set to an invalid mode (i.e unsupported by this output), niri will ac
 The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.mode.width -->
+<!-- sorting key: programs.niri.settings.h.outputs.mode.width -->
 ## `programs.niri.settings.outputs.<name>.mode.width`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.position -->
+<!-- sorting key: programs.niri.settings.h.outputs.position -->
 ## `programs.niri.settings.outputs.<name>.position`
 - type: `null or (submodule)`
 - default: `null`
@@ -839,17 +888,17 @@ For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x
 If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.position.x -->
+<!-- sorting key: programs.niri.settings.h.outputs.position.x -->
 ## `programs.niri.settings.outputs.<name>.position.x`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.position.y -->
+<!-- sorting key: programs.niri.settings.h.outputs.position.y -->
 ## `programs.niri.settings.outputs.<name>.position.y`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.scale -->
+<!-- sorting key: programs.niri.settings.h.outputs.scale -->
 ## `programs.niri.settings.outputs.<name>.scale`
 - type: `null or floating point number`
 - default: `null`
@@ -861,7 +910,7 @@ Although this is a floating-point number, niri currently only accepts integer va
 If this is null, niri will automatically pick a scale for you.
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.transform.flipped -->
+<!-- sorting key: programs.niri.settings.h.outputs.transform.flipped -->
 ## `programs.niri.settings.outputs.<name>.transform.flipped`
 - type: `boolean`
 - default: `false`
@@ -869,7 +918,7 @@ If this is null, niri will automatically pick a scale for you.
 Whether to flip this output vertically.
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.transform.rotation -->
+<!-- sorting key: programs.niri.settings.h.outputs.transform.rotation -->
 ## `programs.niri.settings.outputs.<name>.transform.rotation`
 - type: `one of 0, 90, 180, 270`
 - default: `0`
@@ -877,7 +926,7 @@ Whether to flip this output vertically.
 Counter-clockwise rotation of this output in degrees.
 
 
-<!-- sorting key: programs.niri.settings.g.outputs.variable-refresh-rate -->
+<!-- sorting key: programs.niri.settings.h.outputs.variable-refresh-rate -->
 ## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
 - type: `boolean`
 - default: `false`
@@ -887,7 +936,7 @@ Whether to enable variable refresh rate (VRR) on this output.
 VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
 
 
-<!-- sorting key: programs.niri.settings.h.cursor.size -->
+<!-- sorting key: programs.niri.settings.i.cursor.size -->
 ## `programs.niri.settings.cursor.size`
 - type: `signed integer`
 - default: `24`
@@ -897,7 +946,7 @@ The size of the cursor in logical pixels.
 This will also set the XCURSOR_SIZE environment variable for all spawned processes.
 
 
-<!-- sorting key: programs.niri.settings.h.cursor.theme -->
+<!-- sorting key: programs.niri.settings.i.cursor.theme -->
 ## `programs.niri.settings.cursor.theme`
 - type: `string`
 - default: `"default"`
@@ -907,10 +956,10 @@ The name of the xcursor theme to use.
 This will also set the XCURSOR_THEME environment variable for all spawned processes.
 
 
-<!-- sorting key: programs.niri.settings.i.layout -->
+<!-- sorting key: programs.niri.settings.j.layout -->
 <!-- programs.niri.settings.layout -->
 
-<!-- sorting key: programs.niri.settings.i.layout.a.border -->
+<!-- sorting key: programs.niri.settings.j.layout.a.border -->
 ## `programs.niri.settings.layout.border`
 
 
@@ -921,7 +970,7 @@ The currently focused window, i.e. the window that can receive keyboard input, w
 If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.border.a.enable -->
+<!-- sorting key: programs.niri.settings.j.layout.a.border.a.enable -->
 ## `programs.niri.settings.layout.border.enable`
 - type: `boolean`
 - default: `false`
@@ -929,7 +978,7 @@ If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled
 Whether to enable the border.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.border.a.width -->
+<!-- sorting key: programs.niri.settings.j.layout.a.border.a.width -->
 ## `programs.niri.settings.layout.border.width`
 - type: `signed integer`
 - default: `4`
@@ -937,7 +986,7 @@ Whether to enable the border.
 The width of the border drawn around each window.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.border.b.active -->
+<!-- sorting key: programs.niri.settings.j.layout.a.border.b.active -->
 ## `programs.niri.settings.layout.border.active`
 - type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default:
@@ -951,7 +1000,7 @@ The width of the border drawn around each window.
 The color of the border for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.border.b.inactive -->
+<!-- sorting key: programs.niri.settings.j.layout.a.border.b.inactive -->
 ## `programs.niri.settings.layout.border.inactive`
 - type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default:
@@ -965,7 +1014,7 @@ The color of the border for the window that has keyboard focus.
 The color of the border for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring -->
+<!-- sorting key: programs.niri.settings.j.layout.a.focus-ring -->
 ## `programs.niri.settings.layout.focus-ring`
 
 
@@ -976,7 +1025,7 @@ The focused window of the currently focused monitor, i.e. the window that can re
 If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.a.enable -->
+<!-- sorting key: programs.niri.settings.j.layout.a.focus-ring.a.enable -->
 ## `programs.niri.settings.layout.focus-ring.enable`
 - type: `boolean`
 - default: `true`
@@ -984,7 +1033,7 @@ If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the fo
 Whether to enable the focus ring.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.a.width -->
+<!-- sorting key: programs.niri.settings.j.layout.a.focus-ring.a.width -->
 ## `programs.niri.settings.layout.focus-ring.width`
 - type: `signed integer`
 - default: `4`
@@ -992,7 +1041,7 @@ Whether to enable the focus ring.
 The width of the focus ring drawn around each focused window.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.b.active -->
+<!-- sorting key: programs.niri.settings.j.layout.a.focus-ring.b.active -->
 ## `programs.niri.settings.layout.focus-ring.active`
 - type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default:
@@ -1006,7 +1055,7 @@ The width of the focus ring drawn around each focused window.
 The color of the focus ring for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.a.focus-ring.b.inactive -->
+<!-- sorting key: programs.niri.settings.j.layout.a.focus-ring.b.inactive -->
 ## `programs.niri.settings.layout.focus-ring.inactive`
 - type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default:
@@ -1020,7 +1069,7 @@ The color of the focus ring for the window that has keyboard focus.
 The color of the focus ring for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.b.decoration -->
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration -->
 ## `<decoration>`
 - type: `variant of: color | gradient`
 
@@ -1031,7 +1080,7 @@ This type specifically represents decorations drawn by niri: that is, [`layout.f
 
 
 
-<!-- sorting key: programs.niri.settings.i.layout.b.decoration.color -->
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration.color -->
 ## `<decoration>.color`
 - type: `string`
 
@@ -1042,7 +1091,7 @@ This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color
 The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient -->
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient -->
 ## `<decoration>.gradient`
 - type: `gradient`
 
@@ -1051,7 +1100,7 @@ A linear gradient to use for the decoration.
 This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.angle -->
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.angle -->
 ## `<decoration>.gradient.angle`
 - type: `signed integer`
 - default: `180`
@@ -1061,7 +1110,7 @@ The angle of the gradient, in degrees, measured clockwise from a gradient that s
 This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.from -->
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.from -->
 ## `<decoration>.gradient.from`
 - type: `string`
 
@@ -1070,7 +1119,7 @@ The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.relative-to -->
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.relative-to -->
 ## `<decoration>.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
@@ -1100,7 +1149,7 @@ the bottom edge of the big window is almost entirely yellow, and the top edge of
 these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
 
 
-<!-- sorting key: programs.niri.settings.i.layout.b.decoration.gradient.to -->
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.to -->
 ## `<decoration>.gradient.to`
 - type: `string`
 
@@ -1109,7 +1158,7 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.center-focused-column -->
+<!-- sorting key: programs.niri.settings.j.layout.c.center-focused-column -->
 ## `programs.niri.settings.layout.center-focused-column`
 - type: `one of "never", "always", "on-overflow"`
 - default: `"never"`
@@ -1121,7 +1170,7 @@ When changing focus, niri can automatically center the focused column.
 - `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.default-column-width -->
+<!-- sorting key: programs.niri.settings.j.layout.c.default-column-width -->
 ## `programs.niri.settings.layout.default-column-width`
 - type: `{} or (variant of: fixed | proportion)`
 
@@ -1134,21 +1183,21 @@ See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-wid
 You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.default-column-width.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.c.default-column-width.fixed -->
 ## `programs.niri.settings.layout.default-column-width.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.default-column-width.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.c.default-column-width.proportion -->
 ## `programs.niri.settings.layout.default-column-width.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.gaps -->
+<!-- sorting key: programs.niri.settings.j.layout.c.gaps -->
 ## `programs.niri.settings.layout.gaps`
 - type: `signed integer`
 - default: `16`
@@ -1156,7 +1205,7 @@ The width of the column as a proportion of the screen's width
 The gap between windows in the layout, measured in logical pixels.
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.preset-column-widths -->
+<!-- sorting key: programs.niri.settings.j.layout.c.preset-column-widths -->
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of variant of: fixed | proportion`
 
@@ -1179,21 +1228,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.preset-column-widths.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.c.preset-column-widths.fixed -->
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.preset-column-widths.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.c.preset-column-widths.proportion -->
 ## `programs.niri.settings.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.struts -->
+<!-- sorting key: programs.niri.settings.j.layout.c.struts -->
 ## `programs.niri.settings.layout.struts`
 
 
@@ -1206,46 +1255,46 @@ Struts are computed in addition to layer-shell surfaces. If you have a waybar of
 The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.struts.bottom -->
+<!-- sorting key: programs.niri.settings.j.layout.c.struts.bottom -->
 ## `programs.niri.settings.layout.struts.bottom`
 - type: `signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.struts.left -->
+<!-- sorting key: programs.niri.settings.j.layout.c.struts.left -->
 ## `programs.niri.settings.layout.struts.left`
 - type: `signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.struts.right -->
+<!-- sorting key: programs.niri.settings.j.layout.c.struts.right -->
 ## `programs.niri.settings.layout.struts.right`
 - type: `signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.i.layout.c.struts.top -->
+<!-- sorting key: programs.niri.settings.j.layout.c.struts.top -->
 ## `programs.niri.settings.layout.struts.top`
 - type: `signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.j.animations -->
+<!-- sorting key: programs.niri.settings.k.animations -->
 <!-- programs.niri.settings.animations -->
 
-<!-- sorting key: programs.niri.settings.j.animations.a.enable -->
+<!-- sorting key: programs.niri.settings.k.animations.a.enable -->
 ## `programs.niri.settings.animations.enable`
 - type: `boolean`
 - default: `true`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.a.slowdown -->
+<!-- sorting key: programs.niri.settings.k.animations.a.slowdown -->
 ## `programs.niri.settings.animations.slowdown`
 - type: `floating point number`
 - default: `1.000000`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.config-notification-open-close -->
+<!-- sorting key: programs.niri.settings.k.animations.b.config-notification-open-close -->
 ## `programs.niri.settings.animations.config-notification-open-close`
 - type: `null or `[`<animation>`](#animation)
 - default:
@@ -1261,7 +1310,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.horizontal-view-movement -->
+<!-- sorting key: programs.niri.settings.k.animations.b.horizontal-view-movement -->
 ## `programs.niri.settings.animations.horizontal-view-movement`
 - type: `null or `[`<animation>`](#animation)
 - default:
@@ -1277,7 +1326,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.window-close -->
+<!-- sorting key: programs.niri.settings.k.animations.b.window-close -->
 ## `programs.niri.settings.animations.window-close`
 - type: `null or `[`<animation>`](#animation)
 - default:
@@ -1292,7 +1341,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.window-movement -->
+<!-- sorting key: programs.niri.settings.k.animations.b.window-movement -->
 ## `programs.niri.settings.animations.window-movement`
 - type: `null or `[`<animation>`](#animation)
 - default:
@@ -1308,7 +1357,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.window-open -->
+<!-- sorting key: programs.niri.settings.k.animations.b.window-open -->
 ## `programs.niri.settings.animations.window-open`
 - type: `null or `[`<animation>`](#animation)
 - default:
@@ -1323,7 +1372,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.window-resize -->
+<!-- sorting key: programs.niri.settings.k.animations.b.window-resize -->
 ## `programs.niri.settings.animations.window-resize`
 - type: `null or `[`<animation>`](#animation)
 - default:
@@ -1339,7 +1388,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.b.workspace-switch -->
+<!-- sorting key: programs.niri.settings.k.animations.b.workspace-switch -->
 ## `programs.niri.settings.animations.workspace-switch`
 - type: `null or `[`<animation>`](#animation)
 - default:
@@ -1355,7 +1404,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.shaders -->
+<!-- sorting key: programs.niri.settings.k.animations.c.shaders -->
 ## `programs.niri.settings.animations.shaders`
 
 
@@ -1364,63 +1413,63 @@ These options should contain the *source code* for GLSL shaders.
 See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.shaders.window-close -->
+<!-- sorting key: programs.niri.settings.k.animations.c.shaders.window-close -->
 ## `programs.niri.settings.animations.shaders.window-close`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.shaders.window-open -->
+<!-- sorting key: programs.niri.settings.k.animations.c.shaders.window-open -->
 ## `programs.niri.settings.animations.shaders.window-open`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.c.shaders.window-resize -->
+<!-- sorting key: programs.niri.settings.k.animations.c.shaders.window-resize -->
 ## `programs.niri.settings.animations.shaders.window-resize`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation> -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation> -->
 ## `<animation>`
 - type: `variant of: easing | spring`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.easing -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation>.easing -->
 <!-- <animation>.easing -->
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.easing.curve -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation>.easing.curve -->
 ## `<animation>.easing.curve`
 - type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo"`
 
 The curve to use for the easing function.
 
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.easing.duration-ms -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation>.easing.duration-ms -->
 ## `<animation>.easing.duration-ms`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation>.spring -->
 <!-- <animation>.spring -->
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring.damping-ratio -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation>.spring.damping-ratio -->
 ## `<animation>.spring.damping-ratio`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring.epsilon -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation>.spring.epsilon -->
 ## `<animation>.spring.epsilon`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.j.animations.d.<animation>.spring.stiffness -->
+<!-- sorting key: programs.niri.settings.k.animations.d.<animation>.spring.stiffness -->
 ## `<animation>.spring.stiffness`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.k.environment -->
+<!-- sorting key: programs.niri.settings.l.environment -->
 ## `programs.niri.settings.environment`
 - type: `attribute set of (null or string)`
 
@@ -1442,7 +1491,7 @@ Examples:
 ```
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules -->
+<!-- sorting key: programs.niri.settings.m.window-rules -->
 ## `programs.niri.settings.window-rules`
 - type: `list of window rule`
 
@@ -1484,7 +1533,7 @@ The "final value" of a field is simply its value at the end of this process. Tha
 If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches -->
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches -->
 ## `programs.niri.settings.window-rules.*.matches`
 - type: `list of match rule`
 
@@ -1495,7 +1544,7 @@ If any of these rules match a window (or there are none), that window rule will 
 If all of the rules do not match a window, then this window rule will not apply to that window.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.a.app-id -->
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches.a.app-id -->
 ## `programs.niri.settings.window-rules.*.matches.*.app-id`
 - type: `null or regular expression`
 - default: `null`
@@ -1505,7 +1554,7 @@ A regular expression to match against the app id of the window.
 When non-null, for this field to match a window, a client must set the app id of its window and the app id must match this regex.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.a.title -->
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches.a.title -->
 ## `programs.niri.settings.window-rules.*.matches.*.title`
 - type: `null or regular expression`
 - default: `null`
@@ -1515,7 +1564,7 @@ A regular expression to match against the title of the window.
 When non-null, for this field to match a window, a client must set the title of its window and the title must match this regex.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.b.is-active -->
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches.b.is-active -->
 ## `programs.niri.settings.window-rules.*.matches.*.is-active`
 - type: `null or boolean`
 - default: `null`
@@ -1525,7 +1574,7 @@ When non-null, for this field to match a window, the value must match whether th
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.b.is-active-in-column -->
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches.b.is-active-in-column -->
 ## `programs.niri.settings.window-rules.*.matches.*.is-active-in-column`
 - type: `null or boolean`
 - default: `null`
@@ -1537,7 +1586,7 @@ Every column has exactly one active-in-column window. If it is the active column
 The active-in-column window is the window that was last focused in that column. When you switch focus to a column, the active-in-column window will be the new focused window.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.b.is-focused -->
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches.b.is-focused -->
 ## `programs.niri.settings.window-rules.*.matches.*.is-focused`
 - type: `null or boolean`
 - default: `null`
@@ -1549,7 +1598,7 @@ A note on terminology used here: a window is actually a toplevel surface, and a 
 For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.a.matches.c.at-startup -->
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches.c.at-startup -->
 ## `programs.niri.settings.window-rules.*.matches.*.at-startup`
 - type: `null or boolean`
 - default: `null`
@@ -1557,7 +1606,7 @@ For a window to be focused, its surface must be focused. There is up to one focu
 When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes -->
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes -->
 ## `programs.niri.settings.window-rules.*.excludes`
 - type: `list of match rule`
 
@@ -1568,7 +1617,7 @@ If any of these rules match a window, then this window rule will not apply to th
 If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches)
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.a.app-id -->
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.a.app-id -->
 ## `programs.niri.settings.window-rules.*.excludes.*.app-id`
 - type: `null or regular expression`
 - default: `null`
@@ -1578,7 +1627,7 @@ A regular expression to match against the app id of the window.
 When non-null, for this field to match a window, a client must set the app id of its window and the app id must match this regex.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.a.title -->
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.a.title -->
 ## `programs.niri.settings.window-rules.*.excludes.*.title`
 - type: `null or regular expression`
 - default: `null`
@@ -1588,7 +1637,7 @@ A regular expression to match against the title of the window.
 When non-null, for this field to match a window, a client must set the title of its window and the title must match this regex.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.b.is-active -->
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.b.is-active -->
 ## `programs.niri.settings.window-rules.*.excludes.*.is-active`
 - type: `null or boolean`
 - default: `null`
@@ -1598,7 +1647,7 @@ When non-null, for this field to match a window, the value must match whether th
 Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.b.is-active-in-column -->
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.b.is-active-in-column -->
 ## `programs.niri.settings.window-rules.*.excludes.*.is-active-in-column`
 - type: `null or boolean`
 - default: `null`
@@ -1610,7 +1659,7 @@ Every column has exactly one active-in-column window. If it is the active column
 The active-in-column window is the window that was last focused in that column. When you switch focus to a column, the active-in-column window will be the new focused window.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.b.is-focused -->
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.b.is-focused -->
 ## `programs.niri.settings.window-rules.*.excludes.*.is-focused`
 - type: `null or boolean`
 - default: `null`
@@ -1622,7 +1671,7 @@ A note on terminology used here: a window is actually a toplevel surface, and a 
 For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.b.excludes.c.at-startup -->
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.c.at-startup -->
 ## `programs.niri.settings.window-rules.*.excludes.*.at-startup`
 - type: `null or boolean`
 - default: `null`
@@ -1630,7 +1679,7 @@ For a window to be focused, its surface must be focused. There is up to one focu
 When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width -->
+<!-- sorting key: programs.niri.settings.m.window-rules.c.default-column-width -->
 ## `programs.niri.settings.window-rules.*.default-column-width`
 - type: `null or {} or (variant of: fixed | proportion)`
 - default: `null`
@@ -1642,21 +1691,21 @@ If this option is not null, then its value will take priority over [`layout.defa
 As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width.fixed -->
+<!-- sorting key: programs.niri.settings.m.window-rules.c.default-column-width.fixed -->
 ## `programs.niri.settings.window-rules.*.default-column-width.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.c.default-column-width.proportion -->
+<!-- sorting key: programs.niri.settings.m.window-rules.c.default-column-width.proportion -->
 ## `programs.niri.settings.window-rules.*.default-column-width.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.c.open-fullscreen -->
+<!-- sorting key: programs.niri.settings.m.window-rules.c.open-fullscreen -->
 ## `programs.niri.settings.window-rules.*.open-fullscreen`
 - type: `null or boolean`
 - default: `null`
@@ -1670,7 +1719,7 @@ If the final value of this field is false, then this window is never allowed to 
 If the final value of this field is null, then the client gets to decide if this window will open in fullscreen.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.c.open-maximized -->
+<!-- sorting key: programs.niri.settings.m.window-rules.c.open-maximized -->
 ## `programs.niri.settings.window-rules.*.open-maximized`
 - type: `null or boolean`
 - default: `null`
@@ -1682,7 +1731,7 @@ If the final value of this field is null or false, then the window will not open
 If the final value of this field is true, then the window will open in a maximized column.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.c.open-on-output -->
+<!-- sorting key: programs.niri.settings.m.window-rules.c.open-on-output -->
 ## `programs.niri.settings.window-rules.*.open-on-output`
 - type: `null or string`
 - default: `null`
@@ -1694,7 +1743,19 @@ If final value of this field is an output that exists, the new window will open 
 If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.block-out-from -->
+<!-- sorting key: programs.niri.settings.m.window-rules.c.open-on-workspace -->
+## `programs.niri.settings.window-rules.*.open-on-workspace`
+- type: `null or string`
+- default: `null`
+
+The workspace to open this window on.
+
+If the final value of this field is a named workspace that exists, the window will open on that workspace.
+
+If the final value of this is a named workspace that does not exist, or it is null, the window opens on the currently focused workspace.
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.block-out-from -->
 ## `programs.niri.settings.window-rules.*.block-out-from`
 - type: `null or one of "screencast", "screen-capture"`
 - default: `null`
@@ -1745,14 +1806,14 @@ There are three methods of screencapture in niri:
 Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.border -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.border -->
 ## `programs.niri.settings.window-rules.*.border`
 
 
 See [`layout.border`](#programsnirisettingslayoutborder).
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.border.a.enable -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.border.a.enable -->
 ## `programs.niri.settings.window-rules.*.border.enable`
 - type: `null or boolean`
 - default: `null`
@@ -1760,7 +1821,7 @@ See [`layout.border`](#programsnirisettingslayoutborder).
 Whether to enable the border.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.border.a.width -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.border.a.width -->
 ## `programs.niri.settings.window-rules.*.border.width`
 - type: `null or signed integer`
 - default: `null`
@@ -1768,7 +1829,7 @@ Whether to enable the border.
 The width of the border drawn around each matched window.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.border.b.active -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.border.b.active -->
 ## `programs.niri.settings.window-rules.*.border.active`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -1776,7 +1837,7 @@ The width of the border drawn around each matched window.
 The color of the border for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.border.b.inactive -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.border.b.inactive -->
 ## `programs.niri.settings.window-rules.*.border.inactive`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -1784,7 +1845,7 @@ The color of the border for the window that has keyboard focus.
 The color of the border for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.clip-to-geometry -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.clip-to-geometry -->
 ## `programs.niri.settings.window-rules.*.clip-to-geometry`
 - type: `null or boolean`
 - default: `null`
@@ -1792,7 +1853,7 @@ The color of the border for windows that do not have keyboard focus.
 Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.draw-border-with-background -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.draw-border-with-background -->
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
 - default: `null`
@@ -1810,14 +1871,14 @@ If you wish to make windows sucha s your terminal transparent, and they use CSD,
 You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.focus-ring -->
 ## `programs.niri.settings.window-rules.*.focus-ring`
 
 
 See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.a.enable -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.focus-ring.a.enable -->
 ## `programs.niri.settings.window-rules.*.focus-ring.enable`
 - type: `null or boolean`
 - default: `null`
@@ -1825,7 +1886,7 @@ See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
 Whether to enable the focus ring.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.a.width -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.focus-ring.a.width -->
 ## `programs.niri.settings.window-rules.*.focus-ring.width`
 - type: `null or signed integer`
 - default: `null`
@@ -1833,7 +1894,7 @@ Whether to enable the focus ring.
 The width of the focus ring drawn around each matched window with focus.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.b.active -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.focus-ring.b.active -->
 ## `programs.niri.settings.window-rules.*.focus-ring.active`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -1841,7 +1902,7 @@ The width of the focus ring drawn around each matched window with focus.
 The color of the focus ring for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.focus-ring.b.inactive -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.focus-ring.b.inactive -->
 ## `programs.niri.settings.window-rules.*.focus-ring.inactive`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -1849,7 +1910,7 @@ The color of the focus ring for the window that has keyboard focus.
 The color of the focus ring for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.geometry-corner-radius -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius`
 - type: `null or (submodule)`
 - default: `null`
@@ -1861,27 +1922,27 @@ By default, the actual window surface will be unaffected by this.
 Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to-geometry) to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.bottom-left -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.geometry-corner-radius.bottom-left -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-left`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.bottom-right -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.geometry-corner-radius.bottom-right -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-right`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.top-left -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.geometry-corner-radius.top-left -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-left`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.geometry-corner-radius.top-right -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.geometry-corner-radius.top-right -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-right`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.d.opacity -->
+<!-- sorting key: programs.niri.settings.m.window-rules.d.opacity -->
 ## `programs.niri.settings.window-rules.*.opacity`
 - type: `null or floating point number`
 - default: `null`
@@ -1893,7 +1954,7 @@ If the final value of this field is null, niri will fall back to a value of 1.
 Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.e.max-height -->
+<!-- sorting key: programs.niri.settings.m.window-rules.e.max-height -->
 ## `programs.niri.settings.window-rules.*.max-height`
 - type: `null or signed integer`
 - default: `null`
@@ -1908,7 +1969,7 @@ Also, note that the maximum height is not taken into account when automatically 
 If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.e.max-width -->
+<!-- sorting key: programs.niri.settings.m.window-rules.e.max-width -->
 ## `programs.niri.settings.window-rules.*.max-width`
 - type: `null or signed integer`
 - default: `null`
@@ -1918,7 +1979,7 @@ Sets the maximum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.e.min-height -->
+<!-- sorting key: programs.niri.settings.m.window-rules.e.min-height -->
 ## `programs.niri.settings.window-rules.*.min-height`
 - type: `null or signed integer`
 - default: `null`
@@ -1928,7 +1989,7 @@ Sets the minimum height (in logical pixels) that niri will ever ask this window 
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
 
 
-<!-- sorting key: programs.niri.settings.l.window-rules.e.min-width -->
+<!-- sorting key: programs.niri.settings.m.window-rules.e.min-width -->
 ## `programs.niri.settings.window-rules.*.min-width`
 - type: `null or signed integer`
 - default: `null`
@@ -1938,7 +1999,7 @@ Sets the minimum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
 
 
-<!-- sorting key: programs.niri.settings.m.debug -->
+<!-- sorting key: programs.niri.settings.n.debug -->
 ## `programs.niri.settings.debug`
 - type: `null or (attribute set of kdl arguments)`
 - default: `null`

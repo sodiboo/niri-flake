@@ -764,6 +764,57 @@ with docs.lib; rec {
       }
 
       {
+        workspaces =
+          attrs (record {
+            name =
+              nullable types.str
+              // {
+                description = ''
+                  An (optional) name for the workspace. Defaults to the value of the key.
+
+                  This attribute is intended to be used when you wish to preserve a specific
+                  order for the named workspaces.
+                '';
+              };
+            open-on-output =
+              nullable types.str
+              // {
+                description = ''
+                  The name of the output the workspace should be assigned to.
+                '';
+              };
+          })
+          // {
+            description = ''
+              Declare named workspaces.
+
+              Named workspaces are similar to regular, dynamic workspaces, except they can be
+              referred to by name, and they are persistent, they do not close when there are
+              no more windows left on them.
+
+              Usage is like so:
+
+              ```nix
+              {
+                programs.niri.settings.workspaces."name" = {};
+                programs.niri.settings.workspaces."01-another-one" = {
+                  open-on-output = "DP-1";
+                  name = "another-one";
+                };
+              }
+              ```
+
+              Unless a `name` is declared, the workspace will use the attribute key as the name.
+
+              Workspaces will be created in a specific order: sorted by key. If you do not care
+              about the order of named workspaces, you can skip using the `name` attribute, and
+              use the key instead. If you do care about it, you can use the key to order them,
+              and a `name` attribute to have a friendlier name.
+            '';
+          };
+      }
+
+      {
         input = {
           keyboard = {
             xkb = let
@@ -1401,6 +1452,17 @@ with docs.lib; rec {
                       If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
                     '';
                   };
+                open-on-workspace =
+                  nullable types.str
+                  // {
+                    description = ''
+                      The workspace to open this window on.
+
+                      If the final value of this field is a named workspace that exists, the window will open on that workspace.
+
+                      If the final value of this is a named workspace that does not exist, or it is null, the window opens on the currently focused workspace.
+                    '';
+                  };
                 open-maximized =
                   nullable types.bool
                   // {
@@ -1983,6 +2045,7 @@ with docs.lib; rec {
             (map (leaf "exclude") (map opt-props cfg.excludes))
             (nullable preset-widths "default-column-width" cfg.default-column-width)
             (nullable leaf "open-on-output" cfg.open-on-output)
+            (nullable leaf "open-on-workspace" cfg.open-on-workspace)
             (nullable leaf "open-maximized" cfg.open-maximized)
             (nullable leaf "open-fullscreen" cfg.open-fullscreen)
             (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
@@ -2023,6 +2086,11 @@ with docs.lib; rec {
               allow-when-locked = true;
             })) [
             (mapAttrsToList leaf cfg.action)
+          ];
+
+        workspace = cfg:
+          node "workspace" cfg.name [
+            (nullable leaf "open-on-output" cfg.open-on-output)
           ];
       in [
         (plain "input" [
@@ -2097,6 +2165,18 @@ with docs.lib; rec {
 
         (plain "environment" (mapAttrsToList leaf cfg.environment))
         (plain "binds" (mapAttrsToList bind cfg.binds))
+
+        (map workspace (sort (a: b: a.sort-name < b.sort-name)
+          (mapAttrsToList (key: cfg:
+            cfg
+            // {
+              sort-name = key;
+              name =
+                if cfg.name != null
+                then cfg.name
+                else key;
+            })
+          cfg.workspaces)))
 
         (map (map' leaf (getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
         (map window-rule cfg.window-rules)
