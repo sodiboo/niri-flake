@@ -452,7 +452,7 @@
               }
               (mkIf cfg.enable {
                 services =
-                  if config.system.nixos.release == "24.05"
+                  if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
                   then {
                     displayManager.sessionPackages = [cfg.package];
                   }
