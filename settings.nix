@@ -63,7 +63,7 @@ with docs.lib; {
             ];
           merged = mapAttrs (name: type:
             type.merge (loc ++ [name]) (defs-for name))
-          (filterAttrs (name: type: defs-for name != []) variants);
+          (filterAttrs (name: _type: defs-for name != []) variants);
         in
           if merged == {}
           then throw "The option `${showOption loc}` has no definitions, but one is required"
@@ -73,14 +73,12 @@ with docs.lib; {
 
         nestedTypes = variants;
 
-        getSubOptions =
-          (record (mapAttrs (const (type:
+        inherit ((record (mapAttrs (const (type:
             (required type)
             // (optionalAttrs (type ? variant-description) {
               description = type.variant-description;
             })))
-          variants))
-          .getSubOptions;
+          variants))) getSubOptions;
       };
 
     basic-pointer = default-natural-scroll: {
@@ -535,7 +533,7 @@ with docs.lib; {
           merge
           nestedTypes
           ;
-        getSubOptions = loc: mapAttrs (section: opts: (record opts).getSubOptions loc) ord-sections;
+        getSubOptions = loc: mapAttrs (_section: opts: (record opts).getSubOptions loc) ord-sections;
       };
 
     make-section = flip optional {};
@@ -566,7 +564,7 @@ with docs.lib; {
                 '';
               };
             action =
-              required (newtype (plain-type "niri action") (kdl.types.kdl-leaf))
+              required (newtype (plain-type "niri action") kdl.types.kdl-leaf)
               // {
                 description = ''
                   An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
@@ -1419,7 +1417,7 @@ with docs.lib; {
 
       {
         environment =
-          attrs (nullOr (types.str))
+          attrs (nullOr types.str)
           // {
             description = ''
               Environment variables to set for processes spawned by niri.
@@ -1811,7 +1809,6 @@ with docs.lib; {
   fake-docs = {
     fmt-date,
     fmt-time,
-    nixpkgs,
   }: {
     imports = [settings.module];
 
@@ -1854,7 +1851,7 @@ with docs.lib; {
             then [
               {
                 rev = head m;
-                url = patch.url;
+                inherit (patch) url;
               }
             ]
             else []
