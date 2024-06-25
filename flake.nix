@@ -93,26 +93,26 @@
                 #    (nixpkgs)/(niri's dev flake) uses `cargo` to build.
                 #    And this builds all crates in the same derivation.
                 #    That's why they don't override individual crates.
-                libspa-sys = attrs: {
+                libspa-sys = lib.const {
                   nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
                   buildInputs = [pipewire];
                 };
 
-                libspa = attrs: {
+                libspa = lib.const {
                   nativeBuildInputs = [pkg-config];
                   buildInputs = [pipewire];
                 };
 
-                pipewire-sys = attrs: {
+                pipewire-sys = lib.const {
                   nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
                   buildInputs = [pipewire];
                 };
 
-                gobject-sys = attrs: {
+                gobject-sys = lib.const {
                   nativeBuildInputs = [pkg-config glib];
                 };
 
-                gio-sys = attrs: {
+                gio-sys = lib.const {
                   nativeBuildInputs = [pkg-config glib];
                 };
 
