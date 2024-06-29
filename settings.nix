@@ -108,6 +108,34 @@ with docs.lib; rec {
             - ${libinput-link "pointer-acceleration" "Pointer acceleration profiles"}
           '';
         };
+      scroll-method =
+        nullable (types.enum ["no-scroll" "two-finger" "edge" "on-button-down"])
+        // {
+          description = ''
+            ${unstable-note}
+            When to convert motion events to scrolling events.
+            The default and supported values vary based on the device type.
+
+            Further reading:
+            - ${libinput-link "scrolling" "Scrolling"}
+          '';
+        };
+    };
+
+    pointer-tablet-common = {
+      enable = optional types.bool true;
+      left-handed =
+        optional types.bool false
+        // {
+          description = ''
+            ${unstable-note}
+            Whether to accomodate left-handed usage for this device.
+            This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+            Further reading:
+            - ${libinput-link "configuration" "Left-handed Mode"}
+          '';
+        };
     };
 
     preset-width = variant {
@@ -922,7 +950,8 @@ with docs.lib; rec {
               };
           };
           touchpad =
-            (basic-pointer true)
+            pointer-tablet-common
+            // (basic-pointer true)
             // {
               tap =
                 optional types.bool true
@@ -957,6 +986,18 @@ with docs.lib; rec {
                     - ${libinput-link "palm-detection" "Disable-while-trackpointing"}
                   '';
                 };
+              disabled-on-external-mouse =
+                optional types.bool false
+                // {
+                  description = ''
+                    ${unstable-note}
+
+                    Whether to disable the touchpad when an external mouse is plugged in.
+
+                    Further reading:
+                    - ${libinput-link "configuration" "Send Events Mode"}
+                  '';
+                };
               tap-button-map =
                 nullable (enum ["left-middle-right" "left-right-middle"])
                 // {
@@ -985,9 +1026,13 @@ with docs.lib; rec {
                   '';
                 };
             };
-          mouse = basic-pointer false;
-          trackpoint = basic-pointer false;
-          tablet.map-to-output = nullable types.str;
+          mouse = pointer-tablet-common // basic-pointer false;
+          trackpoint = pointer-tablet-common // basic-pointer false;
+          tablet =
+            pointer-tablet-common
+            // {
+              map-to-output = nullable types.str;
+            };
           touch.map-to-output = nullable types.str;
           warp-mouse-to-focus =
             optional types.bool false
@@ -1988,9 +2033,17 @@ with docs.lib; rec {
           (flag' "natural-scroll" cfg.natural-scroll)
           (leaf "accel-speed" cfg.accel-speed)
           (nullable leaf "accel-profile" cfg.accel-profile)
+          (nullable leaf "scroll-method" cfg.scroll-method)
         ];
 
-        touchy = mapAttrsToList (nullable leaf);
+        pointer-tablet = cfg: inner: (toggle "off" cfg [
+          (flag' "left-handed" cfg.left-handed)
+          inner
+        ]);
+
+        touchy = cfg: [
+          (nullable leaf "map-to-output" cfg.map-to-output)
+        ];
 
         borderish = name: cfg:
           plain name [
@@ -2106,17 +2159,18 @@ with docs.lib; rec {
             (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
             (leaf "track-layout" cfg.input.keyboard.track-layout)
           ])
-          (plain "touchpad" [
+          (plain "touchpad" (pointer-tablet cfg.input.touchpad [
             (flag' "tap" cfg.input.touchpad.tap)
             (flag' "dwt" cfg.input.touchpad.dwt)
             (flag' "dwtp" cfg.input.touchpad.dwtp)
+            (flag' "disabled-on-external-mouse" cfg.input.touchpad.disabled-on-external-mouse)
             (pointer cfg.input.touchpad)
             (nullable leaf "click-method" cfg.input.touchpad.click-method)
             (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
-          ])
-          (plain "mouse" (pointer cfg.input.mouse))
-          (plain "trackpoint" (pointer cfg.input.trackpoint))
-          (plain "tablet" (touchy cfg.input.tablet))
+          ]))
+          (plain "mouse" (pointer-tablet cfg.input.mouse (pointer cfg.input.mouse)))
+          (plain "trackpoint" (pointer-tablet cfg.input.trackpoint (pointer cfg.input.trackpoint)))
+          (plain "tablet" (pointer-tablet cfg.input.tablet (touchy cfg.input.tablet)))
           (plain "touch" (touchy cfg.input.touch))
           (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
           (flag' "focus-follows-mouse" cfg.input.focus-follows-mouse)

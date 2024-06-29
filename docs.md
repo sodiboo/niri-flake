@@ -660,6 +660,31 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
+<!-- sorting key: programs.niri.settings.g.input.mouse.enable -->
+## `programs.niri.settings.input.mouse.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.g.input.mouse.left-handed -->
+## `programs.niri.settings.input.mouse.left-handed`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
 <!-- sorting key: programs.niri.settings.g.input.mouse.natural-scroll -->
 ## `programs.niri.settings.input.mouse.natural-scroll`
 - type: `boolean`
@@ -672,6 +697,25 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+<!-- sorting key: programs.niri.settings.g.input.mouse.scroll-method -->
+## `programs.niri.settings.input.mouse.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
+
 <!-- sorting key: programs.niri.settings.g.input.power-key-handling.enable -->
 ## `programs.niri.settings.input.power-key-handling.enable`
 - type: `boolean`
@@ -680,6 +724,31 @@ Further reading:
 By default, niri will take over the power button to make it sleep instead of power off.
 
 You can disable this behaviour if you prefer to configure the power button elsewhere.
+
+
+<!-- sorting key: programs.niri.settings.g.input.tablet.enable -->
+## `programs.niri.settings.input.tablet.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.g.input.tablet.left-handed -->
+## `programs.niri.settings.input.tablet.left-handed`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
 
 
 <!-- sorting key: programs.niri.settings.g.input.tablet.map-to-output -->
@@ -730,6 +799,25 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
 
 
+<!-- sorting key: programs.niri.settings.g.input.touchpad.disabled-on-external-mouse -->
+## `programs.niri.settings.input.touchpad.disabled-on-external-mouse`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether to disable the touchpad when an external mouse is plugged in.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#send-events-mode
+
+
 <!-- sorting key: programs.niri.settings.g.input.touchpad.dwt -->
 ## `programs.niri.settings.input.touchpad.dwt`
 - type: `boolean`
@@ -754,6 +842,31 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
 
 
+<!-- sorting key: programs.niri.settings.g.input.touchpad.enable -->
+## `programs.niri.settings.input.touchpad.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.g.input.touchpad.left-handed -->
+## `programs.niri.settings.input.touchpad.left-handed`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
 <!-- sorting key: programs.niri.settings.g.input.touchpad.natural-scroll -->
 ## `programs.niri.settings.input.touchpad.natural-scroll`
 - type: `boolean`
@@ -764,6 +877,25 @@ Whether scrolling should move the content in the scrolled direction (as opposed 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+<!-- sorting key: programs.niri.settings.g.input.touchpad.scroll-method -->
+## `programs.niri.settings.input.touchpad.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
 
 
 <!-- sorting key: programs.niri.settings.g.input.touchpad.tap -->
@@ -807,6 +939,31 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.enable -->
+## `programs.niri.settings.input.trackpoint.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.left-handed -->
+## `programs.niri.settings.input.trackpoint.left-handed`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
 <!-- sorting key: programs.niri.settings.g.input.trackpoint.natural-scroll -->
 ## `programs.niri.settings.input.trackpoint.natural-scroll`
 - type: `boolean`
@@ -817,6 +974,25 @@ Whether scrolling should move the content in the scrolled direction (as opposed 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.scroll-method -->
+## `programs.niri.settings.input.trackpoint.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
 
 
 <!-- sorting key: programs.niri.settings.g.input.warp-mouse-to-focus -->
