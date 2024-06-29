@@ -12,4 +12,5 @@
   "7ff2de19b9304b3afdadb44aeeee4e85dfcb5218" = "v0.1.4";
   "6a80078259ca3e3854b0748a15e98c7293d0822a" = "v0.1.5";
   "d96a66ddff1a6b88dbe3e23b049f7075533b216f" = "v0.1.6";
+  "e7c201abba6fedaa57001639810af3b6bd9b852e" = "v0.1.7";
 }
