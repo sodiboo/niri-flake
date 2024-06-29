@@ -459,6 +459,14 @@
                   else {
                     xserver.displayManager.sessionPackages = [cfg.package];
                   };
+                hardware =
+                  if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
+                  then {
+                    graphics.enable = mkDefault true;
+                  }
+                  else {
+                    opengl.enable = mkDefault true;
+                  };
               })
               (mkIf cfg.enable {
                 environment.systemPackages = [cfg.package];
@@ -485,7 +493,6 @@
                 };
 
                 security.pam.services.swaylock = {};
-                hardware.opengl.enable = mkDefault true;
                 programs.dconf.enable = mkDefault true;
                 fonts.enableDefaultPackages = mkDefault true;
               })
