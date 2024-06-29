@@ -28,7 +28,7 @@ Currently, there is no `home-manager` input to this flake since i felt it was un
 
 # Binary Cache
 
-I have a binary cache for this flake's outputs. `niri.cachix.org` hosts builds of `niri-stable` and `niri-unstable` for `nixos-unstable` and `nixos-23.11`. It only contains builds for `x86_64-linux` for the time being, mainly because GitHub Actions doesn't support other platforms. (and i do not wish to use qemu for this)
+I have a binary cache for this flake's outputs. `niri.cachix.org` hosts builds of `niri-stable` and `niri-unstable` for `nixos-unstable` and `nixos-24.05`. It only contains builds for `x86_64-linux` for the time being, mainly because GitHub Actions doesn't support other platforms. (and i do not wish to use qemu for this)
 
 > [!note]
 > This binary cache is managed by me, sodiboo. By using it, you are trusting me to not serve you malicious software. Using a binary cache is entirely optional.
