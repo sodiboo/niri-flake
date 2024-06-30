@@ -1084,12 +1084,10 @@ If the position is unset or multiple outputs overlap, niri will instead place th
 
 <!-- sorting key: programs.niri.settings.h.outputs.scale -->
 ## `programs.niri.settings.outputs.<name>.scale`
-- type: `null or floating point number`
+- type: `null or floating point number or signed integer`
 - default: `null`
 
 The scale of this output, which represents how many physical pixels fit in one logical pixel.
-
-Although this is a floating-point number, niri currently only accepts integer values. It does not support fractional scaling.
 
 If this is null, niri will automatically pick a scale for you.
 
@@ -1164,7 +1162,7 @@ Whether to enable the border.
 
 <!-- sorting key: programs.niri.settings.j.layout.a.border.a.width -->
 ## `programs.niri.settings.layout.border.width`
-- type: `signed integer`
+- type: `floating point number or signed integer`
 - default: `4`
 
 The width of the border drawn around each window.
@@ -1219,7 +1217,7 @@ Whether to enable the focus ring.
 
 <!-- sorting key: programs.niri.settings.j.layout.a.focus-ring.a.width -->
 ## `programs.niri.settings.layout.focus-ring.width`
-- type: `signed integer`
+- type: `floating point number or signed integer`
 - default: `4`
 
 The width of the focus ring drawn around each focused window.
@@ -1383,7 +1381,7 @@ The width of the column as a proportion of the screen's width
 
 <!-- sorting key: programs.niri.settings.j.layout.c.gaps -->
 ## `programs.niri.settings.layout.gaps`
-- type: `signed integer`
+- type: `floating point number or signed integer`
 - default: `16`
 
 The gap between windows in the layout, measured in logical pixels.
@@ -1441,25 +1439,25 @@ The left and right structs work in a similar way, except the padded space is not
 
 <!-- sorting key: programs.niri.settings.j.layout.c.struts.bottom -->
 ## `programs.niri.settings.layout.struts.bottom`
-- type: `signed integer`
+- type: `floating point number or signed integer`
 - default: `0`
 
 
 <!-- sorting key: programs.niri.settings.j.layout.c.struts.left -->
 ## `programs.niri.settings.layout.struts.left`
-- type: `signed integer`
+- type: `floating point number or signed integer`
 - default: `0`
 
 
 <!-- sorting key: programs.niri.settings.j.layout.c.struts.right -->
 ## `programs.niri.settings.layout.struts.right`
-- type: `signed integer`
+- type: `floating point number or signed integer`
 - default: `0`
 
 
 <!-- sorting key: programs.niri.settings.j.layout.c.struts.top -->
 ## `programs.niri.settings.layout.struts.top`
-- type: `signed integer`
+- type: `floating point number or signed integer`
 - default: `0`
 
 
@@ -2007,7 +2005,7 @@ Whether to enable the border.
 
 <!-- sorting key: programs.niri.settings.m.window-rules.d.border.a.width -->
 ## `programs.niri.settings.window-rules.*.border.width`
-- type: `null or signed integer`
+- type: `null or floating point number or signed integer`
 - default: `null`
 
 The width of the border drawn around each matched window.
@@ -2072,7 +2070,7 @@ Whether to enable the focus ring.
 
 <!-- sorting key: programs.niri.settings.m.window-rules.d.focus-ring.a.width -->
 ## `programs.niri.settings.window-rules.*.focus-ring.width`
-- type: `null or signed integer`
+- type: `null or floating point number or signed integer`
 - default: `null`
 
 The width of the focus ring drawn around each matched window with focus.

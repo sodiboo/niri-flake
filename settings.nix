@@ -34,6 +34,8 @@ with docs.lib; rec {
     attrs = type: optional (attrsOf type) {};
     list = type: optional (listOf type) [];
 
+    float-or-int = types.either types.float types.int;
+
     variant = variants:
       mkOptionType {
         name = "variant";
@@ -306,7 +308,7 @@ with docs.lib; rec {
               '';
             };
           width =
-            optional types.int 4
+            optional float-or-int 4
             // {
               description = ''
                 The width of the ${name} drawn around each ${window}.
@@ -389,7 +391,7 @@ with docs.lib; rec {
               '';
             };
           width =
-            nullable types.int
+            nullable float-or-int
             // {
               description = ''
                 The width of the ${name} drawn around each ${window}.
@@ -1075,12 +1077,10 @@ with docs.lib; rec {
         outputs = attrs (record {
           enable = optional types.bool true;
           scale =
-            nullable types.float
+            nullable float-or-int
             // {
               description = ''
                 The scale of this output, which represents how many physical pixels fit in one logical pixel.
-
-                Although this is a floating-point number, niri currently only accepts integer values. It does not support fractional scaling.
 
                 If this is null, niri will automatically pick a scale for you.
               '';
@@ -1275,7 +1275,7 @@ with docs.lib; rec {
                 '';
               };
             gaps =
-              optional types.int 16
+              optional float-or-int 16
               // {
                 description = ''
                   The gap between windows in the layout, measured in logical pixels.
@@ -1283,10 +1283,10 @@ with docs.lib; rec {
               };
             struts =
               section {
-                left = optional types.int 0;
-                right = optional types.int 0;
-                top = optional types.int 0;
-                bottom = optional types.int 0;
+                left = optional float-or-int 0;
+                right = optional float-or-int 0;
+                top = optional float-or-int 0;
+                bottom = optional float-or-int 0;
               }
               // {
                 description = ''
