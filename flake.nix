@@ -214,45 +214,6 @@
         inherit workspace;
       });
 
-    make-niri-stable = pkgs:
-      make-niri {
-        inherit pkgs;
-        src = niri-stable;
-        patches = [];
-      };
-
-    make-niri-unstable = pkgs:
-      make-niri {
-        inherit pkgs;
-        src = niri-unstable;
-      };
-
-    make-xwayland-satellite = pkgs: let
-      tools = crate2nix.tools.${pkgs.stdenv.system};
-      manifest = tools.generatedCargoNix {
-        src = xwayland-satellite;
-        name = "xwayland-satellite";
-      };
-      workspace = import manifest {
-        inherit pkgs;
-        buildRustCrateForPkgs = pkgs:
-          pkgs.buildRustCrate.override {
-            defaultCrateOverrides =
-              pkgs.defaultCrateOverrides
-              // (with pkgs; {
-                xcb-util-cursor-sys = attrs: {
-                  nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
-                  buildInputs = [xcb-util-cursor];
-                };
-                xwayland-satellite = attrs: {
-                  version = "${attrs.version}-${xwayland-satellite.shortRev}";
-                };
-              });
-          };
-      };
-    in
-      workspace.workspaceMembers.xwayland-satellite.build;
-
     validated-config-for = pkgs: package: config:
       pkgs.runCommand "config.kdl" {
         inherit config;
@@ -262,6 +223,45 @@
         niri validate -c $configPath
         cp $configPath $out
       '';
+
+    package-set = {
+      niri-stable = pkgs:
+        make-niri {
+          inherit pkgs;
+          src = niri-stable;
+          patches = [];
+        };
+      niri-unstable = pkgs:
+        make-niri {
+          inherit pkgs;
+          src = niri-unstable;
+        };
+      xwayland-satellite = pkgs: let
+        tools = crate2nix.tools.${pkgs.stdenv.system};
+        manifest = tools.generatedCargoNix {
+          src = xwayland-satellite;
+          name = "xwayland-satellite";
+        };
+        workspace = import manifest {
+          inherit pkgs;
+          buildRustCrateForPkgs = pkgs:
+            pkgs.buildRustCrate.override {
+              defaultCrateOverrides =
+                pkgs.defaultCrateOverrides
+                // (with pkgs; {
+                  xcb-util-cursor-sys = attrs: {
+                    nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
+                    buildInputs = [xcb-util-cursor];
+                  };
+                  xwayland-satellite = attrs: {
+                    version = "${attrs.version}-${xwayland-satellite.shortRev}";
+                  };
+                });
+            };
+        };
+      in
+        workspace.workspaceMembers.xwayland-satellite.build;
+    };
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -272,15 +272,12 @@
         system,
         ...
       }: {
-        packages = {
-          niri-unstable = make-niri-unstable inputs'.nixpkgs.legacyPackages;
-          niri-stable = make-niri-stable inputs'.nixpkgs.legacyPackages;
-          xwayland-satellite = make-xwayland-satellite inputs'.nixpkgs.legacyPackages;
-
-          niri-unstable-for-nixos-stable = make-niri-unstable inputs'.nixpkgs-stable.legacyPackages;
-          niri-stable-for-nixos-stable = make-niri-stable inputs'.nixpkgs-stable.legacyPackages;
-          xwayland-satellite-for-nixos-stable = make-xwayland-satellite inputs'.nixpkgs-stable.legacyPackages;
-        };
+        packages =
+          nixpkgs.lib.concatMapAttrs (name: make-for: {
+            "${name}" = make-for inputs'.nixpkgs.legacyPackages;
+            "${name}-for-nixos-stable" = make-for inputs'.nixpkgs-stable.legacyPackages;
+          })
+          package-set;
 
         apps = {
           niri-stable = {
@@ -348,15 +345,11 @@
 
       flake = {
         kdl = nixpkgs.lib.warn "niri.kdl is deprecated. use niri.lib.kdl instead." kdl;
-        overlays.niri = final: prev: {
-          niri-unstable = make-niri-unstable final;
-          niri-stable = make-niri-stable final;
-          xwayland-satellite = make-xwayland-satellite final;
-        };
+        overlays.niri = with nixpkgs.lib; final: prev: nixpkgs.lib.mapAttrs (const (flip id final));
         lib = {
           inherit kdl;
           internal = {
-            inherit make-niri validated-config-for;
+            inherit package-set make-niri validated-config-for;
             docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time nixpkgs;});
             settings-module = settings.module;
           };
@@ -377,7 +370,7 @@
             options.programs.niri = {
               package = mkOption {
                 type = types.package;
-                default = make-niri-stable pkgs;
+                default = package-set.niri-stable pkgs;
               };
             };
 
@@ -458,7 +451,7 @@
               enable = mkEnableOption "niri";
               package = mkOption {
                 type = types.package;
-                default = make-niri-stable pkgs;
+                default = package-set.niri-stable pkgs;
               };
             };
 
