@@ -23,9 +23,6 @@
     self,
     flake-parts,
     crate2nix,
-    niri-unstable,
-    niri-stable,
-    xwayland-satellite,
     nixpkgs,
     nixpkgs-stable,
     ...
@@ -228,18 +225,18 @@
       niri-stable = pkgs:
         make-niri {
           inherit pkgs;
-          src = niri-stable;
+          src = inputs.niri-stable;
           patches = [];
         };
       niri-unstable = pkgs:
         make-niri {
           inherit pkgs;
-          src = niri-unstable;
+          src = inputs.niri-unstable;
         };
       xwayland-satellite = pkgs: let
         tools = crate2nix.tools.${pkgs.stdenv.system};
         manifest = tools.generatedCargoNix {
-          src = xwayland-satellite;
+          src = inputs.xwayland-satellite;
           name = "xwayland-satellite";
         };
         workspace = import manifest {
@@ -254,7 +251,7 @@
                     buildInputs = [xcb-util-cursor];
                   };
                   xwayland-satellite = attrs: {
-                    version = "${attrs.version}-${xwayland-satellite.shortRev}";
+                    version = "${attrs.version}-${inputs.xwayland-satellite.shortRev}";
                   };
                 });
             };
