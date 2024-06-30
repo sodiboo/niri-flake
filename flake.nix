@@ -96,26 +96,26 @@
                 #    (nixpkgs)/(niri's dev flake) uses `cargo` to build.
                 #    And this builds all crates in the same derivation.
                 #    That's why they don't override individual crates.
-                libspa-sys = attrs: {
+                libspa-sys = _attrs: {
                   nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
                   buildInputs = [pipewire];
                 };
 
-                libspa = attrs: {
+                libspa = _attrs: {
                   nativeBuildInputs = [pkg-config];
                   buildInputs = [pipewire];
                 };
 
-                pipewire-sys = attrs: {
+                pipewire-sys = _attrs: {
                   nativeBuildInputs = [pkg-config rustPlatform.bindgenHook];
                   buildInputs = [pipewire];
                 };
 
-                gobject-sys = attrs: {
+                gobject-sys = _attrs: {
                   nativeBuildInputs = [pkg-config glib];
                 };
 
-                gio-sys = attrs: {
+                gio-sys = _attrs: {
                   nativeBuildInputs = [pkg-config glib];
                 };
 
@@ -348,7 +348,7 @@
 
       flake = {
         kdl = nixpkgs.lib.warn "niri.kdl is deprecated. use niri.lib.kdl instead." kdl;
-        overlays.niri = final: prev: {
+        overlays.niri = final: _prev: {
           niri-unstable = make-niri-unstable final;
           niri-stable = make-niri-stable final;
           xwayland-satellite = make-xwayland-satellite final;

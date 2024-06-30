@@ -62,7 +62,7 @@ with docs.lib; rec {
             ];
           merged = mapAttrs (name: type:
             type.merge (loc ++ [name]) (defs-for name))
-          (filterAttrs (name: type: defs-for name != []) variants);
+          (filterAttrs (name: _type: defs-for name != []) variants);
         in
           if merged == {}
           then throw "The option `${showOption loc}` has no definitions, but one is required"
@@ -72,14 +72,12 @@ with docs.lib; rec {
 
         nestedTypes = variants;
 
-        getSubOptions =
-          (record (mapAttrs (const (type:
+        inherit ((record (mapAttrs (const (type:
             (required type)
             // (optionalAttrs (type ? variant-description) {
               description = type.variant-description;
             })))
-          variants))
-          .getSubOptions;
+          variants))) getSubOptions;
       };
 
     basic-pointer = default-natural-scroll: {
@@ -534,7 +532,7 @@ with docs.lib; rec {
           merge
           nestedTypes
           ;
-        getSubOptions = loc: mapAttrs (section: opts: (record opts).getSubOptions loc) ord-sections;
+        getSubOptions = loc: mapAttrs (_section: opts: (record opts).getSubOptions loc) ord-sections;
       };
 
     make-section = flip optional {};
@@ -565,7 +563,7 @@ with docs.lib; rec {
                 '';
               };
             action =
-              required (newtype (plain-type "niri action") (kdl.types.kdl-leaf))
+              required (newtype (plain-type "niri action") kdl.types.kdl-leaf)
               // {
                 description = ''
                   An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
@@ -1418,7 +1416,7 @@ with docs.lib; rec {
 
       {
         environment =
-          attrs (nullOr (types.str))
+          attrs (nullOr types.str)
           // {
             description = ''
               Environment variables to set for processes spawned by niri.
@@ -1810,7 +1808,6 @@ with docs.lib; rec {
   fake-docs = {
     fmt-date,
     fmt-time,
-    nixpkgs,
   }: {
     imports = [module];
 
@@ -1853,7 +1850,7 @@ with docs.lib; rec {
             then [
               {
                 rev = head m;
-                url = patch.url;
+                inherit (patch) url;
               }
             ]
             else []
@@ -2073,8 +2070,8 @@ with docs.lib; rec {
         border-rule = name: cfg:
           optional-node (opt-props cfg != {}) (
             plain name [
-              (flag' "on" (cfg.enable == true))
-              (flag' "off" (cfg.enable == false))
+              (flag' "on" cfg.enable)
+              (flag' "off" (!cfg.enable))
               (nullable leaf "width" cfg.width)
               (nullable leaf "active-color" cfg.active.color or null)
               (nullable leaf "active-gradient" cfg.active.gradient or null)

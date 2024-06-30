@@ -40,7 +40,6 @@ inputs: # This is your flake inputs. It contains the `niri` flake (github:sodibo
 
 # This is a home-manager module.
 {
-  pkgs,
   config,
   lib,
   ...
