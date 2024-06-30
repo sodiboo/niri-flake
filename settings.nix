@@ -4,11 +4,12 @@
   lib,
   docs,
   binds,
+  settings,
   ...
 }:
 with lib;
-with docs.lib; rec {
-  module = let
+with docs.lib; {
+  type = let
     inherit (types) nullOr attrsOf listOf submodule enum;
 
     binds-stable = binds inputs.niri-stable;
@@ -541,8 +542,8 @@ with docs.lib; rec {
 
     section = flip pipe [record make-section];
     ordered-section = flip pipe [ordered-record make-section];
-
-    settings = ordered-record [
+  in
+    ordered-record [
       {
         binds = let
           base = record {
@@ -1755,64 +1756,64 @@ with docs.lib; rec {
           };
       }
     ];
-  in
-    {config, ...}: let
-      cfg = config.programs.niri;
-    in {
-      options.programs.niri = {
-        config = mkOption {
-          type = types.nullOr (types.either types.str kdl.types.kdl-document);
-          default = render cfg.settings;
-          defaultText = null;
-          description = ''
-            The niri config file.
 
-            - When this is null, no config file is generated.
-            - When this is a string, it is assumed to be the config file contents.
-            - When this is kdl document, it is serialized to a string before being used as the config file contents.
+  module = {config, ...}: let
+    cfg = config.programs.niri;
+  in {
+    options.programs.niri = {
+      settings = mkOption {
+        type = types.nullOr settings.type;
+        default = null;
+        description = ''
+          Nix-native settings for niri.
 
-            By default, this is a KDL document that reflects the settings in ${link' "programs.niri.settings"}.
-          '';
-        };
+          By default, when this is null, no config file is generated.
 
-        finalConfig = mkOption {
-          type = types.nullOr types.str;
-          default =
-            if isString cfg.config
-            then cfg.config
-            else if cfg.config != null
-            then kdl.serialize.nodes cfg.config
-            else null;
-          readOnly = true;
-          defaultText = null;
-          description = ''
-            The final niri config file contents.
+          Beware that setting ${link' "programs.niri.config"} completely overrides everything under this option.
+        '';
+      };
 
-            This is a string that reflects the document stored in ${link' "programs.niri.config"}.
+      config = mkOption {
+        type = types.nullOr (types.either types.str kdl.types.kdl-document);
+        default = settings.render cfg.settings;
+        defaultText = null;
+        description = ''
+          The niri config file.
 
-            It is exposed mainly for debugging purposes, such as when you need to inspect how a certain option affects the resulting config file.
-          '';
-        };
+          - When this is null, no config file is generated.
+          - When this is a string, it is assumed to be the config file contents.
+          - When this is kdl document, it is serialized to a string before being used as the config file contents.
 
-        settings =
-          (nullable settings)
-          // {
-            description = ''
-              Nix-native settings for niri.
+          By default, this is a KDL document that reflects the settings in ${link' "programs.niri.settings"}.
+        '';
+      };
 
-              By default, when this is null, no config file is generated.
+      finalConfig = mkOption {
+        type = types.nullOr types.str;
+        default =
+          if isString cfg.config
+          then cfg.config
+          else if cfg.config != null
+          then kdl.serialize.nodes cfg.config
+          else null;
+        readOnly = true;
+        defaultText = null;
+        description = ''
+          The final niri config file contents.
 
-              Beware that setting ${link' "programs.niri.config"} completely overrides everything under this option.
-            '';
-          };
+          This is a string that reflects the document stored in ${link' "programs.niri.config"}.
+
+          It is exposed mainly for debugging purposes, such as when you need to inspect how a certain option affects the resulting config file.
+        '';
       };
     };
+  };
   fake-docs = {
     fmt-date,
     fmt-time,
     nixpkgs,
   }: {
-    imports = [module];
+    imports = [settings.module];
 
     options._ = let
       pkg-output = name: desc:

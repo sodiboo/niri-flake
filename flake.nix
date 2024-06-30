@@ -31,7 +31,7 @@
     ...
   }: let
     call = nixpkgs.lib.flip import {
-      inherit inputs kdl docs binds;
+      inherit inputs kdl docs binds settings;
       inherit (nixpkgs) lib;
     };
     kdl = call ./kdl.nix;
