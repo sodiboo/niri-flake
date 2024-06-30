@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.6`](https://github.com/YaLTeR/niri/releases/tag/v0.1.6) with no additional patches.
+Currently, this is release [`v0.1.7`](https://github.com/YaLTeR/niri/releases/tag/v0.1.7) with no additional patches.
 
 
 
@@ -360,16 +360,16 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-column-right`
 - `focus-column-first`
 - `focus-column-last`
-- `focus-column-right-or-first` (only on niri-unstable)
-- `focus-column-left-or-last` (only on niri-unstable)
-- `focus-column-or-monitor-left` (only on niri-unstable)
-- `focus-column-or-monitor-right` (only on niri-unstable)
+- `focus-column-right-or-first`
+- `focus-column-left-or-last`
+- `focus-column-or-monitor-left`
+- `focus-column-or-monitor-right`
 - `focus-window-down`
 - `focus-window-up`
-- `focus-window-down-or-column-left` (only on niri-unstable)
-- `focus-window-down-or-column-right` (only on niri-unstable)
-- `focus-window-up-or-column-left` (only on niri-unstable)
-- `focus-window-up-or-column-right` (only on niri-unstable)
+- `focus-window-down-or-column-left`
+- `focus-window-down-or-column-right`
+- `focus-window-up-or-column-left`
+- `focus-window-up-or-column-right`
 - `focus-window-or-workspace-down`
 - `focus-window-or-workspace-up`
 - `move-column-left`
@@ -671,13 +671,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 Whether to accomodate left-handed usage for this device.
 This varies based on the exact device, but will for example swap left/right mouse buttons.
 
@@ -701,13 +694,6 @@ Further reading:
 ## `programs.niri.settings.input.mouse.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 When to convert motion events to scrolling events.
 The default and supported values vary based on the device type.
@@ -736,13 +722,6 @@ You can disable this behaviour if you prefer to configure the power button elsew
 ## `programs.niri.settings.input.tablet.left-handed`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 Whether to accomodate left-handed usage for this device.
 This varies based on the exact device, but will for example swap left/right mouse buttons.
@@ -804,14 +783,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether to disable the touchpad when an external mouse is plugged in.
 
 Further reading:
@@ -853,13 +824,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 Whether to accomodate left-handed usage for this device.
 This varies based on the exact device, but will for example swap left/right mouse buttons.
 
@@ -883,13 +847,6 @@ Further reading:
 ## `programs.niri.settings.input.touchpad.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 When to convert motion events to scrolling events.
 The default and supported values vary based on the device type.
@@ -950,13 +907,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 Whether to accomodate left-handed usage for this device.
 This varies based on the exact device, but will for example swap left/right mouse buttons.
 
@@ -980,13 +930,6 @@ Further reading:
 ## `programs.niri.settings.input.trackpoint.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 When to convert motion events to scrolling events.
 The default and supported values vary based on the device type.

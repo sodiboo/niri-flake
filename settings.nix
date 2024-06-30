@@ -114,7 +114,6 @@ with docs.lib; rec {
         nullable (types.enum ["no-scroll" "two-finger" "edge" "on-button-down"])
         // {
           description = ''
-            ${unstable-note}
             When to convert motion events to scrolling events.
             The default and supported values vary based on the device type.
 
@@ -130,7 +129,6 @@ with docs.lib; rec {
         optional types.bool false
         // {
           description = ''
-            ${unstable-note}
             Whether to accomodate left-handed usage for this device.
             This varies based on the exact device, but will for example swap left/right mouse buttons.
 
@@ -992,8 +990,6 @@ with docs.lib; rec {
                 optional types.bool false
                 // {
                   description = ''
-                    ${unstable-note}
-
                     Whether to disable the touchpad when an external mouse is plugged in.
 
                     Further reading:
