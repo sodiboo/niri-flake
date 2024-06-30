@@ -384,7 +384,8 @@
         "niri-stable": "niri-stable",
         "niri-unstable": "niri-unstable",
         "nixpkgs": "nixpkgs_3",
-        "nixpkgs-stable": "nixpkgs-stable"
+        "nixpkgs-stable": "nixpkgs-stable",
+        "xwayland-satellite": "xwayland-satellite"
       }
     },
     "systems": {
@@ -429,6 +430,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "xwayland-satellite": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1719247688,
+        "narHash": "sha256-bHi+SadroXIH0IksxFXszVmTuw06yMCB3c8Rj4oALVs=",
+        "owner": "Supreeeme",
+        "repo": "xwayland-satellite",
+        "rev": "0a5dddacfde337e10943e95b0d5aa5602d3c4e0c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Supreeeme",
+        "repo": "xwayland-satellite",
         "type": "github"
       }
     }
