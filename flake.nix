@@ -342,7 +342,7 @@
 
       flake = {
         kdl = nixpkgs.lib.warn "niri.kdl is deprecated. use niri.lib.kdl instead." kdl;
-        overlays.niri = with nixpkgs.lib; final: prev: nixpkgs.lib.mapAttrs (const (flip id final)) package-set;
+        overlays.niri = with nixpkgs.lib; final: prev: mapAttrs (const (flip id final)) package-set;
         lib = {
           inherit kdl;
           internal = {
