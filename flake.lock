@@ -945,11 +945,11 @@
     "xwayland-satellite": {
       "flake": false,
       "locked": {
-        "lastModified": 1720286150,
-        "narHash": "sha256-MiHpHEKRrH62tQAN6uN1IVGaJToRKAVmLPNeE2z3dBk=",
+        "lastModified": 1720382124,
+        "narHash": "sha256-8iTCeymy/WNf7gTqwe7BeVLGGck+JN9lvXUf2Sv1rAc=",
         "owner": "Supreeeme",
         "repo": "xwayland-satellite",
-        "rev": "d8bfa0a1a3d2c67730b7febb3c1d7a4d498bd417",
+        "rev": "891d056497ea885029f151be56f605891097888e",
         "type": "github"
       },
       "original": {
