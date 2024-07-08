@@ -252,6 +252,13 @@
                   };
                   xwayland-satellite = attrs: {
                     version = "${attrs.version}-${inputs.xwayland-satellite.shortRev}";
+
+                    buildInputs = [makeWrapper];
+
+                    postInstall = ''
+                      wrapProgram $out/bin/xwayland-satellite \
+                        --prefix PATH : "${lib.makeBinPath [xwayland]}"
+                    '';
                   };
                 });
             };
