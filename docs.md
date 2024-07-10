@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`f9fe86e`](https://github.com/YaLTeR/niri/tree/f9fe86ee3e82ff02ac9f75869cc4219850ae3f4c) which was authored on `2024-07-09 10:25:02`.
+Currently, this is exactly commit [`a283c34`](https://github.com/YaLTeR/niri/tree/a283c34dbbad44dfddfa4b5eafa6d8e3b47b7c14) which was authored on `2024-07-10 04:52:48`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -378,6 +378,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-column-right`
 - `move-column-to-first`
 - `move-column-to-last`
+- `move-column-left-or-to-monitor-left` (only on niri-unstable)
+- `move-column-right-or-to-monitor-right` (only on niri-unstable)
 - `move-window-down`
 - `move-window-up`
 - `move-window-down-or-to-workspace-down`
