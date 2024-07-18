@@ -354,7 +354,7 @@
           inherit kdl;
           internal = {
             inherit package-set make-niri validated-config-for;
-            docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time nixpkgs;});
+            docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
             settings-module = settings.module;
           };
         };

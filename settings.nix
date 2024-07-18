@@ -73,12 +73,15 @@ with docs.lib; {
 
         nestedTypes = variants;
 
-        inherit ((record (mapAttrs (const (type:
+        inherit
+          (record (mapAttrs (const (type:
             (required type)
             // (optionalAttrs (type ? variant-description) {
               description = type.variant-description;
             })))
-          variants))) getSubOptions;
+          variants))
+          getSubOptions
+          ;
       };
 
     basic-pointer = default-natural-scroll: {
