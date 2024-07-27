@@ -1487,6 +1487,29 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 
+<!-- sorting key: programs.niri.settings.k.animations.b.screenshot-ui-open -->
+## `programs.niri.settings.animations.screenshot-ui-open`
+- type: `null or `[`<animation>`](#animation)
+- default:
+  ```nix
+  {
+    easing = {
+      curve = "ease-out-quad";
+      duration-ms = 200;
+    };
+  }
+  ```
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
 <!-- sorting key: programs.niri.settings.k.animations.b.window-close -->
 ## `programs.niri.settings.animations.window-close`
 - type: `null or `[`<animation>`](#animation)

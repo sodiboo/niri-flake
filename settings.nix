@@ -1337,6 +1337,11 @@ with docs.lib; {
               stiffness = 800;
               epsilon = 0.0001;
             };
+            screenshot-ui-open.unstable = true;
+            screenshot-ui-open.easing = {
+              duration-ms = 200;
+              curve = "ease-out-quad";
+            };
           };
         in
           ordered-section [
@@ -2229,6 +2234,7 @@ with docs.lib; {
             (animation' cfg.animations.shaders.window-open "window-open" cfg.animations)
             (animation' cfg.animations.shaders.window-close "window-close" cfg.animations)
             (animation' cfg.animations.shaders.window-resize "window-resize" cfg.animations)
+            (animation' null "screenshot-ui-open" cfg.animations)
           ])
         ])
 
