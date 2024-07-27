@@ -446,6 +446,22 @@ The minimum cooldown before a keybind can be triggered again, in milliseconds.
 This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
 
 
+<!-- sorting key: programs.niri.settings.a.binds.repeat -->
+## `programs.niri.settings.binds.<name>.repeat`
+- type: `boolean`
+- default: `true`
+
+Whether this keybind should trigger repeatedly when held down.
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
 <!-- sorting key: programs.niri.settings.b.screenshot-path -->
 ## `programs.niri.settings.screenshot-path`
 - type: `null or string`

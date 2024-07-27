@@ -530,6 +530,15 @@ with docs.lib; {
                   This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
                 '';
               };
+            repeat =
+              optional types.bool true
+              // {
+                description = ''
+                  Whether this keybind should trigger repeatedly when held down.
+
+                  ${unstable-note}
+                '';
+              };
             action =
               required (newtype (plain-type "niri action") kdl.types.kdl-leaf)
               // {
@@ -2096,6 +2105,9 @@ with docs.lib; {
           node name (opt-props {
               inherit (cfg) cooldown-ms;
             }
+            // (optionalAttrs (!cfg.repeat) {
+              repeat = false;
+            })
             // (optionalAttrs cfg.allow-when-locked {
               allow-when-locked = true;
             })) [
