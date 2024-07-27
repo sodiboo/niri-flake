@@ -1,4 +1,3 @@
-#!/run/current-system/sw/bin/bash
-# (that shebang is nixos-specific)
+#!/usr/bin/env bash
 
 just check-docs
