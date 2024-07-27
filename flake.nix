@@ -344,6 +344,20 @@
           ];
         };
 
+        devShells.default = inputs'.nixpkgs.legacyPackages.mkShell {
+          packages = with inputs'.nixpkgs.legacyPackages; [
+            just
+            fish
+            fd
+            entr
+            moreutils
+          ];
+
+          shellHook = ''
+            just hook 2>/dev/null
+          '';
+        };
+
         formatter = inputs'.nixpkgs.legacyPackages.alejandra;
       };
 
