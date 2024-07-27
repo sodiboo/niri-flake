@@ -96,6 +96,17 @@ with docs.lib; {
             - ${libinput-link "scrolling" "Natural scrolling vs. traditional scrolling"}
           '';
         };
+      middle-emulation =
+        optional types.bool false
+        // {
+          description = ''
+            Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+            Further reading:
+            - ${libinput-link "configuration" "Middle Button Emulation"}
+            - ${libinput-link "middle-button-emulation" "Middle button emulation"}
+          '';
+        };
       accel-speed =
         optional types.float 0.0
         // {
@@ -2015,6 +2026,7 @@ with docs.lib; {
 
         pointer = cfg: [
           (flag' "natural-scroll" cfg.natural-scroll)
+          (flag' "middle-emulation" cfg.middle-emulation)
           (leaf "accel-speed" cfg.accel-speed)
           (nullable leaf "accel-profile" cfg.accel-profile)
           (nullable leaf "scroll-method" cfg.scroll-method)

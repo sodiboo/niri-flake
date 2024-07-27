@@ -714,6 +714,18 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
 
 
+<!-- sorting key: programs.niri.settings.g.input.mouse.middle-emulation -->
+## `programs.niri.settings.input.mouse.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
+
 <!-- sorting key: programs.niri.settings.g.input.mouse.natural-scroll -->
 ## `programs.niri.settings.input.mouse.natural-scroll`
 - type: `boolean`
@@ -867,6 +879,18 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
 
 
+<!-- sorting key: programs.niri.settings.g.input.touchpad.middle-emulation -->
+## `programs.niri.settings.input.touchpad.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
+
 <!-- sorting key: programs.niri.settings.g.input.touchpad.natural-scroll -->
 ## `programs.niri.settings.input.touchpad.natural-scroll`
 - type: `boolean`
@@ -948,6 +972,18 @@ This varies based on the exact device, but will for example swap left/right mous
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.middle-emulation -->
+## `programs.niri.settings.input.trackpoint.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
 
 
 <!-- sorting key: programs.niri.settings.g.input.trackpoint.natural-scroll -->
