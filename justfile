@@ -6,7 +6,7 @@ set shell := ["fish", "-c"]
 default: check
 
 fmt:
-    nix fmt --quiet --quiet $(fd '^[^.]*\\.nix' .) -- --quiet
+    nix fmt --quiet --quiet $(fd '^[^.]*\\.nix$' .) -- --quiet
 
 hook:
     -ln -s ../../pre-commit .git/hooks/pre-commit
