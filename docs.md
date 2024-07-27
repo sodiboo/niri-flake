@@ -551,12 +551,28 @@ order for the named workspaces.
 The name of the output the workspace should be assigned to.
 
 
-<!-- sorting key: programs.niri.settings.g.input.focus-follows-mouse -->
-## `programs.niri.settings.input.focus-follows-mouse`
+<!-- sorting key: programs.niri.settings.g.input.focus-follows-mouse.enable -->
+## `programs.niri.settings.input.focus-follows-mouse.enable`
 - type: `boolean`
 - default: `false`
 
 Whether to focus the window under the mouse when the mouse moves.
+
+
+<!-- sorting key: programs.niri.settings.g.input.focus-follows-mouse.max-scroll-amount -->
+## `programs.niri.settings.input.focus-follows-mouse.max-scroll-amount`
+- type: `null or string`
+- default: `null`
+
+The maximum proportion of the screen to scroll at a time
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
 
 
 <!-- sorting key: programs.niri.settings.g.input.keyboard.repeat-delay -->

@@ -1014,11 +1014,20 @@ with docs.lib; {
                 Whether to warp the mouse to the focused window when switching focus.
               '';
             };
-          focus-follows-mouse =
+          focus-follows-mouse.enable =
             optional types.bool false
             // {
               description = ''
                 Whether to focus the window under the mouse when the mouse moves.
+              '';
+            };
+          focus-follows-mouse.max-scroll-amount =
+            nullable types.str
+            // {
+              description = ''
+                The maximum proportion of the screen to scroll at a time
+
+                ${unstable-note}
               '';
             };
 
@@ -2146,7 +2155,9 @@ with docs.lib; {
           (plain "tablet" (pointer-tablet cfg.input.tablet (touchy cfg.input.tablet)))
           (plain "touch" (touchy cfg.input.touch))
           (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
-          (flag' "focus-follows-mouse" cfg.input.focus-follows-mouse)
+          (optional-node cfg.input.focus-follows-mouse.enable (leaf "focus-follows-mouse" (optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
+            inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
+          })))
           (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
           (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         ])
