@@ -334,42 +334,6 @@ with docs.lib; {
               '';
             };
         }
-        {
-          active-color =
-            nullable types.str
-            // {
-              visible = false;
-            };
-          inactive-color =
-            nullable types.str
-            // {
-              visible = false;
-            };
-          active-gradient =
-            nullable (gradient path)
-            // {
-              visible = false;
-            };
-          inactive-gradient =
-            nullable (gradient path)
-            // {
-              visible = false;
-            };
-        }
-        {
-          __config = cfg:
-            mkMerge (concatMap (state: let
-              color = "${state}-color";
-              gradient = "${state}-gradient";
-            in [
-              (mkIf (cfg.${gradient} != null) {
-                ${state}.gradient = cfg.${gradient};
-              })
-              (mkIf (cfg.${color} != null && cfg.${gradient} == null) {
-                ${state}.color = cfg.${color};
-              })
-            ]) ["active" "inactive"]);
-        }
       ]
       // {
         inherit description;
