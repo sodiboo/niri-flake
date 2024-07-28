@@ -1340,6 +1340,24 @@ The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
+<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.in' -->
+## `<decoration>.gradient.in'`
+- type: `null or one of "srgb", "srgb-linear", "oklab", "oklch shorter hue", "oklch longer hue", "oklch increasing hue", "oklch decreasing hue"`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+The colorspace to interpolate the gradient in. This option is named `in'` because `in` is a reserved keyword in Nix.
+
+This is a subset of the [`<color-interpolation-method>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method) values in CSS.
+
+
 <!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.relative-to -->
 ## `<decoration>.gradient.relative-to`
 - type: `one of "window", "workspace-view"`

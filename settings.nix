@@ -248,6 +248,25 @@ with docs.lib; {
               This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
             '';
           };
+        in' =
+          nullable (enum [
+            "srgb"
+            "srgb-linear"
+            "oklab"
+            "oklch shorter hue"
+            "oklch longer hue"
+            "oklch increasing hue"
+            "oklch decreasing hue"
+          ])
+          // {
+            description = ''
+              ${unstable-note}
+
+              The colorspace to interpolate the gradient in. This option is named `in'` because `in` is a reserved keyword in Nix.
+
+              This is a subset of the [`<color-interpolation-method>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method) values in CSS.
+            '';
+          };
         relative-to =
           optional (enum ["window" "workspace-view"]) "window"
           // {
@@ -2043,15 +2062,23 @@ with docs.lib; {
           (nullable leaf "map-to-output" cfg.map-to-output)
         ];
 
+        gradient' = name: cfg:
+          leaf name
+          (concatMapAttrs (name: value:
+            optionalAttrs (value != null) {
+              ${removeSuffix "'" name} = value;
+            })
+          cfg);
+
         borderish = name: cfg:
           plain name [
             (
               toggle "off" cfg [
                 (leaf "width" cfg.width)
                 (nullable leaf "active-color" cfg.active.color or null)
-                (nullable leaf "active-gradient" cfg.active.gradient or null)
+                (nullable gradient' "active-gradient" cfg.active.gradient or null)
                 (nullable leaf "inactive-color" cfg.inactive.color or null)
-                (nullable leaf "inactive-gradient" cfg.inactive.gradient or null)
+                (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
               ]
             )
           ];
