@@ -1088,6 +1088,15 @@ with docs.lib; {
       {
         outputs = attrs (record {
           enable = optional types.bool true;
+          background-color =
+            nullable types.str
+            // {
+              description = ''
+                ${unstable-note}
+
+                The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
+              '';
+            };
           scale =
             nullable float-or-int
             // {
@@ -2211,6 +2220,7 @@ with docs.lib; {
         (mapAttrsToList (name: cfg:
           node "output" name [
             (toggle "off" cfg [
+              (nullable leaf "background-color" cfg.background-color)
               (nullable leaf "scale" cfg.scale)
               (map' leaf transform "transform" cfg.transform)
               (nullable leaf "position" cfg.position)

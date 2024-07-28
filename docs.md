@@ -1057,6 +1057,22 @@ Of note is that it does not switch to the previous *index*, but the previous *wo
 - type: `attribute set of (submodule)`
 
 
+<!-- sorting key: programs.niri.settings.h.outputs.background-color -->
+## `programs.niri.settings.outputs.<name>.background-color`
+- type: `null or string`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
+
+
 <!-- sorting key: programs.niri.settings.h.outputs.enable -->
 ## `programs.niri.settings.outputs.<name>.enable`
 - type: `boolean`
