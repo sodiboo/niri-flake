@@ -719,6 +719,14 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
 Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
 Further reading:
@@ -884,6 +892,14 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
 Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
 Further reading:
@@ -978,6 +994,14 @@ Further reading:
 ## `programs.niri.settings.input.trackpoint.middle-emulation`
 - type: `boolean`
 - default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
 
 Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 

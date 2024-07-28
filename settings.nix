@@ -100,6 +100,8 @@ with docs.lib; {
         optional types.bool false
         // {
           description = ''
+            ${unstable-note}
+
             Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
             Further reading:
