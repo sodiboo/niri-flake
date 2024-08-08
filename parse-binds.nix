@@ -40,9 +40,45 @@ in
       then path
       else null)
     builtins.readFile
-    (strings.match ''.*pub enum Action \{([^}]*).*'')
-    head
     (strings.splitString "\n")
+    (lists.foldl (
+        {
+          state,
+          actions,
+        }: line:
+          {
+            leading = {
+              state =
+                if line == "pub enum Action {"
+                then "actions"
+                else "leading";
+              inherit actions;
+            };
+            actions =
+              if line == "}"
+              then {
+                state = "trailing";
+                inherit actions;
+              }
+              else {
+                state = "actions";
+                actions = actions ++ [line];
+              };
+            trailing = {
+              state = "trailing";
+              inherit actions;
+            };
+          }
+          .${state}
+      ) {
+        state = "leading";
+        actions = [];
+      })
+    ({
+      state,
+      actions,
+    }:
+      assert (state == "trailing"); actions)
     (remove "")
     (map (removePrefix "    "))
     (filter-prev (prev: prev != "#[knuffel(skip)]"))
