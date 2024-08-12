@@ -51,15 +51,19 @@
     fmt-date = raw: "${date.year raw}-${date.month raw}-${date.day raw}";
     fmt-time = raw: "${date.hour raw}:${date.minute raw}:${date.second raw}";
 
-    version-string = orig: src:
+    version-string = orig: version-string orig.version;
+
+    version-string' = orig-ver: src:
       if stable-revs ? ${src.rev}
-      then "stable ${orig.version}"
+      then "stable ${orig-ver}"
       else "unstable ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
 
-    package-version = orig: src:
+    package-version = orig: package-version' orig.version;
+
+    package-version' = orig-ver: src:
       if stable-revs ? ${src.rev}
-      then orig.version
-      else "${orig.version}-unstable-${src.shortRev}";
+      then orig-ver
+      else "${orig-ver}-unstable-${src.shortRev}";
 
     make-niri = nixpkgs.lib.makeOverridable ({
       src,
@@ -211,6 +215,99 @@
         inherit workspace;
       });
 
+    make-niri' = nixpkgs.lib.makeOverridable ({
+      src,
+      pkgs,
+      patches ? [],
+      rustPlatform ? pkgs.rustPlatform,
+      pkg-config ? pkgs.pkg-config,
+      wayland ? pkgs.wayland,
+      systemdLibs ? pkgs.systemdLibs,
+      pipewire ? pkgs.pipewire,
+      mesa ? pkgs.mesa,
+      libglvnd ? pkgs.libglvnd,
+      seatd ? pkgs.seatd,
+      libinput ? pkgs.libinput,
+      libxkbcommon ? pkgs.libxkbcommon,
+      pango ? pkgs.pango,
+    }: let
+      manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
+      workspace-version = manifest.workspace.package.version;
+    in
+      rustPlatform.buildRustPackage {
+        pname = "niri";
+        version = package-version' workspace-version src;
+        inherit src patches;
+        cargoLock = {
+          lockFile = "${src}/Cargo.lock";
+          allowBuiltinFetchGit = true;
+        };
+        nativeBuildInputs = [
+          pkg-config
+          rustPlatform.bindgenHook
+        ];
+
+        buildInputs = [
+          wayland
+          systemdLibs
+          pipewire
+          mesa
+          libglvnd
+          seatd
+          libinput
+          libxkbcommon
+          pango
+        ];
+
+        passthru.providedSessions = ["niri"];
+
+        # we want backtraces to be readable
+        dontStrip = true;
+
+        RUSTFLAGS = [
+          "-C link-arg=-Wl,--push-state,--no-as-needed"
+          "-C link-arg=-lEGL"
+          "-C link-arg=-lwayland-client"
+          "-C link-arg=-Wl,--pop-state"
+
+          "-C debuginfo=line-tables-only"
+
+          # "/source/" is not very readable. "./" is better, and it matches default behaviour of cargo.
+          "--remap-path-prefix $NIX_BUILD_TOP/source=./"
+        ];
+
+        postPatch = ''
+          substituteInPlace src/utils/mod.rs --replace ${nixpkgs.lib.escapeShellArgs [
+            ''pub fn version() -> String {''
+            ''
+              #[allow(unreachable_code)]
+              pub fn version() -> String {
+                return "${version-string' workspace-version src}".into();
+            ''
+          ]}
+        '';
+
+        postInstall = ''
+          install -Dm0755 resources/niri-session -t $out/bin
+          install -Dm0644 resources/niri.desktop -t $out/share/wayland-sessions
+          install -Dm0644 resources/niri-portals.conf -t $out/share/xdg-desktop-portal
+          install -Dm0644 resources/niri{-shutdown.target,.service} -t $out/share/systemd/user
+        '';
+
+        postFixup = ''
+          substituteInPlace $out/share/systemd/user/niri.service --replace-fail /usr/bin $out/bin
+        '';
+
+        meta = with nixpkgs.lib; {
+          description = "Scrollable-tiling Wayland compositor";
+          homepage = "https://github.com/YaLTeR/niri";
+          license = licenses.gpl3Only;
+          maintainers = with maintainers; [sodiboo];
+          mainProgram = "niri";
+          platforms = platforms.linux;
+        };
+      });
+
     validated-config-for = pkgs: package: config:
       pkgs.runCommand "config.kdl" {
         inherit config;
@@ -223,13 +320,13 @@
 
     package-set = {
       niri-stable = pkgs:
-        make-niri {
+        make-niri' {
           inherit pkgs;
           src = inputs.niri-stable;
           patches = [];
         };
       niri-unstable = pkgs:
-        make-niri {
+        make-niri' {
           inherit pkgs;
           src = inputs.niri-unstable;
         };
