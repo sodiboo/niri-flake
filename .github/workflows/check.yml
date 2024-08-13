@@ -16,6 +16,8 @@ jobs:
     name: "nix flake check"
     runs-on: ubuntu-latest
     steps:
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@v1.3.1
     - uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v25
       with:
