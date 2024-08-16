@@ -100,8 +100,6 @@ with docs.lib; {
         optional types.bool false
         // {
           description = ''
-            ${unstable-note}
-
             Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
             Further reading:
@@ -260,8 +258,6 @@ with docs.lib; {
           ])
           // {
             description = ''
-              ${unstable-note}
-
               The colorspace to interpolate the gradient in. This option is named `in'` because `in` is a reserved keyword in Nix.
 
               This is a subset of the [`<color-interpolation-method>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method) values in CSS.
@@ -567,8 +563,6 @@ with docs.lib; {
               // {
                 description = ''
                   Whether this keybind should trigger repeatedly when held down.
-
-                  ${unstable-note}
                 '';
               };
             action =
@@ -1058,8 +1052,6 @@ with docs.lib; {
             // {
               description = ''
                 The maximum proportion of the screen to scroll at a time
-
-                ${unstable-note}
               '';
             };
 
@@ -1092,8 +1084,6 @@ with docs.lib; {
             nullable types.str
             // {
               description = ''
-                ${unstable-note}
-
                 The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
               '';
             };
@@ -1378,7 +1368,6 @@ with docs.lib; {
               stiffness = 800;
               epsilon = 0.0001;
             };
-            screenshot-ui-open.unstable = true;
             screenshot-ui-open.easing = {
               duration-ms = 200;
               curve = "ease-out-quad";

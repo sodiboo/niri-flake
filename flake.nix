@@ -12,7 +12,7 @@
     niri-unstable.url = "github:YaLTeR/niri";
     niri-unstable.flake = false;
 
-    niri-stable.url = "github:YaLTeR/niri/v0.1.7";
+    niri-stable.url = "github:YaLTeR/niri/v0.1.8";
     niri-stable.flake = false;
 
     xwayland-satellite.url = "github:Supreeeme/xwayland-satellite";

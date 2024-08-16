@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.7`](https://github.com/YaLTeR/niri/releases/tag/v0.1.7) with no additional patches.
+Currently, this is release [`v0.1.8`](https://github.com/YaLTeR/niri/releases/tag/v0.1.8) with no additional patches.
 
 
 
@@ -362,8 +362,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-column-last`
 - `focus-column-right-or-first`
 - `focus-column-left-or-last`
-- `focus-window-or-monitor-up` (only on niri-unstable)
-- `focus-window-or-monitor-down` (only on niri-unstable)
+- `focus-window-or-monitor-up`
+- `focus-window-or-monitor-down`
 - `focus-column-or-monitor-left`
 - `focus-column-or-monitor-right`
 - `focus-window-down`
@@ -378,8 +378,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-column-right`
 - `move-column-to-first`
 - `move-column-to-last`
-- `move-column-left-or-to-monitor-left` (only on niri-unstable)
-- `move-column-right-or-to-monitor-right` (only on niri-unstable)
+- `move-column-left-or-to-monitor-left`
+- `move-column-right-or-to-monitor-right`
 - `move-window-down`
 - `move-window-up`
 - `move-window-down-or-to-workspace-down`
@@ -452,14 +452,6 @@ This is mostly useful for binds on the mouse wheel, where you might not want to 
 - default: `true`
 
 Whether this keybind should trigger repeatedly when held down.
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 
 <!-- sorting key: programs.niri.settings.b.screenshot-path -->
@@ -565,14 +557,6 @@ Whether to focus the window under the mouse when the mouse moves.
 - default: `null`
 
 The maximum proportion of the screen to scroll at a time
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 
 <!-- sorting key: programs.niri.settings.g.input.keyboard.repeat-delay -->
@@ -718,14 +702,6 @@ Further reading:
 ## `programs.niri.settings.input.mouse.middle-emulation`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
@@ -892,14 +868,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
 Further reading:
@@ -995,14 +963,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
 Further reading:
@@ -1061,14 +1021,6 @@ Of note is that it does not switch to the previous *index*, but the previous *wo
 ## `programs.niri.settings.outputs.<name>.background-color`
 - type: `null or string`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
 
@@ -1361,14 +1313,6 @@ For more details, see [`<decoration>.color`](#decorationcolor).
 - type: `null or one of "srgb", "srgb-linear", "oklab", "oklch shorter hue", "oklch longer hue", "oklch increasing hue", "oklch decreasing hue"`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 The colorspace to interpolate the gradient in. This option is named `in'` because `in` is a reserved keyword in Nix.
 
 This is a subset of the [`<color-interpolation-method>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method) values in CSS.
@@ -1593,14 +1537,6 @@ The left and right structs work in a similar way, except the padded space is not
     };
   }
   ```
-
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 
 
