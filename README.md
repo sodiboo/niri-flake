@@ -6,7 +6,7 @@ This flake also contains NixOS and home-manager modules to install all necessary
 
 The rest of this README covers miscellaneous topics related to this flake or repo as a whole.
 
-Feel free to contact me at [`@sodiboo:arcticfoxes.net`](https://matrix.to/#/@sodiboo:arcticfoxes.net) in the [`#niri:matrix.org`](https://matrix.to/#/#niri:matrix.org) channel or through GitHub issues if you have any questions or concerns.
+Feel free to contact me at [`@sodiboo:gaysex.cloud`](https://matrix.to/#/@sodiboo:gaysex.cloud) in the [`#niri:matrix.org`](https://matrix.to/#/#niri:matrix.org) channel or through GitHub issues if you have any questions or concerns.
 
 # A note on the automated pull requests in this repository
 
