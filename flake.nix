@@ -229,6 +229,7 @@
       seatd ? pkgs.seatd,
       libinput ? pkgs.libinput,
       libxkbcommon ? pkgs.libxkbcommon,
+      libdisplay-info ? pkgs.libdisplay-info,
       pango ? pkgs.pango,
     }: let
       manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
@@ -255,6 +256,7 @@
           libglvnd
           seatd
           libinput
+          libdisplay-info
           libxkbcommon
           pango
         ];
