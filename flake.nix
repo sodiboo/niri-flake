@@ -363,6 +363,25 @@
       in
         workspace.workspaceMembers.xwayland-satellite.build;
     };
+
+    combined-closure = pkgs-name: pkgs:
+      pkgs.runCommand "niri-flake-packages-for-${pkgs-name}" {} (''
+          mkdir $out
+        ''
+        + builtins.concatStringsSep "" (nixpkgs.lib.mapAttrsToList (name: make-for: ''
+            ln -s ${make-for pkgs} $out/${name}
+          '')
+          package-set));
+
+    cached = nixpkgs.legacyPackages.x86_64-linux.runCommand "all-niri-flake-packages" {} (''
+        mkdir $out
+      ''
+      + builtins.concatStringsSep "" (nixpkgs.lib.mapAttrsToList (name: nixpkgs': ''
+          ln -s ${combined-closure name nixpkgs'.legacyPackages.x86_64-linux} $out/${name}
+        '') {
+          nixos-unstable = nixpkgs;
+          "nixos-24.05" = nixpkgs-stable;
+        }));
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -374,10 +393,9 @@
         ...
       }: {
         packages =
-          nixpkgs.lib.concatMapAttrs (name: make-for: {
-            "${name}" = make-for inputs'.nixpkgs.legacyPackages;
-            "${name}-for-nixos-stable" = make-for inputs'.nixpkgs-stable.legacyPackages;
-          })
+          builtins.mapAttrs (
+            name: make-for: make-for inputs'.nixpkgs.legacyPackages
+          )
           package-set;
 
         apps = {
@@ -463,7 +481,7 @@
         lib = {
           inherit kdl;
           internal = {
-            inherit package-set make-niri validated-config-for;
+            inherit package-set make-niri validated-config-for cached;
             docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
             settings-module = settings.module;
           };
