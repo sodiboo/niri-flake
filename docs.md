@@ -1365,14 +1365,6 @@ For more details, see [`<decoration>.color`](#decorationcolor).
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
@@ -2273,14 +2265,6 @@ Keep in mind that the window itself always has a final say in its size, and may 
 ## `programs.niri.settings.window-rules.*.variable-refresh-rate`
 - type: `null or boolean`
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 Takes effect only when the window is on an output with [`outputs.*.variable-refresh-rate`](#programsnirisettingsoutputsvariable-refresh-rate) set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
 
