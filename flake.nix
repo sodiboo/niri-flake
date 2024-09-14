@@ -213,33 +213,29 @@
         };
       });
 
-    package-set = {
-      niri-stable = pkgs:
-        pkgs.callPackage make-niri {
-          src = inputs.niri-stable;
-        };
-      niri-unstable = pkgs:
-        pkgs.callPackage make-niri {
-          src = inputs.niri-unstable;
-        };
-      xwayland-satellite-stable = pkgs:
-        pkgs.callPackage make-xwayland-satellite {
-          src = inputs.xwayland-satellite-stable;
-        };
-      xwayland-satellite-unstable = pkgs:
-        pkgs.callPackage make-xwayland-satellite {
-          src = inputs.xwayland-satellite-unstable;
-        };
+    make-package-set = pkgs: {
+      niri-stable = pkgs.callPackage make-niri {
+        src = inputs.niri-stable;
+      };
+      niri-unstable = pkgs.callPackage make-niri {
+        src = inputs.niri-unstable;
+      };
+      xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
+        src = inputs.xwayland-satellite-stable;
+      };
+      xwayland-satellite-unstable = pkgs.callPackage make-xwayland-satellite {
+        src = inputs.xwayland-satellite-unstable;
+      };
     };
 
     combined-closure = pkgs-name: pkgs:
       pkgs.runCommand "niri-flake-packages-for-${pkgs-name}" {} (''
           mkdir $out
         ''
-        + builtins.concatStringsSep "" (nixpkgs.lib.mapAttrsToList (name: make-for: ''
-            ln -s ${make-for pkgs} $out/${name}
+        + builtins.concatStringsSep "" (nixpkgs.lib.mapAttrsToList (name: package: ''
+            ln -s ${package} $out/${name}
           '')
-          package-set));
+          (make-package-set pkgs)));
 
     cached = nixpkgs.legacyPackages.x86_64-linux.runCommand "all-niri-flake-packages" {} (''
         mkdir $out
@@ -260,24 +256,20 @@
         system,
         ...
       }: {
-        packages =
-          builtins.mapAttrs (
-            name: make-for: make-for inputs'.nixpkgs.legacyPackages
+        packages = make-package-set inputs'.nixpkgs.legacyPackages;
+
+        apps =
+          (
+            builtins.mapAttrs (
+              name: package: {
+                type = "app";
+                program = nixpkgs.lib.getExe package;
+              }
+            ) (make-package-set inputs'.nixpkgs.legacyPackages)
           )
-          package-set;
-
-        apps = {
-          niri-stable = {
-            type = "app";
-            program = "${self'.packages.niri-stable}/bin/niri";
+          // {
+            default = self'.apps.niri-stable;
           };
-          niri-unstable = {
-            type = "app";
-            program = "${self'.packages.niri-unstable}/bin/niri";
-          };
-
-          default = self'.apps.niri-stable;
-        };
 
         checks = let
           test-nixos-for = nixpkgs: modules:
@@ -300,6 +292,7 @@
             .build
             .toplevel;
         in {
+          inherit cached;
           empty-config-valid-stable = let
             eval = nixpkgs.lib.evalModules {
               modules = [
@@ -345,31 +338,31 @@
       };
 
       flake = {
-        overlays.niri = with nixpkgs.lib;
-          final: prev: ((mapAttrs (const (flip id final)) package-set)
-            // {
-              xwayland-satellite-nixpkgs = prev.xwayland-satellite or abort "xwayland-satellite isn't in your nixpkgs";
-              xwayland-satellite =
-                nixpkgs.lib.warn ''
-                  `pkgs.xwayland-satellite` will change behaviour in the future.
+        overlays.niri = final: prev: (make-package-set final
+          // {
+            xwayland-satellite-nixpkgs = prev.xwayland-satellite or abort "xwayland-satellite isn't in your nixpkgs";
+            xwayland-satellite =
+              nixpkgs.lib.warn ''
+                `pkgs.xwayland-satellite` will change behaviour in the future.
 
-                  Previously, `pkgs.xwayland-satellite` was provided by this flake.
-                  However, this (naively) overrides the version provided by nixpkgs.
-                  Now, xwayland-satellite gets similar treatment to niri.
-                  If you want to use the version you were previously using, use `pkgs.xwayland-satellite-unstable`.
+                Previously, `pkgs.xwayland-satellite` was provided by this flake.
+                However, this (naively) overrides the version provided by nixpkgs.
+                Now, xwayland-satellite gets similar treatment to niri.
+                If you want to use the version you were previously using, use `pkgs.xwayland-satellite-unstable`.
 
-                  For now, this is a warning and the behaviour is unchanged.
-                  This invocation still uses the unstable version provided by this flake.
+                For now, this is a warning and the behaviour is unchanged.
+                This invocation still uses the unstable version provided by this flake.
 
-                  You can use the nixpkgs version explicitly by using `pkgs.xwayland-satellite-nixpkgs`.
-                  That version will at a future point have a warning to switch back to `pkgs.xwayland-satellite` when that alias is removed from the overlay.
-                ''
-                final.xwayland-satellite-unstable;
-            });
+                You can use the nixpkgs version explicitly by using `pkgs.xwayland-satellite-nixpkgs`.
+                That version will at a future point have a warning to switch back to `pkgs.xwayland-satellite` when that alias is removed from the overlay.
+              ''
+              final.xwayland-satellite-unstable;
+          });
         lib = {
           inherit kdl;
           internal = {
-            inherit package-set validated-config-for cached;
+            inherit make-package-set validated-config-for cached;
+            package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
             docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
             settings-module = settings.module;
           };
@@ -390,7 +383,7 @@
             options.programs.niri = {
               package = mkOption {
                 type = types.package;
-                default = package-set.niri-stable pkgs;
+                default = (make-package-set pkgs).niri-stable;
               };
             };
 
@@ -423,7 +416,7 @@
               enable = mkEnableOption "niri";
               package = mkOption {
                 type = types.package;
-                default = package-set.niri-stable pkgs;
+                default = (make-package-set pkgs).niri-stable;
               };
             };
 
