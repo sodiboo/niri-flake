@@ -151,22 +151,26 @@ with docs.lib; {
         };
     };
 
-    preset-width = variant {
-      fixed =
-        types.int
-        // {
-          variant-description = ''
-            The width of the column in logical pixels
-          '';
-        };
-      proportion =
-        types.float
-        // {
-          variant-description = ''
-            The width of the column as a proportion of the screen's width
-          '';
-        };
-    };
+    preset-size = dimension: object:
+      variant {
+        fixed =
+          types.int
+          // {
+            variant-description = ''
+              The ${dimension} of the ${object} in logical pixels
+            '';
+          };
+        proportion =
+          types.float
+          // {
+            variant-description = ''
+              The ${dimension} of the ${object} as a proportion of the screen's ${dimension}
+            '';
+          };
+      };
+
+    preset-width = preset-size "width" "column";
+    preset-height = preset-size "height" "window";
 
     emptyOr = elemType:
       mkOptionType {
@@ -1252,12 +1256,35 @@ with docs.lib; {
 
                   ```nix
                   {
-                    programs.niri.settings.layout.preset-coumn-widths = [
+                    programs.niri.settings.layout.preset-column-widths = [
                       { proportion = 1./3.; }
                       { proportion = 1./2.; }
                       { proportion = 2./3.; }
 
                       # { fixed = 1920; }
+                    ];
+                  }
+                  ```
+                '';
+              };
+            preset-window-heights =
+              list preset-height
+              // {
+                description = ''
+                  The heights that `switch-preset-window-height` will cycle through.
+
+                  Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+                  Example:
+
+                  ```nix
+                  {
+                    programs.niri.settings.layout.preset-window-heights = [
+                      { proportion = 1./3.; }
+                      { proportion = 1./2.; }
+                      { proportion = 2./3.; }
+
+                      # { fixed = 1080; }
                     ];
                   }
                   ```
@@ -2103,7 +2130,10 @@ with docs.lib; {
             )
           ];
 
-        preset-widths = map' plain (cfg: map (mapAttrsToList leaf) (toList cfg));
+        preset-sizes = map' (nullable plain) (cfg:
+          if cfg == []
+          then null
+          else map (mapAttrsToList leaf) (toList cfg));
 
         animation = shader:
           map' plain (cfg: [
@@ -2141,7 +2171,7 @@ with docs.lib; {
           plain "window-rule" [
             (map (leaf "match") (map opt-props cfg.matches))
             (map (leaf "exclude") (map opt-props cfg.excludes))
-            (nullable preset-widths "default-column-width" cfg.default-column-width)
+            (nullable preset-sizes "default-column-width" cfg.default-column-width)
             (nullable leaf "open-on-output" cfg.open-on-output)
             (nullable leaf "open-on-workspace" cfg.open-on-workspace)
             (nullable leaf "open-maximized" cfg.open-maximized)
@@ -2258,8 +2288,9 @@ with docs.lib; {
           ])
           (borderish "focus-ring" cfg.layout.focus-ring)
           (borderish "border" cfg.layout.border)
-          (preset-widths "preset-column-widths" cfg.layout.preset-column-widths)
-          (preset-widths "default-column-width" cfg.layout.default-column-width)
+          (preset-sizes "default-column-width" cfg.layout.default-column-width)
+          (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
+          (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
           (leaf "center-focused-column" cfg.layout.center-focused-column)
           (flag' "always-center-single-column" cfg.layout.always-center-single-column)
         ])

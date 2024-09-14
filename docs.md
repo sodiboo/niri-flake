@@ -1435,7 +1435,7 @@ Example:
 
 ```nix
 {
-  programs.niri.settings.layout.preset-coumn-widths = [
+  programs.niri.settings.layout.preset-column-widths = [
     { proportion = 1./3.; }
     { proportion = 1./2.; }
     { proportion = 2./3.; }
@@ -1458,6 +1458,43 @@ The width of the column in logical pixels
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
+
+
+<!-- sorting key: programs.niri.settings.j.layout.c.preset-window-heights -->
+## `programs.niri.settings.layout.preset-window-heights`
+- type: `list of variant of: fixed | proportion`
+
+The heights that `switch-preset-window-height` will cycle through.
+
+Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.layout.preset-window-heights = [
+    { proportion = 1./3.; }
+    { proportion = 1./2.; }
+    { proportion = 2./3.; }
+
+    # { fixed = 1080; }
+  ];
+}
+```
+
+
+<!-- sorting key: programs.niri.settings.j.layout.c.preset-window-heights.fixed -->
+## `programs.niri.settings.layout.preset-window-heights.*.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+<!-- sorting key: programs.niri.settings.j.layout.c.preset-window-heights.proportion -->
+## `programs.niri.settings.layout.preset-window-heights.*.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
 
 
 <!-- sorting key: programs.niri.settings.j.layout.c.struts -->
