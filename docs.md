@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.8`](https://github.com/YaLTeR/niri/releases/tag/v0.1.8) with no additional patches.
+Currently, this is release [`v0.1.9`](https://github.com/YaLTeR/niri/releases/tag/v0.1.9) with no additional patches.
 
 
 
@@ -416,7 +416,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ set-window-height :: size-change`
 - `reset-window-height`
 - `switch-preset-column-width`
-- `switch-preset-window-height` (only on niri-unstable)
+- `switch-preset-window-height`
 - `maximize-column`
 - `λ set-column-width :: size-change`
 - `λ switch-layout :: "next" | "prev"`
