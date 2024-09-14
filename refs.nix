@@ -18,6 +18,7 @@
   "d96a66ddff1a6b88dbe3e23b049f7075533b216f" = "v0.1.6";
   "e7c201abba6fedaa57001639810af3b6bd9b852e" = "v0.1.7";
   "9063a5dbdc0d4470dc1e13ce5749838e32af6a44" = "v0.1.8";
+  "6a48728ffb1e638839b07f9ab2f06b2adb41dc61" = "v0.1.9";
   # xwayland-satellite
   "e70cb817516834450cb424d31dcbf70ad13b9718" = "v0.1";
   "c95655299e3ffa8790fd3d71b996923a6042de59" = "v0.2";

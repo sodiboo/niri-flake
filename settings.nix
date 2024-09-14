@@ -1155,12 +1155,14 @@ with docs.lib; {
             };
 
           variable-refresh-rate =
-            optional types.bool false
+            optional (enum [false "on-demand" true]) false
             // {
               description = ''
                 Whether to enable variable refresh rate (VRR) on this output.
 
                 VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
+
+                Setting this to `"on-demand"` will enable VRR only when a window with ${link' "programs.niri.settings.window-rules.*.variable-refresh-rate"} is present on this output.
               '';
             };
         });
@@ -1698,6 +1700,17 @@ with docs.lib; {
                     '';
                   };
               })
+              {
+                variable-refresh-rate =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      ${unstable-note}
+
+                      Takes effect only when the window is on an output with ${link' "programs.niri.settings.outputs.*.variable-refresh-rate"} set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
+                    '';
+                  };
+              }
             ]
             // {
               description = "window rule";
@@ -2135,6 +2148,7 @@ with docs.lib; {
             (nullable leaf "min-height" cfg.min-height)
             (nullable leaf "max-height" cfg.max-height)
             (nullable leaf "block-out-from" cfg.block-out-from)
+            (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
           ];
         transform = cfg: let
           rotation = toString cfg.rotation;
@@ -2214,7 +2228,10 @@ with docs.lib; {
               (map' leaf transform "transform" cfg.transform)
               (nullable leaf "position" cfg.position)
               (nullable (map' leaf mode) "mode" cfg.mode)
-              (flag' "variable-refresh-rate" cfg.variable-refresh-rate)
+              (
+                optional-node (cfg.variable-refresh-rate != false)
+                (leaf "variable-refresh-rate" {on-demand = cfg.variable-refresh-rate == "on-demand";})
+              )
             ])
           ])
         cfg.outputs)

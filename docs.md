@@ -1118,12 +1118,14 @@ Counter-clockwise rotation of this output in degrees.
 
 <!-- sorting key: programs.niri.settings.h.outputs.variable-refresh-rate -->
 ## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
-- type: `boolean`
+- type: `one of false, "on-demand", true`
 - default: `false`
 
 Whether to enable variable refresh rate (VRR) on this output.
 
 VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
+
+Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
 
 
 <!-- sorting key: programs.niri.settings.i.cursor.size -->
@@ -2212,6 +2214,22 @@ Keep in mind that the window itself always has a final say in its size, and may 
 Sets the minimum width (in logical pixels) that niri will ever ask this window for.
 
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.f.variable-refresh-rate -->
+## `programs.niri.settings.window-rules.*.variable-refresh-rate`
+- type: `null or boolean`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Takes effect only when the window is on an output with [`outputs.*.variable-refresh-rate`](#programsnirisettingsoutputsvariable-refresh-rate) set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
 
 
 <!-- sorting key: programs.niri.settings.n.debug -->
