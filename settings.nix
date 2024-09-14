@@ -1318,8 +1318,6 @@ with docs.lib; {
               optional types.bool false
               // {
                 description = ''
-                  ${unstable-note}
-
                   This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
                 '';
               };
@@ -1741,8 +1739,6 @@ with docs.lib; {
                   nullable types.bool
                   // {
                     description = ''
-                      ${unstable-note}
-
                       Takes effect only when the window is on an output with ${link' "programs.niri.settings.outputs.*.variable-refresh-rate"} set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
                     '';
                   };
