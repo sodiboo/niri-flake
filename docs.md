@@ -1360,6 +1360,22 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
+<!-- sorting key: programs.niri.settings.j.layout.c.always-center-single-column -->
+## `programs.niri.settings.layout.always-center-single-column`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+
+
 <!-- sorting key: programs.niri.settings.j.layout.c.center-focused-column -->
 ## `programs.niri.settings.layout.center-focused-column`
 - type: `one of "never", "always", "on-overflow"`

@@ -1287,6 +1287,15 @@ with docs.lib; {
                   - `"always"`: the focused column will always be centered, even if it was already fully visible.
                 '';
               };
+            always-center-single-column =
+              optional types.bool false
+              // {
+                description = ''
+                  ${unstable-note}
+
+                  This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+                '';
+              };
             gaps =
               optional float-or-int 16
               // {
@@ -2252,6 +2261,7 @@ with docs.lib; {
           (preset-widths "preset-column-widths" cfg.layout.preset-column-widths)
           (preset-widths "default-column-width" cfg.layout.default-column-width)
           (leaf "center-focused-column" cfg.layout.center-focused-column)
+          (flag' "always-center-single-column" cfg.layout.always-center-single-column)
         ])
 
         (plain "cursor" [
