@@ -472,8 +472,7 @@
                 systemd.user.services.niri-flake-polkit = {
                   description = "PolicyKit Authentication Agent provided by niri-flake";
                   wantedBy = ["niri.service"];
-                  wants = ["graphical-session.target"];
-                  after = ["graphical-session.target"];
+                  partOf = ["graphical-session.target"];
                   serviceConfig = {
                     Type = "simple";
                     ExecStart = "${pkgs.libsForQt5.polkit-kde-agent}/libexec/polkit-kde-authentication-agent-1";
