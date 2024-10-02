@@ -35,7 +35,7 @@ The latest commit to the development branch of niri.
 Currently, this is exactly commit [`0cca7a2`](https://github.com/YaLTeR/niri/tree/0cca7a21163f0d4c1e99c12844da027a23e76003) which was authored on `2024-10-01 10:28:28`.
 
 > [!warning]
-> `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
+> `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from time to time.
 >
 > The specific package provided by this flake is automatically updated without any testing. The only guarantee is that it builds.
 
@@ -114,7 +114,7 @@ Whether or not to enable the binary cache [`niri.cachix.org`](https://niri.cachi
 
 Using a binary cache can save you time, by avoiding redundant rebuilds.
 
-This cache is managed by me, sodiboo, and i use GitHub Actions to automaticaly upload builds of [`pkgs.niri-stable`](#packagessystemniri-stable) and [`pkgs.niri-unstable`](#packagessystemniri-unstable) (for nixpkgs unstable and stable). By using it, you are trusting me to not upload malicious builds, and as such you may disable it.
+This cache is managed by me, sodiboo, and i use GitHub Actions to automatically upload builds of [`pkgs.niri-stable`](#packagessystemniri-stable) and [`pkgs.niri-unstable`](#packagessystemniri-unstable) (for nixpkgs unstable and stable). By using it, you are trusting me to not upload malicious builds, and as such you may disable it.
 
 If you do not wish to use this cache, then you may wish to set [`programs.niri.package`](#programsniripackage) to [`pkgs.niri`](https://search.nixos.org/packages?channel=unstable&show=niri), in order to take advantage of the NixOS cache.
 
@@ -590,7 +590,7 @@ By default, there is only one `"global"` keyboard layout and changing it in any 
 ## `programs.niri.settings.input.keyboard.xkb`
 
 
-Parameters passed to libxkbcommon, which handles the keyboard in niri.
+Parameters are passed to libxkbcommon, which handles the keyboard in niri.
 
 Further reading:
 - [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
@@ -692,7 +692,7 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-Whether to accomodate left-handed usage for this device.
+Whether to accommodate left-handed usage for this device.
 This varies based on the exact device, but will for example swap left/right mouse buttons.
 
 Further reading:
@@ -756,7 +756,7 @@ You can disable this behaviour if you prefer to configure the power button elsew
 - type: `boolean`
 - default: `false`
 
-Whether to accomodate left-handed usage for this device.
+Whether to accommodate left-handed usage for this device.
 This varies based on the exact device, but will for example swap left/right mouse buttons.
 
 Further reading:
@@ -804,7 +804,7 @@ Method to determine which mouse button is pressed when you click the touchpad.
   The button is determined by which part of the touchpad was clicked.
 
 - `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html.html#clickfinger-behavior) \
-  The button is determined by how many fingers clicked.
+  The button is determined by how many fingers are clicked.
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#click-method
@@ -857,7 +857,7 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-Whether to accomodate left-handed usage for this device.
+Whether to accommodate left-handed usage for this device.
 This varies based on the exact device, but will for example swap left/right mouse buttons.
 
 Further reading:
@@ -1493,7 +1493,7 @@ The height of the window as a proportion of the screen's height
 ## `programs.niri.settings.layout.struts`
 
 
-The distances from the edges of the screen to the eges of the working area.
+The distances from the edges of the screen to the edges of the working area.
 
 The top and bottom struts are absolute gaps from the edges of the screen. If you set a bottom strut of 64px and the scale is 2.0, then the output will have 128 physical pixels under the scrollable working area where it only shows the wallpaper.
 
@@ -1739,7 +1739,7 @@ Environment variables to set for processes spawned by niri.
 
 If an environment variable is already set in the environment, then it will be overridden by the value set here.
 
-If a value is null, then the environment variable will be unset, even if it already existed.
+If a value is null, then the environment variable will be unset, even if it already exists.
 
 Examples:
 
@@ -1781,7 +1781,7 @@ That is, a given window rule will apply to a given window if any of the entries 
 
 All fields of a window rule can be set to null, which represents that the field shall have no effect on the window (and in general, the client is allowed to choose the initial value).
 
-To compute the final set of window rules that apply to a given window, each window rule in this list is consdered in order.
+To compute the final set of window rules that apply to a given window, each window rule in this list is considered in order.
 
 At first, every field is set to null.
 
