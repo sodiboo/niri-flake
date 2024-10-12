@@ -238,15 +238,16 @@
           '')
           (make-package-set pkgs)));
 
-    cached = nixpkgs.legacyPackages.x86_64-linux.runCommand "all-niri-flake-packages" {} (''
-        mkdir $out
-      ''
-      + builtins.concatStringsSep "" (nixpkgs.lib.mapAttrsToList (name: nixpkgs': ''
-          ln -s ${combined-closure name nixpkgs'.legacyPackages.x86_64-linux} $out/${name}
-        '') {
-          nixos-unstable = nixpkgs;
-          "nixos-24.05" = nixpkgs-stable;
-        }));
+    cached-packages-for = system:
+      nixpkgs.legacyPackages.${system}.runCommand "all-niri-flake-packages" {} (''
+          mkdir $out
+        ''
+        + builtins.concatStringsSep "" (nixpkgs.lib.mapAttrsToList (name: nixpkgs': ''
+            ln -s ${combined-closure name nixpkgs'.legacyPackages.${system}} $out/${name}
+          '') {
+            nixos-unstable = nixpkgs;
+            "nixos-24.05" = nixpkgs-stable;
+          }));
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -293,7 +294,7 @@
             .build
             .toplevel;
         in {
-          inherit cached;
+          cached-packages = cached-packages-for system;
           empty-config-valid-stable = let
             eval = nixpkgs.lib.evalModules {
               modules = [
@@ -362,7 +363,7 @@
         lib = {
           inherit kdl;
           internal = {
-            inherit make-package-set validated-config-for cached;
+            inherit make-package-set validated-config-for;
             package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
             docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
             settings-module = settings.module;
