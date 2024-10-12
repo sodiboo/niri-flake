@@ -124,6 +124,7 @@
         ];
 
         postPatch = ''
+          patchShebangs resources/niri-session
           substituteInPlace src/utils/mod.rs --replace ${nixpkgs.lib.escapeShellArgs [
             ''pub fn version() -> String {''
             ''
