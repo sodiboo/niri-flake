@@ -149,12 +149,21 @@
           ]}
         '';
 
-        postInstall = ''
-          install -Dm0755 resources/niri-session -t $out/bin
-          install -Dm0644 resources/niri.desktop -t $out/share/wayland-sessions
-          install -Dm0644 resources/niri-portals.conf -t $out/share/xdg-desktop-portal
-          install -Dm0644 resources/niri{-shutdown.target,.service} -t $out/share/systemd/user
-        '';
+        postInstall =
+          # niri.desktop calls `niri-session` and that executable only works with systemd or dinit
+          nixpkgs.lib.optionalString (withSystemd || withDinit) ''
+            install -Dm0755 resources/niri-session -t $out/bin
+            install -Dm0644 resources/niri.desktop -t $out/share/wayland-sessions
+          ''
+          # any of these features will enable dbus support
+          + nixpkgs.lib.optionalString (withDbus || withScreencastSupport || withSystemd) ''
+            install -Dm0644 resources/niri-portals.conf -t $out/share/xdg-desktop-portal
+          ''
+          # TODO: also install the dinit session files? does *anyone* even use this with dinit?
+          # also, wait until next release to do this, because this build needs to fit stable and unstable niri.
+          + nixpkgs.lib.optionalString withSystemd ''
+            install -Dm0644 resources/niri{-shutdown.target,.service} -t $out/share/systemd/user
+          '';
 
         postFixup = ''
           substituteInPlace $out/share/systemd/user/niri.service --replace-fail /usr/bin $out/bin
