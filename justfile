@@ -22,7 +22,7 @@ ref:
 # but if you do have `nom` installed, the check command will have a nicer output
 # for the long-running package builds.
 check: fmt
-    {{if nom-path != "" { "nom build .#checks."+current-system+".cached-packages" } else {""} }}
+    {{if nom-path != "" { "nom build --show-trace .#checks."+current-system+".cached-packages" } else {""} }}
     nix flake check --quiet --quiet --show-trace
 
 check-docs: check
