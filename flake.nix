@@ -132,12 +132,22 @@
           "-C link-arg=-Wl,--pop-state"
 
           "-C debuginfo=line-tables-only"
-
-          # "/source/" is not very readable. "./" is better, and it matches default behaviour of cargo.
-          "--remap-path-prefix $NIX_BUILD_TOP/source=./"
         ];
 
+        # previously, the second line was part of RUSTFLAGS above
+        # but i noticed it stopped working? because it doesn't interpolate the env var anymore.
+        #
+        # i don't know when or why it stopped working. but moving it here fixes it.
+        # the first line was unnecessary previously because this should be the default
+        # https://github.com/NixOS/nixpkgs/blob/11cf80ae321c35132c1aff950f026e9783f06fec/pkgs/build-support/rust/build-rust-crate/build-crate.nix#L19
+        # but for some reason it isn't. so i'm doing it manually.
+        #
+        # the purpose is to make backtraces more readable. the first line strips the useless `/build` prefix
+        # and the second line makes niri-related paths more obvious as if they were based on pwd with `cargo run`
         postPatch = ''
+          export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix $NIX_BUILD_TOP=/"
+          export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix $NIX_BUILD_TOP/source=./"
+
           patchShebangs resources/niri-session
           substituteInPlace src/utils/mod.rs --replace ${nixpkgs.lib.escapeShellArgs [
             ''pub fn version() -> String {''
