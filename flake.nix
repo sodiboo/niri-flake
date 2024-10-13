@@ -479,7 +479,9 @@
                 environment.systemPackages = [cfg.package];
                 xdg.portal = {
                   enable = true;
-                  extraPortals = [pkgs.xdg-desktop-portal-gnome];
+                  extraPortals = nixpkgs.lib.mkIf (
+                    !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
+                  ) [pkgs.xdg-desktop-portal-gnome];
                   configPackages = [cfg.package];
                 };
 
@@ -533,7 +535,9 @@
               services.gnome-keyring.enable = true;
               xdg.portal = {
                 enable = true;
-                extraPortals = [pkgs.xdg-desktop-portal-gnome];
+                extraPortals = nixpkgs.lib.mkIf (
+                  !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
+                ) [pkgs.xdg-desktop-portal-gnome];
                 configPackages = [cfg.package];
               };
             };
