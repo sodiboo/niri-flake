@@ -68,6 +68,7 @@
       pkg-config,
       wayland,
       systemdLibs,
+      eudev,
       pipewire,
       mesa,
       libglvnd,
@@ -76,6 +77,10 @@
       libxkbcommon,
       libdisplay-info,
       pango,
+      withDbus ? true,
+      withDinit ? false,
+      withScreencastSupport ? true,
+      withSystemd ? true,
     }: let
       manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
       workspace-version = manifest.workspace.package.version;
@@ -93,18 +98,27 @@
           rustPlatform.bindgenHook
         ];
 
-        buildInputs = [
-          wayland
-          systemdLibs
-          pipewire
-          mesa
-          libglvnd
-          seatd
-          libinput
-          libdisplay-info
-          libxkbcommon
-          pango
-        ];
+        buildInputs =
+          [
+            wayland
+            mesa
+            libglvnd
+            seatd
+            libinput
+            libdisplay-info
+            libxkbcommon
+            pango
+          ]
+          ++ nixpkgs.lib.optional withScreencastSupport pipewire
+          ++ nixpkgs.lib.optional withSystemd systemdLibs # we only need udev, really.
+          ++ nixpkgs.lib.optional (!withSystemd) eudev; # drop-in replacement for systemd-udev
+
+        buildNoDefaultFeatures = true;
+        buildFeatures =
+          nixpkgs.lib.optional withDbus "dbus"
+          ++ nixpkgs.lib.optional withDinit "dinit"
+          ++ nixpkgs.lib.optional withScreencastSupport "xdp-gnome-screencast"
+          ++ nixpkgs.lib.optional withSystemd "systemd";
 
         passthru.providedSessions = ["niri"];
 
