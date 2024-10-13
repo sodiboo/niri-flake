@@ -3,6 +3,9 @@
 # i don't wanna deal with xargs
 set shell := ["fish", "-c"]
 
+current-system := `nix eval --impure --raw --expr builtins.currentSystem`
+nom-path := `command -v nom || true`
+
 default: check
 
 fmt:
@@ -15,7 +18,11 @@ hook:
 ref:
     nix eval --raw --file fetch-refs.nix > refs.nix
 
+# that's an ugly just command. but hey, it works. and doesn't require `nom` to be installed.
+# but if you do have `nom` installed, the check command will have a nicer output
+# for the long-running package builds.
 check: fmt
+    {{if nom-path != "" { "nom build .#checks."+current-system+".cached-packages" } else {""} }}
     nix flake check --quiet --quiet --show-trace
 
 check-docs: check
