@@ -1192,6 +1192,24 @@ with docs.lib; {
                 This will also set the XCURSOR_SIZE environment variable for all spawned processes.
               '';
             };
+          hide-on-key-press =
+            optional types.bool false
+            // {
+              description = ''
+                ${unstable-note}
+
+                Whether to hide the cursor when a key is pressed on the keyboard.
+              '';
+            };
+          hide-after-inactive-ms =
+            nullable types.int
+            // {
+              description = ''
+                ${unstable-note}
+
+                If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+              '';
+            };
         };
       }
 
@@ -2294,6 +2312,8 @@ with docs.lib; {
         (plain "cursor" [
           (leaf "xcursor-theme" cfg.cursor.theme)
           (leaf "xcursor-size" cfg.cursor.size)
+          (flag' "hide-on-key-press" cfg.cursor.hide-on-key-press)
+          (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
         ])
 
         (plain "hotkey-overlay" [

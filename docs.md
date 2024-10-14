@@ -1129,6 +1129,38 @@ VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
 Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
 
 
+<!-- sorting key: programs.niri.settings.i.cursor.hide-after-inactive-ms -->
+## `programs.niri.settings.cursor.hide-after-inactive-ms`
+- type: `null or signed integer`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+
+
+<!-- sorting key: programs.niri.settings.i.cursor.hide-on-key-press -->
+## `programs.niri.settings.cursor.hide-on-key-press`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+Whether to hide the cursor when a key is pressed on the keyboard.
+
+
 <!-- sorting key: programs.niri.settings.i.cursor.size -->
 ## `programs.niri.settings.cursor.size`
 - type: `signed integer`
