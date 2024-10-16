@@ -1276,9 +1276,9 @@
                   ```nix
                   {
                     programs.niri.settings.layout.preset-column-widths = [
-                      { proportion = 1./3.; }
-                      { proportion = 1./2.; }
-                      { proportion = 2./3.; }
+                      { proportion = 1. / 3.; }
+                      { proportion = 1. / 2.; }
+                      { proportion = 2. / 3.; }
 
                       # { fixed = 1920; }
                     ];
@@ -1299,9 +1299,9 @@
                   ```nix
                   {
                     programs.niri.settings.layout.preset-window-heights = [
-                      { proportion = 1./3.; }
-                      { proportion = 1./2.; }
-                      { proportion = 2./3.; }
+                      { proportion = 1. / 3.; }
+                      { proportion = 1. / 2.; }
+                      { proportion = 2. / 3.; }
 
                       # { fixed = 1080; }
                     ];
