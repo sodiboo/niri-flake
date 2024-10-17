@@ -172,11 +172,11 @@
           # TODO: also install the dinit session files? does *anyone* even use this with dinit?
           # also, wait until next release to do this, because this build needs to fit stable and unstable niri.
           + nixpkgs.lib.optionalString withSystemd ''
-            install -Dm0644 resources/niri{-shutdown.target,.service} -t $out/share/systemd/user
+            install -Dm0644 resources/niri{-shutdown.target,.service} -t $out/lib/systemd/user
           '';
 
         postFixup = ''
-          substituteInPlace $out/share/systemd/user/niri.service --replace-fail /usr/bin $out/bin
+          substituteInPlace $out/lib/systemd/user/niri.service --replace-fail /usr/bin $out/bin
         '';
 
         meta = with nixpkgs.lib; {
