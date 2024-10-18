@@ -179,13 +179,13 @@
           substituteInPlace $out/lib/systemd/user/niri.service --replace-fail /usr/bin $out/bin
         '';
 
-        meta = with nixpkgs.lib; {
+        meta = {
           description = "Scrollable-tiling Wayland compositor";
           homepage = "https://github.com/YaLTeR/niri";
-          license = licenses.gpl3Only;
-          maintainers = with maintainers; [sodiboo];
+          license = nixpkgs.lib.licenses.gpl3Only;
+          maintainers = with nixpkgs.lib.maintainers; [sodiboo];
           mainProgram = "niri";
-          platforms = platforms.linux;
+          platforms = nixpkgs.lib.platforms.linux;
         };
       });
 
@@ -237,13 +237,13 @@
             --prefix PATH : "${nixpkgs.lib.makeBinPath [xwayland]}"
         '';
 
-        meta = with nixpkgs.lib; {
+        meta = {
           description = "Rootless Xwayland integration to any Wayland compositor implementing xdg_wm_base";
           homepage = "https://github.com/Supreeeme/xwayland-satellite";
-          license = licenses.mpl20;
-          maintainers = with maintainers; [sodiboo];
+          license = nixpkgs.lib.licenses.mpl20;
+          maintainers = with nixpkgs.lib.maintainers; [sodiboo];
           mainProgram = "xwayland-satellite";
-          platforms = platforms.linux;
+          platforms = nixpkgs.lib.platforms.linux;
         };
       });
 
@@ -407,37 +407,36 @@
           config,
           pkgs,
           ...
-        }:
-          with nixpkgs.lib; let
-            cfg = config.programs.niri;
-          in {
-            imports = [
-              settings.module
-            ];
+        }: let
+          cfg = config.programs.niri;
+        in {
+          imports = [
+            settings.module
+          ];
 
-            options.programs.niri = {
-              package = mkOption {
-                type = types.package;
-                default = (make-package-set pkgs).niri-stable;
-              };
-            };
-
-            config.lib.niri = {
-              actions = mergeAttrsList (map ({
-                name,
-                fn,
-                ...
-              }: {
-                ${name} = fn;
-              }) (binds cfg.package.src));
-            };
-
-            config.xdg.configFile.niri-config = {
-              enable = cfg.finalConfig != null;
-              target = "niri/config.kdl";
-              source = validated-config-for pkgs cfg.package cfg.finalConfig;
+          options.programs.niri = {
+            package = nixpkgs.lib.mkOption {
+              type = nixpkgs.lib.types.package;
+              default = (make-package-set pkgs).niri-stable;
             };
           };
+
+          config.lib.niri = {
+            actions = nixpkgs.lib.mergeAttrsList (map ({
+              name,
+              fn,
+              ...
+            }: {
+              ${name} = fn;
+            }) (binds cfg.package.src));
+          };
+
+          config.xdg.configFile.niri-config = {
+            enable = cfg.finalConfig != null;
+            target = "niri/config.kdl";
+            source = validated-config-for pkgs cfg.package cfg.finalConfig;
+          };
+        };
         nixosModules.niri = {
           config,
           options,
@@ -445,119 +444,62 @@
           ...
         }: let
           cfg = config.programs.niri;
-        in
-          with nixpkgs.lib; {
-            # The module from this flake predates the module in nixpkgs by a long shot.
-            # To avoid conflicts, we disable the nixpkgs module.
-            # Eventually, this module (e.g. `niri.nixosModules.niri`) will be deprecated
-            # in favour of other modules that aren't redundant with nixpkgs (and don't yet exist)
-            disabledModules = ["programs/wayland/niri.nix"];
+        in {
+          # The module from this flake predates the module in nixpkgs by a long shot.
+          # To avoid conflicts, we disable the nixpkgs module.
+          # Eventually, this module (e.g. `niri.nixosModules.niri`) will be deprecated
+          # in favour of other modules that aren't redundant with nixpkgs (and don't yet exist)
+          disabledModules = ["programs/wayland/niri.nix"];
 
-            options.programs.niri = {
-              enable = mkEnableOption "niri";
-              package = mkOption {
-                type = types.package;
-                default = (make-package-set pkgs).niri-stable;
-              };
+          options.programs.niri = {
+            enable = nixpkgs.lib.mkEnableOption "niri";
+            package = nixpkgs.lib.mkOption {
+              type = nixpkgs.lib.types.package;
+              default = (make-package-set pkgs).niri-stable;
             };
-
-            options.niri-flake.cache.enable = mkOption {
-              type = types.bool;
-              default = true;
-            };
-
-            config = mkMerge [
-              (mkIf config.niri-flake.cache.enable {
-                nix.settings = {
-                  substituters = ["https://niri.cachix.org"];
-                  trusted-public-keys = ["niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="];
-                };
-              })
-              {
-                environment.systemPackages = [pkgs.xdg-utils];
-                xdg = {
-                  autostart.enable = mkDefault true;
-                  menus.enable = mkDefault true;
-                  mime.enable = mkDefault true;
-                  icons.enable = mkDefault true;
-                };
-              }
-              (mkIf cfg.enable {
-                services =
-                  if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
-                  then {
-                    displayManager.sessionPackages = [cfg.package];
-                  }
-                  else {
-                    xserver.displayManager.sessionPackages = [cfg.package];
-                  };
-                hardware =
-                  if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
-                  then {
-                    graphics.enable = mkDefault true;
-                  }
-                  else {
-                    opengl.enable = mkDefault true;
-                  };
-              })
-              (mkIf cfg.enable {
-                environment.systemPackages = [cfg.package];
-                xdg.portal = {
-                  enable = true;
-                  extraPortals = nixpkgs.lib.mkIf (
-                    !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
-                  ) [pkgs.xdg-desktop-portal-gnome];
-                  configPackages = [cfg.package];
-                };
-
-                security.polkit.enable = true;
-                services.gnome.gnome-keyring.enable = true;
-                systemd.user.services.niri-flake-polkit = {
-                  description = "PolicyKit Authentication Agent provided by niri-flake";
-                  wantedBy = ["niri.service"];
-                  after = ["graphical-session.target"];
-                  partOf = ["graphical-session.target"];
-                  serviceConfig = {
-                    Type = "simple";
-                    ExecStart = "${pkgs.libsForQt5.polkit-kde-agent}/libexec/polkit-kde-authentication-agent-1";
-                    Restart = "on-failure";
-                    RestartSec = 1;
-                    TimeoutStopSec = 10;
-                  };
-                };
-
-                security.pam.services.swaylock = {};
-                programs.dconf.enable = mkDefault true;
-                fonts.enableDefaultPackages = mkDefault true;
-              })
-              (optionalAttrs (options ? home-manager) {
-                home-manager.sharedModules =
-                  [
-                    self.homeModules.config
-                    {programs.niri.package = mkForce cfg.package;}
-                  ]
-                  ++ optionals (options ? stylix) [self.homeModules.stylix];
-              })
-            ];
           };
-        homeModules.niri = {
-          config,
-          pkgs,
-          ...
-        }:
-          with nixpkgs.lib; let
-            cfg = config.programs.niri;
-          in {
-            imports = [
-              self.homeModules.config
-            ];
-            options.programs.niri = {
-              enable = mkEnableOption "niri";
-            };
 
-            config = mkIf cfg.enable {
-              home.packages = [cfg.package];
-              services.gnome-keyring.enable = true;
+          options.niri-flake.cache.enable = nixpkgs.lib.mkOption {
+            type = nixpkgs.lib.types.bool;
+            default = true;
+          };
+
+          config = nixpkgs.lib.mkMerge [
+            (nixpkgs.lib.mkIf config.niri-flake.cache.enable {
+              nix.settings = {
+                substituters = ["https://niri.cachix.org"];
+                trusted-public-keys = ["niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="];
+              };
+            })
+            {
+              environment.systemPackages = [pkgs.xdg-utils];
+              xdg = {
+                autostart.enable = nixpkgs.lib.mkDefault true;
+                menus.enable = nixpkgs.lib.mkDefault true;
+                mime.enable = nixpkgs.lib.mkDefault true;
+                icons.enable = nixpkgs.lib.mkDefault true;
+              };
+            }
+            (nixpkgs.lib.mkIf cfg.enable {
+              services =
+                if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
+                then {
+                  displayManager.sessionPackages = [cfg.package];
+                }
+                else {
+                  xserver.displayManager.sessionPackages = [cfg.package];
+                };
+              hardware =
+                if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
+                then {
+                  graphics.enable = nixpkgs.lib.mkDefault true;
+                }
+                else {
+                  opengl.enable = nixpkgs.lib.mkDefault true;
+                };
+            })
+            (nixpkgs.lib.mkIf cfg.enable {
+              environment.systemPackages = [cfg.package];
               xdg.portal = {
                 enable = true;
                 extraPortals = nixpkgs.lib.mkIf (
@@ -565,8 +507,63 @@
                 ) [pkgs.xdg-desktop-portal-gnome];
                 configPackages = [cfg.package];
               };
+
+              security.polkit.enable = true;
+              services.gnome.gnome-keyring.enable = true;
+              systemd.user.services.niri-flake-polkit = {
+                description = "PolicyKit Authentication Agent provided by niri-flake";
+                wantedBy = ["niri.service"];
+                after = ["graphical-session.target"];
+                partOf = ["graphical-session.target"];
+                serviceConfig = {
+                  Type = "simple";
+                  ExecStart = "${pkgs.libsForQt5.polkit-kde-agent}/libexec/polkit-kde-authentication-agent-1";
+                  Restart = "on-failure";
+                  RestartSec = 1;
+                  TimeoutStopSec = 10;
+                };
+              };
+
+              security.pam.services.swaylock = {};
+              programs.dconf.enable = nixpkgs.lib.mkDefault true;
+              fonts.enableDefaultPackages = nixpkgs.lib.mkDefault true;
+            })
+            (nixpkgs.lib.optionalAttrs (options ? home-manager) {
+              home-manager.sharedModules =
+                [
+                  self.homeModules.config
+                  {programs.niri.package = nixpkgs.lib.mkForce cfg.package;}
+                ]
+                ++ nixpkgs.lib.optionals (options ? stylix) [self.homeModules.stylix];
+            })
+          ];
+        };
+        homeModules.niri = {
+          config,
+          pkgs,
+          ...
+        }: let
+          cfg = config.programs.niri;
+        in {
+          imports = [
+            self.homeModules.config
+          ];
+          options.programs.niri = {
+            enable = nixpkgs.lib.mkEnableOption "niri";
+          };
+
+          config = nixpkgs.lib.mkIf cfg.enable {
+            home.packages = [cfg.package];
+            services.gnome-keyring.enable = true;
+            xdg.portal = {
+              enable = true;
+              extraPortals = nixpkgs.lib.mkIf (
+                !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
+              ) [pkgs.xdg-desktop-portal-gnome];
+              configPackages = [cfg.package];
             };
           };
+        };
       };
     };
 }
