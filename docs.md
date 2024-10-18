@@ -801,10 +801,10 @@ Further reading:
 
 Method to determine which mouse button is pressed when you click the touchpad.
 
-- `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html.html#software-button-areas) \
+- `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#software-button-areas) \
   The button is determined by which part of the touchpad was clicked.
 
-- `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html.html#clickfinger-behavior) \
+- `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickfinger-behavior) \
   The button is determined by how many fingers clicked.
 
 Further reading:

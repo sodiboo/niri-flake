@@ -160,7 +160,7 @@ with lib; let
 
   libinput-link = page: header: "https://wayland.freedesktop.org/libinput/doc/latest/${page}.html#${anchor header}";
 
-  libinput-doc = page: header: "[${header}](${libinput-link "${page}.html" (anchor header)})";
+  libinput-doc = page: header: "[${header}](${libinput-link page header})";
 
   make-default = text:
     if length (splitString "\n" text) == 1
