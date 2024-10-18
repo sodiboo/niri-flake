@@ -447,6 +447,12 @@
           cfg = config.programs.niri;
         in
           with nixpkgs.lib; {
+            # The module from this flake predates the module in nixpkgs by a long shot.
+            # To avoid conflicts, we disable the nixpkgs module.
+            # Eventually, this module (e.g. `niri.nixosModules.niri`) will be deprecated
+            # in favour of other modules that aren't redundant with nixpkgs (and don't yet exist)
+            disabledModules = ["programs/wayland/niri.nix"];
+
             options.programs.niri = {
               enable = mkEnableOption "niri";
               package = mkOption {
