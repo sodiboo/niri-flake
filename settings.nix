@@ -6,11 +6,10 @@
   binds,
   settings,
   ...
-}:
-with lib;
-with docs.lib; {
+}: {
   type = let
-    inherit (types) nullOr attrsOf listOf submodule enum;
+    inherit (lib) flip pipe showOption mkOption mkOptionType types;
+    inherit (lib.types) nullOr attrsOf listOf submodule enum;
 
     binds-stable = binds inputs.niri-stable;
     binds-unstable = binds inputs.niri-unstable;
@@ -43,46 +42,48 @@ with docs.lib; {
         description =
           if variants == {}
           then "impossible (empty variant)"
-          else "variant of: ${concatStringsSep " | " (attrNames variants)}";
+          else "variant of: ${builtins.concatStringsSep " | " (builtins.attrNames variants)}";
         descriptionClass =
           if variants == {}
           then "noun"
           else "composite";
 
         check = v: let
-          names = attrNames v;
-          name = head names;
+          names = builtins.attrNames v;
+          name = builtins.head names;
         in
-          isAttrs v && length names == 1 && elem name (attrNames variants) && variants.${name}.check v.${name};
+          builtins.isAttrs v && builtins.length names == 1 && builtins.elem name (builtins.attrNames variants) && variants.${name}.check v.${name};
 
         merge = loc: definitions: let
           defs-for = name:
             pipe definitions [
-              (filter (hasAttrByPath ["value" name]))
+              (builtins.filter (lib.hasAttrByPath ["value" name]))
               (map (def: def // {value = def.value.${name};}))
             ];
-          merged = mapAttrs (name: type:
+          merged = builtins.mapAttrs (name: type:
             type.merge (loc ++ [name]) (defs-for name))
-          (filterAttrs (name: _type: defs-for name != []) variants);
+          (lib.filterAttrs (name: _type: defs-for name != []) variants);
         in
           if merged == {}
           then throw "The option `${showOption loc}` has no definitions, but one is required"
-          else if length (attrNames merged) == 1
+          else if builtins.length (builtins.attrNames merged) == 1
           then merged
           else throw "The option `${showOption loc}` has conflicting definitions of multiple variants";
 
         nestedTypes = variants;
 
         inherit
-          (record (mapAttrs (const (type:
+          (record (builtins.mapAttrs (lib.const (type:
             (required type)
-            // (optionalAttrs (type ? variant-description) {
+            // (lib.optionalAttrs (type ? variant-description) {
               description = type.variant-description;
             })))
           variants))
           getSubOptions
           ;
       };
+
+    inherit (docs.lib) libinput-link libinput-doc link-niri-release link-this-github link' anchor' unstable-note;
 
     basic-pointer = default-natural-scroll: {
       natural-scroll =
@@ -176,14 +177,14 @@ with docs.lib; {
       mkOptionType {
         name = "emptyOr";
         description =
-          if elem elemType.descriptionClass ["noun" "conjunction"]
+          if builtins.elem elemType.descriptionClass ["noun" "conjunction"]
           then "{} or ${elemType.description}"
           else "{} or (${elemType.description})";
         descriptionClass = "conjunction";
         check = v: v == {} || elemType.check v;
         nestedTypes.elemType = elemType;
         merge = loc: defs:
-          if all (def: def.value == {}) defs
+          if builtins.all (def: def.value == {}) defs
           then {}
           else elemType.merge loc defs;
 
@@ -486,13 +487,13 @@ with docs.lib; {
     ]);
 
     alphabetize = sections:
-      mergeAttrsList (imap0 (i: section: {
-          ${elemAt strings.lowerChars i} = section;
+      lib.mergeAttrsList (lib.imap0 (i: section: {
+          ${builtins.elemAt lib.strings.lowerChars i} = section;
         })
         sections);
 
     ordered-record = sections: let
-      grouped = groupBy (s:
+      grouped = lib.groupBy (s:
         if s ? __module
         then "module"
         else if s ? __config
@@ -501,14 +502,14 @@ with docs.lib; {
       sections;
 
       options' = grouped.options or [];
-      config' = map (getAttr "__config") grouped.config or [];
-      module' = map (getAttr "__module") grouped.module or [];
+      config' = map (builtins.getAttr "__config") grouped.config or [];
+      module' = map (builtins.getAttr "__module") grouped.module or [];
 
       normalize = map (flip removeAttrs ["__docs-only"]);
       real-sections-flat = pipe options' [
-        (filter (s: !(s.__docs-only or false)))
+        (builtins.filter (s: !(s.__docs-only or false)))
         normalize
-        mergeAttrsList
+        lib.mergeAttrsList
       ];
       ord-sections = pipe options' [
         normalize
@@ -521,7 +522,7 @@ with docs.lib; {
             {config, ...}: {
               imports = module';
               options = real-sections-flat;
-              config = mkMerge (map (f:
+              config = lib.mkMerge (map (f:
                 f config)
               config');
             }
@@ -532,7 +533,7 @@ with docs.lib; {
           merge
           nestedTypes
           ;
-        getSubOptions = loc: mapAttrs (_section: opts: (record opts).getSubOptions loc) ord-sections;
+        getSubOptions = loc: lib.mapAttrs (_section: opts: (record opts).getSubOptions loc) ord-sections;
       };
 
     make-section = flip optional {};
@@ -661,8 +662,8 @@ with docs.lib; {
                       params,
                       ...
                     }: let
-                      is-stable = any (a: a.name == name) binds-stable;
-                      is-unstable = any (a: a.name == name) binds-unstable;
+                      is-stable = builtins.any (a: a.name == name) binds-stable;
+                      is-unstable = builtins.any (a: a.name == name) binds-unstable;
                       exclusive =
                         if is-stable && is-unstable
                         then ""
@@ -679,7 +680,7 @@ with docs.lib; {
                         String = "string";
                       };
 
-                      type-or = rust-name: fallback: type-names.${rust-name} or (warn "unhandled type `${rust-name}`" fallback);
+                      type-or = rust-name: fallback: type-names.${rust-name} or (lib.warn "unhandled type `${rust-name}`" fallback);
 
                       base = content: "- `${content}`${exclusive}";
                       lambda = args: base "λ ${name} :: ${args}";
@@ -692,7 +693,7 @@ with docs.lib; {
                           else params.type
                         ));
                         list = lambda "[${type-or params.type params.type}]";
-                        prop = lambda "{ ${optionalString (!params.use-default) "*"}${params.field}${optionalString params.none-important "?"} :: ${type-names.${params.type} or (warn "unhandled type `${params.type}`" params.type)} }";
+                        prop = lambda "{ ${lib.optionalString (!params.use-default) "*"}${params.field}${lib.optionalString params.none-important "?"} :: ${type-names.${params.type} or (lib.warn "unhandled type `${params.type}`" params.type)} }";
                         unknown = ''
                           ${lambda "unknown"}
 
@@ -705,8 +706,8 @@ with docs.lib; {
                       .${params.kind}
                       or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
                   in
-                    concatStringsSep "\n" (concatLists [
-                      (map show-bind (filter (stable: all (unstable: stable.name != unstable.name) binds-unstable) binds-stable))
+                    builtins.concatStringsSep "\n" (builtins.concatLists [
+                      (map show-bind (builtins.filter (stable: builtins.all (unstable: stable.name != unstable.name) binds-unstable) binds-stable))
                       (map show-bind binds-unstable)
                     ])}
                 '';
@@ -717,7 +718,7 @@ with docs.lib; {
             inherit (base) name getSubOptions nestedTypes;
             description = "niri keybind";
             descriptionClass = "noun";
-            check = v: isString v || isAttrs v || base.check v;
+            check = v: builtins.isString v || builtins.isAttrs v || base.check v;
             merge = loc: defs:
               base.merge loc (map (def:
                 def
@@ -726,7 +727,7 @@ with docs.lib; {
                     if def.value ? action
                     then def.value
                     else
-                      warn ''
+                      lib.warn ''
 
                         Deprecated definition of binds used for ${showOption loc}
 
@@ -743,7 +744,7 @@ with docs.lib; {
                         Please see the documentation on GitHub for more information: ${link-this-github "docs.md#${anchor' "programs.niri.settings.binds"}"}
                       ''
                       (
-                        if isString def.value
+                        if builtins.isString def.value
                         then {action.${def.value} = [];}
                         else {action = def.value;}
                       );
@@ -854,7 +855,7 @@ with docs.lib; {
               arch-man-xkb = anchor: "[`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#${anchor})";
 
               default-env = default: field: ''
-                If this is set to ${default}, the ${field} will be read from the `XKB_DEFAULT_${toUpper field}` environment variable.
+                If this is set to ${default}, the ${field} will be read from the `XKB_DEFAULT_${lib.toUpper field}` environment variable.
               '';
 
               str-fallback = default-env "an empty string";
@@ -1251,7 +1252,7 @@ with docs.lib; {
             decoration =
               required (decoration "<decoration>")
               // {
-                override-loc = const ["<decoration>"];
+                override-loc = lib.const ["<decoration>"];
                 description = ''
                   A decoration is drawn around a surface, adding additional elements that are not necessarily part of an application, but are part of what we think of as a "window".
 
@@ -1433,10 +1434,10 @@ with docs.lib; {
               enable = optional types.bool true;
               slowdown = optional types.float 1.0;
             }
-            (mapAttrs (const (v:
+            (builtins.mapAttrs (lib.const (v:
               optional (nullOr (newtype (link-type "animation") animation)) (removeAttrs v ["unstable"])
               // {visible = "shallow";}
-              // optionalAttrs (v.unstable or false) {
+              // lib.optionalAttrs (v.unstable or false) {
                 description = ''
                   ${unstable-note}
                 '';
@@ -1466,8 +1467,8 @@ with docs.lib; {
                 options._internal_niri_flake =
                   readonly
                   (record (
-                    concatMapAttrs (name:
-                      const {
+                    lib.concatMapAttrs (name:
+                      lib.const {
                         ${name} = readonly (record {
                           is-defined =
                             readonly types.bool (config.${name} != (removeAttrs defaults.${name} ["unstable"]));
@@ -1483,7 +1484,7 @@ with docs.lib; {
               "<animation>" =
                 required animation
                 // {
-                  override-loc = const ["<animation>"];
+                  override-loc = lib.const ["<animation>"];
                 };
             }
           ];
@@ -1840,6 +1841,9 @@ with docs.lib; {
 
   module = {config, ...}: let
     cfg = config.programs.niri;
+
+    inherit (lib) mkOption types;
+    inherit (docs.lib) link';
   in {
     options.programs.niri = {
       settings = mkOption {
@@ -1872,7 +1876,7 @@ with docs.lib; {
       finalConfig = mkOption {
         type = types.nullOr types.str;
         default =
-          if isString cfg.config
+          if builtins.isString cfg.config
           then cfg.config
           else if cfg.config != null
           then kdl.serialize.nodes cfg.config
@@ -1896,6 +1900,8 @@ with docs.lib; {
     imports = [settings.module];
 
     options._ = let
+      inherit (docs.lib) section header pkg-header module-doc fake-option pkg-link nixpkgs-link link-niri-release link-niri-commit link-stylix-opt link';
+
       pkg-output = name: desc:
         fake-option (pkg-header name) ''
           ${desc}
@@ -1926,14 +1932,14 @@ with docs.lib; {
       '';
 
       patches = pkg:
-        concatMap (
+        builtins.concatMap (
           patch: let
-            m = strings.match "${escapeRegex "https://github.com/YaLTeR/niri/commit/"}([0-9a-f]{40})${escapeRegex ".patch"}" patch.url;
+            m = lib.strings.match "${lib.escapeRegex "https://github.com/YaLTeR/niri/commit/"}([0-9a-f]{40})${lib.escapeRegex ".patch"}" patch.url;
           in
             if m != null
             then [
               {
-                rev = head m;
+                rev = builtins.head m;
                 inherit (patch) url;
               }
             ]
@@ -1963,10 +1969,10 @@ with docs.lib; {
               else " with no additional patches."
             }
 
-            ${concatStringsSep "\n" (map ({
+            ${builtins.concatStringsSep "\n" (map ({
               rev,
               url,
-            }: "- [`${rev}`](${removeSuffix ".patch" url})")
+            }: "- [`${rev}`](${lib.removeSuffix ".patch" url})")
             stable-patches)}
           '';
           niri-unstable = pkg-output "niri-unstable" ''
@@ -2086,272 +2092,272 @@ with docs.lib; {
     };
   };
 
-  render = with kdl;
-    cfg:
-      if cfg == null
-      then null
-      else let
-        optional-node = cond: v:
-          if cond
-          then v
-          else null;
+  render = cfg:
+    if cfg == null
+    then null
+    else let
+      inherit (kdl) node leaf plain flag;
+      optional-node = cond: v:
+        if cond
+        then v
+        else null;
 
-        nullable = f: name: value: optional-node (value != null) (f name value);
-        flag' = name: flip optional-node (flag name);
+      nullable = f: name: value: optional-node (value != null) (f name value);
+      flag' = name: lib.flip optional-node (flag name);
 
-        map' = node: f: name: val: node name (f val);
+      map' = node: f: name: val: node name (f val);
 
-        toggle = disabled: cfg: contents:
-          if cfg.enable
-          then contents
-          else flag disabled;
+      toggle = disabled: cfg: contents:
+        if cfg.enable
+        then contents
+        else flag disabled;
 
-        pointer = cfg: [
-          (flag' "natural-scroll" cfg.natural-scroll)
-          (flag' "middle-emulation" cfg.middle-emulation)
-          (leaf "accel-speed" cfg.accel-speed)
-          (nullable leaf "accel-profile" cfg.accel-profile)
-          (nullable leaf "scroll-method" cfg.scroll-method)
+      pointer = cfg: [
+        (flag' "natural-scroll" cfg.natural-scroll)
+        (flag' "middle-emulation" cfg.middle-emulation)
+        (leaf "accel-speed" cfg.accel-speed)
+        (nullable leaf "accel-profile" cfg.accel-profile)
+        (nullable leaf "scroll-method" cfg.scroll-method)
+      ];
+
+      pointer-tablet = cfg: inner: (toggle "off" cfg [
+        (flag' "left-handed" cfg.left-handed)
+        inner
+      ]);
+
+      touchy = cfg: [
+        (nullable leaf "map-to-output" cfg.map-to-output)
+      ];
+
+      gradient' = name: cfg:
+        leaf name
+        (lib.concatMapAttrs (name: value:
+          lib.optionalAttrs (value != null) {
+            ${lib.removeSuffix "'" name} = value;
+          })
+        cfg);
+
+      borderish = name: cfg:
+        plain name [
+          (
+            toggle "off" cfg [
+              (leaf "width" cfg.width)
+              (nullable leaf "active-color" cfg.active.color or null)
+              (nullable gradient' "active-gradient" cfg.active.gradient or null)
+              (nullable leaf "inactive-color" cfg.inactive.color or null)
+              (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
+            ]
+          )
         ];
 
-        pointer-tablet = cfg: inner: (toggle "off" cfg [
-          (flag' "left-handed" cfg.left-handed)
-          inner
+      preset-sizes = map' (nullable plain) (cfg:
+        if cfg == []
+        then null
+        else map (lib.mapAttrsToList leaf) (lib.toList cfg));
+
+      animation = shader:
+        map' plain (cfg: [
+          (flag' "off" (cfg == null))
+          (optional-node (cfg ? easing) [
+            (leaf "duration-ms" cfg.easing.duration-ms)
+            (leaf "curve" cfg.easing.curve)
+          ])
+          (nullable leaf "spring" cfg.spring or null)
+          (nullable leaf "custom-shader" shader)
         ]);
 
-        touchy = cfg: [
-          (nullable leaf "map-to-output" cfg.map-to-output)
+      animation' = shader: name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined || shader != null) (animation shader name cfg.${name});
+
+      opt-props = lib.filterAttrs (lib.const (value: value != null));
+      border-rule = name: cfg:
+        optional-node (opt-props cfg != {}) (
+          plain name [
+            (flag' "on" (cfg.enable == true))
+            (flag' "off" (cfg.enable == false))
+            (nullable leaf "width" cfg.width)
+            (nullable leaf "active-color" cfg.active.color or null)
+            (nullable leaf "active-gradient" cfg.active.gradient or null)
+            (nullable leaf "inactive-color" cfg.inactive.color or null)
+            (nullable leaf "inactive-gradient" cfg.inactive.gradient or null)
+          ]
+        );
+
+      corner-radius = cfg:
+        optional-node (cfg != null) (
+          leaf "geometry-corner-radius" [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left]
+        );
+
+      window-rule = cfg:
+        plain "window-rule" [
+          (map (leaf "match") (map opt-props cfg.matches))
+          (map (leaf "exclude") (map opt-props cfg.excludes))
+          (nullable preset-sizes "default-column-width" cfg.default-column-width)
+          (nullable leaf "open-on-output" cfg.open-on-output)
+          (nullable leaf "open-on-workspace" cfg.open-on-workspace)
+          (nullable leaf "open-maximized" cfg.open-maximized)
+          (nullable leaf "open-fullscreen" cfg.open-fullscreen)
+          (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
+          (corner-radius cfg.geometry-corner-radius)
+          (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
+          (border-rule "border" cfg.border)
+          (border-rule "focus-ring" cfg.focus-ring)
+          (nullable leaf "opacity" cfg.opacity)
+          (nullable leaf "min-width" cfg.min-width)
+          (nullable leaf "max-width" cfg.max-width)
+          (nullable leaf "min-height" cfg.min-height)
+          (nullable leaf "max-height" cfg.max-height)
+          (nullable leaf "block-out-from" cfg.block-out-from)
+          (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
+        ];
+      transform = cfg: let
+        rotation = toString cfg.rotation;
+        basic =
+          if cfg.flipped
+          then "flipped-${rotation}"
+          else "${rotation}";
+        replacement."0" = "normal";
+        replacement."flipped-0" = "flipped";
+      in
+        replacement.${basic} or basic;
+
+      mode = cfg: let
+        cfg' = builtins.mapAttrs (lib.const toString) cfg;
+      in
+        if cfg.refresh == null
+        then "${cfg'.width}x${cfg'.height}"
+        else "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
+
+      bind = name: cfg:
+        node name (opt-props {
+            inherit (cfg) cooldown-ms;
+          }
+          // (lib.optionalAttrs (!cfg.repeat) {
+            repeat = false;
+          })
+          // (lib.optionalAttrs cfg.allow-when-locked {
+            allow-when-locked = true;
+          })) [
+          (lib.mapAttrsToList leaf cfg.action)
         ];
 
-        gradient' = name: cfg:
-          leaf name
-          (concatMapAttrs (name: value:
-            optionalAttrs (value != null) {
-              ${removeSuffix "'" name} = value;
-            })
-          cfg);
+      workspace = cfg:
+        node "workspace" cfg.name [
+          (nullable leaf "open-on-output" cfg.open-on-output)
+        ];
+    in [
+      (plain "input" [
+        (plain "keyboard" [
+          (plain "xkb" [
+            (leaf "layout" cfg.input.keyboard.xkb.layout)
+            (leaf "model" cfg.input.keyboard.xkb.model)
+            (leaf "rules" cfg.input.keyboard.xkb.rules)
+            (leaf "variant" cfg.input.keyboard.xkb.variant)
+            (nullable leaf "options" cfg.input.keyboard.xkb.options)
+          ])
+          (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
+          (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
+          (leaf "track-layout" cfg.input.keyboard.track-layout)
+        ])
+        (plain "touchpad" (pointer-tablet cfg.input.touchpad [
+          (flag' "tap" cfg.input.touchpad.tap)
+          (flag' "dwt" cfg.input.touchpad.dwt)
+          (flag' "dwtp" cfg.input.touchpad.dwtp)
+          (flag' "disabled-on-external-mouse" cfg.input.touchpad.disabled-on-external-mouse)
+          (pointer cfg.input.touchpad)
+          (nullable leaf "click-method" cfg.input.touchpad.click-method)
+          (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
+        ]))
+        (plain "mouse" (pointer-tablet cfg.input.mouse (pointer cfg.input.mouse)))
+        (plain "trackpoint" (pointer-tablet cfg.input.trackpoint (pointer cfg.input.trackpoint)))
+        (plain "tablet" (pointer-tablet cfg.input.tablet (touchy cfg.input.tablet)))
+        (plain "touch" (touchy cfg.input.touch))
+        (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
+        (optional-node cfg.input.focus-follows-mouse.enable (leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
+          inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
+        })))
+        (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
+        (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
+      ])
 
-        borderish = name: cfg:
-          plain name [
+      (lib.mapAttrsToList (name: cfg:
+        node "output" name [
+          (toggle "off" cfg [
+            (nullable leaf "background-color" cfg.background-color)
+            (nullable leaf "scale" cfg.scale)
+            (map' leaf transform "transform" cfg.transform)
+            (nullable leaf "position" cfg.position)
+            (nullable (map' leaf mode) "mode" cfg.mode)
             (
-              toggle "off" cfg [
-                (leaf "width" cfg.width)
-                (nullable leaf "active-color" cfg.active.color or null)
-                (nullable gradient' "active-gradient" cfg.active.gradient or null)
-                (nullable leaf "inactive-color" cfg.inactive.color or null)
-                (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
-              ]
+              optional-node (cfg.variable-refresh-rate != false)
+              (leaf "variable-refresh-rate" {on-demand = cfg.variable-refresh-rate == "on-demand";})
             )
-          ];
-
-        preset-sizes = map' (nullable plain) (cfg:
-          if cfg == []
-          then null
-          else map (mapAttrsToList leaf) (toList cfg));
-
-        animation = shader:
-          map' plain (cfg: [
-            (flag' "off" (cfg == null))
-            (optional-node (cfg ? easing) [
-              (leaf "duration-ms" cfg.easing.duration-ms)
-              (leaf "curve" cfg.easing.curve)
-            ])
-            (nullable leaf "spring" cfg.spring or null)
-            (nullable leaf "custom-shader" shader)
-          ]);
-
-        animation' = shader: name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined || shader != null) (animation shader name cfg.${name});
-
-        opt-props = filterAttrs (const (value: value != null));
-        border-rule = name: cfg:
-          optional-node (opt-props cfg != {}) (
-            plain name [
-              (flag' "on" (cfg.enable == true))
-              (flag' "off" (cfg.enable == false))
-              (nullable leaf "width" cfg.width)
-              (nullable leaf "active-color" cfg.active.color or null)
-              (nullable leaf "active-gradient" cfg.active.gradient or null)
-              (nullable leaf "inactive-color" cfg.inactive.color or null)
-              (nullable leaf "inactive-gradient" cfg.inactive.gradient or null)
-            ]
-          );
-
-        corner-radius = cfg:
-          optional-node (cfg != null) (
-            leaf "geometry-corner-radius" [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left]
-          );
-
-        window-rule = cfg:
-          plain "window-rule" [
-            (map (leaf "match") (map opt-props cfg.matches))
-            (map (leaf "exclude") (map opt-props cfg.excludes))
-            (nullable preset-sizes "default-column-width" cfg.default-column-width)
-            (nullable leaf "open-on-output" cfg.open-on-output)
-            (nullable leaf "open-on-workspace" cfg.open-on-workspace)
-            (nullable leaf "open-maximized" cfg.open-maximized)
-            (nullable leaf "open-fullscreen" cfg.open-fullscreen)
-            (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
-            (corner-radius cfg.geometry-corner-radius)
-            (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
-            (border-rule "border" cfg.border)
-            (border-rule "focus-ring" cfg.focus-ring)
-            (nullable leaf "opacity" cfg.opacity)
-            (nullable leaf "min-width" cfg.min-width)
-            (nullable leaf "max-width" cfg.max-width)
-            (nullable leaf "min-height" cfg.min-height)
-            (nullable leaf "max-height" cfg.max-height)
-            (nullable leaf "block-out-from" cfg.block-out-from)
-            (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
-          ];
-        transform = cfg: let
-          rotation = toString cfg.rotation;
-          basic =
-            if cfg.flipped
-            then "flipped-${rotation}"
-            else "${rotation}";
-          replacement."0" = "normal";
-          replacement."flipped-0" = "flipped";
-        in
-          replacement.${basic} or basic;
-
-        mode = cfg: let
-          cfg' = mapAttrs (const toString) cfg;
-        in
-          if cfg.refresh == null
-          then "${cfg'.width}x${cfg'.height}"
-          else "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
-
-        bind = name: cfg:
-          node name (opt-props {
-              inherit (cfg) cooldown-ms;
-            }
-            // (optionalAttrs (!cfg.repeat) {
-              repeat = false;
-            })
-            // (optionalAttrs cfg.allow-when-locked {
-              allow-when-locked = true;
-            })) [
-            (mapAttrsToList leaf cfg.action)
-          ];
-
-        workspace = cfg:
-          node "workspace" cfg.name [
-            (nullable leaf "open-on-output" cfg.open-on-output)
-          ];
-      in [
-        (plain "input" [
-          (plain "keyboard" [
-            (plain "xkb" [
-              (leaf "layout" cfg.input.keyboard.xkb.layout)
-              (leaf "model" cfg.input.keyboard.xkb.model)
-              (leaf "rules" cfg.input.keyboard.xkb.rules)
-              (leaf "variant" cfg.input.keyboard.xkb.variant)
-              (nullable leaf "options" cfg.input.keyboard.xkb.options)
-            ])
-            (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
-            (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
-            (leaf "track-layout" cfg.input.keyboard.track-layout)
-          ])
-          (plain "touchpad" (pointer-tablet cfg.input.touchpad [
-            (flag' "tap" cfg.input.touchpad.tap)
-            (flag' "dwt" cfg.input.touchpad.dwt)
-            (flag' "dwtp" cfg.input.touchpad.dwtp)
-            (flag' "disabled-on-external-mouse" cfg.input.touchpad.disabled-on-external-mouse)
-            (pointer cfg.input.touchpad)
-            (nullable leaf "click-method" cfg.input.touchpad.click-method)
-            (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
-          ]))
-          (plain "mouse" (pointer-tablet cfg.input.mouse (pointer cfg.input.mouse)))
-          (plain "trackpoint" (pointer-tablet cfg.input.trackpoint (pointer cfg.input.trackpoint)))
-          (plain "tablet" (pointer-tablet cfg.input.tablet (touchy cfg.input.tablet)))
-          (plain "touch" (touchy cfg.input.touch))
-          (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
-          (optional-node cfg.input.focus-follows-mouse.enable (leaf "focus-follows-mouse" (optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
-            inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
-          })))
-          (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
-          (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
-        ])
-
-        (mapAttrsToList (name: cfg:
-          node "output" name [
-            (toggle "off" cfg [
-              (nullable leaf "background-color" cfg.background-color)
-              (nullable leaf "scale" cfg.scale)
-              (map' leaf transform "transform" cfg.transform)
-              (nullable leaf "position" cfg.position)
-              (nullable (map' leaf mode) "mode" cfg.mode)
-              (
-                optional-node (cfg.variable-refresh-rate != false)
-                (leaf "variable-refresh-rate" {on-demand = cfg.variable-refresh-rate == "on-demand";})
-              )
-            ])
-          ])
-        cfg.outputs)
-
-        (leaf "screenshot-path" cfg.screenshot-path)
-        (flag' "prefer-no-csd" cfg.prefer-no-csd)
-
-        (plain "layout" [
-          (leaf "gaps" cfg.layout.gaps)
-          (plain "struts" [
-            (leaf "left" cfg.layout.struts.left)
-            (leaf "right" cfg.layout.struts.right)
-            (leaf "top" cfg.layout.struts.top)
-            (leaf "bottom" cfg.layout.struts.bottom)
-          ])
-          (borderish "focus-ring" cfg.layout.focus-ring)
-          (borderish "border" cfg.layout.border)
-          (preset-sizes "default-column-width" cfg.layout.default-column-width)
-          (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
-          (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
-          (leaf "center-focused-column" cfg.layout.center-focused-column)
-          (flag' "always-center-single-column" cfg.layout.always-center-single-column)
-        ])
-
-        (plain "cursor" [
-          (leaf "xcursor-theme" cfg.cursor.theme)
-          (leaf "xcursor-size" cfg.cursor.size)
-          (flag' "hide-on-key-press" cfg.cursor.hide-on-key-press)
-          (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
-        ])
-
-        (plain "hotkey-overlay" [
-          (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
-        ])
-
-        (plain "environment" (mapAttrsToList leaf cfg.environment))
-        (plain "binds" (mapAttrsToList bind cfg.binds))
-
-        (map workspace (sort (a: b: a.sort-name < b.sort-name)
-          (mapAttrsToList (key: cfg:
-            cfg
-            // {
-              sort-name = key;
-              name =
-                if cfg.name != null
-                then cfg.name
-                else key;
-            })
-          cfg.workspaces)))
-
-        (map (map' leaf (getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
-        (map window-rule cfg.window-rules)
-
-        (plain "animations" [
-          (toggle "off" cfg.animations [
-            (leaf "slowdown" cfg.animations.slowdown)
-            (animation' null "workspace-switch" cfg.animations)
-            (animation' null "horizontal-view-movement" cfg.animations)
-            (animation' null "config-notification-open-close" cfg.animations)
-            (animation' null "window-movement" cfg.animations)
-            (animation' cfg.animations.shaders.window-open "window-open" cfg.animations)
-            (animation' cfg.animations.shaders.window-close "window-close" cfg.animations)
-            (animation' cfg.animations.shaders.window-resize "window-resize" cfg.animations)
-            (animation' null "screenshot-ui-open" cfg.animations)
           ])
         ])
+      cfg.outputs)
 
-        (nullable (map' plain (mapAttrsToList leaf)) "debug" cfg.debug)
-      ];
+      (leaf "screenshot-path" cfg.screenshot-path)
+      (flag' "prefer-no-csd" cfg.prefer-no-csd)
+
+      (plain "layout" [
+        (leaf "gaps" cfg.layout.gaps)
+        (plain "struts" [
+          (leaf "left" cfg.layout.struts.left)
+          (leaf "right" cfg.layout.struts.right)
+          (leaf "top" cfg.layout.struts.top)
+          (leaf "bottom" cfg.layout.struts.bottom)
+        ])
+        (borderish "focus-ring" cfg.layout.focus-ring)
+        (borderish "border" cfg.layout.border)
+        (preset-sizes "default-column-width" cfg.layout.default-column-width)
+        (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
+        (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
+        (leaf "center-focused-column" cfg.layout.center-focused-column)
+        (flag' "always-center-single-column" cfg.layout.always-center-single-column)
+      ])
+
+      (plain "cursor" [
+        (leaf "xcursor-theme" cfg.cursor.theme)
+        (leaf "xcursor-size" cfg.cursor.size)
+        (flag' "hide-on-key-press" cfg.cursor.hide-on-key-press)
+        (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
+      ])
+
+      (plain "hotkey-overlay" [
+        (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
+      ])
+
+      (plain "environment" (lib.mapAttrsToList leaf cfg.environment))
+      (plain "binds" (lib.mapAttrsToList bind cfg.binds))
+
+      (map workspace (builtins.sort (a: b: a.sort-name < b.sort-name)
+        (lib.mapAttrsToList (key: cfg:
+          cfg
+          // {
+            sort-name = key;
+            name =
+              if cfg.name != null
+              then cfg.name
+              else key;
+          })
+        cfg.workspaces)))
+
+      (map (map' leaf (builtins.getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
+      (map window-rule cfg.window-rules)
+
+      (plain "animations" [
+        (toggle "off" cfg.animations [
+          (leaf "slowdown" cfg.animations.slowdown)
+          (animation' null "workspace-switch" cfg.animations)
+          (animation' null "horizontal-view-movement" cfg.animations)
+          (animation' null "config-notification-open-close" cfg.animations)
+          (animation' null "window-movement" cfg.animations)
+          (animation' cfg.animations.shaders.window-open "window-open" cfg.animations)
+          (animation' cfg.animations.shaders.window-close "window-close" cfg.animations)
+          (animation' cfg.animations.shaders.window-resize "window-resize" cfg.animations)
+          (animation' null "screenshot-ui-open" cfg.animations)
+        ])
+      ])
+
+      (nullable (map' plain (lib.mapAttrsToList leaf)) "debug" cfg.debug)
+    ];
 }
