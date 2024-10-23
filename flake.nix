@@ -61,7 +61,7 @@
       then orig-ver
       else "${orig-ver}-unstable-${src.shortRev}";
 
-    make-niri = nixpkgs.lib.makeOverridable ({
+    make-niri = {
       src,
       patches ? [],
       rustPlatform,
@@ -187,7 +187,7 @@
           mainProgram = "niri";
           platforms = nixpkgs.lib.platforms.linux;
         };
-      });
+      };
 
     validated-config-for = pkgs: package: config:
       pkgs.runCommand "config.kdl" {
@@ -199,7 +199,7 @@
         cp $configPath $out
       '';
 
-    make-xwayland-satellite = nixpkgs.lib.makeOverridable ({
+    make-xwayland-satellite = {
       src,
       patches ? [],
       rustPlatform,
@@ -245,7 +245,7 @@
           mainProgram = "xwayland-satellite";
           platforms = nixpkgs.lib.platforms.linux;
         };
-      });
+      };
 
     make-package-set = pkgs: {
       niri-stable = pkgs.callPackage make-niri {
