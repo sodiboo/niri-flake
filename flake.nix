@@ -207,6 +207,7 @@
       makeWrapper,
       xwayland,
       xcb-util-cursor,
+      withSystemd ? true,
     }: let
       manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
       workspace-version = manifest.package.version;
@@ -229,12 +230,24 @@
           makeWrapper
         ];
 
-        # All tests fail because runtime dir is not set
+        buildNoDefaultFeatures = true;
+        buildFeatures = nixpkgs.lib.optional withSystemd "systemd";
+
+        # All tests require a display server to be running.
         doCheck = false;
 
-        postInstall = ''
-          wrapProgram $out/bin/xwayland-satellite \
-            --prefix PATH : "${nixpkgs.lib.makeBinPath [xwayland]}"
+        postInstall =
+          ''
+            wrapProgram $out/bin/xwayland-satellite \
+              --prefix PATH : "${nixpkgs.lib.makeBinPath [xwayland]}"
+          ''
+          + nixpkgs.lib.optionalString withSystemd ''
+            install -Dm0644 resources/xwayland-satellite.service -t $out/lib/systemd/user
+          '';
+
+        postFixup = nixpkgs.lib.optionalString withSystemd ''
+          substituteInPlace $out/lib/systemd/user/xwayland-satellite.service \
+            --replace-fail /usr/local/bin $out/bin
         '';
 
         meta = {
@@ -256,6 +269,7 @@
       };
       xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
         src = inputs.xwayland-satellite-stable;
+        withSystemd = false; # doesn't exist yet in this version
       };
       xwayland-satellite-unstable = pkgs.callPackage make-xwayland-satellite {
         src = inputs.xwayland-satellite-unstable;
