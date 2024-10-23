@@ -205,6 +205,8 @@
       rustPlatform,
       pkg-config,
       makeWrapper,
+      systemd,
+      withSystemd ? true,
       xwayland,
       xcb-util-cursor,
     }: let
@@ -219,15 +221,19 @@
           lockFile = "${src}/Cargo.lock";
           allowBuiltinFetchGit = true;
         };
-        nativeBuildInputs = [
-          pkg-config
-          rustPlatform.bindgenHook
-        ];
+        nativeBuildInputs =
+          [
+            pkg-config
+            rustPlatform.bindgenHook
+          ]
+          ++ nixpkgs.lib.optional withSystemd systemd;
 
         buildInputs = [
           xcb-util-cursor
           makeWrapper
         ];
+
+        buildFeatures = nixpkgs.lib.optional withSystemd "systemd";
 
         # All tests fail because runtime dir is not set
         doCheck = false;
