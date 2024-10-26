@@ -389,23 +389,7 @@
       flake = {
         overlays.niri = final: prev: (make-package-set final
           // {
-            xwayland-satellite-nixpkgs = prev.xwayland-satellite or abort "xwayland-satellite isn't in your nixpkgs";
-            xwayland-satellite =
-              nixpkgs.lib.warn ''
-                `pkgs.xwayland-satellite` will change behaviour in the future.
-
-                Previously, `pkgs.xwayland-satellite` was provided by this flake.
-                However, this (naively) overrides the version provided by nixpkgs.
-                Now, xwayland-satellite gets similar treatment to niri.
-                If you want to use the version you were previously using, use `pkgs.xwayland-satellite-unstable`.
-
-                For now, this is a warning and the behaviour is unchanged.
-                This invocation still uses the unstable version provided by this flake.
-
-                You can use the nixpkgs version explicitly by using `pkgs.xwayland-satellite-nixpkgs`.
-                That version will at a future point have a warning to switch back to `pkgs.xwayland-satellite` when that alias is removed from the overlay.
-              ''
-              final.xwayland-satellite-unstable;
+            xwayland-satellite-nixpkgs = nixpkgs.lib.warn "please change pkgs.xwayland-satellite-nixpkgs -> pkgs.xwayland-satellite" prev.xwayland-satellite;
           });
         lib = {
           inherit kdl;
