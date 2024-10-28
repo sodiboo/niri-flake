@@ -39,10 +39,10 @@
       "flake": false,
       "locked": {
         "lastModified": 1730095659,
-        "narHash": "sha256-Q4BuI/qmXKgORQsNeLh5lV7JYeOeYADaByOLVsa0lp4=",
+        "narHash": "sha256-c5tbC1KmMHeny7D9SX3qW0KuYRMH9Pc4nSz7fA1aHiE=",
         "owner": "YaLTeR",
         "repo": "niri",
-        "rev": "3c1f253fa69dc9ae33d91a7b03ebf685b2a996db",
+        "rev": "0866990b7d706cdb3af2e9f0008bb9e7281a0e26",
         "type": "github"
       },
       "original": {
