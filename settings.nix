@@ -957,7 +957,7 @@
           };
           touchpad =
             pointer-tablet-common
-            // (basic-pointer true)
+            // basic-pointer true
             // {
               tap =
                 optional types.bool true
@@ -1032,6 +1032,13 @@
             };
           mouse = pointer-tablet-common // basic-pointer false;
           trackpoint = pointer-tablet-common // basic-pointer false;
+          trackball =
+            nullable (record (pointer-tablet-common // basic-pointer false))
+            // {
+              description = ''
+                ${unstable-note}
+              '';
+            };
           tablet =
             pointer-tablet-common
             // {
@@ -2244,6 +2251,10 @@
         node "workspace" cfg.name [
           (nullable leaf "open-on-output" cfg.open-on-output)
         ];
+
+      pointer-tablet' = ext: name: cfg: plain name (pointer-tablet cfg (ext cfg));
+      pointer' = pointer-tablet' pointer;
+      touchy' = pointer-tablet' touchy;
     in [
       (plain "input" [
         (plain "keyboard" [
@@ -2267,9 +2278,10 @@
           (nullable leaf "click-method" cfg.input.touchpad.click-method)
           (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
         ]))
-        (plain "mouse" (pointer-tablet cfg.input.mouse (pointer cfg.input.mouse)))
-        (plain "trackpoint" (pointer-tablet cfg.input.trackpoint (pointer cfg.input.trackpoint)))
-        (plain "tablet" (pointer-tablet cfg.input.tablet (touchy cfg.input.tablet)))
+        (pointer' "mouse" cfg.input.mouse)
+        (pointer' "trackpoint" cfg.input.trackpoint)
+        (nullable pointer' "trackball" cfg.input.trackball)
+        (touchy' "tablet" cfg.input.tablet)
         (plain "touch" (touchy cfg.input.touch))
         (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
         (optional-node cfg.input.focus-follows-mouse.enable (leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {

@@ -924,6 +924,92 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
 
 
+<!-- sorting key: programs.niri.settings.g.input.trackball -->
+## `programs.niri.settings.input.trackball`
+- type: `null or (submodule)`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackball.accel-profile -->
+## `programs.niri.settings.input.trackball.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackball.accel-speed -->
+## `programs.niri.settings.input.trackball.accel-speed`
+- type: `floating point number`
+- default: `0.000000`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackball.enable -->
+## `programs.niri.settings.input.trackball.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackball.left-handed -->
+## `programs.niri.settings.input.trackball.left-handed`
+- type: `boolean`
+- default: `false`
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackball.middle-emulation -->
+## `programs.niri.settings.input.trackball.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackball.natural-scroll -->
+## `programs.niri.settings.input.trackball.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackball.scroll-method -->
+## `programs.niri.settings.input.trackball.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
+
 <!-- sorting key: programs.niri.settings.g.input.trackpoint.accel-profile -->
 ## `programs.niri.settings.input.trackpoint.accel-profile`
 - type: `null or one of "adaptive", "flat"`
