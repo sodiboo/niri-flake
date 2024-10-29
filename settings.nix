@@ -124,6 +124,16 @@
             - ${libinput-link "pointer-acceleration" "Pointer acceleration profiles"}
           '';
         };
+      scroll-button =
+        nullable types.int
+        // {
+          description = ''
+            When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+            Further reading:
+            - ${libinput-link "scrolling" "On-Button scrolling"}
+          '';
+        };
       scroll-method =
         nullable (types.enum ["no-scroll" "two-finger" "edge" "on-button-down"])
         // {
@@ -2124,6 +2134,7 @@
         (flag' "middle-emulation" cfg.middle-emulation)
         (leaf "accel-speed" cfg.accel-speed)
         (nullable leaf "accel-profile" cfg.accel-profile)
+        (nullable leaf "scroll-button" cfg.scroll-button)
         (nullable leaf "scroll-method" cfg.scroll-method)
       ];
 

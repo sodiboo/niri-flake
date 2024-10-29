@@ -724,6 +724,17 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+<!-- sorting key: programs.niri.settings.g.input.mouse.scroll-button -->
+## `programs.niri.settings.input.mouse.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
 <!-- sorting key: programs.niri.settings.g.input.mouse.scroll-method -->
 ## `programs.niri.settings.input.mouse.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
@@ -889,6 +900,17 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+<!-- sorting key: programs.niri.settings.g.input.touchpad.scroll-button -->
+## `programs.niri.settings.input.touchpad.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
 <!-- sorting key: programs.niri.settings.g.input.touchpad.scroll-method -->
 ## `programs.niri.settings.input.touchpad.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
@@ -998,6 +1020,17 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+<!-- sorting key: programs.niri.settings.g.input.trackball.scroll-button -->
+## `programs.niri.settings.input.trackball.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
 <!-- sorting key: programs.niri.settings.g.input.trackball.scroll-method -->
 ## `programs.niri.settings.input.trackball.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
@@ -1068,6 +1101,17 @@ Whether scrolling should move the content in the scrolled direction (as opposed 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+<!-- sorting key: programs.niri.settings.g.input.trackpoint.scroll-button -->
+## `programs.niri.settings.input.trackpoint.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
 
 
 <!-- sorting key: programs.niri.settings.g.input.trackpoint.scroll-method -->
