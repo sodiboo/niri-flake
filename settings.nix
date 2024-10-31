@@ -2252,10 +2252,7 @@
           ]
         );
 
-      corner-radius = cfg:
-        optional-node (cfg != null) (
-          leaf "geometry-corner-radius" [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left]
-        );
+      corner-radius = cfg: [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left];
 
       window-rule = cfg:
         plain "window-rule" [
@@ -2267,7 +2264,7 @@
           (nullable leaf "open-maximized" cfg.open-maximized)
           (nullable leaf "open-fullscreen" cfg.open-fullscreen)
           (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
-          (corner-radius cfg.geometry-corner-radius)
+          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
           (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
           (border-rule "border" cfg.border)
           (border-rule "focus-ring" cfg.focus-ring)
