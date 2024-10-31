@@ -13,7 +13,7 @@
     niri-stable.url = "github:YaLTeR/niri/v0.1.9";
     niri-stable.flake = false;
 
-    xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.4";
+    xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.5";
     xwayland-satellite-stable.flake = false;
 
     xwayland-satellite-unstable.url = "github:Supreeeme/xwayland-satellite";
@@ -269,7 +269,6 @@
       };
       xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
         src = inputs.xwayland-satellite-stable;
-        withSystemd = false; # doesn't exist yet in this version
       };
       xwayland-satellite-unstable = pkgs.callPackage make-xwayland-satellite {
         src = inputs.xwayland-satellite-unstable;
