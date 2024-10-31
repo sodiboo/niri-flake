@@ -1243,44 +1243,49 @@
       }
 
       {
-        cursor = {
-          theme =
-            optional types.str "default"
-            // {
-              description = ''
-                The name of the xcursor theme to use.
+        cursor = section ({...}: {
+          imports = [
+            (lib.mkRenamedOptionModule ["hide-on-key-press"] ["hide-when-typing"])
+          ];
+          options = {
+            theme =
+              optional types.str "default"
+              // {
+                description = ''
+                  The name of the xcursor theme to use.
 
-                This will also set the XCURSOR_THEME environment variable for all spawned processes.
-              '';
-            };
-          size =
-            optional types.int 24
-            // {
-              description = ''
-                The size of the cursor in logical pixels.
+                  This will also set the XCURSOR_THEME environment variable for all spawned processes.
+                '';
+              };
+            size =
+              optional types.int 24
+              // {
+                description = ''
+                  The size of the cursor in logical pixels.
 
-                This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-              '';
-            };
-          hide-on-key-press =
-            optional types.bool false
-            // {
-              description = ''
-                ${unstable-note}
+                  This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+                '';
+              };
+            hide-when-typing =
+              optional types.bool false
+              // {
+                description = ''
+                  ${unstable-note}
 
-                Whether to hide the cursor when a key is pressed on the keyboard.
-              '';
-            };
-          hide-after-inactive-ms =
-            nullable types.int
-            // {
-              description = ''
-                ${unstable-note}
+                  Whether to hide the cursor when typing.
+                '';
+              };
+            hide-after-inactive-ms =
+              nullable types.int
+              // {
+                description = ''
+                  ${unstable-note}
 
-                If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
-              '';
-            };
-        };
+                  If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+                '';
+              };
+          };
+        });
       }
 
       {
@@ -2420,7 +2425,7 @@
       (plain "cursor" [
         (leaf "xcursor-theme" cfg.cursor.theme)
         (leaf "xcursor-size" cfg.cursor.size)
-        (flag' "hide-on-key-press" cfg.cursor.hide-on-key-press)
+        (flag' "hide-when-typing" cfg.cursor.hide-when-typing)
         (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
       ])
 

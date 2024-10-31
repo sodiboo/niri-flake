@@ -1345,6 +1345,9 @@ VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
 Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
 
 
+<!-- sorting key: programs.niri.settings.i.cursor -->
+<!-- programs.niri.settings.cursor -->
+
 <!-- sorting key: programs.niri.settings.i.cursor.hide-after-inactive-ms -->
 ## `programs.niri.settings.cursor.hide-after-inactive-ms`
 - type: `null or signed integer`
@@ -1361,8 +1364,8 @@ Setting this to `"on-demand"` will enable VRR only when a window with [`window-r
 If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
 
 
-<!-- sorting key: programs.niri.settings.i.cursor.hide-on-key-press -->
-## `programs.niri.settings.cursor.hide-on-key-press`
+<!-- sorting key: programs.niri.settings.i.cursor.hide-when-typing -->
+## `programs.niri.settings.cursor.hide-when-typing`
 - type: `boolean`
 - default: `false`
 
@@ -1374,7 +1377,7 @@ If set, the cursor will automatically hide once this number of milliseconds pass
 > Otherwise, your system might fail to build.
 
 
-Whether to hide the cursor when a key is pressed on the keyboard.
+Whether to hide the cursor when typing.
 
 
 <!-- sorting key: programs.niri.settings.i.cursor.size -->
