@@ -456,6 +456,92 @@ This is mostly useful for binds on the mouse wheel, where you might not want to 
 Whether this keybind should trigger repeatedly when held down.
 
 
+<!-- sorting key: programs.niri.settings.a.switch-events -->
+<!-- programs.niri.settings.switch-events -->
+
+<!-- sorting key: programs.niri.settings.a.switch-events.a.lid-close -->
+## `programs.niri.settings.switch-events.lid-close`
+- type: `null or `[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.a.switch-events.a.lid-open -->
+## `programs.niri.settings.switch-events.lid-open`
+- type: `null or `[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.a.switch-events.a.tablet-mode-off -->
+## `programs.niri.settings.switch-events.tablet-mode-off`
+- type: `null or `[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.a.switch-events.a.tablet-mode-on -->
+## `programs.niri.settings.switch-events.tablet-mode-on`
+- type: `null or `[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.a.switch-events.b.<switch-bind> -->
+## `<switch-bind>`
+- type: `niri switch bind`
+
+<!--
+This description doesn't matter to the docs, but is necessary to make this header actually render so the above types can link to it.
+-->
+
+
+<!-- sorting key: programs.niri.settings.a.switch-events.b.<switch-bind>.action -->
+## `<switch-bind>.action`
+- type: `niri switch action`, which is a `kdl leaf`
+
+A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
+
+See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more information on how this works, it has the exact same option type. Beware that switch binds are not the same as regular binds, and the actions they take are different. Currently, they can only accept spawn binds. Correct usage is like so:
+
+```nix
+{
+  programs.niri.settings.switch-events = {
+    tablet-mode-on.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "true"];
+    tablet-mode-off.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "false"];
+  };
+}
+```
+
+
 <!-- sorting key: programs.niri.settings.b.screenshot-path -->
 ## `programs.niri.settings.screenshot-path`
 - type: `null or string`

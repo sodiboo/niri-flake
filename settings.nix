@@ -553,6 +553,58 @@
   in
     ordered-record [
       {
+        switch-events = let
+          switch-bind = newtype (plain-type "niri switch bind") (record {
+            action =
+              required (newtype (plain-type "niri switch action") kdl.types.kdl-leaf)
+              // {
+                description = ''
+                  A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
+
+                  See also ${link' "programs.niri.settings.binds.<name>.action"} for more information on how this works, it has the exact same option type. Beware that switch binds are not the same as regular binds, and the actions they take are different. Currently, they can only accept spawn binds. Correct usage is like so:
+
+                  ```nix
+                  {
+                    programs.niri.settings.switch-events = {
+                      tablet-mode-on.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "true"];
+                      tablet-mode-off.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "false"];
+                    };
+                  }
+                  ```
+                '';
+              };
+          });
+
+          switch-bind' =
+            nullable (newtype (link-type "switch-bind") switch-bind)
+            // {
+              visible = "shallow";
+              description = ''
+                ${unstable-note}
+              '';
+            };
+        in
+          ordered-section [
+            {
+              tablet-mode-on = switch-bind';
+              tablet-mode-off = switch-bind';
+              lid-open = switch-bind';
+              lid-close = switch-bind';
+            }
+            {
+              __docs-only = true;
+              "<switch-bind>" =
+                required switch-bind
+                // {
+                  override-loc = lib.const ["<switch-bind>"];
+                  description = ''
+                    <!--
+                    This description doesn't matter to the docs, but is necessary to make this header actually render so the above types can link to it.
+                    -->
+                  '';
+                };
+            }
+          ];
         binds = let
           base = record {
             allow-when-locked =
@@ -2258,6 +2310,11 @@
           (lib.mapAttrsToList leaf cfg.action)
         ];
 
+      switch-bind = name: cfg:
+        plain name [
+          (lib.mapAttrsToList leaf cfg.action)
+        ];
+
       workspace = cfg:
         node "workspace" cfg.name [
           (nullable leaf "open-on-output" cfg.open-on-output)
@@ -2351,6 +2408,14 @@
 
       (plain "environment" (lib.mapAttrsToList leaf cfg.environment))
       (plain "binds" (lib.mapAttrsToList bind cfg.binds))
+      (nullable plain "switch-events" (
+        let
+          children = lib.mapAttrsToList (nullable switch-bind) cfg.switch-events;
+        in
+          if lib.remove null children == []
+          then null
+          else children
+      ))
 
       (map workspace (builtins.sort (a: b: a.sort-name < b.sort-name)
         (lib.mapAttrsToList (key: cfg:
