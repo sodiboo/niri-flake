@@ -1332,6 +1332,26 @@
               };
           }
           {
+            insert-hint =
+              nullable (record {
+                enable = optional types.bool true;
+                color =
+                  optional types.str "rgba(127 200 255 50%)"
+                  // {
+                    description = ''
+                      The color of the insert position hint that is drawn during an interactive move.
+
+                      See ${link' "<decoration>.color"} for more information on the syntax
+                    '';
+                  };
+              })
+              // {
+                description = ''
+                  ${unstable-note}
+                '';
+              };
+          }
+          {
             preset-column-widths =
               list preset-width
               // {
@@ -2385,6 +2405,11 @@
         ])
         (borderish "focus-ring" cfg.layout.focus-ring)
         (borderish "border" cfg.layout.border)
+        (nullable (map' plain (cfg:
+          toggle "off" cfg [
+            (leaf "color" cfg.color)
+          ])) "insert-hint"
+        cfg.layout.insert-hint)
         (preset-sizes "default-column-width" cfg.layout.default-column-width)
         (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
         (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)

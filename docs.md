@@ -1609,7 +1609,37 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.always-center-single-column -->
+<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint -->
+## `programs.niri.settings.layout.insert-hint`
+- type: `null or (submodule)`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.color -->
+## `programs.niri.settings.layout.insert-hint.color`
+- type: `string`
+- default: `"rgba(127 200 255 50%)"`
+
+The color of the insert position hint that is drawn during an interactive move.
+
+See [`<decoration>.color`](#decorationcolor) for more information on the syntax
+
+
+<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.enable -->
+## `programs.niri.settings.layout.insert-hint.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.j.layout.d.always-center-single-column -->
 ## `programs.niri.settings.layout.always-center-single-column`
 - type: `boolean`
 - default: `false`
@@ -1617,7 +1647,7 @@ For more details, see [`<decoration>.color`](#decorationcolor).
 This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.center-focused-column -->
+<!-- sorting key: programs.niri.settings.j.layout.d.center-focused-column -->
 ## `programs.niri.settings.layout.center-focused-column`
 - type: `one of "never", "always", "on-overflow"`
 - default: `"never"`
@@ -1629,7 +1659,7 @@ When changing focus, niri can automatically center the focused column.
 - `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.default-column-width -->
+<!-- sorting key: programs.niri.settings.j.layout.d.default-column-width -->
 ## `programs.niri.settings.layout.default-column-width`
 - type: `{} or (variant of: fixed | proportion)`
 
@@ -1642,21 +1672,21 @@ See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-wid
 You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.default-column-width.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.d.default-column-width.fixed -->
 ## `programs.niri.settings.layout.default-column-width.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.default-column-width.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.d.default-column-width.proportion -->
 ## `programs.niri.settings.layout.default-column-width.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.gaps -->
+<!-- sorting key: programs.niri.settings.j.layout.d.gaps -->
 ## `programs.niri.settings.layout.gaps`
 - type: `floating point number or signed integer`
 - default: `16`
@@ -1664,7 +1694,7 @@ The width of the column as a proportion of the screen's width
 The gap between windows in the layout, measured in logical pixels.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.preset-column-widths -->
+<!-- sorting key: programs.niri.settings.j.layout.d.preset-column-widths -->
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of variant of: fixed | proportion`
 
@@ -1687,21 +1717,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.preset-column-widths.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.d.preset-column-widths.fixed -->
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.preset-column-widths.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.d.preset-column-widths.proportion -->
 ## `programs.niri.settings.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.preset-window-heights -->
+<!-- sorting key: programs.niri.settings.j.layout.d.preset-window-heights -->
 ## `programs.niri.settings.layout.preset-window-heights`
 - type: `list of variant of: fixed | proportion`
 
@@ -1724,21 +1754,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.preset-window-heights.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.d.preset-window-heights.fixed -->
 ## `programs.niri.settings.layout.preset-window-heights.*.fixed`
 - type: `signed integer`
 
 The height of the window in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.preset-window-heights.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.d.preset-window-heights.proportion -->
 ## `programs.niri.settings.layout.preset-window-heights.*.proportion`
 - type: `floating point number`
 
 The height of the window as a proportion of the screen's height
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.struts -->
+<!-- sorting key: programs.niri.settings.j.layout.d.struts -->
 ## `programs.niri.settings.layout.struts`
 
 
@@ -1751,25 +1781,25 @@ Struts are computed in addition to layer-shell surfaces. If you have a waybar of
 The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.struts.bottom -->
+<!-- sorting key: programs.niri.settings.j.layout.d.struts.bottom -->
 ## `programs.niri.settings.layout.struts.bottom`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.struts.left -->
+<!-- sorting key: programs.niri.settings.j.layout.d.struts.left -->
 ## `programs.niri.settings.layout.struts.left`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.struts.right -->
+<!-- sorting key: programs.niri.settings.j.layout.d.struts.right -->
 ## `programs.niri.settings.layout.struts.right`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.struts.top -->
+<!-- sorting key: programs.niri.settings.j.layout.d.struts.top -->
 ## `programs.niri.settings.layout.struts.top`
 - type: `floating point number or signed integer`
 - default: `0`
