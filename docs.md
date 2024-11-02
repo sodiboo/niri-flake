@@ -1513,7 +1513,45 @@ The color of the focus ring for the window that has keyboard focus.
 The color of the focus ring for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration -->
+<!-- sorting key: programs.niri.settings.j.layout.b.insert-hint -->
+## `programs.niri.settings.layout.insert-hint`
+- type: `null or (submodule)`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.insert-hint.a.enable -->
+## `programs.niri.settings.layout.insert-hint.enable`
+- type: `boolean`
+- default: `true`
+
+Whether to enable the insert hint.
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.insert-hint.b.display -->
+## `programs.niri.settings.layout.insert-hint.display`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgba(127 200 255 50%)";
+  }
+  ```
+
+
+The color of the insert hint.
+
+
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration -->
 ## `<decoration>`
 - type: `variant of: color | gradient`
 
@@ -1524,7 +1562,7 @@ This type specifically represents decorations drawn by niri: that is, [`layout.f
 
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration.color -->
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration.color -->
 ## `<decoration>.color`
 - type: `string`
 
@@ -1535,7 +1573,7 @@ This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color
 The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient -->
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient -->
 ## `<decoration>.gradient`
 - type: `gradient`
 
@@ -1544,7 +1582,7 @@ A linear gradient to use for the decoration.
 This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.angle -->
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.angle -->
 ## `<decoration>.gradient.angle`
 - type: `signed integer`
 - default: `180`
@@ -1554,7 +1592,7 @@ The angle of the gradient, in degrees, measured clockwise from a gradient that s
 This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.from -->
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.from -->
 ## `<decoration>.gradient.from`
 - type: `string`
 
@@ -1563,7 +1601,7 @@ The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.in' -->
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.in' -->
 ## `<decoration>.gradient.in'`
 - type: `null or one of "srgb", "srgb-linear", "oklab", "oklch shorter hue", "oklch longer hue", "oklch increasing hue", "oklch decreasing hue"`
 - default: `null`
@@ -1573,7 +1611,7 @@ The colorspace to interpolate the gradient in. This option is named `in'` becaus
 This is a subset of the [`<color-interpolation-method>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method) values in CSS.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.relative-to -->
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.relative-to -->
 ## `<decoration>.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
@@ -1603,49 +1641,13 @@ the bottom edge of the big window is almost entirely yellow, and the top edge of
 these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.decoration.gradient.to -->
+<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.to -->
 ## `<decoration>.gradient.to`
 - type: `string`
 
 The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
 
 For more details, see [`<decoration>.color`](#decorationcolor).
-
-
-<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint -->
-## `programs.niri.settings.layout.insert-hint`
-- type: `null or (submodule)`
-- default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
-The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
-
-
-<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.display -->
-## `programs.niri.settings.layout.insert-hint.display`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
-- default:
-  ```nix
-  {
-    color = "rgba(127 200 255 50%)";
-  }
-  ```
-
-
-The color of the insert hint.
-
-
-<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.enable -->
-## `programs.niri.settings.layout.insert-hint.enable`
-- type: `boolean`
-- default: `true`
 
 
 <!-- sorting key: programs.niri.settings.j.layout.d.always-center-single-column -->

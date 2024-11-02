@@ -1322,6 +1322,37 @@
             };
           }
           {
+            insert-hint =
+              nullable (ordered-record [
+                {
+                  enable =
+                    optional types.bool true
+                    // {
+                      description = ''
+                        Whether to enable the insert hint.
+                      '';
+                    };
+                }
+                {
+                  display =
+                    optional (newtype (link-type "decoration") (decoration "programs.niri.settings.layout.insert-hint.display")) {color = "rgba(127 200 255 50%)";}
+                    // {
+                      visible = "shallow";
+                      description = ''
+                        The color of the insert hint.
+                      '';
+                    };
+                }
+              ])
+              // {
+                description = ''
+                  ${unstable-note}
+
+                  The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+                '';
+              };
+          }
+          {
             __docs-only = true;
             decoration =
               required (decoration "<decoration>")
@@ -1333,27 +1364,6 @@
                   This type specifically represents decorations drawn by niri: that is, ${link' "programs.niri.settings.layout.focus-ring"} and/or ${link' "programs.niri.settings.layout.border"}.
 
 
-                '';
-              };
-          }
-          {
-            insert-hint =
-              nullable (record {
-                enable = optional types.bool true;
-                display =
-                  optional (newtype (link-type "decoration") (decoration "programs.niri.settings.layout.insert-hint.display")) {color = "rgba(127 200 255 50%)";}
-                  // {
-                    visible = "shallow";
-                    description = ''
-                      The color of the insert hint.
-                    '';
-                  };
-              })
-              // {
-                description = ''
-                  ${unstable-note}
-
-                  The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
                 '';
               };
           }
