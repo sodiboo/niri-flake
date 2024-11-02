@@ -1340,19 +1340,20 @@
             insert-hint =
               nullable (record {
                 enable = optional types.bool true;
-                color =
-                  optional types.str "rgba(127 200 255 50%)"
+                display =
+                  optional (newtype (link-type "decoration") (decoration "programs.niri.settings.layout.insert-hint.display")) {color = "rgba(127 200 255 50%)";}
                   // {
+                    visible = "shallow";
                     description = ''
-                      The color of the insert position hint that is drawn during an interactive move.
-
-                      See ${link' "<decoration>.color"} for more information on the syntax
+                      The color of the insert hint.
                     '';
                   };
               })
               // {
                 description = ''
                   ${unstable-note}
+
+                  The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
                 '';
               };
           }
@@ -2412,7 +2413,8 @@
         (borderish "border" cfg.layout.border)
         (nullable (map' plain (cfg:
           toggle "off" cfg [
-            (leaf "color" cfg.color)
+            (nullable leaf "color" cfg.display.color or null)
+            (nullable gradient' "gradient" cfg.display.gradient or null)
           ])) "insert-hint"
         cfg.layout.insert-hint)
         (preset-sizes "default-column-width" cfg.layout.default-column-width)

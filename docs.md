@@ -1625,15 +1625,21 @@ For more details, see [`<decoration>.color`](#decorationcolor).
 > Otherwise, your system might fail to build.
 
 
+The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
 
-<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.color -->
-## `programs.niri.settings.layout.insert-hint.color`
-- type: `string`
-- default: `"rgba(127 200 255 50%)"`
 
-The color of the insert position hint that is drawn during an interactive move.
+<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.display -->
+## `programs.niri.settings.layout.insert-hint.display`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- default:
+  ```nix
+  {
+    color = "rgba(127 200 255 50%)";
+  }
+  ```
 
-See [`<decoration>.color`](#decorationcolor) for more information on the syntax
+
+The color of the insert hint.
 
 
 <!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.enable -->
