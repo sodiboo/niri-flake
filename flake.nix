@@ -296,7 +296,22 @@
 
     forAllSystems = nixpkgs.lib.genAttrs systems;
   in {
+    lib = {
+      inherit kdl;
+      internal = {
+        inherit make-package-set validated-config-for;
+        package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
+        docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
+        settings-module = settings.module;
+      };
+    };
+
     packages = forAllSystems (system: make-package-set inputs.nixpkgs.legacyPackages.${system});
+
+    overlays.niri = final: prev: (make-package-set final
+      // {
+        xwayland-satellite-nixpkgs = nixpkgs.lib.warn "please change pkgs.xwayland-satellite-nixpkgs -> pkgs.xwayland-satellite" prev.xwayland-satellite;
+      });
 
     apps = forAllSystems (system:
       (
@@ -311,54 +326,7 @@
         default = self.apps.${system}.niri-stable;
       });
 
-    checks = forAllSystems (system: let
-      test-nixos-for = nixpkgs: modules:
-        (nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules =
-            [
-              {
-                # This doesn't need to be a bootable system. It just needs to build.
-                system.stateVersion = "23.11";
-                fileSystems."/".fsType = "ext4";
-                fileSystems."/".device = "/dev/sda1";
-                boot.loader.systemd-boot.enable = true;
-              }
-            ]
-            ++ modules;
-        })
-        .config
-        .system
-        .build
-        .toplevel;
-    in {
-      cached-packages = cached-packages-for system;
-      empty-config-valid-stable = let
-        eval = nixpkgs.lib.evalModules {
-          modules = [
-            settings.module
-            {
-              config.programs.niri.settings = {};
-            }
-          ];
-        };
-      in
-        validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable eval.config.programs.niri.finalConfig;
-
-      nixos-unstable = test-nixos-for nixpkgs [
-        self.nixosModules.niri
-        {
-          programs.niri.enable = true;
-        }
-      ];
-
-      nixos-stable = test-nixos-for nixpkgs-stable [
-        self.nixosModules.niri
-        {
-          programs.niri.enable = true;
-        }
-      ];
-    });
+    formatter = forAllSystems (system: inputs.nixpkgs.legacyPackages.${system}.alejandra);
 
     devShells = forAllSystems (system: let
       pkgs = inputs.nixpkgs.legacyPackages.${system};
@@ -378,21 +346,6 @@
       };
     });
 
-    formatter = forAllSystems (system: inputs.nixpkgs.legacyPackages.${system}.alejandra);
-
-    overlays.niri = final: prev: (make-package-set final
-      // {
-        xwayland-satellite-nixpkgs = nixpkgs.lib.warn "please change pkgs.xwayland-satellite-nixpkgs -> pkgs.xwayland-satellite" prev.xwayland-satellite;
-      });
-    lib = {
-      inherit kdl;
-      internal = {
-        inherit make-package-set validated-config-for;
-        package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
-        docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
-        settings-module = settings.module;
-      };
-    };
     homeModules.stylix = stylix-module;
     homeModules.config = {
       config,
@@ -555,5 +508,54 @@
         };
       };
     };
+
+    checks = forAllSystems (system: let
+      test-nixos-for = nixpkgs: modules:
+        (nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules =
+            [
+              {
+                # This doesn't need to be a bootable system. It just needs to build.
+                system.stateVersion = "23.11";
+                fileSystems."/".fsType = "ext4";
+                fileSystems."/".device = "/dev/sda1";
+                boot.loader.systemd-boot.enable = true;
+              }
+            ]
+            ++ modules;
+        })
+        .config
+        .system
+        .build
+        .toplevel;
+    in {
+      cached-packages = cached-packages-for system;
+      empty-config-valid-stable = let
+        eval = nixpkgs.lib.evalModules {
+          modules = [
+            settings.module
+            {
+              config.programs.niri.settings = {};
+            }
+          ];
+        };
+      in
+        validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable eval.config.programs.niri.finalConfig;
+
+      nixos-unstable = test-nixos-for nixpkgs [
+        self.nixosModules.niri
+        {
+          programs.niri.enable = true;
+        }
+      ];
+
+      nixos-stable = test-nixos-for nixpkgs-stable [
+        self.nixosModules.niri
+        {
+          programs.niri.enable = true;
+        }
+      ];
+    });
   };
 }
