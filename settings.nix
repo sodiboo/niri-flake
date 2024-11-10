@@ -1091,8 +1091,35 @@
                     - ${libinput-link "clickpad-softbuttons" "Clickpad software button behavior"}
                   '';
                 };
+
+              scroll-factor =
+                nullable types.float
+                // {
+                  description = ''
+                    ${unstable-note}
+
+                    For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
+
+                    This is not a libinput property, but rather a niri-specific one.
+                  '';
+                };
             };
-          mouse = pointer-tablet-common // basic-pointer false;
+          mouse =
+            pointer-tablet-common
+            // basic-pointer false
+            // {
+              scroll-factor =
+                nullable types.float
+                // {
+                  description = ''
+                    ${unstable-note}
+
+                    For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
+
+                    This is not a libinput property, but rather a niri-specific one.
+                  '';
+                };
+            };
           trackpoint = pointer-tablet-common // basic-pointer false;
           trackball =
             nullable (record (pointer-tablet-common // basic-pointer false))
@@ -2378,8 +2405,12 @@
           (pointer cfg.input.touchpad)
           (nullable leaf "click-method" cfg.input.touchpad.click-method)
           (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
+          (nullable leaf "scroll-factor" cfg.input.touchpad.scroll-factor)
         ]))
-        (pointer' "mouse" cfg.input.mouse)
+        (plain "mouse" (pointer-tablet cfg.input.mouse [
+          (pointer cfg.input.mouse)
+          (nullable leaf "scroll-factor" cfg.input.mouse.scroll-factor)
+        ]))
         (pointer' "trackpoint" cfg.input.trackpoint)
         (nullable pointer' "trackball" cfg.input.trackball)
         (touchy' "tablet" cfg.input.tablet)

@@ -821,6 +821,24 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
 
 
+<!-- sorting key: programs.niri.settings.g.input.mouse.scroll-factor -->
+## `programs.niri.settings.input.mouse.scroll-factor`
+- type: `null or floating point number`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
+
+This is not a libinput property, but rather a niri-specific one.
+
+
 <!-- sorting key: programs.niri.settings.g.input.mouse.scroll-method -->
 ## `programs.niri.settings.input.mouse.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
@@ -995,6 +1013,24 @@ When `scroll-method = "on-button-down"`, this is the button that will be used to
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+<!-- sorting key: programs.niri.settings.g.input.touchpad.scroll-factor -->
+## `programs.niri.settings.input.touchpad.scroll-factor`
+- type: `null or floating point number`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
+
+This is not a libinput property, but rather a niri-specific one.
 
 
 <!-- sorting key: programs.niri.settings.g.input.touchpad.scroll-method -->
