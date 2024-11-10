@@ -579,9 +579,6 @@
             nullable (newtype (link-type "switch-bind") switch-bind)
             // {
               visible = "shallow";
-              description = ''
-                ${unstable-note}
-              '';
             };
         in
           ordered-section [
@@ -1096,8 +1093,6 @@
                 nullable types.float
                 // {
                   description = ''
-                    ${unstable-note}
-
                     For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
 
                     This is not a libinput property, but rather a niri-specific one.
@@ -1112,8 +1107,6 @@
                 nullable types.float
                 // {
                   description = ''
-                    ${unstable-note}
-
                     For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
 
                     This is not a libinput property, but rather a niri-specific one.
@@ -1121,13 +1114,7 @@
                 };
             };
           trackpoint = pointer-tablet-common // basic-pointer false;
-          trackball =
-            nullable (record (pointer-tablet-common // basic-pointer false))
-            // {
-              description = ''
-                ${unstable-note}
-              '';
-            };
+          trackball = pointer-tablet-common // basic-pointer false;
           tablet =
             pointer-tablet-common
             // {
@@ -1297,8 +1284,6 @@
               optional types.bool false
               // {
                 description = ''
-                  ${unstable-note}
-
                   Whether to hide the cursor when typing.
                 '';
               };
@@ -1306,8 +1291,6 @@
               nullable types.int
               // {
                 description = ''
-                  ${unstable-note}
-
                   If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
                 '';
               };
@@ -1350,7 +1333,7 @@
           }
           {
             insert-hint =
-              nullable (ordered-record [
+              ordered-section [
                 {
                   enable =
                     optional types.bool true
@@ -1370,11 +1353,9 @@
                       '';
                     };
                 }
-              ])
+              ]
               // {
                 description = ''
-                  ${unstable-note}
-
                   The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
                 '';
               };
@@ -2412,7 +2393,7 @@
           (nullable leaf "scroll-factor" cfg.input.mouse.scroll-factor)
         ]))
         (pointer' "trackpoint" cfg.input.trackpoint)
-        (nullable pointer' "trackball" cfg.input.trackball)
+        (pointer' "trackball" cfg.input.trackball)
         (touchy' "tablet" cfg.input.tablet)
         (plain "touch" (touchy cfg.input.touch))
         (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
@@ -2452,12 +2433,12 @@
         ])
         (borderish "focus-ring" cfg.layout.focus-ring)
         (borderish "border" cfg.layout.border)
-        (nullable (map' plain (cfg:
-          toggle "off" cfg [
-            (nullable leaf "color" cfg.display.color or null)
-            (nullable gradient' "gradient" cfg.display.gradient or null)
-          ])) "insert-hint"
-        cfg.layout.insert-hint)
+        (plain "insert-hint" [
+          (toggle "off" cfg.layout.insert-hint [
+            (nullable leaf "color" cfg.layout.insert-hint.display.color or null)
+            (nullable gradient' "gradient" cfg.layout.insert-hint.display.gradient or null)
+          ])
+        ])
         (preset-sizes "default-column-width" cfg.layout.default-column-width)
         (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
         (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)

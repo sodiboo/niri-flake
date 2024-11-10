@@ -464,27 +464,11 @@ Whether this keybind should trigger repeatedly when held down.
 - type: `null or `[`<switch-bind>`](#switch-bind)
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 
 <!-- sorting key: programs.niri.settings.a.switch-events.a.lid-open -->
 ## `programs.niri.settings.switch-events.lid-open`
 - type: `null or `[`<switch-bind>`](#switch-bind)
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 
 <!-- sorting key: programs.niri.settings.a.switch-events.a.tablet-mode-off -->
@@ -492,27 +476,11 @@ Whether this keybind should trigger repeatedly when held down.
 - type: `null or `[`<switch-bind>`](#switch-bind)
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 
 <!-- sorting key: programs.niri.settings.a.switch-events.a.tablet-mode-on -->
 ## `programs.niri.settings.switch-events.tablet-mode-on`
 - type: `null or `[`<switch-bind>`](#switch-bind)
 - default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 
 <!-- sorting key: programs.niri.settings.a.switch-events.b.<switch-bind> -->
@@ -826,14 +794,6 @@ Further reading:
 - type: `null or floating point number`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
 
 This is not a libinput property, but rather a niri-specific one.
@@ -1020,14 +980,6 @@ Further reading:
 - type: `null or floating point number`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
 
 This is not a libinput property, but rather a niri-specific one.
@@ -1066,20 +1018,6 @@ The mouse button to register when tapping with 1, 2, or 3 fingers, when [`input.
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
-
-
-<!-- sorting key: programs.niri.settings.g.input.trackball -->
-## `programs.niri.settings.input.trackball`
-- type: `null or (submodule)`
-- default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 
 <!-- sorting key: programs.niri.settings.g.input.trackball.accel-profile -->
@@ -1389,14 +1327,6 @@ Setting this to `"on-demand"` will enable VRR only when a window with [`window-r
 - type: `null or signed integer`
 - default: `null`
 
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
-
 If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
 
 
@@ -1404,14 +1334,6 @@ If set, the cursor will automatically hide once this number of milliseconds pass
 ## `programs.niri.settings.cursor.hide-when-typing`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
-
 
 Whether to hide the cursor when typing.
 
@@ -1551,15 +1473,6 @@ The color of the focus ring for windows that do not have keyboard focus.
 
 <!-- sorting key: programs.niri.settings.j.layout.b.insert-hint -->
 ## `programs.niri.settings.layout.insert-hint`
-- type: `null or (submodule)`
-- default: `null`
-
-> [!important]
-> This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
-> Otherwise, your system might fail to build.
 
 
 The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
