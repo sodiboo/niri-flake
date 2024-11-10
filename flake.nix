@@ -7,16 +7,16 @@
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    niri-unstable.url = "github:YaLTeR/niri";
-    niri-unstable.flake = false;
-
     niri-stable.url = "github:YaLTeR/niri/v0.1.9";
-    niri-stable.flake = false;
+    niri-unstable.url = "github:YaLTeR/niri";
 
     xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.5";
-    xwayland-satellite-stable.flake = false;
-
     xwayland-satellite-unstable.url = "github:Supreeeme/xwayland-satellite";
+
+    # they do all have flakes, but we specifically want just the Rust sources and no flakes.
+    niri-stable.flake = false;
+    niri-unstable.flake = false;
+    xwayland-satellite-stable.flake = false;
     xwayland-satellite-unstable.flake = false;
   };
 
