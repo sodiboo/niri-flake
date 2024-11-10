@@ -261,6 +261,12 @@
     make-package-set = pkgs: {
       niri-stable = pkgs.callPackage make-niri {
         src = inputs.niri-stable;
+        patches = [
+          (pkgs.fetchpatch {
+            url = "https://github.com/YaLTeR/niri/commit/1951d2a9f262196a706f2645efb18dac3c4d6839.patch";
+            hash = "sha256-P/0LMYZ4HD0iG264BMnK4sLNNLmtbefF230GyC+t6qg=";
+          })
+        ];
       };
       niri-unstable = pkgs.callPackage make-niri {
         src = inputs.niri-unstable;

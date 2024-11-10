@@ -18,9 +18,9 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.10`](https://github.com/YaLTeR/niri/releases/tag/v0.1.10) with no additional patches.
+Currently, this is release [`v0.1.10`](https://github.com/YaLTeR/niri/releases/tag/v0.1.10) plus the following patches:
 
-
+- [`1951d2a9f262196a706f2645efb18dac3c4d6839`](https://github.com/YaLTeR/niri/commit/1951d2a9f262196a706f2645efb18dac3c4d6839)
 
 
 To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`](#overlaysniri).
