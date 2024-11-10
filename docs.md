@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.9`](https://github.com/YaLTeR/niri/releases/tag/v0.1.9) with no additional patches.
+Currently, this is release [`v0.1.10`](https://github.com/YaLTeR/niri/releases/tag/v0.1.10) with no additional patches.
 
 
 
@@ -346,7 +346,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
-- `power-on-monitors` (only on niri-unstable)
+- `power-on-monitors`
 - `toggle-debug-tint`
 - `debug-toggle-opaque-regions`
 - `debug-toggle-damage`

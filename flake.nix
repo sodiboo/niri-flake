@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
 
-    niri-stable.url = "github:YaLTeR/niri/v0.1.9";
+    niri-stable.url = "github:YaLTeR/niri/v0.1.10";
     niri-unstable.url = "github:YaLTeR/niri";
 
     xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.5";
@@ -166,10 +166,11 @@
           + nixpkgs.lib.optionalString (withDbus || withScreencastSupport || withSystemd) ''
             install -Dm0644 resources/niri-portals.conf -t $out/share/xdg-desktop-portal
           ''
-          # TODO: also install the dinit session files? does *anyone* even use this with dinit?
-          # also, wait until next release to do this, because this build needs to fit stable and unstable niri.
           + nixpkgs.lib.optionalString withSystemd ''
             install -Dm0644 resources/niri{-shutdown.target,.service} -t $out/lib/systemd/user
+          ''
+          + nixpkgs.lib.optionalString withDinit ''
+            install -Dm0644 resources/dinit/niri{,-shutdown} -t $out/lib/dinit.d/user
           '';
 
         postFixup = ''
