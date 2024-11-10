@@ -5,8 +5,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
 
-    flake-parts.url = "github:hercules-ci/flake-parts";
-
     niri-stable.url = "github:YaLTeR/niri/v0.1.9";
     niri-unstable.url = "github:YaLTeR/niri";
 
@@ -22,7 +20,6 @@
 
   outputs = inputs @ {
     self,
-    flake-parts,
     nixpkgs,
     nixpkgs-stable,
     ...
@@ -294,273 +291,269 @@
             nixos-unstable = nixpkgs;
             "nixos-24.05" = nixpkgs-stable;
           }));
-  in
-    flake-parts.lib.mkFlake {inherit inputs;} {
-      systems = ["x86_64-linux" "aarch64-linux"];
-      perSystem = {
-        self',
-        inputs',
-        config,
-        system,
-        ...
-      }: {
-        packages = make-package-set inputs'.nixpkgs.legacyPackages;
 
-        apps =
-          (
-            builtins.mapAttrs (
-              name: package: {
-                type = "app";
-                program = nixpkgs.lib.getExe package;
+    systems = ["x86_64-linux" "aarch64-linux"];
+
+    forAllSystems = nixpkgs.lib.genAttrs systems;
+  in {
+    packages = forAllSystems (system: make-package-set inputs.nixpkgs.legacyPackages.${system});
+
+    apps = forAllSystems (system:
+      (
+        builtins.mapAttrs (
+          name: package: {
+            type = "app";
+            program = nixpkgs.lib.getExe package;
+          }
+        ) (make-package-set inputs.nixpkgs.legacyPackages.${system})
+      )
+      // {
+        default = self.apps.${system}.niri-stable;
+      });
+
+    checks = forAllSystems (system: let
+      test-nixos-for = nixpkgs: modules:
+        (nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules =
+            [
+              {
+                # This doesn't need to be a bootable system. It just needs to build.
+                system.stateVersion = "23.11";
+                fileSystems."/".fsType = "ext4";
+                fileSystems."/".device = "/dev/sda1";
+                boot.loader.systemd-boot.enable = true;
               }
-            ) (make-package-set inputs'.nixpkgs.legacyPackages)
-          )
-          // {
-            default = self'.apps.niri-stable;
-          };
-
-        checks = let
-          test-nixos-for = nixpkgs: modules:
-            (nixpkgs.lib.nixosSystem {
-              inherit system;
-              modules =
-                [
-                  {
-                    # This doesn't need to be a bootable system. It just needs to build.
-                    system.stateVersion = "23.11";
-                    fileSystems."/".fsType = "ext4";
-                    fileSystems."/".device = "/dev/sda1";
-                    boot.loader.systemd-boot.enable = true;
-                  }
-                ]
-                ++ modules;
-            })
-            .config
-            .system
-            .build
-            .toplevel;
-        in {
-          cached-packages = cached-packages-for system;
-          empty-config-valid-stable = let
-            eval = nixpkgs.lib.evalModules {
-              modules = [
-                settings.module
-                {
-                  config.programs.niri.settings = {};
-                }
-              ];
-            };
-          in
-            validated-config-for inputs'.nixpkgs.legacyPackages self'.packages.niri-stable eval.config.programs.niri.finalConfig;
-
-          nixos-unstable = test-nixos-for nixpkgs [
-            self.nixosModules.niri
+            ]
+            ++ modules;
+        })
+        .config
+        .system
+        .build
+        .toplevel;
+    in {
+      cached-packages = cached-packages-for system;
+      empty-config-valid-stable = let
+        eval = nixpkgs.lib.evalModules {
+          modules = [
+            settings.module
             {
-              programs.niri.enable = true;
-            }
-          ];
-
-          nixos-stable = test-nixos-for nixpkgs-stable [
-            self.nixosModules.niri
-            {
-              programs.niri.enable = true;
+              config.programs.niri.settings = {};
             }
           ];
         };
+      in
+        validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable eval.config.programs.niri.finalConfig;
 
-        devShells.default = inputs'.nixpkgs.legacyPackages.mkShell {
-          packages = with inputs'.nixpkgs.legacyPackages; [
-            just
-            fish
-            fd
-            entr
-            moreutils
-          ];
+      nixos-unstable = test-nixos-for nixpkgs [
+        self.nixosModules.niri
+        {
+          programs.niri.enable = true;
+        }
+      ];
 
-          shellHook = ''
-            just hook 2>/dev/null
-          '';
+      nixos-stable = test-nixos-for nixpkgs-stable [
+        self.nixosModules.niri
+        {
+          programs.niri.enable = true;
+        }
+      ];
+    });
+
+    devShells = forAllSystems (system: let
+      pkgs = inputs.nixpkgs.legacyPackages.${system};
+    in {
+      default = pkgs.mkShell {
+        packages = with pkgs; [
+          just
+          fish
+          fd
+          entr
+          moreutils
+        ];
+
+        shellHook = ''
+          just hook 2>/dev/null
+        '';
+      };
+    });
+
+    formatter = forAllSystems (system: inputs.nixpkgs.legacyPackages.${system}.alejandra);
+
+    overlays.niri = final: prev: (make-package-set final
+      // {
+        xwayland-satellite-nixpkgs = nixpkgs.lib.warn "please change pkgs.xwayland-satellite-nixpkgs -> pkgs.xwayland-satellite" prev.xwayland-satellite;
+      });
+    lib = {
+      inherit kdl;
+      internal = {
+        inherit make-package-set validated-config-for;
+        package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
+        docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
+        settings-module = settings.module;
+      };
+    };
+    homeModules.stylix = stylix-module;
+    homeModules.config = {
+      config,
+      pkgs,
+      ...
+    }: let
+      cfg = config.programs.niri;
+    in {
+      imports = [
+        settings.module
+      ];
+
+      options.programs.niri = {
+        package = nixpkgs.lib.mkOption {
+          type = nixpkgs.lib.types.package;
+          default = (make-package-set pkgs).niri-stable;
         };
-
-        formatter = inputs'.nixpkgs.legacyPackages.alejandra;
       };
 
-      flake = {
-        overlays.niri = final: prev: (make-package-set final
-          // {
-            xwayland-satellite-nixpkgs = nixpkgs.lib.warn "please change pkgs.xwayland-satellite-nixpkgs -> pkgs.xwayland-satellite" prev.xwayland-satellite;
-          });
-        lib = {
-          inherit kdl;
-          internal = {
-            inherit make-package-set validated-config-for;
-            package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
-            docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
-            settings-module = settings.module;
-          };
-        };
-        homeModules.stylix = stylix-module;
-        homeModules.config = {
-          config,
-          pkgs,
+      config.lib.niri = {
+        actions = nixpkgs.lib.mergeAttrsList (map ({
+          name,
+          fn,
           ...
-        }: let
-          cfg = config.programs.niri;
-        in {
-          imports = [
-            settings.module
-          ];
+        }: {
+          ${name} = fn;
+        }) (binds cfg.package.src));
+      };
 
-          options.programs.niri = {
-            package = nixpkgs.lib.mkOption {
-              type = nixpkgs.lib.types.package;
-              default = (make-package-set pkgs).niri-stable;
-            };
-          };
+      config.xdg.configFile.niri-config = {
+        enable = cfg.finalConfig != null;
+        target = "niri/config.kdl";
+        source = validated-config-for pkgs cfg.package cfg.finalConfig;
+      };
+    };
+    nixosModules.niri = {
+      config,
+      options,
+      pkgs,
+      ...
+    }: let
+      cfg = config.programs.niri;
+    in {
+      # The module from this flake predates the module in nixpkgs by a long shot.
+      # To avoid conflicts, we disable the nixpkgs module.
+      # Eventually, this module (e.g. `niri.nixosModules.niri`) will be deprecated
+      # in favour of other modules that aren't redundant with nixpkgs (and don't yet exist)
+      disabledModules = ["programs/wayland/niri.nix"];
 
-          config.lib.niri = {
-            actions = nixpkgs.lib.mergeAttrsList (map ({
-              name,
-              fn,
-              ...
-            }: {
-              ${name} = fn;
-            }) (binds cfg.package.src));
-          };
-
-          config.xdg.configFile.niri-config = {
-            enable = cfg.finalConfig != null;
-            target = "niri/config.kdl";
-            source = validated-config-for pkgs cfg.package cfg.finalConfig;
-          };
+      options.programs.niri = {
+        enable = nixpkgs.lib.mkEnableOption "niri";
+        package = nixpkgs.lib.mkOption {
+          type = nixpkgs.lib.types.package;
+          default = (make-package-set pkgs).niri-stable;
         };
-        nixosModules.niri = {
-          config,
-          options,
-          pkgs,
-          ...
-        }: let
-          cfg = config.programs.niri;
-        in {
-          # The module from this flake predates the module in nixpkgs by a long shot.
-          # To avoid conflicts, we disable the nixpkgs module.
-          # Eventually, this module (e.g. `niri.nixosModules.niri`) will be deprecated
-          # in favour of other modules that aren't redundant with nixpkgs (and don't yet exist)
-          disabledModules = ["programs/wayland/niri.nix"];
+      };
 
-          options.programs.niri = {
-            enable = nixpkgs.lib.mkEnableOption "niri";
-            package = nixpkgs.lib.mkOption {
-              type = nixpkgs.lib.types.package;
-              default = (make-package-set pkgs).niri-stable;
-            };
+      options.niri-flake.cache.enable = nixpkgs.lib.mkOption {
+        type = nixpkgs.lib.types.bool;
+        default = true;
+      };
+
+      config = nixpkgs.lib.mkMerge [
+        (nixpkgs.lib.mkIf config.niri-flake.cache.enable {
+          nix.settings = {
+            substituters = ["https://niri.cachix.org"];
+            trusted-public-keys = ["niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="];
           };
-
-          options.niri-flake.cache.enable = nixpkgs.lib.mkOption {
-            type = nixpkgs.lib.types.bool;
-            default = true;
+        })
+        {
+          environment.systemPackages = [pkgs.xdg-utils];
+          xdg = {
+            autostart.enable = nixpkgs.lib.mkDefault true;
+            menus.enable = nixpkgs.lib.mkDefault true;
+            mime.enable = nixpkgs.lib.mkDefault true;
+            icons.enable = nixpkgs.lib.mkDefault true;
           };
-
-          config = nixpkgs.lib.mkMerge [
-            (nixpkgs.lib.mkIf config.niri-flake.cache.enable {
-              nix.settings = {
-                substituters = ["https://niri.cachix.org"];
-                trusted-public-keys = ["niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="];
-              };
-            })
-            {
-              environment.systemPackages = [pkgs.xdg-utils];
-              xdg = {
-                autostart.enable = nixpkgs.lib.mkDefault true;
-                menus.enable = nixpkgs.lib.mkDefault true;
-                mime.enable = nixpkgs.lib.mkDefault true;
-                icons.enable = nixpkgs.lib.mkDefault true;
-              };
+        }
+        (nixpkgs.lib.mkIf cfg.enable {
+          services =
+            if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
+            then {
+              displayManager.sessionPackages = [cfg.package];
             }
-            (nixpkgs.lib.mkIf cfg.enable {
-              services =
-                if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
-                then {
-                  displayManager.sessionPackages = [cfg.package];
-                }
-                else {
-                  xserver.displayManager.sessionPackages = [cfg.package];
-                };
-              hardware =
-                if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
-                then {
-                  graphics.enable = nixpkgs.lib.mkDefault true;
-                }
-                else {
-                  opengl.enable = nixpkgs.lib.mkDefault true;
-                };
-            })
-            (nixpkgs.lib.mkIf cfg.enable {
-              environment.systemPackages = [cfg.package];
-              xdg.portal = {
-                enable = true;
-                extraPortals = nixpkgs.lib.mkIf (
-                  !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
-                ) [pkgs.xdg-desktop-portal-gnome];
-                configPackages = [cfg.package];
-              };
-
-              security.polkit.enable = true;
-              services.gnome.gnome-keyring.enable = true;
-              systemd.user.services.niri-flake-polkit = {
-                description = "PolicyKit Authentication Agent provided by niri-flake";
-                wantedBy = ["niri.service"];
-                after = ["graphical-session.target"];
-                partOf = ["graphical-session.target"];
-                serviceConfig = {
-                  Type = "simple";
-                  ExecStart = "${pkgs.libsForQt5.polkit-kde-agent}/libexec/polkit-kde-authentication-agent-1";
-                  Restart = "on-failure";
-                  RestartSec = 1;
-                  TimeoutStopSec = 10;
-                };
-              };
-
-              security.pam.services.swaylock = {};
-              programs.dconf.enable = nixpkgs.lib.mkDefault true;
-              fonts.enableDefaultPackages = nixpkgs.lib.mkDefault true;
-            })
-            (nixpkgs.lib.optionalAttrs (options ? home-manager) {
-              home-manager.sharedModules =
-                [
-                  self.homeModules.config
-                  {programs.niri.package = nixpkgs.lib.mkForce cfg.package;}
-                ]
-                ++ nixpkgs.lib.optionals (options ? stylix) [self.homeModules.stylix];
-            })
-          ];
-        };
-        homeModules.niri = {
-          config,
-          pkgs,
-          ...
-        }: let
-          cfg = config.programs.niri;
-        in {
-          imports = [
-            self.homeModules.config
-          ];
-          options.programs.niri = {
-            enable = nixpkgs.lib.mkEnableOption "niri";
+            else {
+              xserver.displayManager.sessionPackages = [cfg.package];
+            };
+          hardware =
+            if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
+            then {
+              graphics.enable = nixpkgs.lib.mkDefault true;
+            }
+            else {
+              opengl.enable = nixpkgs.lib.mkDefault true;
+            };
+        })
+        (nixpkgs.lib.mkIf cfg.enable {
+          environment.systemPackages = [cfg.package];
+          xdg.portal = {
+            enable = true;
+            extraPortals = nixpkgs.lib.mkIf (
+              !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
+            ) [pkgs.xdg-desktop-portal-gnome];
+            configPackages = [cfg.package];
           };
 
-          config = nixpkgs.lib.mkIf cfg.enable {
-            home.packages = [cfg.package];
-            services.gnome-keyring.enable = true;
-            xdg.portal = {
-              enable = true;
-              extraPortals = nixpkgs.lib.mkIf (
-                !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
-              ) [pkgs.xdg-desktop-portal-gnome];
-              configPackages = [cfg.package];
+          security.polkit.enable = true;
+          services.gnome.gnome-keyring.enable = true;
+          systemd.user.services.niri-flake-polkit = {
+            description = "PolicyKit Authentication Agent provided by niri-flake";
+            wantedBy = ["niri.service"];
+            after = ["graphical-session.target"];
+            partOf = ["graphical-session.target"];
+            serviceConfig = {
+              Type = "simple";
+              ExecStart = "${pkgs.libsForQt5.polkit-kde-agent}/libexec/polkit-kde-authentication-agent-1";
+              Restart = "on-failure";
+              RestartSec = 1;
+              TimeoutStopSec = 10;
             };
           };
+
+          security.pam.services.swaylock = {};
+          programs.dconf.enable = nixpkgs.lib.mkDefault true;
+          fonts.enableDefaultPackages = nixpkgs.lib.mkDefault true;
+        })
+        (nixpkgs.lib.optionalAttrs (options ? home-manager) {
+          home-manager.sharedModules =
+            [
+              self.homeModules.config
+              {programs.niri.package = nixpkgs.lib.mkForce cfg.package;}
+            ]
+            ++ nixpkgs.lib.optionals (options ? stylix) [self.homeModules.stylix];
+        })
+      ];
+    };
+    homeModules.niri = {
+      config,
+      pkgs,
+      ...
+    }: let
+      cfg = config.programs.niri;
+    in {
+      imports = [
+        self.homeModules.config
+      ];
+      options.programs.niri = {
+        enable = nixpkgs.lib.mkEnableOption "niri";
+      };
+
+      config = nixpkgs.lib.mkIf cfg.enable {
+        home.packages = [cfg.package];
+        services.gnome-keyring.enable = true;
+        xdg.portal = {
+          enable = true;
+          extraPortals = nixpkgs.lib.mkIf (
+            !cfg.package.cargoBuildNoDefaultFeatures || builtins.elem "xdp-gnome-screencast" cfg.package.cargoBuildFeatures
+          ) [pkgs.xdg-desktop-portal-gnome];
+          configPackages = [cfg.package];
         };
       };
     };
+  };
 }
