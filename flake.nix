@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
 
-    niri-stable.url = "github:YaLTeR/niri/v0.1.10";
+    niri-stable.url = "github:YaLTeR/niri/v0.1.10.1";
     niri-unstable.url = "github:YaLTeR/niri";
 
     xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.5";
@@ -261,12 +261,6 @@
     make-package-set = pkgs: {
       niri-stable = pkgs.callPackage make-niri {
         src = inputs.niri-stable;
-        patches = [
-          (pkgs.fetchpatch {
-            url = "https://github.com/YaLTeR/niri/commit/1951d2a9f262196a706f2645efb18dac3c4d6839.patch";
-            hash = "sha256-P/0LMYZ4HD0iG264BMnK4sLNNLmtbefF230GyC+t6qg=";
-          })
-        ];
       };
       niri-unstable = pkgs.callPackage make-niri {
         src = inputs.niri-unstable;
