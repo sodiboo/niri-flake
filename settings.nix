@@ -2225,6 +2225,11 @@
         then contents
         else flag disabled;
 
+      toggle' = disabled: cfg: contents: [
+        (flag' disabled (cfg.enable == false))
+        contents
+      ];
+
       pointer = cfg: [
         (flag' "natural-scroll" cfg.natural-scroll)
         (flag' "middle-emulation" cfg.middle-emulation)
@@ -2406,7 +2411,7 @@
 
       (lib.mapAttrsToList (name: cfg:
         node "output" name [
-          (toggle "off" cfg [
+          (toggle' "off" cfg [
             (nullable leaf "background-color" cfg.background-color)
             (nullable leaf "scale" cfg.scale)
             (map' leaf transform "transform" cfg.transform)
