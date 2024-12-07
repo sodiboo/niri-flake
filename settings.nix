@@ -2457,7 +2457,10 @@
         (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
       ])
 
-      (plain "environment" (lib.mapAttrsToList leaf cfg.environment))
+      (plain "environment" (lib.mapAttrsToList leaf (cfg.environment // {
+        _JAVA_AWT_WM_NONREPARENTING = "1"; # https://github.com/YaLTeR/niri/wiki/Application-Issues#ghidra
+      })))
+
       (plain "binds" (lib.mapAttrsToList bind cfg.binds))
       (nullable plain "switch-events" (
         let
