@@ -2295,9 +2295,9 @@
             (flag' "off" (cfg.enable == false))
             (nullable leaf "width" cfg.width)
             (nullable leaf "active-color" cfg.active.color or null)
-            (nullable leaf "active-gradient" cfg.active.gradient or null)
+            (nullable gradient' "active-gradient" cfg.active.gradient or null)
             (nullable leaf "inactive-color" cfg.inactive.color or null)
-            (nullable leaf "inactive-gradient" cfg.inactive.gradient or null)
+            (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
           ]
         );
 
