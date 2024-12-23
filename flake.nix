@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
 
     niri-stable.url = "github:YaLTeR/niri/v0.1.10.1";
     niri-unstable.url = "github:YaLTeR/niri";
@@ -290,7 +290,7 @@
             ln -s ${combined-closure name nixpkgs'.legacyPackages.${system}} $out/${name}
           '') {
             nixos-unstable = nixpkgs;
-            "nixos-24.05" = nixpkgs-stable;
+            "nixos-24.11" = nixpkgs-stable;
           }));
 
     systems = ["x86_64-linux" "aarch64-linux"];
