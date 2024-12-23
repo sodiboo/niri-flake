@@ -156,6 +156,15 @@
           ]}
         '';
 
+        # ever since this commit:
+        # https://github.com/YaLTeR/niri/commit/771ea1e81557ffe7af9cbdbec161601575b64d81
+        # niri now runs an actual instance of the real compositor (with a mock backend) during tests
+        # and thus creates a real socket file in the runtime dir.
+        # this is fine for our build, we just need to make sure it has a directory to write to.
+        preCheck = ''
+          export XDG_RUNTIME_DIR="$(mktemp -d)"
+        '';
+
         postInstall =
           # niri.desktop calls `niri-session` and that executable only works with systemd or dinit
           nixpkgs.lib.optionalString (withSystemd || withDinit) ''
