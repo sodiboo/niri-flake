@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`4e357e9`](https://github.com/YaLTeR/niri/tree/4e357e9659e5aafeec3cdeb18581698716d97a78) which was authored on `2024-12-27 12:42:56`.
+Currently, this is exactly commit [`08fb943`](https://github.com/YaLTeR/niri/tree/08fb9435fda1b5109d8414b6aaec980ab4068148) which was authored on `2024-12-30 17:12:37`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -391,6 +391,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `consume-window-into-column`
 - `expel-window-from-column`
 - `center-column`
+- `center-window` (only on niri-unstable)
 - `focus-workspace-down`
 - `focus-workspace-up`
 - `λ focus-workspace :: u8 | string`
@@ -415,9 +416,11 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-column-to-monitor-right`
 - `move-column-to-monitor-down`
 - `move-column-to-monitor-up`
+- `λ set-window-width :: size-change` (only on niri-unstable)
 - `λ set-window-height :: size-change`
 - `reset-window-height`
 - `switch-preset-column-width`
+- `switch-preset-window-width` (only on niri-unstable)
 - `switch-preset-window-height`
 - `maximize-column`
 - `λ set-column-width :: size-change`
@@ -427,6 +430,12 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-workspace-to-monitor-right`
 - `move-workspace-to-monitor-down`
 - `move-workspace-to-monitor-up`
+- `toggle-window-floating` (only on niri-unstable)
+- `move-window-to-floating` (only on niri-unstable)
+- `move-window-to-tiling` (only on niri-unstable)
+- `focus-floating` (only on niri-unstable)
+- `focus-tiling` (only on niri-unstable)
+- `switch-focus-between-floating-and-tiling` (only on niri-unstable)
 
 
 <!-- sorting key: programs.niri.settings.a.binds.allow-when-locked -->
