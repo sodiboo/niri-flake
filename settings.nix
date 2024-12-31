@@ -487,6 +487,13 @@
               For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
             '';
           };
+        is-floating =
+          nullable types.bool
+          // {
+            description = ''
+              When not-null, for this field to match a window, the value must match whether the window is floating (true) or tiled (false).
+            '';
+          };
       }
       {
         at-startup =
@@ -1895,6 +1902,19 @@
                       If the final value of this field is null, then the client gets to decide if this window will open in fullscreen.
                     '';
                   };
+                open-floating =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Whether to open this window as floating.
+
+                      If the final value of this field is true, then this window will always be forced to open as floating.
+
+                      If the final value of this field is false, then this window is never allowed to open as floating.
+
+                      If the final value of this field is null, then niri will decide whether to open the window as floating or as tiled.
+                    '';
+                  };
               }
               {
                 block-out-from =
@@ -2444,6 +2464,7 @@
           (nullable leaf "open-on-workspace" cfg.open-on-workspace)
           (nullable leaf "open-maximized" cfg.open-maximized)
           (nullable leaf "open-fullscreen" cfg.open-fullscreen)
+          (nullable leaf "open-floating" cfg.open-floating)
           (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
           (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
           (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
