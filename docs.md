@@ -2097,6 +2097,14 @@ Every column has exactly one active-in-column window. If it is the active column
 The active-in-column window is the window that was last focused in that column. When you switch focus to a column, the active-in-column window will be the new focused window.
 
 
+<!-- sorting key: programs.niri.settings.m.window-rules.a.matches.b.is-floating -->
+## `programs.niri.settings.window-rules.*.matches.*.is-floating`
+- type: `null or boolean`
+- default: `null`
+
+When not-null, for this field to match a window, the value must match whether the window is floating (true) or tiled (false).
+
+
 <!-- sorting key: programs.niri.settings.m.window-rules.a.matches.b.is-focused -->
 ## `programs.niri.settings.window-rules.*.matches.*.is-focused`
 - type: `null or boolean`
@@ -2170,6 +2178,14 @@ Every column has exactly one active-in-column window. If it is the active column
 The active-in-column window is the window that was last focused in that column. When you switch focus to a column, the active-in-column window will be the new focused window.
 
 
+<!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.b.is-floating -->
+## `programs.niri.settings.window-rules.*.excludes.*.is-floating`
+- type: `null or boolean`
+- default: `null`
+
+When not-null, for this field to match a window, the value must match whether the window is floating (true) or tiled (false).
+
+
 <!-- sorting key: programs.niri.settings.m.window-rules.b.excludes.b.is-focused -->
 ## `programs.niri.settings.window-rules.*.excludes.*.is-focused`
 - type: `null or boolean`
@@ -2214,6 +2230,20 @@ The width of the column in logical pixels
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.c.open-floating -->
+## `programs.niri.settings.window-rules.*.open-floating`
+- type: `null or boolean`
+- default: `null`
+
+Whether to open this window as floating.
+
+If the final value of this field is true, then this window will always be forced to open as floating.
+
+If the final value of this field is false, then this window is never allowed to open as floating.
+
+If the final value of this field is null, then niri will decide whether to open the window as floating or as tiled.
 
 
 <!-- sorting key: programs.niri.settings.m.window-rules.c.open-fullscreen -->
