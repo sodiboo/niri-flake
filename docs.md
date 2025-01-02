@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`0dbd14e`](https://github.com/YaLTeR/niri/tree/0dbd14ebdc5299936c6dfa3c94edce5cc805a808) which was authored on `2025-01-02 08:50:51`.
+Currently, this is exactly commit [`c17d4dc`](https://github.com/YaLTeR/niri/tree/c17d4dc050327c974535369b0b70726b269fd82b) which was authored on `2025-01-02 12:15:23`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -408,14 +408,20 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-monitor-right`
 - `focus-monitor-down`
 - `focus-monitor-up`
+- `focus-monitor-previous` (only on niri-unstable)
+- `focus-monitor-next` (only on niri-unstable)
 - `move-window-to-monitor-left`
 - `move-window-to-monitor-right`
 - `move-window-to-monitor-down`
 - `move-window-to-monitor-up`
+- `move-window-to-monitor-previous` (only on niri-unstable)
+- `move-window-to-monitor-next` (only on niri-unstable)
 - `move-column-to-monitor-left`
 - `move-column-to-monitor-right`
 - `move-column-to-monitor-down`
 - `move-column-to-monitor-up`
+- `move-column-to-monitor-previous` (only on niri-unstable)
+- `move-column-to-monitor-next` (only on niri-unstable)
 - `λ set-window-width :: size-change` (only on niri-unstable)
 - `λ set-window-height :: size-change`
 - `reset-window-height`
@@ -430,6 +436,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-workspace-to-monitor-right`
 - `move-workspace-to-monitor-down`
 - `move-workspace-to-monitor-up`
+- `move-workspace-to-monitor-previous` (only on niri-unstable)
+- `move-workspace-to-monitor-next` (only on niri-unstable)
 - `toggle-window-floating` (only on niri-unstable)
 - `move-window-to-floating` (only on niri-unstable)
 - `move-window-to-tiling` (only on niri-unstable)
