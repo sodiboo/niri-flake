@@ -1622,7 +1622,7 @@ For more details, see [`<decoration>.color`](#decorationcolor).
 - type: `boolean`
 - default: `false`
 
-This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
 <!-- sorting key: programs.niri.settings.j.layout.d.center-focused-column -->
