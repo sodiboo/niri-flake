@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`8412bfb`](https://github.com/YaLTeR/niri/tree/8412bfb8136544549e3174fd48859d0be0090c78) which was authored on `2025-01-09 07:49:24`.
+Currently, this is exactly commit [`142e574`](https://github.com/YaLTeR/niri/tree/142e57450dae5eba25b7f306d3c6dc9f51518a3d) which was authored on `2025-01-09 08:55:01`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -390,6 +390,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `consume-or-expel-window-right`
 - `consume-window-into-column`
 - `expel-window-from-column`
+- `swap-window-left` (only on niri-unstable)
+- `swap-window-right` (only on niri-unstable)
 - `center-column`
 - `center-window` (only on niri-unstable)
 - `focus-workspace-down`
