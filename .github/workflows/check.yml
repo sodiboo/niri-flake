@@ -37,4 +37,8 @@ jobs:
     - uses: cachix/cachix-action@v14
       with:
         name: niri
-    - run: nix eval --raw .#lib.internal.docs-markdown | diff docs.md -
+    - run: |
+        nix eval --raw .#lib.internal.docs-markdown > docs.fresh.md
+        cat docs.fresh.md
+        cat docs.md
+        diff docs.md docs.fresh.md
