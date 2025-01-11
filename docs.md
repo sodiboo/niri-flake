@@ -1668,6 +1668,16 @@ The width of the column in logical pixels
 The width of the column as a proportion of the screen's width
 
 
+<!-- sorting key: programs.niri.settings.j.layout.d.empty-workspace-above-first -->
+## `programs.niri.settings.layout.empty-workspace-above-first`
+- type: `boolean`
+- default: `false`
+
+Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really  is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+
+When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
+
+
 <!-- sorting key: programs.niri.settings.j.layout.d.gaps -->
 ## `programs.niri.settings.layout.gaps`
 - type: `floating point number or signed integer`

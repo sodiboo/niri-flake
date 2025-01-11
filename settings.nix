@@ -1624,6 +1624,15 @@
                   This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
                 '';
               };
+            empty-workspace-above-first =
+              optional types.bool false
+              // {
+                description = ''
+                  Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really  is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+
+                  When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
+                '';
+              };
             gaps =
               optional float-or-int 16
               // {
@@ -2581,6 +2590,7 @@
         (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
         (leaf "center-focused-column" cfg.layout.center-focused-column)
         (flag' "always-center-single-column" cfg.layout.always-center-single-column)
+        (flag' "empty-workspace-above-first" cfg.layout.empty-workspace-above-first)
       ])
 
       (plain "cursor" [
