@@ -2619,7 +2619,38 @@ Sets the minimum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
 
 
-<!-- sorting key: programs.niri.settings.m.window-rules.f.variable-refresh-rate -->
+<!-- sorting key: programs.niri.settings.m.window-rules.f.default-floating-position -->
+## `programs.niri.settings.window-rules.*.default-floating-position`
+- type: `null or (submodule)`
+- default: `null`
+
+The default position for this window when it enters the floating layout.
+
+If a window is created as floating, it will be placed at this position.
+
+If a window is created as tiling, then later made floating, it will be placed at this position.
+
+If a window has already been placed as floating through one of the above methods, and moved back to the tiling layout, then this option has no effect the next time it enters the floating layout. It will be placed at the same position it was last time.
+
+The `x` and `y` fields are the distances from the edge of the screen to the edge of the window, in logical pixels. The `relative-to` field determines which two edges of the window and screen that these distances are measured from.
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.f.default-floating-position.relative-to -->
+## `programs.niri.settings.window-rules.*.default-floating-position.relative-to`
+- type: `one of "top-left", "top-right", "bottom-left", "bottom-right"`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.f.default-floating-position.x -->
+## `programs.niri.settings.window-rules.*.default-floating-position.x`
+- type: `floating point number or signed integer`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.f.default-floating-position.y -->
+## `programs.niri.settings.window-rules.*.default-floating-position.y`
+- type: `floating point number or signed integer`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.g.variable-refresh-rate -->
 ## `programs.niri.settings.window-rules.*.variable-refresh-rate`
 - type: `null or boolean`
 - default: `null`

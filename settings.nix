@@ -2056,6 +2056,27 @@
                   };
               })
               {
+                default-floating-position =
+                  nullable (record {
+                    x = required float-or-int;
+                    y = required float-or-int;
+                    relative-to = required (enum ["top-left" "top-right" "bottom-left" "bottom-right"]);
+                  })
+                  // {
+                    description = ''
+                      The default position for this window when it enters the floating layout.
+
+                      If a window is created as floating, it will be placed at this position.
+
+                      If a window is created as tiling, then later made floating, it will be placed at this position.
+
+                      If a window has already been placed as floating through one of the above methods, and moved back to the tiling layout, then this option has no effect the next time it enters the floating layout. It will be placed at the same position it was last time.
+
+                      The `x` and `y` fields are the distances from the edge of the screen to the edge of the window, in logical pixels. The `relative-to` field determines which two edges of the window and screen that these distances are measured from.
+                    '';
+                  };
+              }
+              {
                 variable-refresh-rate =
                   nullable types.bool
                   // {
@@ -2518,6 +2539,7 @@
           (nullable leaf "min-height" cfg.min-height)
           (nullable leaf "max-height" cfg.max-height)
           (nullable leaf "block-out-from" cfg.block-out-from)
+          (nullable leaf "default-floating-position" cfg.default-floating-position)
           (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
         ];
 
