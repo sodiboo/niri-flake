@@ -2236,11 +2236,14 @@ When true, this rule will match windows opened within the first 60 seconds of ni
 - type: `null or {} or (variant of: fixed | proportion)`
 - default: `null`
 
-By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
+The default width for new columns.
 
-If this option is not null, then its value will take priority over [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width) for windows matching this rule.
+If the final value of this option is null, it default to [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
 
-As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
+If the final value option is not null, then its value will take priority over [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width) for windows matching this rule.
+
+An empty attrset `{}` is not the same as null. When this is set to an empty attrset `{}`, windows will get to decide their initial width. When set to null, it represents that this particular window rule has no effect on the default width (and it should instead be taken from an earlier rule or the global default).
+
 
 
 <!-- sorting key: programs.niri.settings.m.window-rules.c.default-column-width.fixed -->
@@ -2255,6 +2258,38 @@ The width of the column in logical pixels
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.c.default-window-height -->
+## `programs.niri.settings.window-rules.*.default-window-height`
+- type: `null or {} or (variant of: fixed | proportion)`
+- default: `null`
+
+The default height for new floating windows.
+
+This does nothing if the window is not floating when it is created.
+
+There is no global default option for this in the layout section like for the column width. If the final value of this option is null, then it defaults to the empty attrset `{}`.
+
+If this is set to an empty attrset `{}`, then it effectively "unsets" the default height for this window rule evaluation, as opposed to `null` which doesn't change the value at all. Future rules may still set it to a value and unset it again as they wish.
+
+If the final value of this option is an empty attrset `{}`, then the client gets to decide the height of the window.
+
+If the final value of this option is not an empty attrset `{}`, and the window spawns as floating, then the window will be created with the specified height.
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.c.default-window-height.fixed -->
+## `programs.niri.settings.window-rules.*.default-window-height.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.c.default-window-height.proportion -->
+## `programs.niri.settings.window-rules.*.default-window-height.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
 
 
 <!-- sorting key: programs.niri.settings.m.window-rules.c.open-floating -->

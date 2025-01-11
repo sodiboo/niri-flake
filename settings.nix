@@ -202,6 +202,7 @@
       };
 
     default-width = emptyOr preset-width;
+    default-height = emptyOr preset-height;
 
     link-type = name:
       mkOptionType {
@@ -1849,11 +1850,31 @@
                   nullable default-width
                   // {
                     description = ''
-                      By default, when this option is null, then this window rule will not affect the default column width. If none of the applicable window rules have a nonnull value, it will be gotten from ${link' "programs.niri.settings.layout.default-column-width"}
+                      The default width for new columns.
 
-                      If this option is not null, then its value will take priority over ${link' "programs.niri.settings.layout.default-column-width"} for windows matching this rule.
+                      If the final value of this option is null, it default to ${link' "programs.niri.settings.layout.default-column-width"}
 
-                      As a reminder, an empty attrset `{}` is not the same as null. Here, null represents that this window rule has no effect on the default width, wheras `{}` represents "let the client choose".
+                      If the final value option is not null, then its value will take priority over ${link' "programs.niri.settings.layout.default-column-width"} for windows matching this rule.
+
+                      An empty attrset `{}` is not the same as null. When this is set to an empty attrset `{}`, windows will get to decide their initial width. When set to null, it represents that this particular window rule has no effect on the default width (and it should instead be taken from an earlier rule or the global default).
+
+                    '';
+                  };
+                default-window-height =
+                  nullable default-height
+                  // {
+                    description = ''
+                      The default height for new floating windows.
+
+                      This does nothing if the window is not floating when it is created.
+
+                      There is no global default option for this in the layout section like for the column width. If the final value of this option is null, then it defaults to the empty attrset `{}`.
+
+                      If this is set to an empty attrset `{}`, then it effectively "unsets" the default height for this window rule evaluation, as opposed to `null` which doesn't change the value at all. Future rules may still set it to a value and unset it again as they wish.
+
+                      If the final value of this option is an empty attrset `{}`, then the client gets to decide the height of the window.
+
+                      If the final value of this option is not an empty attrset `{}`, and the window spawns as floating, then the window will be created with the specified height.
                     '';
                   };
                 open-on-output =
@@ -2460,6 +2481,7 @@
           (map (leaf "match") (map opt-props cfg.matches))
           (map (leaf "exclude") (map opt-props cfg.excludes))
           (nullable preset-sizes "default-column-width" cfg.default-column-width)
+          (nullable preset-sizes "default-window-height" cfg.default-window-height)
           (nullable leaf "open-on-output" cfg.open-on-output)
           (nullable leaf "open-on-workspace" cfg.open-on-workspace)
           (nullable leaf "open-maximized" cfg.open-maximized)
