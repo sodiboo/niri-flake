@@ -1936,6 +1936,25 @@
                       If the final value of this field is null, then niri will decide whether to open the window as floating or as tiled.
                     '';
                   };
+
+                open-focused =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Whether to focus this window when it is opened.
+
+                      If the final value of this field is null, then the window will be focused based on several factors:
+
+                      - If it provided a valid activation token that hasn't expired, it will be focused.
+                      - If the strict activation policy is enabled (not by default), the procedure ends here. It will be focused if and only if the activation token is valid.
+                      - Otherwise, if no valid activation token was presented, but the window is a dialog, it will open next to its parent and be focused anyways.
+                      - If the window is not a dialog, it will be focused if there is no fullscreen window; we don't want to steal its focus unless a dialog belongs to it.
+
+                      (a dialog here means a toplevel surface that has a non-null parent)
+
+                      If the final value of this field is not null, all of the above is ignored. Whether the window provides an activation token or not, doesn't matter. The window will be focused if and only if this field is true. If it is false, the window will not be focused, even if it provides a valid activation token.
+                    '';
+                  };
               }
               {
                 block-out-from =
@@ -2487,6 +2506,7 @@
           (nullable leaf "open-maximized" cfg.open-maximized)
           (nullable leaf "open-fullscreen" cfg.open-fullscreen)
           (nullable leaf "open-floating" cfg.open-floating)
+          (nullable leaf "open-focused" cfg.open-focused)
           (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
           (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
           (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)

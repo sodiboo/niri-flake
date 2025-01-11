@@ -2306,6 +2306,25 @@ If the final value of this field is false, then this window is never allowed to 
 If the final value of this field is null, then niri will decide whether to open the window as floating or as tiled.
 
 
+<!-- sorting key: programs.niri.settings.m.window-rules.c.open-focused -->
+## `programs.niri.settings.window-rules.*.open-focused`
+- type: `null or boolean`
+- default: `null`
+
+Whether to focus this window when it is opened.
+
+If the final value of this field is null, then the window will be focused based on several factors:
+
+- If it provided a valid activation token that hasn't expired, it will be focused.
+- If the strict activation policy is enabled (not by default), the procedure ends here. It will be focused if and only if the activation token is valid.
+- Otherwise, if no valid activation token was presented, but the window is a dialog, it will open next to its parent and be focused anyways.
+- If the window is not a dialog, it will be focused if there is no fullscreen window; we don't want to steal its focus unless a dialog belongs to it.
+
+(a dialog here means a toplevel surface that has a non-null parent)
+
+If the final value of this field is not null, all of the above is ignored. Whether the window provides an activation token or not, doesn't matter. The window will be focused if and only if this field is true. If it is false, the window will not be focused, even if it provides a valid activation token.
+
+
 <!-- sorting key: programs.niri.settings.m.window-rules.c.open-fullscreen -->
 ## `programs.niri.settings.window-rules.*.open-fullscreen`
 - type: `null or boolean`
