@@ -2022,15 +2022,18 @@ Window rules.
 
 A window rule will match based on [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) and [`window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). Both of these are lists of "match rules".
 
-A given match rule can match based on the `title` or `app-id` fields. For a given match rule to "match" a window, it must match on all fields.
+A given match rule can match based on one of several fields. For a given match rule to "match" a window, it must match on all fields.
 
 - The `title` field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
 
 - The `app-id` field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
 
+
+- The `at_startup` field, when non-null, will match a window based on whether it was opened within the first 60 seconds of niri starting up.
+
 - If a field is null, it will always match.
 
-For a given window rule to match a window, the above logic is employed to determine whether any given match rule matches, and the interactions between them decide whether the window rule as a whole will match. For a given window rule:
+For a given window rule to match a window, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the window rule as a whole will match. For a given window rule:
 
 - A given window is "considered" if any of the match rules in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) successfully match this window. If all of the match rules do not match this window, then that window will never match this window rule.
 
@@ -2126,7 +2129,7 @@ For a window to be focused, its surface must be focused. There is up to one focu
 - type: `null or boolean`
 - default: `null`
 
-When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
+When true, this rule will match windows opened within the first 60 seconds of niri starting up. When false, this rule will match windows opened *more than* 60 seconds after niri started up. This is useful for applying different rules to windows opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
 
 
 <!-- sorting key: programs.niri.settings.m.window-rules.b.excludes -->
@@ -2199,7 +2202,7 @@ For a window to be focused, its surface must be focused. There is up to one focu
 - type: `null or boolean`
 - default: `null`
 
-When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
+When true, this rule will match windows opened within the first 60 seconds of niri starting up. When false, this rule will match windows opened *more than* 60 seconds after niri started up. This is useful for applying different rules to windows opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
 
 
 <!-- sorting key: programs.niri.settings.m.window-rules.c.default-column-width -->
@@ -2283,7 +2286,7 @@ If the final value of this is a named workspace that does not exist, or it is nu
 - type: `null or one of "screencast", "screen-capture"`
 - default: `null`
 
-Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked from screen captures.
+Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
 
 This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
 
@@ -2530,7 +2533,171 @@ Keep in mind that the window itself always has a final say in its size, and may 
 Takes effect only when the window is on an output with [`outputs.*.variable-refresh-rate`](#programsnirisettingsoutputsvariable-refresh-rate) set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
 
 
-<!-- sorting key: programs.niri.settings.n.debug -->
+<!-- sorting key: programs.niri.settings.n.layer-rules -->
+## `programs.niri.settings.layer-rules`
+- type: `list of layer rule`
+
+Layer rules.
+
+A layer rule will match based on [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) and [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). Both of these are lists of "match rules".
+
+A given match rule can match based on one of several fields. For a given match rule to "match" a layer surface, it must match on all fields.
+
+- The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
+
+
+- The `at_startup` field, when non-null, will match a layer surface based on whether it was opened within the first 60 seconds of niri starting up.
+
+- If a field is null, it will always match.
+
+For a given layer rule to match a layer surface, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the layer rule as a whole will match. For a given layer rule:
+
+- A given layer surface is "considered" if any of the match rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) successfully match this layer surface. If all of the match rules do not match this layer surface, then that layer surface will never match this layer rule.
+
+- If [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) contains no match rules, it will match any layer surface and "consider" it for this layer rule.
+
+- If a given layer surface is "considered" for this layer rule according to the above rules, the selection can be further refined with [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). If any of the match rules in `excludes` match this layer surface, it will be rejected and this layer rule will not match the given layer surface.
+
+That is, a given layer rule will apply to a given layer surface if any of the entries in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) match that layer surface (or there are none), AND none of the entries in [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes) match that layer surface.
+
+All fields of a layer rule can be set to null, which represents that the field shall have no effect on the layer surface (and in general, the client is allowed to choose the initial value).
+
+To compute the final set of layer rules that apply to a given layer surface, each layer rule in this list is consdered in order.
+
+At first, every field is set to null.
+
+Then, for each applicable layer rule:
+
+- If a given field is null on this layer rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
+- If the given field is not null, it will overwrite the value from any previous rule.
+
+The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* layer rule that matches the given layer rule (not considering null entries, unless there are no non-null entries)
+
+If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.a.matches -->
+## `programs.niri.settings.layer-rules.*.matches`
+- type: `list of match rule`
+
+A list of rules to match layer surfaces.
+
+If any of these rules match a layer surface (or there are none), that layer rule will be considered for this layer surface. It can still be rejected by [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes)
+
+If all of the rules do not match a layer surface, then this layer rule will not apply to that layer surface.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.a.matches.a.namespace -->
+## `programs.niri.settings.layer-rules.*.matches.*.namespace`
+- type: `null or regular expression`
+- default: `null`
+
+A regular expression to match against the namespace of the layer surface.
+
+All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.a.matches.b.at-startup -->
+## `programs.niri.settings.layer-rules.*.matches.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.b.excludes -->
+## `programs.niri.settings.layer-rules.*.excludes`
+- type: `list of match rule`
+
+A list of rules to exclude layer surfaces.
+
+If any of these rules match a layer surface, then this layer rule will not apply to that layer surface, even if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
+
+If none of these rules match a layer surface, then this layer rule will not be rejected. It will apply to that layer surface if and only if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.b.excludes.a.namespace -->
+## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
+- type: `null or regular expression`
+- default: `null`
+
+A regular expression to match against the namespace of the layer surface.
+
+All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.b.excludes.b.at-startup -->
+## `programs.niri.settings.layer-rules.*.excludes.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.c.block-out-from -->
+## `programs.niri.settings.layer-rules.*.block-out-from`
+- type: `null or one of "screencast", "screen-capture"`
+- default: `null`
+
+Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
+
+This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+
+Some of this may be obvious, but in general, these invariants *should* hold true:
+- a window is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+- a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+- a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+
+There are three methods of screencapture in niri:
+
+1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+
+1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+
+1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
+
+| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
+| --- | :---: | :---: | :---: |
+| `null` | yes | yes | yes |
+| `"screencast"` | no | yes | yes |
+| `"screen-capture"` | no | no | yes |
+
+> [!caution]
+> **Streamers: Do not accidentally leak window contents via screenshots.**
+>
+> For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
+>
+> If you are a streamer, either:
+> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
+> - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
+
+> [!caution]
+> **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
+>
+> (and don't let malicious software run on your system in the first place, you silly goose)
+>
+> For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+>
+> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
+>
+> **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
+Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.c.opacity -->
+## `programs.niri.settings.layer-rules.*.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+The opacity of the window, ranging from 0 to 1.
+
+If the final value of this field is null, niri will fall back to a value of 1.
+
+Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
+
+
+<!-- sorting key: programs.niri.settings.o.debug -->
 ## `programs.niri.settings.debug`
 - type: `null or (attribute set of kdl arguments)`
 - default: `null`

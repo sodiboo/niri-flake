@@ -431,7 +431,10 @@
 
     regex = newtype (plain-type "regular expression") types.str;
 
-    match = newtype (plain-type "match rule") (ordered-record [
+    # the {window,layer} match rules are completely different from each other,
+    # but i reckon "match rule" still makes sense for display name
+
+    window-match = newtype (plain-type "match rule") (ordered-record [
       {
         app-id =
           nullable regex
@@ -489,12 +492,180 @@
         at-startup =
           nullable types.bool
           // {
-            description = ''
-              When true, this rule will match windows opened within the first 60 seconds of niri starting up. This is useful for setting up initial window positions and sizes.
-            '';
+            description = window-rule-descriptions.match-at-startup;
           };
       }
     ]);
+
+    layer-match = newtype (plain-type "match rule") (ordered-record [
+      {
+        namespace =
+          nullable regex
+          // {
+            description = ''
+              A regular expression to match against the namespace of the layer surface.
+
+              All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
+            '';
+          };
+      }
+      {
+        at-startup =
+          nullable types.bool
+          // {
+            description = layer-rule-descriptions.match-at-startup;
+          };
+      }
+    ]);
+
+    rule-descriptions = {
+      surface,
+      surfaces,
+      surface-rule,
+      Surface-rules,
+      example-fields,
+      option,
+    }: {
+      top-option = ''
+        ${Surface-rules}.
+
+        A ${surface-rule} will match based on ${link' "programs.niri.settings.${option}.*.matches"} and ${link' "programs.niri.settings.${option}.*.excludes"}. Both of these are lists of "match rules".
+
+        A given match rule can match based on one of several fields. For a given match rule to "match" a ${surface}, it must match on all fields.
+
+        ${example-fields}
+
+        - The `at_startup` field, when non-null, will match a ${surface} based on whether it was opened within the first 60 seconds of niri starting up.
+
+        - If a field is null, it will always match.
+
+        For a given ${surface-rule} to match a ${surface}, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the ${surface-rule} as a whole will match. For a given ${surface-rule}:
+
+        - A given ${surface} is "considered" if any of the match rules in ${link' "programs.niri.settings.${option}.*.matches"} successfully match this ${surface}. If all of the match rules do not match this ${surface}, then that ${surface} will never match this ${surface-rule}.
+
+        - If ${link' "programs.niri.settings.${option}.*.matches"} contains no match rules, it will match any ${surface} and "consider" it for this ${surface-rule}.
+
+        - If a given ${surface} is "considered" for this ${surface-rule} according to the above rules, the selection can be further refined with ${link' "programs.niri.settings.${option}.*.excludes"}. If any of the match rules in `excludes` match this ${surface}, it will be rejected and this ${surface-rule} will not match the given ${surface}.
+
+        That is, a given ${surface-rule} will apply to a given ${surface} if any of the entries in ${link' "programs.niri.settings.${option}.*.matches"} match that ${surface} (or there are none), AND none of the entries in ${link' "programs.niri.settings.${option}.*.excludes"} match that ${surface}.
+
+        All fields of a ${surface-rule} can be set to null, which represents that the field shall have no effect on the ${surface} (and in general, the client is allowed to choose the initial value).
+
+        To compute the final set of ${surface-rule}s that apply to a given ${surface}, each ${surface-rule} in this list is consdered in order.
+
+        At first, every field is set to null.
+
+        Then, for each applicable ${surface-rule}:
+
+        - If a given field is null on this ${surface-rule}, it has no effect. It does nothing and "inherits" the value from the previous rule.
+        - If the given field is not null, it will overwrite the value from any previous rule.
+
+        The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* ${surface-rule} that matches the given ${surface-rule} (not considering null entries, unless there are no non-null entries)
+
+        If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
+      '';
+
+      match = ''
+        A list of rules to match ${surfaces}.
+
+        If any of these rules match a ${surface} (or there are none), that ${surface-rule} will be considered for this ${surface}. It can still be rejected by ${link' "programs.niri.settings.${option}.*.excludes"}
+
+        If all of the rules do not match a ${surface}, then this ${surface-rule} will not apply to that ${surface}.
+      '';
+
+      exclude = ''
+        A list of rules to exclude ${surfaces}.
+
+        If any of these rules match a ${surface}, then this ${surface-rule} will not apply to that ${surface}, even if it matches one of the rules in ${link' "programs.niri.settings.${option}.*.matches"}
+
+        If none of these rules match a ${surface}, then this ${surface-rule} will not be rejected. It will apply to that ${surface} if and only if it matches one of the rules in ${link' "programs.niri.settings.${option}.*.matches"}
+      '';
+
+      match-at-startup = ''
+        When true, this rule will match ${surfaces} opened within the first 60 seconds of niri starting up. When false, this rule will match ${surfaces} opened *more than* 60 seconds after niri started up. This is useful for applying different rules to ${surfaces} opened from ${link' "programs.niri.settings.spawn-at-startup"} versus those opened later.
+      '';
+
+      opacity = ''
+        The opacity of the ${surface}, ranging from 0 to 1.
+
+        If the final value of this field is null, niri will fall back to a value of 1.
+
+        Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a ${surface} that is already semitransparent will make it even more transparent.
+      '';
+
+      block-out-from = ''
+        Whether to block out this ${surface} from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
+
+        This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+
+        Some of this may be obvious, but in general, these invariants *should* hold true:
+        - a ${surface} is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+        - a `block-out-from` ${surface} *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+        - a `block-out-from` ${surface} is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+
+        There are three methods of screencapture in niri:
+
+        1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this ${surface} is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+
+        1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the ${surface} just fine. This is because you may still want to take a screenshot of such ${surfaces}. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the ${surface} contents to an active screencast. When `block-out-from = "screen-capture";`, this ${surface} is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+
+        1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of ${surface} contents. Its frozen overlay will never leak ${surface} contents to an active screencast, because information of blocked ${surfaces} and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any ${surface}.
+
+        | `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
+        | --- | :---: | :---: | :---: |
+        | `null` | yes | yes | yes |
+        | `"screencast"` | no | yes | yes |
+        | `"screen-capture"` | no | no | yes |
+
+        > [!caution]
+        > **Streamers: Do not accidentally leak ${surface} contents via screenshots.**
+        >
+        > For ${surfaces} where `block-out-from = "screencast";`, contents of a ${surface} may still be visible in a screencast, if the ${surface} is indirectly displayed by a tool using `wlr-screencopy`.
+        >
+        > If you are a streamer, either:
+        > - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
+        > - **set `block-out-from = "screen-capture";` to ensure that the ${surface} is never visible in a screencast.**
+
+        > [!caution]
+        > **Do not let malicious `wlr-screencopy` clients capture your top secret ${surfaces}.**
+        >
+        > (and don't let malicious software run on your system in the first place, you silly goose)
+        >
+        > For ${surfaces} where `block-out-from = "screencast";`, contents of a ${surface} will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+        >
+        > Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
+        >
+        > **If a ${surface}'s contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
+        Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the ${surface} is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the ${surface} without its contents normally being visible in a screencast. (at the risk of some tools still leaking the ${surface} contents, see above)
+      '';
+    };
+
+    window-rule-descriptions = rule-descriptions {
+      surface = "window";
+      surfaces = "windows";
+      surface-rule = "window rule";
+      Surface-rules = "Window rules";
+      option = "window-rules";
+
+      example-fields = ''
+        - The `title` field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
+
+        - The `app-id` field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
+      '';
+    };
+
+    layer-rule-descriptions = rule-descriptions {
+      surface = "layer surface";
+      surfaces = "layer surfaces";
+      surface-rule = "layer rule";
+      Surface-rules = "Layer rules";
+      option = "layer-rules";
+
+      example-fields = ''
+        - The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
+      '';
+    };
 
     alphabetize = sections:
       lib.mergeAttrsList (lib.imap0 (i: section: {
@@ -1633,7 +1804,7 @@
           list (ordered-record [
               {
                 matches =
-                  list match
+                  list window-match
                   // {
                     description = ''
                       A list of rules to match windows.
@@ -1646,7 +1817,7 @@
               }
               {
                 excludes =
-                  list match
+                  list window-match
                   // {
                     description = ''
                       A list of rules to exclude windows.
@@ -1720,52 +1891,7 @@
                 block-out-from =
                   nullable (enum ["screencast" "screen-capture"])
                   // {
-                    description = ''
-                      Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked from screen captures.
-
-                      This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
-
-                      Some of this may be obvious, but in general, these invariants *should* hold true:
-                      - a window is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
-                      - a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
-                      - a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
-
-                      There are three methods of screencapture in niri:
-
-                      1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
-
-                      1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
-
-                      1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
-
-                      | `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
-                      | --- | :---: | :---: | :---: |
-                      | `null` | yes | yes | yes |
-                      | `"screencast"` | no | yes | yes |
-                      | `"screen-capture"` | no | no | yes |
-
-                      > [!caution]
-                      > **Streamers: Do not accidentally leak window contents via screenshots.**
-                      >
-                      > For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
-                      >
-                      > If you are a streamer, either:
-                      > - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
-                      > - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
-
-                      > [!caution]
-                      > **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
-                      >
-                      > (and don't let malicious software run on your system in the first place, you silly goose)
-                      >
-                      > For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
-                      >
-                      > Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
-                      >
-                      > **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
-
-                      Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
-                    '';
+                    description = window-rule-descriptions.block-out-from;
                   };
 
                 geometry-corner-radius =
@@ -1829,13 +1955,7 @@
                 opacity =
                   nullable types.float
                   // {
-                    description = ''
-                      The opacity of the window, ranging from 0 to 1.
-
-                      If the final value of this field is null, niri will fall back to a value of 1.
-
-                      Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
-                    '';
+                    description = window-rule-descriptions.opacity;
                   };
               }
               (let
@@ -1881,44 +2001,47 @@
               descriptionClass = "noun";
             })
           // {
-            description = ''
-              Window rules.
+            description = window-rule-descriptions.top-option;
+          };
+      }
 
-              A window rule will match based on ${link' "programs.niri.settings.window-rules.*.matches"} and ${link' "programs.niri.settings.window-rules.*.excludes"}. Both of these are lists of "match rules".
+      {
+        layer-rules =
+          list (ordered-record [
+              {
+                matches =
+                  list layer-match
+                  // {
+                    description = layer-rule-descriptions.match;
+                  };
+              }
+              {
+                excludes =
+                  list layer-match
+                  // {
+                    description = layer-rule-descriptions.exclude;
+                  };
+              }
+              {
+                block-out-from =
+                  nullable (enum ["screencast" "screen-capture"])
+                  // {
+                    description = window-rule-descriptions.block-out-from;
+                  };
 
-              A given match rule can match based on the `title` or `app-id` fields. For a given match rule to "match" a window, it must match on all fields.
-
-              - The `title` field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
-
-              - The `app-id` field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
-
-              - If a field is null, it will always match.
-
-              For a given window rule to match a window, the above logic is employed to determine whether any given match rule matches, and the interactions between them decide whether the window rule as a whole will match. For a given window rule:
-
-              - A given window is "considered" if any of the match rules in ${link' "programs.niri.settings.window-rules.*.matches"} successfully match this window. If all of the match rules do not match this window, then that window will never match this window rule.
-
-              - If ${link' "programs.niri.settings.window-rules.*.matches"} contains no match rules, it will match any window and "consider" it for this window rule.
-
-              - If a given window is "considered" for this window rule according to the above rules, the selection can be further refined with ${link' "programs.niri.settings.window-rules.*.excludes"}. If any of the match rules in `excludes` match this window, it will be rejected and this window rule will not match the given window.
-
-              That is, a given window rule will apply to a given window if any of the entries in ${link' "programs.niri.settings.window-rules.*.matches"} match that window (or there are none), AND none of the entries in ${link' "programs.niri.settings.window-rules.*.excludes"} match that window.
-
-              All fields of a window rule can be set to null, which represents that the field shall have no effect on the window (and in general, the client is allowed to choose the initial value).
-
-              To compute the final set of window rules that apply to a given window, each window rule in this list is consdered in order.
-
-              At first, every field is set to null.
-
-              Then, for each applicable window rule:
-
-              - If a given field is null on this window rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
-              - If the given field is not null, it will overwrite the value from any previous rule.
-
-              The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* window rule that matches the given window rule (not considering null entries, unless there are no non-null entries)
-
-              If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
-            '';
+                opacity =
+                  nullable types.float
+                  // {
+                    description = window-rule-descriptions.opacity;
+                  };
+              }
+            ]
+            // {
+              description = "layer rule";
+              descriptionClass = "noun";
+            })
+          // {
+            description = layer-rule-descriptions.top-option;
           };
       }
 
@@ -2325,6 +2448,15 @@
           (nullable leaf "block-out-from" cfg.block-out-from)
           (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
         ];
+
+      layer-rule = cfg:
+        plain "layer-rule" [
+          (map (leaf "match") (map opt-props cfg.matches))
+          (map (leaf "exclude") (map opt-props cfg.excludes))
+          (nullable leaf "opacity" cfg.opacity)
+          (nullable leaf "block-out-from" cfg.block-out-from)
+        ];
+
       transform = cfg: let
         rotation = toString cfg.rotation;
         basic =
@@ -2487,6 +2619,7 @@
 
       (map (map' leaf (builtins.getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
       (map window-rule cfg.window-rules)
+      (map layer-rule cfg.layer-rules)
 
       (plain "animations" [
         (toggle "off" cfg.animations [
