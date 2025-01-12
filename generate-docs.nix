@@ -124,7 +124,7 @@ with lib; let
     rev,
     shortRev,
   }: "[`${shortRev}`](https://github.com/YaLTeR/niri/tree/${rev})";
-  link-niri-release = version: "[`v${version}`](https://github.com/YaLTeR/niri/releases/tag/v${version})";
+  link-niri-release = version: "[`${version}`](https://github.com/YaLTeR/niri/releases/tag/${version})";
 
   link-stylix-opt = opt: "[`${opt}`](https://danth.github.io/stylix/options/hm.html#${anchor opt})";
 

@@ -305,7 +305,7 @@
               the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
               ](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
 
-              these beautiful images are sourced from the release notes for ${link-niri-release "0.1.3"}
+              these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
             '';
           };
       });

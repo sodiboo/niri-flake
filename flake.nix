@@ -48,15 +48,18 @@
     fmt-date = raw: "${date.year raw}-${date.month raw}-${date.day raw}";
     fmt-time = raw: "${date.hour raw}:${date.minute raw}:${date.second raw}";
 
-    version-string = orig-ver: src:
+    # note: against nixpkgs convention, i don't strip the "v"
+    # this is in part just slightly easier, but also distinguishes these package versions from nixpkgs
+
+    version-string = src:
       if stable-revs ? ${src.rev}
-      then "stable ${orig-ver}"
+      then "stable ${stable-revs.${src.rev}} (commit ${src.rev})"
       else "unstable ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
 
-    package-version = orig-ver: src:
+    package-version = src:
       if stable-revs ? ${src.rev}
-      then orig-ver
-      else "${orig-ver}-unstable-${src.shortRev}";
+      then stable-revs.${src.rev}
+      else "unstable-${fmt-date src.lastModifiedDate}-${src.shortRev}";
 
     make-niri = {
       src,
@@ -78,13 +81,10 @@
       withDinit ? false,
       withScreencastSupport ? true,
       withSystemd ? true,
-    }: let
-      manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
-      workspace-version = manifest.workspace.package.version;
-    in
+    }:
       rustPlatform.buildRustPackage {
         pname = "niri";
-        version = package-version workspace-version src;
+        version = package-version src;
         inherit src patches;
         cargoLock = {
           lockFile = "${src}/Cargo.lock";
@@ -131,6 +131,8 @@
           "-C debuginfo=line-tables-only"
         ];
 
+        NIRI_BUILD_VERSION_STRING = version-string src;
+
         # previously, the second line was part of RUSTFLAGS above
         # but i noticed it stopped working? because it doesn't interpolate the env var anymore.
         #
@@ -146,14 +148,6 @@
           export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix $NIX_BUILD_TOP/source=./"
 
           patchShebangs resources/niri-session
-          substituteInPlace src/utils/mod.rs --replace ${nixpkgs.lib.escapeShellArgs [
-            ''pub fn version() -> String {''
-            ''
-              #[allow(unreachable_code)]
-              pub fn version() -> String {
-                return "${version-string workspace-version src}".into();
-            ''
-          ]}
         '';
 
         # ever since this commit:
@@ -222,13 +216,10 @@
       xwayland,
       xcb-util-cursor,
       withSystemd ? true,
-    }: let
-      manifest = builtins.fromTOML (builtins.readFile "${src}/Cargo.toml");
-      workspace-version = manifest.package.version;
-    in
+    }:
       rustPlatform.buildRustPackage {
         pname = "xwayland-satellite";
-        version = package-version workspace-version src;
+        version = package-version src;
         inherit src patches;
         cargoLock = {
           lockFile = "${src}/Cargo.lock";
