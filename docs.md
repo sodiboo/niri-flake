@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v0.1.10.1`](https://github.com/YaLTeR/niri/releases/tag/v0.1.10.1) with no additional patches.
+Currently, this is release [`v25.01`](https://github.com/YaLTeR/niri/releases/tag/v25.01) with no additional patches.
 
 
 
@@ -357,7 +357,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `screenshot-window`
 - `close-window`
 - `fullscreen-window`
-- `focus-window-previous` (only on niri-unstable)
+- `focus-window-previous`
 - `focus-column-left`
 - `focus-column-right`
 - `focus-column-first`
@@ -390,10 +390,10 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `consume-or-expel-window-right`
 - `consume-window-into-column`
 - `expel-window-from-column`
-- `swap-window-left` (only on niri-unstable)
-- `swap-window-right` (only on niri-unstable)
+- `swap-window-left`
+- `swap-window-right`
 - `center-column`
-- `center-window` (only on niri-unstable)
+- `center-window`
 - `focus-workspace-down`
 - `focus-workspace-up`
 - `λ focus-workspace :: u8 | string`
@@ -406,31 +406,31 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ move-column-to-workspace :: u8 | string`
 - `move-workspace-down`
 - `move-workspace-up`
-- `λ set-workspace-name :: string` (only on niri-unstable)
-- `unset-workspace-name` (only on niri-unstable)
+- `λ set-workspace-name :: string`
+- `unset-workspace-name`
 - `focus-monitor-left`
 - `focus-monitor-right`
 - `focus-monitor-down`
 - `focus-monitor-up`
-- `focus-monitor-previous` (only on niri-unstable)
-- `focus-monitor-next` (only on niri-unstable)
+- `focus-monitor-previous`
+- `focus-monitor-next`
 - `move-window-to-monitor-left`
 - `move-window-to-monitor-right`
 - `move-window-to-monitor-down`
 - `move-window-to-monitor-up`
-- `move-window-to-monitor-previous` (only on niri-unstable)
-- `move-window-to-monitor-next` (only on niri-unstable)
+- `move-window-to-monitor-previous`
+- `move-window-to-monitor-next`
 - `move-column-to-monitor-left`
 - `move-column-to-monitor-right`
 - `move-column-to-monitor-down`
 - `move-column-to-monitor-up`
-- `move-column-to-monitor-previous` (only on niri-unstable)
-- `move-column-to-monitor-next` (only on niri-unstable)
-- `λ set-window-width :: size-change` (only on niri-unstable)
+- `move-column-to-monitor-previous`
+- `move-column-to-monitor-next`
+- `λ set-window-width :: size-change`
 - `λ set-window-height :: size-change`
 - `reset-window-height`
 - `switch-preset-column-width`
-- `switch-preset-window-width` (only on niri-unstable)
+- `switch-preset-window-width`
 - `switch-preset-window-height`
 - `maximize-column`
 - `λ set-column-width :: size-change`
@@ -440,14 +440,14 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-workspace-to-monitor-right`
 - `move-workspace-to-monitor-down`
 - `move-workspace-to-monitor-up`
-- `move-workspace-to-monitor-previous` (only on niri-unstable)
-- `move-workspace-to-monitor-next` (only on niri-unstable)
-- `toggle-window-floating` (only on niri-unstable)
-- `move-window-to-floating` (only on niri-unstable)
-- `move-window-to-tiling` (only on niri-unstable)
-- `focus-floating` (only on niri-unstable)
-- `focus-tiling` (only on niri-unstable)
-- `switch-focus-between-floating-and-tiling` (only on niri-unstable)
+- `move-workspace-to-monitor-previous`
+- `move-workspace-to-monitor-next`
+- `toggle-window-floating`
+- `move-window-to-floating`
+- `move-window-to-tiling`
+- `focus-floating`
+- `focus-tiling`
+- `switch-focus-between-floating-and-tiling`
 
 
 <!-- sorting key: programs.niri.settings.a.binds.allow-when-locked -->
