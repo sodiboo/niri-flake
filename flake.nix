@@ -161,8 +161,15 @@
         # niri now runs an actual instance of the real compositor (with a mock backend) during tests
         # and thus creates a real socket file in the runtime dir.
         # this is fine for our build, we just need to make sure it has a directory to write to.
+        #
+        # additionally, these tests are mutlithreaded, and can cause conflicts between threads
+        # when writing to the same socket. so, to avoid failures, we limit it to just one thread.
+        #
+        # i believe both of these should be removed once niri doesn't create socket files during tests.
+        # see https://github.com/YaLTeR/niri/issues/953
         preCheck = ''
           export XDG_RUNTIME_DIR="$(mktemp -d)"
+          export RAYON_NUM_THREADS=1
         '';
 
         postInstall =
