@@ -5,12 +5,23 @@ with builtins; let
       readFile
       fromJSON
 
-      (filter (x: x.object.type == "tag"))
-
-      (map (x: x.object.url))
-      (map fetchurl)
-      (map readFile)
-      (map fromJSON)
+      (map (y:
+        if y.object.type == "tag"
+        then
+          # on basically all releases, the ref points to a tag
+          # this is neat, because it wraps the commit hash in a `tag` name.
+          foldl' (x: f: f x) y.object.url [
+            fetchurl
+            readFile
+            fromJSON
+          ]
+        else let
+          startsWith = prefix: string: substring 0 (stringLength prefix) string == prefix;
+          removePrefix = prefix: string: assert startsWith prefix string; substring (stringLength prefix) (stringLength string) string;
+        in
+          # but on some releases, the ref directly points to the commit
+          # then we have to manually extract the ""tag"" name (not a real tag; but to humans there is no difference)
+          y // {tag = removePrefix "refs/tags/" y.ref;}))
 
       (filter (x: x.object.type == "commit"))
 
