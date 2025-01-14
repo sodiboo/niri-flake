@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`6ae51f2`](https://github.com/YaLTeR/niri/tree/6ae51f287cb286a96fcf492444f33b0d6ad4a56a) which was authored on `2025-01-14 08:35:00`.
+Currently, this is exactly commit [`0df7a08`](https://github.com/YaLTeR/niri/tree/0df7a085de6fb0ebfe7af640e60fb496e52656aa) which was authored on `2025-01-14 10:39:52`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -353,8 +353,20 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ spawn :: [string]`
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
 - `screenshot`
-- `screenshot-screen`
-- `screenshot-window`
+- `λ screenshot-screen :: unknown`
+
+  The code that generates this documentation does not know how to parse the definition:
+  ```rs
+  ScreenshotScreen(#[knuffel(property(name = "write-to-disk"), default = true)] bool)
+  ```
+
+- `λ screenshot-window :: unknown`
+
+  The code that generates this documentation does not know how to parse the definition:
+  ```rs
+  ScreenshotWindow(#[knuffel(property(name = "write-to-disk"), default = true)] bool)
+  ```
+
 - `close-window`
 - `fullscreen-window`
 - `focus-window-previous`
