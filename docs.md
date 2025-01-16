@@ -306,8 +306,9 @@ Usage is like so:
     "Mod+D".action = spawn "fuzzel";
     "Mod+1".action = focus-workspace 1;
 
-    "Mod+Shift+E".action = quit;
-    "Mod+Ctrl+Shift+E".action = quit { skip-confirmation=true; };
+    "Mod+Shift+E".action.quit = {};
+
+    "Mod+Ctrl+Shift+E".action.quit = { skip-confirmation=true; };
 
     "Mod+Plus".action = set-column-width "+10%";
   }
