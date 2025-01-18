@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`bd559a2`](https://github.com/YaLTeR/niri/tree/bd559a26602874f4104e342e2ce02317ae1ae605) which was authored on `2025-01-17 20:10:01`.
+Currently, this is exactly commit [`8182484`](https://github.com/YaLTeR/niri/tree/818248457210f5101459ea7d7066d12c456c8a97) which was authored on `2025-01-18 14:43:58`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -367,6 +367,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
   ScreenshotWindow(#[knuffel(property(name = "write-to-disk"), default = true)] bool)
   ```
 
+- `toggle-keyboard-shortcuts-inhibit` (only on niri-unstable)
 - `close-window`
 - `fullscreen-window`
 - `focus-window-previous`
