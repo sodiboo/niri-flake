@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`4f79303`](https://github.com/YaLTeR/niri/tree/4f793038117b4fef38f491e665a66589eb896e0a) which was authored on `2025-01-25 07:54:07`.
+Currently, this is exactly commit [`78697d1`](https://github.com/YaLTeR/niri/tree/78697d1cea20e6b53013e820999b0403c45d9f00) which was authored on `2025-01-25 08:51:45`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -419,6 +419,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ move-column-to-workspace :: u8 | string`
 - `move-workspace-down`
 - `move-workspace-up`
+- `λ move-workspace-to-index :: usize` (only on niri-unstable)
+- `λ move-workspace-to-monitor :: string` (only on niri-unstable)
 - `λ set-workspace-name :: string`
 - `unset-workspace-name`
 - `focus-monitor-left`
