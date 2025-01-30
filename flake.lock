@@ -20,11 +20,11 @@
     "niri-unstable": {
       "flake": false,
       "locked": {
-        "lastModified": 1738210722,
-        "narHash": "sha256-YqV7CjqTdEGsxuTw1Axd5vloajB1BTtE19qRhtzF4ng=",
+        "lastModified": 1738234654,
+        "narHash": "sha256-HJR2r/e4ZxbAfLYHNrQD8vaxZDZvKpma9jchJr8zYH8=",
         "owner": "YaLTeR",
         "repo": "niri",
-        "rev": "6b04b1e4546d8b0e696516440032c2bf361abb4f",
+        "rev": "fb5fedbf24aa66909bb9d112856f27ceb04766a8",
         "type": "github"
       },
       "original": {
@@ -51,11 +51,11 @@
     },
     "nixpkgs-stable": {
       "locked": {
-        "lastModified": 1738023785,
-        "narHash": "sha256-BPHmb3fUwdHkonHyHi1+x89eXB3kA1jffIpwPVJIVys=",
+        "lastModified": 1738163270,
+        "narHash": "sha256-B/7Y1v4y+msFFBW1JAdFjNvVthvNdJKiN6EGRPnqfno=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2b4230bf03deb33103947e2528cac2ed516c5c89",
+        "rev": "59e618d90c065f55ae48446f307e8c09565d5ab0",
         "type": "github"
       },
       "original": {
