@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`900da59`](https://github.com/YaLTeR/niri/tree/900da597e4d3d09ad4c4ddc3ba2abf58c4886ec9) which was authored on `2025-02-05 10:35:13`.
+Currently, this is exactly commit [`690d635`](https://github.com/YaLTeR/niri/tree/690d6355057ebeba03cbd8ce4905145b834c72f8) which was authored on `2025-02-05 15:06:46`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -370,6 +370,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `toggle-keyboard-shortcuts-inhibit` (only on niri-unstable)
 - `close-window`
 - `fullscreen-window`
+- `λ focus-window-in-column :: u8` (only on niri-unstable)
 - `focus-window-previous`
 - `focus-column-left`
 - `focus-column-right`
@@ -389,6 +390,10 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-window-up-or-column-right`
 - `focus-window-or-workspace-down`
 - `focus-window-or-workspace-up`
+- `focus-window-top` (only on niri-unstable)
+- `focus-window-bottom` (only on niri-unstable)
+- `focus-window-down-or-top` (only on niri-unstable)
+- `focus-window-up-or-bottom` (only on niri-unstable)
 - `move-column-left`
 - `move-column-right`
 - `move-column-to-first`
