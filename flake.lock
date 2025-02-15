@@ -20,11 +20,11 @@
     "niri-unstable": {
       "flake": false,
       "locked": {
-        "lastModified": 1739513000,
-        "narHash": "sha256-LDSApEzhz3I9441ocnkkEVJu18OnGSj4a4MaxvuJYMk=",
+        "lastModified": 1739615337,
+        "narHash": "sha256-4YWeEMguF9Ic+AhoJqkFw9Fqarc65oSEgRyjLncVX34=",
         "owner": "YaLTeR",
         "repo": "niri",
-        "rev": "7816f20e6a3ddc4057aa1ab35742dc7f67453bc2",
+        "rev": "ca1500ae90f33344fe776898ae11137bf7d1ecc1",
         "type": "github"
       },
       "original": {
