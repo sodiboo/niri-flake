@@ -110,11 +110,11 @@ in
                     })
                   ])
                   (short-circuit raw [
-                    (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)(, default)?\)] ([A-Za-z0-9]+)'')
+                    (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)(, default( = true)?)?\)] ([A-Za-z0-9]+)'')
                     (m: let
                       field = elemAt m 0;
                       use-default = elemAt m 1 != null;
-                      type = elemAt m 2;
+                      type = elemAt m 3;
                     in {
                       kind = "prop";
                       none-important = false;

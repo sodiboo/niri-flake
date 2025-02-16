@@ -353,20 +353,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ spawn :: [string]`
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
 - `screenshot`
-- `λ screenshot-screen :: unknown`
-
-  The code that generates this documentation does not know how to parse the definition:
-  ```rs
-  ScreenshotScreen(#[knuffel(property(name = "write-to-disk"), default = true)] bool)
-  ```
-
-- `λ screenshot-window :: unknown`
-
-  The code that generates this documentation does not know how to parse the definition:
-  ```rs
-  ScreenshotWindow(#[knuffel(property(name = "write-to-disk"), default = true)] bool)
-  ```
-
+- `λ screenshot-screen :: { write-to-disk :: bool }`
+- `λ screenshot-window :: { write-to-disk :: bool }`
 - `toggle-keyboard-shortcuts-inhibit` (only on niri-unstable)
 - `close-window`
 - `fullscreen-window`
