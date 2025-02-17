@@ -10,7 +10,7 @@ if [[ ! -e .git/rebase-merge/done ]]; then
 # why not just use sponge? because this runs in CI (which doesn't have sponge)
 tmp="$(mktemp)"
 
-nix eval --raw "git+file:.?ref=HEAD#lib.internal.docs-markdown" > $tmp
+nix eval --raw "git+file:.?ref=HEAD&shallow=1#lib.internal.docs-markdown" > $tmp
 
 # GitHub Actions doesn't seem to have a HEAD ref (???)
 if [ $? -ne 0 ]; then
