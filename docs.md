@@ -1526,7 +1526,7 @@ Whether to enable the insert hint.
 - default:
   ```nix
   {
-    color = "rgba(127 200 255 50%)";
+    color = "rgb(127 200 255 / 50%)";
   }
   ```
 

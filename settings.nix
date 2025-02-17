@@ -1524,7 +1524,7 @@
                 }
                 {
                   display =
-                    optional (newtype (link-type "decoration") (decoration "programs.niri.settings.layout.insert-hint.display")) {color = "rgba(127 200 255 50%)";}
+                    optional (newtype (link-type "decoration") (decoration "programs.niri.settings.layout.insert-hint.display")) {color = "rgb(127 200 255 / 50%)";}
                     // {
                       visible = "shallow";
                       description = ''
