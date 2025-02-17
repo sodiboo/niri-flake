@@ -10,6 +10,10 @@ if [[ ! -e .git/rebase-merge/done ]]; then
 # why not just use sponge? because this runs in CI (which doesn't have sponge)
 tmp="$(mktemp)"
 
+# lol yes the docs really do exceed the default call depth limit.
+# luckily, this basically only affects my CI and not any users.
+export NIX_CONFIG="max-call-depth = 20000"
+
 nix eval --raw "git+file:.?ref=HEAD&shallow=1#lib.internal.docs-markdown" --show-trace > $tmp
 
 # GitHub Actions doesn't seem to have a HEAD ref (???)

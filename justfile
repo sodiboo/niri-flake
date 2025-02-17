@@ -25,10 +25,16 @@ check: fmt
     {{if nom-path != "" { "nom build --show-trace .#checks."+current-system+".cached-packages" } else {""} }}
     nix flake check --quiet --quiet --show-trace
 
+# docs really do exceed the default call depth limit. as a workaround, increase it.
+
 check-docs: check
+    #!/usr/bin/env fish
+    set -x NIX_CONFIG "max-call-depth = 20000"
     nix eval --quiet --quiet --raw .#lib.internal.docs-markdown > /dev/null
 
 doc: check
+    #!/usr/bin/env fish
+    set -x NIX_CONFIG "max-call-depth = 20000"
     nix eval --quiet --quiet --raw .#lib.internal.docs-markdown | sponge docs.md
 
 watch:
