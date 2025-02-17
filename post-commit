@@ -25,6 +25,7 @@ fi
 mv $tmp docs.md
 
 nix eval --raw --file fetch-refs.nix --show-trace > refs.nix
+nix eval --raw .#lib.internal.memo-binds --show-trace > memo-binds.nix
 
 git diff --quiet docs.md refs.nix
 if [ $? -ne 0 ]; then

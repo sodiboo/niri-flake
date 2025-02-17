@@ -1,8 +1,4 @@
-{
-  lib,
-  kdl,
-  ...
-}:
+{lib, ...}:
 with lib; let
   short-circuit = v: steps:
     pipe v (map (step: x:
@@ -146,7 +142,6 @@ in
                 ];
           in {
             inherit name params;
-            fn = kdl.magic-leaf name;
           }
         )
       ]

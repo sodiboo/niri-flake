@@ -311,6 +311,19 @@
         package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
         docs-markdown = docs.make-docs (settings.fake-docs {inherit fmt-date fmt-time;});
         settings-module = settings.module;
+        memo-binds = nixpkgs.lib.pipe (binds inputs.niri-unstable) [
+          (map (bind: "  \"${bind.name}\""))
+          (builtins.concatStringsSep "\n")
+          (memo'd: ''
+            # This is a generated file.
+            # It caches the output of `parse-binds.nix` for the latest niri-unstable.
+            # That script is slow and also now exceeds the default call depth limit.
+            # So, we memoize it here. It doesn't change anyway.
+            [
+            ${memo'd}
+            ]
+          '')
+        ];
       };
     };
 
@@ -374,13 +387,9 @@
       };
 
       config.lib.niri = {
-        actions = nixpkgs.lib.mergeAttrsList (map ({
-          name,
-          fn,
-          ...
-        }: {
-          ${name} = fn;
-        }) (binds cfg.package.src));
+        actions = nixpkgs.lib.mergeAttrsList (map (name: {
+          ${name} = kdl.magic-leaf name;
+        }) (import ./memo-binds.nix));
       };
 
       config.xdg.configFile.niri-config = {
