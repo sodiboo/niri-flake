@@ -577,7 +577,13 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 <!-- sorting key: programs.niri.settings.e.spawn-at-startup -->
 ## `programs.niri.settings.spawn-at-startup`
 - type: `list of (submodule)`
-
+```nix 
+{
+  programs.niri.settings.spawn-at-startup = [
+    { command = [ "waybar" ]; }
+  ];
+}
+```
 
 <!-- sorting key: programs.niri.settings.e.spawn-at-startup.command -->
 ## `programs.niri.settings.spawn-at-startup.*.command`
