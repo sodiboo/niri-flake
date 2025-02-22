@@ -1090,6 +1090,24 @@
       }
 
       {
+        clipboard.disable-primary =
+          optional types.bool false
+          // {
+            description = ''
+              The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
+
+              This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
+
+              This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
+
+              If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
+
+              Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
+            '';
+          };
+      }
+
+      {
         prefer-no-csd =
           optional types.bool false
           // {
@@ -2542,6 +2560,7 @@
 
       nullable = f: name: value: optional-node (value != null) (f name value);
       flag' = name: lib.flip optional-node (flag name);
+      plain' = name: children: optional-node (builtins.any (v: v != null) children) (plain name children);
 
       map' = node: f: name: val: node name (f val);
 
@@ -2833,6 +2852,10 @@
 
       (plain "hotkey-overlay" [
         (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
+      ])
+
+      (plain' "clipboard" [
+        (flag' "disable-primary" cfg.clipboard.disable-primary)
       ])
 
       (plain "environment" (lib.mapAttrsToList leaf cfg.environment))
