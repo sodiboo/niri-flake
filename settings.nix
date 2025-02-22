@@ -1248,7 +1248,18 @@
               };
               # base' = mapAttrs (name: opt: opt // optionalAttrs (opt.default == "" || opt.default == null) {defaultText = "${if opt.default == "" then "\"\"" else "null"} (inherited from XKB_DEFAULT_${toUpper name}>";}) base;
             in
-              section base
+              ordered-section [
+                {
+                  file =
+                    nullable types.str
+                    // {
+                      description = ''
+                        Path to a `.xkb` keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
+                      '';
+                    };
+                }
+                base
+              ]
               // {
                 description = ''
                   Parameters passed to libxkbcommon, which handles the keyboard in niri.
@@ -2763,6 +2774,7 @@
       (plain "input" [
         (plain "keyboard" [
           (plain "xkb" [
+            (nullable leaf "file" cfg.input.keyboard.xkb.file)
             (leaf "layout" cfg.input.keyboard.xkb.layout)
             (leaf "model" cfg.input.keyboard.xkb.model)
             (leaf "rules" cfg.input.keyboard.xkb.rules)

@@ -715,7 +715,15 @@ Further reading:
 - [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
 
 
-<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.layout -->
+<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.a.file -->
+## `programs.niri.settings.input.keyboard.xkb.file`
+- type: `null or string`
+- default: `null`
+
+Path to a `.xkb` keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
+
+
+<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.b.layout -->
 ## `programs.niri.settings.input.keyboard.xkb.layout`
 - type: `string`
 - default: `""`
@@ -728,7 +736,7 @@ If this is set to an empty string, the layout will be read from the `XKB_DEFAULT
 
 
 
-<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.model -->
+<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.b.model -->
 ## `programs.niri.settings.input.keyboard.xkb.model`
 - type: `string`
 - default: `""`
@@ -741,7 +749,7 @@ If this is set to an empty string, the model will be read from the `XKB_DEFAULT_
 
 
 
-<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.options -->
+<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.b.options -->
 ## `programs.niri.settings.input.keyboard.xkb.options`
 - type: `null or string`
 - default: `null`
@@ -756,7 +764,7 @@ If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` 
 
 
 
-<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.rules -->
+<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.b.rules -->
 ## `programs.niri.settings.input.keyboard.xkb.rules`
 - type: `string`
 - default: `""`
@@ -769,7 +777,7 @@ If this is set to an empty string, the rules will be read from the `XKB_DEFAULT_
 
 
 
-<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.variant -->
+<!-- sorting key: programs.niri.settings.h.input.keyboard.xkb.b.variant -->
 ## `programs.niri.settings.input.keyboard.xkb.variant`
 - type: `string`
 - default: `""`
