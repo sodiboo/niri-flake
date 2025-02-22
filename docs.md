@@ -970,6 +970,25 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#send-events-mode
 
 
+<!-- sorting key: programs.niri.settings.h.input.touchpad.drag-lock -->
+## `programs.niri.settings.input.touchpad.drag-lock`
+- type: `boolean`
+- default: `false`
+
+On most touchpads, tap and drag is enabled by default.
+
+Tap and drag means that to drag an item, you tap the touchpad with some amount of fingers to decide what kind of button press is emulated, but don't hold those fingers, and then you immediately start dragging with one finger.
+
+By default, a "tap and drag" gesture is terminated by releasing the finger that is dragging.
+
+Drag lock means that the drag gesture is not terminated when the finger is released, but only when the finger is tapped again, or after a timeout (unless sticky mode is enabled). This allows you to reset your finger position without losing the drag gesture.
+
+Drag lock is only applicable for devices where tap and drag is also enabled.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-and-drag
+
+
 <!-- sorting key: programs.niri.settings.h.input.touchpad.dwt -->
 ## `programs.niri.settings.input.touchpad.dwt`
 - type: `boolean`
