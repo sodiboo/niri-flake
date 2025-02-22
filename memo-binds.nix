@@ -104,6 +104,7 @@
   "switch-preset-window-height"
   "maximize-column"
   "set-column-width"
+  "expand-column-to-available-width"
   "switch-layout"
   "show-hotkey-overlay"
   "move-workspace-to-monitor-left"

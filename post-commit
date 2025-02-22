@@ -31,6 +31,7 @@ git diff --quiet docs.md refs.nix
 if [ $? -ne 0 ]; then
 
 git add docs.md
+git add memo-binds.nix
 git add refs.nix
 git commit --no-verify --amend --no-edit
 
