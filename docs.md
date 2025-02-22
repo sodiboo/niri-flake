@@ -2629,7 +2629,7 @@ The color of the focus ring for windows that do not have keyboard focus.
 - type: `null or (submodule)`
 - default: `null`
 
-The corner radii of the window decorations (border and focus ring) in logical pixels.
+The corner radii of the window decorations (border, focus ring, and shadow) in logical pixels.
 
 By default, the actual window surface will be unaffected by this.
 
@@ -2981,6 +2981,101 @@ The opacity of the window, ranging from 0 to 1.
 If the final value of this field is null, niri will fall back to a value of 1.
 
 Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.geometry-corner-radius -->
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+The corner radii of the surface decorations (shadow) in logical pixels.
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.geometry-corner-radius.bottom-left -->
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.geometry-corner-radius.bottom-right -->
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.geometry-corner-radius.top-left -->
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.geometry-corner-radius.top-right -->
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow -->
+<!-- programs.niri.settings.layer-rules.*.shadow -->
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.color -->
+## `programs.niri.settings.layer-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.draw-behind-window -->
+## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.enable -->
+## `programs.niri.settings.layer-rules.*.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.inactive-color -->
+## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.offset -->
+## `programs.niri.settings.layer-rules.*.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.offset.x -->
+## `programs.niri.settings.layer-rules.*.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.offset.y -->
+## `programs.niri.settings.layer-rules.*.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.softness -->
+## `programs.niri.settings.layer-rules.*.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.n.layer-rules.d.shadow.spread -->
+## `programs.niri.settings.layer-rules.*.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
 <!-- sorting key: programs.niri.settings.o.debug -->

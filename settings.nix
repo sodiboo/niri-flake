@@ -430,6 +430,43 @@
         inherit description;
       };
 
+    shadow-rule = section {
+      enable = nullable types.bool;
+      offset =
+        nullable (record {
+          x = required float-or-int;
+          y = required float-or-int;
+        })
+        // {
+          description = shadow-descriptions.offset;
+        };
+
+      softness =
+        nullable float-or-int
+        // {
+          description = shadow-descriptions.softness;
+        };
+
+      spread =
+        nullable float-or-int
+        // {
+          description = shadow-descriptions.spread;
+        };
+
+      draw-behind-window = nullable types.bool;
+
+      color = nullable types.str;
+
+      inactive-color = nullable types.str;
+    };
+
+    geometry-corner-radius-rule = nullable (record {
+      top-left = required types.float;
+      top-right = required types.float;
+      bottom-right = required types.float;
+      bottom-left = required types.float;
+    });
+
     shadow-descriptions = {
       offset = ''
         The offset of the shadow from the window, measured in logical pixels.
@@ -2029,15 +2066,10 @@
                   };
 
                 geometry-corner-radius =
-                  nullable (record {
-                    top-left = required types.float;
-                    top-right = required types.float;
-                    bottom-right = required types.float;
-                    bottom-left = required types.float;
-                  })
+                  geometry-corner-radius-rule
                   // {
                     description = ''
-                      The corner radii of the window decorations (border and focus ring) in logical pixels.
+                      The corner radii of the window decorations (border, focus ring, and shadow) in logical pixels.
 
                       By default, the actual window surface will be unaffected by this.
 
@@ -2070,35 +2102,7 @@
                   '';
                 };
 
-                shadow = section {
-                  enable = nullable types.bool;
-                  offset =
-                    nullable (record {
-                      x = required float-or-int;
-                      y = required float-or-int;
-                    })
-                    // {
-                      description = shadow-descriptions.offset;
-                    };
-
-                  softness =
-                    nullable float-or-int
-                    // {
-                      description = shadow-descriptions.softness;
-                    };
-
-                  spread =
-                    nullable float-or-int
-                    // {
-                      description = shadow-descriptions.spread;
-                    };
-
-                  draw-behind-window = nullable types.bool;
-
-                  color = nullable types.str;
-
-                  inactive-color = nullable types.str;
-                };
+                shadow = shadow-rule;
                 draw-border-with-background =
                   nullable types.bool
                   // {
@@ -2218,6 +2222,16 @@
                   nullable types.float
                   // {
                     description = window-rule-descriptions.opacity;
+                  };
+              }
+              {
+                shadow = shadow-rule;
+                geometry-corner-radius =
+                  geometry-corner-radius-rule
+                  // {
+                    description = ''
+                      The corner radii of the surface decorations (shadow) in logical pixels.
+                    '';
                   };
               }
             ]
@@ -2667,6 +2681,8 @@
           (map (leaf "exclude") (map opt-props cfg.excludes))
           (nullable leaf "opacity" cfg.opacity)
           (nullable leaf "block-out-from" cfg.block-out-from)
+          (shadow-rule "shadow" cfg.shadow)
+          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
         ];
 
       transform = cfg: let
