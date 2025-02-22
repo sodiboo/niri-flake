@@ -2819,6 +2819,12 @@ The `x` and `y` fields are the distances from the edge of the screen to the edge
 Takes effect only when the window is on an output with [`outputs.*.variable-refresh-rate`](#programsnirisettingsoutputsvariable-refresh-rate) set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
 
 
+<!-- sorting key: programs.niri.settings.m.window-rules.h.scroll-factor -->
+## `programs.niri.settings.window-rules.*.scroll-factor`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
 <!-- sorting key: programs.niri.settings.n.layer-rules -->
 ## `programs.niri.settings.layer-rules`
 - type: `list of layer rule`

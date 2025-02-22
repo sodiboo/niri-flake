@@ -2184,6 +2184,9 @@
                     '';
                   };
               }
+              {
+                scroll-factor = nullable float-or-int;
+              }
             ]
             // {
               description = "window rule";
@@ -2673,6 +2676,7 @@
           (nullable leaf "block-out-from" cfg.block-out-from)
           (nullable leaf "default-floating-position" cfg.default-floating-position)
           (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
+          (nullable leaf "scroll-factor" cfg.scroll-factor)
         ];
 
       layer-rule = cfg:
