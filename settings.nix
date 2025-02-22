@@ -430,6 +430,26 @@
         inherit description;
       };
 
+    shadow-descriptions = {
+      offset = ''
+        The offset of the shadow from the window, measured in logical pixels.
+
+        This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+      '';
+
+      softness = ''
+        The softness/size of the shadow, measured in logical pixels.
+
+        This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+      '';
+
+      spread = ''
+        The spread of the shadow, measured in logical pixels.
+
+        This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+      '';
+    };
+
     regex = newtype (plain-type "regular expression") types.str;
 
     # the {window,layer} match rules are completely different from each other,
@@ -1511,6 +1531,38 @@
             };
           }
           {
+            shadow = section {
+              enable = optional types.bool false;
+              offset =
+                section {
+                  x = optional float-or-int 0.0;
+                  y = optional float-or-int 5.0;
+                }
+                // {
+                  description = shadow-descriptions.offset;
+                };
+
+              softness =
+                optional float-or-int 30.0
+                // {
+                  description = shadow-descriptions.softness;
+                };
+
+              spread =
+                optional float-or-int 5.0
+                // {
+                  description = shadow-descriptions.spread;
+                };
+
+              draw-behind-window = optional types.bool false;
+
+              # 0x70 is 43.75% so let's use hex notation lol
+              color = optional types.str "#00000070";
+
+              inactive-color = nullable types.str;
+            };
+          }
+          {
             insert-hint =
               ordered-section [
                 {
@@ -2004,6 +2056,36 @@
                     See ${link' "programs.niri.settings.layout.focus-ring"}.
                   '';
                 };
+
+                shadow = section {
+                  enable = nullable types.bool;
+                  offset =
+                    nullable (record {
+                      x = required float-or-int;
+                      y = required float-or-int;
+                    })
+                    // {
+                      description = shadow-descriptions.offset;
+                    };
+
+                  softness =
+                    nullable float-or-int
+                    // {
+                      description = shadow-descriptions.softness;
+                    };
+
+                  spread =
+                    nullable float-or-int
+                    // {
+                      description = shadow-descriptions.spread;
+                    };
+
+                  draw-behind-window = nullable types.bool;
+
+                  color = nullable types.str;
+
+                  inactive-color = nullable types.str;
+                };
                 draw-border-with-background =
                   nullable types.bool
                   // {
@@ -2478,6 +2560,18 @@
           (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
         ]);
 
+      shadow = map' (nullable plain) (cfg:
+        optional-node (cfg.enable) [
+          (flag "on")
+          (leaf "offset" cfg.offset)
+          (leaf "softness" cfg.softness)
+          (leaf "spread" cfg.spread)
+
+          (leaf "draw-behind-window" cfg.draw-behind-window)
+          (leaf "color" cfg.color)
+          (nullable leaf "inactive-color" cfg.inactive-color)
+        ]);
+
       preset-sizes = map' (nullable plain) (cfg:
         if cfg == []
         then null
@@ -2510,6 +2604,20 @@
           ]
         );
 
+      shadow-rule = name: cfg:
+        optional-node (opt-props cfg != {}) (
+          plain name [
+            (flag' "on" (cfg.enable == true))
+            (flag' "off" (cfg.enable == false))
+            (nullable leaf "offset" cfg.offset)
+            (nullable leaf "softness" cfg.softness)
+            (nullable leaf "spread" cfg.spread)
+            (nullable leaf "draw-behind-window" cfg.draw-behind-window)
+            (nullable leaf "color" cfg.color)
+            (nullable leaf "inactive-color" cfg.inactive-color)
+          ]
+        );
+
       corner-radius = cfg: [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left];
 
       window-rule = cfg:
@@ -2529,6 +2637,7 @@
           (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
           (border-rule "border" cfg.border)
           (border-rule "focus-ring" cfg.focus-ring)
+          (shadow-rule "shadow" cfg.shadow)
           (nullable leaf "opacity" cfg.opacity)
           (nullable leaf "min-width" cfg.min-width)
           (nullable leaf "max-width" cfg.max-width)
@@ -2660,6 +2769,7 @@
         ])
         (borderish "focus-ring" cfg.layout.focus-ring)
         (borderish "border" cfg.layout.border)
+        (shadow "shadow" cfg.layout.shadow)
         (plain "insert-hint" [
           (toggle "off" cfg.layout.insert-hint [
             (nullable leaf "color" cfg.layout.insert-hint.display.color or null)

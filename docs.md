@@ -1505,14 +1505,82 @@ The color of the focus ring for the window that has keyboard focus.
 The color of the focus ring for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.insert-hint -->
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow -->
+<!-- programs.niri.settings.layout.shadow -->
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.color -->
+## `programs.niri.settings.layout.shadow.color`
+- type: `string`
+- default: `"#00000070"`
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.draw-behind-window -->
+## `programs.niri.settings.layout.shadow.draw-behind-window`
+- type: `boolean`
+- default: `false`
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.enable -->
+## `programs.niri.settings.layout.shadow.enable`
+- type: `boolean`
+- default: `false`
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.inactive-color -->
+## `programs.niri.settings.layout.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.offset -->
+## `programs.niri.settings.layout.shadow.offset`
+
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.offset.x -->
+## `programs.niri.settings.layout.shadow.offset.x`
+- type: `floating point number or signed integer`
+- default: `0.000000`
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.offset.y -->
+## `programs.niri.settings.layout.shadow.offset.y`
+- type: `floating point number or signed integer`
+- default: `5.000000`
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.softness -->
+## `programs.niri.settings.layout.shadow.softness`
+- type: `floating point number or signed integer`
+- default: `30.000000`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.j.layout.b.shadow.spread -->
+## `programs.niri.settings.layout.shadow.spread`
+- type: `floating point number or signed integer`
+- default: `5.000000`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint -->
 ## `programs.niri.settings.layout.insert-hint`
 
 
 The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.insert-hint.a.enable -->
+<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.a.enable -->
 ## `programs.niri.settings.layout.insert-hint.enable`
 - type: `boolean`
 - default: `true`
@@ -1520,7 +1588,7 @@ The insert hint is a decoration drawn *between* windows during an interactive mo
 Whether to enable the insert hint.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.b.insert-hint.b.display -->
+<!-- sorting key: programs.niri.settings.j.layout.c.insert-hint.b.display -->
 ## `programs.niri.settings.layout.insert-hint.display`
 - type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default:
@@ -1534,7 +1602,7 @@ Whether to enable the insert hint.
 The color of the insert hint.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration -->
 ## `<decoration>`
 - type: `variant of: color | gradient`
 
@@ -1545,7 +1613,7 @@ This type specifically represents decorations drawn by niri: that is, [`layout.f
 
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration.color -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration.color -->
 ## `<decoration>.color`
 - type: `string`
 
@@ -1556,7 +1624,7 @@ This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color
 The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration.gradient -->
 ## `<decoration>.gradient`
 - type: `gradient`
 
@@ -1565,7 +1633,7 @@ A linear gradient to use for the decoration.
 This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.angle -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration.gradient.angle -->
 ## `<decoration>.gradient.angle`
 - type: `signed integer`
 - default: `180`
@@ -1575,7 +1643,7 @@ The angle of the gradient, in degrees, measured clockwise from a gradient that s
 This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.from -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration.gradient.from -->
 ## `<decoration>.gradient.from`
 - type: `string`
 
@@ -1584,7 +1652,7 @@ The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.in' -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration.gradient.in' -->
 ## `<decoration>.gradient.in'`
 - type: `null or one of "srgb", "srgb-linear", "oklab", "oklch shorter hue", "oklch longer hue", "oklch increasing hue", "oklch decreasing hue"`
 - default: `null`
@@ -1594,7 +1662,7 @@ The colorspace to interpolate the gradient in. This option is named `in'` becaus
 This is a subset of the [`<color-interpolation-method>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method) values in CSS.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.relative-to -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration.gradient.relative-to -->
 ## `<decoration>.gradient.relative-to`
 - type: `one of "window", "workspace-view"`
 - default: `"window"`
@@ -1624,7 +1692,7 @@ the bottom edge of the big window is almost entirely yellow, and the top edge of
 these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
 
 
-<!-- sorting key: programs.niri.settings.j.layout.c.decoration.gradient.to -->
+<!-- sorting key: programs.niri.settings.j.layout.d.decoration.gradient.to -->
 ## `<decoration>.gradient.to`
 - type: `string`
 
@@ -1633,7 +1701,7 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.always-center-single-column -->
+<!-- sorting key: programs.niri.settings.j.layout.e.always-center-single-column -->
 ## `programs.niri.settings.layout.always-center-single-column`
 - type: `boolean`
 - default: `false`
@@ -1641,7 +1709,7 @@ For more details, see [`<decoration>.color`](#decorationcolor).
 This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.center-focused-column -->
+<!-- sorting key: programs.niri.settings.j.layout.e.center-focused-column -->
 ## `programs.niri.settings.layout.center-focused-column`
 - type: `one of "never", "always", "on-overflow"`
 - default: `"never"`
@@ -1653,7 +1721,7 @@ When changing focus, niri can automatically center the focused column.
 - `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.default-column-width -->
+<!-- sorting key: programs.niri.settings.j.layout.e.default-column-width -->
 ## `programs.niri.settings.layout.default-column-width`
 - type: `{} or (variant of: fixed | proportion)`
 
@@ -1666,21 +1734,21 @@ See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-wid
 You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.default-column-width.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.e.default-column-width.fixed -->
 ## `programs.niri.settings.layout.default-column-width.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.default-column-width.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.e.default-column-width.proportion -->
 ## `programs.niri.settings.layout.default-column-width.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.empty-workspace-above-first -->
+<!-- sorting key: programs.niri.settings.j.layout.e.empty-workspace-above-first -->
 ## `programs.niri.settings.layout.empty-workspace-above-first`
 - type: `boolean`
 - default: `false`
@@ -1690,7 +1758,7 @@ Normally, niri has a dynamic amount of workspaces, with one empty workspace at t
 When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.gaps -->
+<!-- sorting key: programs.niri.settings.j.layout.e.gaps -->
 ## `programs.niri.settings.layout.gaps`
 - type: `floating point number or signed integer`
 - default: `16`
@@ -1698,7 +1766,7 @@ When this is enabled, there will be an empty workspace above the first workspace
 The gap between windows in the layout, measured in logical pixels.
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.preset-column-widths -->
+<!-- sorting key: programs.niri.settings.j.layout.e.preset-column-widths -->
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of variant of: fixed | proportion`
 
@@ -1721,21 +1789,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.preset-column-widths.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.e.preset-column-widths.fixed -->
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.preset-column-widths.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.e.preset-column-widths.proportion -->
 ## `programs.niri.settings.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.preset-window-heights -->
+<!-- sorting key: programs.niri.settings.j.layout.e.preset-window-heights -->
 ## `programs.niri.settings.layout.preset-window-heights`
 - type: `list of variant of: fixed | proportion`
 
@@ -1758,21 +1826,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.preset-window-heights.fixed -->
+<!-- sorting key: programs.niri.settings.j.layout.e.preset-window-heights.fixed -->
 ## `programs.niri.settings.layout.preset-window-heights.*.fixed`
 - type: `signed integer`
 
 The height of the window in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.preset-window-heights.proportion -->
+<!-- sorting key: programs.niri.settings.j.layout.e.preset-window-heights.proportion -->
 ## `programs.niri.settings.layout.preset-window-heights.*.proportion`
 - type: `floating point number`
 
 The height of the window as a proportion of the screen's height
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.struts -->
+<!-- sorting key: programs.niri.settings.j.layout.e.struts -->
 ## `programs.niri.settings.layout.struts`
 
 
@@ -1785,25 +1853,25 @@ Struts are computed in addition to layer-shell surfaces. If you have a waybar of
 The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.struts.bottom -->
+<!-- sorting key: programs.niri.settings.j.layout.e.struts.bottom -->
 ## `programs.niri.settings.layout.struts.bottom`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.struts.left -->
+<!-- sorting key: programs.niri.settings.j.layout.e.struts.left -->
 ## `programs.niri.settings.layout.struts.left`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.struts.right -->
+<!-- sorting key: programs.niri.settings.j.layout.e.struts.right -->
 ## `programs.niri.settings.layout.struts.right`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.j.layout.d.struts.top -->
+<!-- sorting key: programs.niri.settings.j.layout.e.struts.top -->
 ## `programs.niri.settings.layout.struts.top`
 - type: `floating point number or signed integer`
 - default: `0`
@@ -2584,6 +2652,73 @@ The opacity of the window, ranging from 0 to 1.
 If the final value of this field is null, niri will fall back to a value of 1.
 
 Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow -->
+<!-- programs.niri.settings.window-rules.*.shadow -->
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.color -->
+## `programs.niri.settings.window-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.draw-behind-window -->
+## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.enable -->
+## `programs.niri.settings.window-rules.*.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.inactive-color -->
+## `programs.niri.settings.window-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.offset -->
+## `programs.niri.settings.window-rules.*.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.offset.x -->
+## `programs.niri.settings.window-rules.*.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.offset.y -->
+## `programs.niri.settings.window-rules.*.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.softness -->
+## `programs.niri.settings.window-rules.*.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.m.window-rules.d.shadow.spread -->
+## `programs.niri.settings.window-rules.*.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
 <!-- sorting key: programs.niri.settings.m.window-rules.e.max-height -->
