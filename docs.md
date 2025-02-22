@@ -462,6 +462,20 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `toggle-window-rule-opacity` (only on niri-unstable)
 
 
+<!-- sorting key: programs.niri.settings.a.binds.allow-inhibiting -->
+## `programs.niri.settings.binds.<name>.allow-inhibiting`
+- type: `boolean`
+- default: `true`
+
+When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
+
+By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
+
+When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
+
+Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
+
+
 <!-- sorting key: programs.niri.settings.a.binds.allow-when-locked -->
 ## `programs.niri.settings.binds.<name>.allow-when-locked`
 - type: `boolean`

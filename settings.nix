@@ -812,6 +812,19 @@
                   This is only applicable for `spawn` keybinds.
                 '';
               };
+            allow-inhibiting =
+              optional types.bool true
+              // {
+                description = ''
+                  When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
+
+                  By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
+
+                  When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
+
+                  Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
+                '';
+              };
             cooldown-ms =
               nullable types.int
               // {
@@ -2674,16 +2687,23 @@
         then "${cfg'.width}x${cfg'.height}"
         else "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
 
-      bind = name: cfg:
+      bind = name: cfg: let
+        bool-props-with-defaults = cfg: defaults:
+          opt-props (builtins.mapAttrs (name: value: (
+              if (defaults ? ${name}) && (value != defaults.${name})
+              then value
+              else null
+            ))
+            cfg);
+      in
         node name (opt-props {
             inherit (cfg) cooldown-ms;
           }
-          // (lib.optionalAttrs (!cfg.repeat) {
-            repeat = false;
-          })
-          // (lib.optionalAttrs cfg.allow-when-locked {
-            allow-when-locked = true;
-          })) [
+          // bool-props-with-defaults cfg {
+            repeat = true;
+            allow-when-locked = false;
+            allow-inhibiting = true;
+          }) [
           (lib.mapAttrsToList leaf cfg.action)
         ];
 
