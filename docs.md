@@ -1758,71 +1758,6 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.k.layout.e.always-center-single-column -->
-## `programs.niri.settings.layout.always-center-single-column`
-- type: `boolean`
-- default: `false`
-
-This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
-
-
-<!-- sorting key: programs.niri.settings.k.layout.e.center-focused-column -->
-## `programs.niri.settings.layout.center-focused-column`
-- type: `one of "never", "always", "on-overflow"`
-- default: `"never"`
-
-When changing focus, niri can automatically center the focused column.
-
-- `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
-- `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
-- `"always"`: the focused column will always be centered, even if it was already fully visible.
-
-
-<!-- sorting key: programs.niri.settings.k.layout.e.default-column-width -->
-## `programs.niri.settings.layout.default-column-width`
-- type: `{} or (variant of: fixed | proportion)`
-
-The default width for new columns.
-
-When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
-
-See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
-
-You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
-
-
-<!-- sorting key: programs.niri.settings.k.layout.e.default-column-width.fixed -->
-## `programs.niri.settings.layout.default-column-width.fixed`
-- type: `signed integer`
-
-The width of the column in logical pixels
-
-
-<!-- sorting key: programs.niri.settings.k.layout.e.default-column-width.proportion -->
-## `programs.niri.settings.layout.default-column-width.proportion`
-- type: `floating point number`
-
-The width of the column as a proportion of the screen's width
-
-
-<!-- sorting key: programs.niri.settings.k.layout.e.empty-workspace-above-first -->
-## `programs.niri.settings.layout.empty-workspace-above-first`
-- type: `boolean`
-- default: `false`
-
-Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really  is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
-
-When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
-
-
-<!-- sorting key: programs.niri.settings.k.layout.e.gaps -->
-## `programs.niri.settings.layout.gaps`
-- type: `floating point number or signed integer`
-- default: `16`
-
-The gap between windows in the layout, measured in logical pixels.
-
-
 <!-- sorting key: programs.niri.settings.k.layout.e.preset-column-widths -->
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of variant of: fixed | proportion`
@@ -1897,7 +1832,163 @@ The height of the window in logical pixels
 The height of the window as a proportion of the screen's height
 
 
-<!-- sorting key: programs.niri.settings.k.layout.e.struts -->
+<!-- sorting key: programs.niri.settings.k.layout.f.always-center-single-column -->
+## `programs.niri.settings.layout.always-center-single-column`
+- type: `boolean`
+- default: `false`
+
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.center-focused-column -->
+## `programs.niri.settings.layout.center-focused-column`
+- type: `one of "never", "always", "on-overflow"`
+- default: `"never"`
+
+When changing focus, niri can automatically center the focused column.
+
+- `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+- `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+- `"always"`: the focused column will always be centered, even if it was already fully visible.
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.default-column-display -->
+## `programs.niri.settings.layout.default-column-display`
+- type: `one of "normal", "tabbed"`
+- default: `"normal"`
+
+How windows in columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.default-column-width -->
+## `programs.niri.settings.layout.default-column-width`
+- type: `{} or (variant of: fixed | proportion)`
+
+The default width for new columns.
+
+When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+
+You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.default-column-width.fixed -->
+## `programs.niri.settings.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.default-column-width.proportion -->
+## `programs.niri.settings.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator -->
+## `programs.niri.settings.layout.tab-indicator`
+- type: `null or (submodule)`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.corner-radius -->
+## `programs.niri.settings.layout.tab-indicator.corner-radius`
+- type: `floating point number or signed integer`
+- default: `0.000000`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.enable -->
+## `programs.niri.settings.layout.tab-indicator.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.gap -->
+## `programs.niri.settings.layout.tab-indicator.gap`
+- type: `floating point number or signed integer`
+- default: `5.000000`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.gaps-between-tabs -->
+## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
+- type: `floating point number or signed integer`
+- default: `0.000000`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.hide-when-single-tab -->
+## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
+- type: `boolean`
+- default: `false`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.length.total-proportion -->
+## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
+- type: `floating point number`
+- default: `0.500000`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.place-within-column -->
+## `programs.niri.settings.layout.tab-indicator.place-within-column`
+- type: `boolean`
+- default: `false`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.position -->
+## `programs.niri.settings.layout.tab-indicator.position`
+- type: `one of "left", "right", "top", "bottom"`
+- default: `"left"`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.a.width -->
+## `programs.niri.settings.layout.tab-indicator.width`
+- type: `floating point number or signed integer`
+- default: `4.000000`
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.b.active -->
+## `programs.niri.settings.layout.tab-indicator.active`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- default: `config.programs.niri.settings.layout.border.active`
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.k.layout.f.tab-indicator.b.inactive -->
+## `programs.niri.settings.layout.tab-indicator.inactive`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- default: `config.programs.niri.settings.layout.border.inactive`
+
+The color of the the tab indicator for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.k.layout.g.empty-workspace-above-first -->
+## `programs.niri.settings.layout.empty-workspace-above-first`
+- type: `boolean`
+- default: `false`
+
+Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really  is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+
+When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
+
+
+<!-- sorting key: programs.niri.settings.k.layout.g.gaps -->
+## `programs.niri.settings.layout.gaps`
+- type: `floating point number or signed integer`
+- default: `16`
+
+The gap between windows in the layout, measured in logical pixels.
+
+
+<!-- sorting key: programs.niri.settings.k.layout.g.struts -->
 ## `programs.niri.settings.layout.struts`
 
 
@@ -1910,25 +2001,25 @@ Struts are computed in addition to layer-shell surfaces. If you have a waybar of
 The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
 
 
-<!-- sorting key: programs.niri.settings.k.layout.e.struts.bottom -->
+<!-- sorting key: programs.niri.settings.k.layout.g.struts.bottom -->
 ## `programs.niri.settings.layout.struts.bottom`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.k.layout.e.struts.left -->
+<!-- sorting key: programs.niri.settings.k.layout.g.struts.left -->
 ## `programs.niri.settings.layout.struts.left`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.k.layout.e.struts.right -->
+<!-- sorting key: programs.niri.settings.k.layout.g.struts.right -->
 ## `programs.niri.settings.layout.struts.right`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.k.layout.e.struts.top -->
+<!-- sorting key: programs.niri.settings.k.layout.g.struts.top -->
 ## `programs.niri.settings.layout.struts.top`
 - type: `floating point number or signed integer`
 - default: `0`
@@ -2368,6 +2459,16 @@ For a window to be focused, its surface must be focused. There is up to one focu
 When true, this rule will match windows opened within the first 60 seconds of niri starting up. When false, this rule will match windows opened *more than* 60 seconds after niri started up. This is useful for applying different rules to windows opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
 
 
+<!-- sorting key: programs.niri.settings.n.window-rules.c.default-column-display -->
+## `programs.niri.settings.window-rules.*.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+When this window is inserted into the tiling layout such that a new column is created (e.g. when it is first opened, when it is expelled from an existing column, when it's moved to a new workspace, etc), this setting controls the default display mode of the column.
+
+If the final value of this field is null, then the default display mode is taken from [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display).
+
+
 <!-- sorting key: programs.niri.settings.n.window-rules.c.default-column-width -->
 ## `programs.niri.settings.window-rules.*.default-column-width`
 - type: `null or {} or (variant of: fixed | proportion)`
@@ -2429,7 +2530,7 @@ The height of the window in logical pixels
 The height of the window as a proportion of the screen's height
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.c.open-floating -->
+<!-- sorting key: programs.niri.settings.n.window-rules.d.open-floating -->
 ## `programs.niri.settings.window-rules.*.open-floating`
 - type: `null or boolean`
 - default: `null`
@@ -2443,7 +2544,7 @@ If the final value of this field is false, then this window is never allowed to 
 If the final value of this field is null, then niri will decide whether to open the window as floating or as tiled.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.c.open-focused -->
+<!-- sorting key: programs.niri.settings.n.window-rules.d.open-focused -->
 ## `programs.niri.settings.window-rules.*.open-focused`
 - type: `null or boolean`
 - default: `null`
@@ -2462,7 +2563,7 @@ If the final value of this field is null, then the window will be focused based 
 If the final value of this field is not null, all of the above is ignored. Whether the window provides an activation token or not, doesn't matter. The window will be focused if and only if this field is true. If it is false, the window will not be focused, even if it provides a valid activation token.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.c.open-fullscreen -->
+<!-- sorting key: programs.niri.settings.n.window-rules.d.open-fullscreen -->
 ## `programs.niri.settings.window-rules.*.open-fullscreen`
 - type: `null or boolean`
 - default: `null`
@@ -2476,7 +2577,7 @@ If the final value of this field is false, then this window is never allowed to 
 If the final value of this field is null, then the client gets to decide if this window will open in fullscreen.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.c.open-maximized -->
+<!-- sorting key: programs.niri.settings.n.window-rules.d.open-maximized -->
 ## `programs.niri.settings.window-rules.*.open-maximized`
 - type: `null or boolean`
 - default: `null`
@@ -2488,7 +2589,7 @@ If the final value of this field is null or false, then the window will not open
 If the final value of this field is true, then the window will open in a maximized column.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.c.open-on-output -->
+<!-- sorting key: programs.niri.settings.n.window-rules.d.open-on-output -->
 ## `programs.niri.settings.window-rules.*.open-on-output`
 - type: `null or string`
 - default: `null`
@@ -2500,7 +2601,7 @@ If final value of this field is an output that exists, the new window will open 
 If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.c.open-on-workspace -->
+<!-- sorting key: programs.niri.settings.n.window-rules.d.open-on-workspace -->
 ## `programs.niri.settings.window-rules.*.open-on-workspace`
 - type: `null or string`
 - default: `null`
@@ -2512,7 +2613,7 @@ If the final value of this field is a named workspace that exists, the window wi
 If the final value of this is a named workspace that does not exist, or it is null, the window opens on the currently focused workspace.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.block-out-from -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.block-out-from -->
 ## `programs.niri.settings.window-rules.*.block-out-from`
 - type: `null or one of "screencast", "screen-capture"`
 - default: `null`
@@ -2563,14 +2664,14 @@ There are three methods of screencapture in niri:
 Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.border -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.border -->
 ## `programs.niri.settings.window-rules.*.border`
 
 
 See [`layout.border`](#programsnirisettingslayoutborder).
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.border.a.enable -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.border.a.enable -->
 ## `programs.niri.settings.window-rules.*.border.enable`
 - type: `null or boolean`
 - default: `null`
@@ -2578,7 +2679,7 @@ See [`layout.border`](#programsnirisettingslayoutborder).
 Whether to enable the border.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.border.a.width -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.border.a.width -->
 ## `programs.niri.settings.window-rules.*.border.width`
 - type: `null or floating point number or signed integer`
 - default: `null`
@@ -2586,7 +2687,7 @@ Whether to enable the border.
 The width of the border drawn around each matched window.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.border.b.active -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.border.b.active -->
 ## `programs.niri.settings.window-rules.*.border.active`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -2594,7 +2695,7 @@ The width of the border drawn around each matched window.
 The color of the border for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.border.b.inactive -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.border.b.inactive -->
 ## `programs.niri.settings.window-rules.*.border.inactive`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -2602,7 +2703,7 @@ The color of the border for the window that has keyboard focus.
 The color of the border for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.clip-to-geometry -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.clip-to-geometry -->
 ## `programs.niri.settings.window-rules.*.clip-to-geometry`
 - type: `null or boolean`
 - default: `null`
@@ -2610,7 +2711,7 @@ The color of the border for windows that do not have keyboard focus.
 Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.draw-border-with-background -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.draw-border-with-background -->
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
 - default: `null`
@@ -2628,14 +2729,14 @@ If you wish to make windows sucha s your terminal transparent, and they use CSD,
 You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.focus-ring -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.focus-ring -->
 ## `programs.niri.settings.window-rules.*.focus-ring`
 
 
 See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.focus-ring.a.enable -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.focus-ring.a.enable -->
 ## `programs.niri.settings.window-rules.*.focus-ring.enable`
 - type: `null or boolean`
 - default: `null`
@@ -2643,7 +2744,7 @@ See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
 Whether to enable the focus ring.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.focus-ring.a.width -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.focus-ring.a.width -->
 ## `programs.niri.settings.window-rules.*.focus-ring.width`
 - type: `null or floating point number or signed integer`
 - default: `null`
@@ -2651,7 +2752,7 @@ Whether to enable the focus ring.
 The width of the focus ring drawn around each matched window with focus.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.focus-ring.b.active -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.focus-ring.b.active -->
 ## `programs.niri.settings.window-rules.*.focus-ring.active`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -2659,7 +2760,7 @@ The width of the focus ring drawn around each matched window with focus.
 The color of the focus ring for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.focus-ring.b.inactive -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.focus-ring.b.inactive -->
 ## `programs.niri.settings.window-rules.*.focus-ring.inactive`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -2667,7 +2768,7 @@ The color of the focus ring for the window that has keyboard focus.
 The color of the focus ring for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.geometry-corner-radius -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.geometry-corner-radius -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius`
 - type: `null or (submodule)`
 - default: `null`
@@ -2679,27 +2780,27 @@ By default, the actual window surface will be unaffected by this.
 Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to-geometry) to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.geometry-corner-radius.bottom-left -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.geometry-corner-radius.bottom-left -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-left`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.geometry-corner-radius.bottom-right -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.geometry-corner-radius.bottom-right -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-right`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.geometry-corner-radius.top-left -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.geometry-corner-radius.top-left -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-left`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.geometry-corner-radius.top-right -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.geometry-corner-radius.top-right -->
 ## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-right`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.opacity -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.opacity -->
 ## `programs.niri.settings.window-rules.*.opacity`
 - type: `null or floating point number`
 - default: `null`
@@ -2711,34 +2812,34 @@ If the final value of this field is null, niri will fall back to a value of 1.
 Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow -->
 <!-- programs.niri.settings.window-rules.*.shadow -->
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.color -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.color -->
 ## `programs.niri.settings.window-rules.*.shadow.color`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.draw-behind-window -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.draw-behind-window -->
 ## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
 - type: `null or boolean`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.enable -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.enable -->
 ## `programs.niri.settings.window-rules.*.shadow.enable`
 - type: `null or boolean`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.inactive-color -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.inactive-color -->
 ## `programs.niri.settings.window-rules.*.shadow.inactive-color`
 - type: `null or string`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.offset -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.offset -->
 ## `programs.niri.settings.window-rules.*.shadow.offset`
 - type: `null or (submodule)`
 - default: `null`
@@ -2748,17 +2849,17 @@ The offset of the shadow from the window, measured in logical pixels.
 This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.offset.x -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.offset.x -->
 ## `programs.niri.settings.window-rules.*.shadow.offset.x`
 - type: `floating point number or signed integer`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.offset.y -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.offset.y -->
 ## `programs.niri.settings.window-rules.*.shadow.offset.y`
 - type: `floating point number or signed integer`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.softness -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.softness -->
 ## `programs.niri.settings.window-rules.*.shadow.softness`
 - type: `null or floating point number or signed integer`
 - default: `null`
@@ -2768,7 +2869,7 @@ The softness/size of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.d.shadow.spread -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.shadow.spread -->
 ## `programs.niri.settings.window-rules.*.shadow.spread`
 - type: `null or floating point number or signed integer`
 - default: `null`
@@ -2778,7 +2879,23 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.e.max-height -->
+<!-- sorting key: programs.niri.settings.n.window-rules.e.tab-indicator.active -->
+## `programs.niri.settings.window-rules.*.tab-indicator.active`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
+
+
+<!-- sorting key: programs.niri.settings.n.window-rules.e.tab-indicator.inactive -->
+## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
+
+
+<!-- sorting key: programs.niri.settings.n.window-rules.f.max-height -->
 ## `programs.niri.settings.window-rules.*.max-height`
 - type: `null or signed integer`
 - default: `null`
@@ -2793,7 +2910,7 @@ Also, note that the maximum height is not taken into account when automatically 
 If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.e.max-width -->
+<!-- sorting key: programs.niri.settings.n.window-rules.f.max-width -->
 ## `programs.niri.settings.window-rules.*.max-width`
 - type: `null or signed integer`
 - default: `null`
@@ -2803,7 +2920,7 @@ Sets the maximum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.e.min-height -->
+<!-- sorting key: programs.niri.settings.n.window-rules.f.min-height -->
 ## `programs.niri.settings.window-rules.*.min-height`
 - type: `null or signed integer`
 - default: `null`
@@ -2813,7 +2930,7 @@ Sets the minimum height (in logical pixels) that niri will ever ask this window 
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.e.min-width -->
+<!-- sorting key: programs.niri.settings.n.window-rules.f.min-width -->
 ## `programs.niri.settings.window-rules.*.min-width`
 - type: `null or signed integer`
 - default: `null`
@@ -2823,7 +2940,7 @@ Sets the minimum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.f.default-floating-position -->
+<!-- sorting key: programs.niri.settings.n.window-rules.g.default-floating-position -->
 ## `programs.niri.settings.window-rules.*.default-floating-position`
 - type: `null or (submodule)`
 - default: `null`
@@ -2839,22 +2956,22 @@ If a window has already been placed as floating through one of the above methods
 The `x` and `y` fields are the distances from the edge of the screen to the edge of the window, in logical pixels. The `relative-to` field determines which two edges of the window and screen that these distances are measured from.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.f.default-floating-position.relative-to -->
+<!-- sorting key: programs.niri.settings.n.window-rules.g.default-floating-position.relative-to -->
 ## `programs.niri.settings.window-rules.*.default-floating-position.relative-to`
 - type: `one of "top-left", "top-right", "bottom-left", "bottom-right"`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.f.default-floating-position.x -->
+<!-- sorting key: programs.niri.settings.n.window-rules.g.default-floating-position.x -->
 ## `programs.niri.settings.window-rules.*.default-floating-position.x`
 - type: `floating point number or signed integer`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.f.default-floating-position.y -->
+<!-- sorting key: programs.niri.settings.n.window-rules.g.default-floating-position.y -->
 ## `programs.niri.settings.window-rules.*.default-floating-position.y`
 - type: `floating point number or signed integer`
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.g.variable-refresh-rate -->
+<!-- sorting key: programs.niri.settings.n.window-rules.h.variable-refresh-rate -->
 ## `programs.niri.settings.window-rules.*.variable-refresh-rate`
 - type: `null or boolean`
 - default: `null`
@@ -2862,7 +2979,7 @@ The `x` and `y` fields are the distances from the edge of the screen to the edge
 Takes effect only when the window is on an output with [`outputs.*.variable-refresh-rate`](#programsnirisettingsoutputsvariable-refresh-rate) set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
 
 
-<!-- sorting key: programs.niri.settings.n.window-rules.h.scroll-factor -->
+<!-- sorting key: programs.niri.settings.n.window-rules.i.scroll-factor -->
 ## `programs.niri.settings.window-rules.*.scroll-factor`
 - type: `null or floating point number or signed integer`
 - default: `null`

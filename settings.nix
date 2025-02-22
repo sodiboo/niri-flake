@@ -1751,6 +1751,8 @@
                   ```
                 '';
               };
+          }
+          {
             default-column-width =
               optional default-width {}
               // {
@@ -1782,6 +1784,74 @@
                   This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
                 '';
               };
+            default-column-display =
+              optional (enum ["normal" "tabbed"]) "normal"
+              // {
+                description = ''
+                  How windows in columns should be displayed by default.
+
+                  - `"normal"`: Windows are arranged vertically, spread across the working area height.
+                  - `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+                  Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+                  Also, since a newly created column always contains a single window, you can override this default value with ${link' "programs.niri.settings.window-rules.*.default-column-display"}.
+                '';
+              };
+
+            tab-indicator = nullable (ordered-record [
+              {
+                enable = optional types.bool true;
+                hide-when-single-tab = optional types.bool false;
+                place-within-column = optional types.bool false;
+                gap = optional float-or-int 5.0;
+                width = optional float-or-int 4.0;
+                length.total-proportion = optional types.float 0.5;
+                position = optional (enum ["left" "right" "top" "bottom"]) "left";
+                gaps-between-tabs = optional float-or-int 0.0;
+                corner-radius = optional float-or-int 0.0;
+              }
+              (
+                let
+                  this-fucking-type = state: let
+                    layout = "programs.niri.settings.layout";
+
+                    # this is the real, semantic type of the value.
+                    # and semantically, it has a default value of the corresponding border decoration.
+                    # but, it's painful/infeasible to find that value here,
+                    # so we make niri do it for us.
+                    # and to do so, we set it to **null** by default.
+
+                    real = decoration "${layout}.tab-indicator.${state}";
+
+                    # don't you dare call yourself nullable.
+                    bullshit-mess = optional (newtype (link-type "decoration") (newtype real (nullOr real) // {inherit (real) name;})) null;
+                  in
+                    bullshit-mess
+                    // {
+                      visible = "shallow";
+                      defaultText = "config.${layout}.border.${state}";
+                    };
+                in {
+                  active =
+                    this-fucking-type "active"
+                    // {
+                      description = ''
+                        The color of the tab indicator for the window that has keyboard focus.
+                      '';
+                    };
+                  inactive =
+                    this-fucking-type "inactive"
+                    // {
+                      description = ''
+                        The color of the the tab indicator for windows that do not have keyboard focus.
+                      '';
+                    };
+                }
+              )
+            ]);
+          }
+          {
             empty-workspace-above-first =
               optional types.bool false
               // {
@@ -2027,6 +2097,17 @@
                       If the final value of this option is not an empty attrset `{}`, and the window spawns as floating, then the window will be created with the specified height.
                     '';
                   };
+                default-column-display =
+                  nullable (enum ["normal" "tabbed"])
+                  // {
+                    description = ''
+                      When this window is inserted into the tiling layout such that a new column is created (e.g. when it is first opened, when it is expelled from an existing column, when it's moved to a new workspace, etc), this setting controls the default display mode of the column.
+
+                      If the final value of this field is null, then the default display mode is taken from ${link' "programs.niri.settings.layout.default-column-display"}.
+                    '';
+                  };
+              }
+              {
                 open-on-output =
                   nullable types.str
                   // {
@@ -2148,6 +2229,27 @@
                   description = ''
                     See ${link' "programs.niri.settings.layout.focus-ring"}.
                   '';
+                };
+
+                tab-indicator = let
+                  path = "programs.niri.settings.window-rules.*.tab-indicator";
+                in {
+                  active =
+                    nullable (newtype (link-type "decoration") (decoration "${path}.active"))
+                    // {
+                      visible = "shallow";
+                      description = ''
+                        See ${link' "programs.niri.settings.layout.tab-indicator.active"}.
+                      '';
+                    };
+                  inactive =
+                    nullable (newtype (link-type "decoration") (decoration "${path}.inactive"))
+                    // {
+                      visible = "shallow";
+                      description = ''
+                        See ${link' "programs.niri.settings.layout.tab-indicator.inactive"}.
+                      '';
+                    };
                 };
 
                 shadow = shadow-rule;
@@ -2651,6 +2753,22 @@
           (nullable leaf "inactive-color" cfg.inactive-color)
         ]);
 
+      tab-indicator = map' plain (cfg:
+        toggle "off" cfg [
+          (flag' "hide-when-single-tab" cfg.hide-when-single-tab)
+          (flag' "place-within-column" cfg.place-within-column)
+          (leaf "gap" cfg.gap)
+          (leaf "width" cfg.width)
+          (leaf "length" cfg.length)
+          (leaf "position" cfg.position)
+          (leaf "gaps-between-tabs" cfg.gaps-between-tabs)
+          (leaf "corner-radius" cfg.corner-radius)
+          (nullable leaf "active-color" cfg.active.color or null)
+          (nullable gradient' "active-gradient" cfg.active.gradient or null)
+          (nullable leaf "inactive-color" cfg.inactive.color or null)
+          (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
+        ]);
+
       preset-sizes = map' (nullable plain) (cfg:
         if cfg == []
         then null
@@ -2697,6 +2815,13 @@
           ]
         );
 
+      tab-indicator-rule = map' plain' (cfg: [
+        (nullable leaf "active-color" cfg.active.color or null)
+        (nullable gradient' "active-gradient" cfg.active.gradient or null)
+        (nullable leaf "inactive-color" cfg.inactive.color or null)
+        (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
+      ]);
+
       corner-radius = cfg: [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left];
 
       window-rule = cfg:
@@ -2705,6 +2830,7 @@
           (map (leaf "exclude") (map opt-props cfg.excludes))
           (nullable preset-sizes "default-column-width" cfg.default-column-width)
           (nullable preset-sizes "default-window-height" cfg.default-window-height)
+          (nullable leaf "default-column-display" cfg.default-column-display)
           (nullable leaf "open-on-output" cfg.open-on-output)
           (nullable leaf "open-on-workspace" cfg.open-on-workspace)
           (nullable leaf "open-maximized" cfg.open-maximized)
@@ -2717,6 +2843,7 @@
           (border-rule "border" cfg.border)
           (border-rule "focus-ring" cfg.focus-ring)
           (shadow-rule "shadow" cfg.shadow)
+          (tab-indicator-rule "tab-indicator" cfg.tab-indicator)
           (nullable leaf "opacity" cfg.opacity)
           (nullable leaf "min-width" cfg.min-width)
           (nullable leaf "max-width" cfg.max-width)
@@ -2861,6 +2988,7 @@
         (borderish "focus-ring" cfg.layout.focus-ring)
         (borderish "border" cfg.layout.border)
         (shadow "shadow" cfg.layout.shadow)
+        (nullable tab-indicator "tab-indicator" cfg.layout.tab-indicator)
         (plain "insert-hint" [
           (toggle "off" cfg.layout.insert-hint [
             (nullable leaf "color" cfg.layout.insert-hint.display.color or null)
@@ -2871,6 +2999,9 @@
         (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
         (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
         (leaf "center-focused-column" cfg.layout.center-focused-column)
+        (optional-node (cfg.layout.default-column-display != "normal") (
+          leaf "default-column-display" cfg.layout.default-column-display
+        ))
         (flag' "always-center-single-column" cfg.layout.always-center-single-column)
         (flag' "empty-workspace-above-first" cfg.layout.empty-workspace-above-first)
       ])
