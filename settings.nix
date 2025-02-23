@@ -1453,6 +1453,48 @@
             pointer-tablet-common
             // {
               map-to-output = nullable types.str;
+              calibration-matrix =
+                nullable (mkOptionType {
+                  name = "matrix";
+                  description = "2x3 matrix";
+                  check = matrix:
+                    builtins.isList matrix
+                    && builtins.length matrix == 2
+                    && builtins.all (
+                      row:
+                        builtins.isList row
+                        && builtins.length row == 3
+                        && builtins.all builtins.isFloat row
+                    )
+                    matrix;
+                  merge = lib.mergeUniqueOption {
+                    message = "";
+                    merge = loc: defs: builtins.concatLists (builtins.head defs).value;
+                  };
+                })
+                // {
+                  description = ''
+                    An augmented calibration matrix for the tablet.
+
+                    This is represented in Nix as a 2-list of 3-lists of floats.
+
+                    For example:
+                    ```nix
+                    {
+                      # 90 degree rotation clockwise
+                      calibration-matrix = [
+                        [ 0.0 -1.0 1.0 ]
+                        [ 1.0  0.0 0.0 ]
+                      ];
+                    }
+                    ```
+
+                    Further reading:
+                    - [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
+                    - [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
+                    - [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+                  '';
+                };
             };
           touch.map-to-output = nullable types.str;
           warp-mouse-to-focus =
@@ -2757,6 +2799,12 @@
         (nullable leaf "map-to-output" cfg.map-to-output)
       ];
 
+      tablet = cfg:
+        touchy cfg
+        ++ [
+          (nullable leaf "calibration-matrix" cfg.calibration-matrix)
+        ];
+
       gradient' = name: cfg:
         leaf name
         (lib.concatMapAttrs (name: value:
@@ -2949,7 +2997,7 @@
 
       pointer-tablet' = ext: name: cfg: plain name (pointer-tablet cfg (ext cfg));
       pointer' = pointer-tablet' pointer;
-      touchy' = pointer-tablet' touchy;
+      tablet' = pointer-tablet' tablet;
     in [
       (plain "input" [
         (plain "keyboard" [
@@ -2982,7 +3030,7 @@
         ]))
         (pointer' "trackpoint" cfg.input.trackpoint)
         (pointer' "trackball" cfg.input.trackball)
-        (touchy' "tablet" cfg.input.tablet)
+        (tablet' "tablet" cfg.input.tablet)
         (plain "touch" (touchy cfg.input.touch))
         (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
         (optional-node cfg.input.focus-follows-mouse.enable (leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {

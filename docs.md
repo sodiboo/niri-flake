@@ -925,6 +925,32 @@ By default, niri will take over the power button to make it sleep instead of pow
 You can disable this behaviour if you prefer to configure the power button elsewhere.
 
 
+<!-- sorting key: programs.niri.settings.h.input.tablet.calibration-matrix -->
+## `programs.niri.settings.input.tablet.calibration-matrix`
+- type: `null or (2x3 matrix)`
+- default: `null`
+
+An augmented calibration matrix for the tablet.
+
+This is represented in Nix as a 2-list of 3-lists of floats.
+
+For example:
+```nix
+{
+  # 90 degree rotation clockwise
+  calibration-matrix = [
+    [ 0.0 -1.0 1.0 ]
+    [ 1.0  0.0 0.0 ]
+  ];
+}
+```
+
+Further reading:
+- [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
+- [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
+- [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+
+
 <!-- sorting key: programs.niri.settings.h.input.tablet.enable -->
 ## `programs.niri.settings.input.tablet.enable`
 - type: `boolean`
