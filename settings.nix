@@ -334,6 +334,8 @@
           };
       };
 
+    decoration' = newtype (link-type "decoration") (decoration "<decoration>");
+
     borderish = {
       enable-by-default,
       default-active-color,
@@ -362,7 +364,7 @@
 
         {
           active =
-            optional (newtype (link-type "decoration") (decoration "${path}.active")) {color = default-active-color;}
+            optional decoration' {color = default-active-color;}
             // {
               visible = "shallow";
               description = ''
@@ -370,7 +372,7 @@
               '';
             };
           inactive =
-            optional (newtype (link-type "decoration") (decoration "${path}.inactive")) {color = "rgb(80 80 80)";}
+            optional decoration' {color = "rgb(80 80 80)";}
             // {
               visible = "shallow";
               description = ''
@@ -409,7 +411,7 @@
 
         {
           active =
-            nullable (newtype (link-type "decoration") (decoration "${path}.active"))
+            nullable decoration'
             // {
               visible = "shallow";
               description = ''
@@ -417,7 +419,7 @@
               '';
             };
           inactive =
-            nullable (newtype (link-type "decoration") (decoration "${path}.inactive"))
+            nullable decoration'
             // {
               visible = "shallow";
               description = ''
@@ -1674,7 +1676,7 @@
                 }
                 {
                   display =
-                    optional (newtype (link-type "decoration") (decoration "programs.niri.settings.layout.insert-hint.display")) {color = "rgb(127 200 255 / 50%)";}
+                    optional decoration' {color = "rgb(127 200 255 / 50%)";}
                     // {
                       visible = "shallow";
                       description = ''
@@ -1814,15 +1816,12 @@
               (
                 let
                   this-fucking-type = state: let
-                    layout = "programs.niri.settings.layout";
-
                     # this is the real, semantic type of the value.
                     # and semantically, it has a default value of the corresponding border decoration.
                     # but, it's painful/infeasible to find that value here,
                     # so we make niri do it for us.
                     # and to do so, we set it to **null** by default.
-
-                    real = decoration "${layout}.tab-indicator.${state}";
+                    real = decoration "<decoration>";
 
                     # don't you dare call yourself nullable.
                     bullshit-mess = optional (newtype (link-type "decoration") (newtype real (nullOr real) // {inherit (real) name;})) null;
@@ -1830,7 +1829,7 @@
                     bullshit-mess
                     // {
                       visible = "shallow";
-                      defaultText = "config.${layout}.border.${state}";
+                      defaultText = "config.programs.niri.settings.layout.border.${state}";
                     };
                 in {
                   active =
@@ -2231,11 +2230,9 @@
                   '';
                 };
 
-                tab-indicator = let
-                  path = "programs.niri.settings.window-rules.*.tab-indicator";
-                in {
+                tab-indicator = {
                   active =
-                    nullable (newtype (link-type "decoration") (decoration "${path}.active"))
+                    nullable decoration'
                     // {
                       visible = "shallow";
                       description = ''
@@ -2243,7 +2240,7 @@
                       '';
                     };
                   inactive =
-                    nullable (newtype (link-type "decoration") (decoration "${path}.inactive"))
+                    nullable decoration'
                     // {
                       visible = "shallow";
                       description = ''
@@ -2305,6 +2302,7 @@
                   };
               })
               {
+                baba-is-float = nullable types.bool // {visible = false;};
                 default-floating-position =
                   nullable (record {
                     x = required float-or-int;
@@ -2788,32 +2786,26 @@
       animation' = shader: name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined || shader != null) (animation shader name cfg.${name});
 
       opt-props = lib.filterAttrs (lib.const (value: value != null));
-      border-rule = name: cfg:
-        optional-node (opt-props cfg != {}) (
-          plain name [
-            (flag' "on" (cfg.enable == true))
-            (flag' "off" (cfg.enable == false))
-            (nullable leaf "width" cfg.width)
-            (nullable leaf "active-color" cfg.active.color or null)
-            (nullable gradient' "active-gradient" cfg.active.gradient or null)
-            (nullable leaf "inactive-color" cfg.inactive.color or null)
-            (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
-          ]
-        );
+      border-rule = map' plain' (cfg: [
+        (flag' "on" (cfg.enable == true))
+        (flag' "off" (cfg.enable == false))
+        (nullable leaf "width" cfg.width)
+        (nullable leaf "active-color" cfg.active.color or null)
+        (nullable gradient' "active-gradient" cfg.active.gradient or null)
+        (nullable leaf "inactive-color" cfg.inactive.color or null)
+        (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
+      ]);
 
-      shadow-rule = name: cfg:
-        optional-node (opt-props cfg != {}) (
-          plain name [
-            (flag' "on" (cfg.enable == true))
-            (flag' "off" (cfg.enable == false))
-            (nullable leaf "offset" cfg.offset)
-            (nullable leaf "softness" cfg.softness)
-            (nullable leaf "spread" cfg.spread)
-            (nullable leaf "draw-behind-window" cfg.draw-behind-window)
-            (nullable leaf "color" cfg.color)
-            (nullable leaf "inactive-color" cfg.inactive-color)
-          ]
-        );
+      shadow-rule = map' plain' (cfg: [
+        (flag' "on" (cfg.enable == true))
+        (flag' "off" (cfg.enable == false))
+        (nullable leaf "offset" cfg.offset)
+        (nullable leaf "softness" cfg.softness)
+        (nullable leaf "spread" cfg.spread)
+        (nullable leaf "draw-behind-window" cfg.draw-behind-window)
+        (nullable leaf "color" cfg.color)
+        (nullable leaf "inactive-color" cfg.inactive-color)
+      ]);
 
       tab-indicator-rule = map' plain' (cfg: [
         (nullable leaf "active-color" cfg.active.color or null)
@@ -2850,6 +2842,7 @@
           (nullable leaf "min-height" cfg.min-height)
           (nullable leaf "max-height" cfg.max-height)
           (nullable leaf "block-out-from" cfg.block-out-from)
+          (nullable leaf "baba-is-float" cfg.baba-is-float)
           (nullable leaf "default-floating-position" cfg.default-floating-position)
           (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
           (nullable leaf "scroll-factor" cfg.scroll-factor)

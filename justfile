@@ -28,14 +28,10 @@ check: fmt
 # docs really do exceed the default call depth limit. as a workaround, increase it.
 
 check-docs: check
-    #!/usr/bin/env fish
-    set -x NIX_CONFIG "max-call-depth = 20000"
-    nix eval --quiet --quiet --raw .#lib.internal.docs-markdown > /dev/null
+    NIX_CONFIG="max-call-depth = 20000" nix eval --quiet --quiet --raw .#lib.internal.docs-markdown > /dev/null
 
 doc: check
-    #!/usr/bin/env fish
-    set -x NIX_CONFIG "max-call-depth = 20000"
-    nix eval --quiet --quiet --raw .#lib.internal.docs-markdown | sponge docs.md
+    NIX_CONFIG="max-call-depth = 20000" nix eval --quiet --quiet --raw .#lib.internal.docs-markdown | sponge docs.md
 
 watch:
     fd .nix . | entr just doc
