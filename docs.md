@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`v25.01`](https://github.com/YaLTeR/niri/releases/tag/v25.01) with no additional patches.
+Currently, this is release [`25.01`](https://github.com/YaLTeR/niri/releases/tag/25.01) with no additional patches.
 
 
 

@@ -58,7 +58,7 @@
 
     package-version = src:
       if stable-revs ? ${src.rev}
-      then stable-revs.${src.rev}
+      then nixpkgs.lib.removePrefix "v" stable-revs.${src.rev}
       else "unstable-${fmt-date src.lastModifiedDate}-${src.shortRev}";
 
     make-niri = {
