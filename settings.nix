@@ -887,6 +887,34 @@
                   Whether this keybind should trigger repeatedly when held down.
                 '';
               };
+            hotkey-overlay =
+              optional (variant {
+                hidden =
+                  types.bool
+                  // {
+                    variant-description = ''
+                      When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
+                    '';
+                  };
+                title =
+                  types.str
+                  // {
+                    variant-description = ''
+                      The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
+                    '';
+                  };
+              }) {
+                hidden = false;
+              }
+              // {
+                description = ''
+                  How this keybind should be displayed in the hotkey overlay.
+
+                  - By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
+                  - `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
+                  - `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+                '';
+              };
             action =
               required (newtype (plain-type "niri action") kdl.types.kdl-leaf)
               // {
@@ -2899,6 +2927,12 @@
             repeat = true;
             allow-when-locked = false;
             allow-inhibiting = true;
+          }
+          // lib.optionalAttrs (cfg.hotkey-overlay.hidden or false) {
+            hotkey-overlay-title = null;
+          }
+          // opt-props {
+            hotkey-overlay-title = cfg.hotkey-overlay.title or null;
           }) [
           (lib.mapAttrsToList leaf cfg.action)
         ];

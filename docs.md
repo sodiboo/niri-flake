@@ -496,6 +496,38 @@ The minimum cooldown before a keybind can be triggered again, in milliseconds.
 This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
 
 
+<!-- sorting key: programs.niri.settings.a.binds.hotkey-overlay -->
+## `programs.niri.settings.binds.<name>.hotkey-overlay`
+- type: `variant of: hidden | title`
+- default:
+  ```nix
+  {
+    hidden = false;
+  }
+  ```
+
+
+How this keybind should be displayed in the hotkey overlay.
+
+- By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
+- `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
+- `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+
+
+<!-- sorting key: programs.niri.settings.a.binds.hotkey-overlay.hidden -->
+## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
+- type: `boolean`
+
+When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
+
+
+<!-- sorting key: programs.niri.settings.a.binds.hotkey-overlay.title -->
+## `programs.niri.settings.binds.<name>.hotkey-overlay.title`
+- type: `string`
+
+The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
+
+
 <!-- sorting key: programs.niri.settings.a.binds.repeat -->
 ## `programs.niri.settings.binds.<name>.repeat`
 - type: `boolean`
