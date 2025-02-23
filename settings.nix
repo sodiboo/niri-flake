@@ -554,6 +554,13 @@
               When not-null, for this field to match a window, the value must match whether the window is floating (true) or tiled (false).
             '';
           };
+        is-window-cast-target =
+          nullable types.bool
+          // {
+            description = ''
+              When non-null, matches based on whether the window is being targeted by a window cast.
+            '';
+          };
       }
       {
         at-startup =
