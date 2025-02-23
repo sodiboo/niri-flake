@@ -2288,6 +2288,36 @@ The curve to use for the easing function.
 - type: `signed integer`
 
 
+<!-- sorting key: programs.niri.settings.l.gestures -->
+## `programs.niri.settings.gestures`
+- type: `null or (submodule)`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.l.gestures.dnd-edge-view-scroll.delay-ms -->
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
+- type: `signed integer`
+- default: `100`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+<!-- sorting key: programs.niri.settings.l.gestures.dnd-edge-view-scroll.max-speed -->
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.max-speed`
+- type: `floating point number or signed integer`
+- default: `1500.000000`
+
+When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+<!-- sorting key: programs.niri.settings.l.gestures.dnd-edge-view-scroll.trigger-width -->
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
+- type: `floating point number or signed integer`
+- default: `30.000000`
+
+The width of the edge of the screen where dragging a window will scroll the view.
+
+
 <!-- sorting key: programs.niri.settings.m.environment -->
 ## `programs.niri.settings.environment`
 - type: `attribute set of (null or string)`

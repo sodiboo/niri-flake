@@ -2085,6 +2085,32 @@
                 };
             }
           ];
+
+        gestures = nullable (record {
+          dnd-edge-view-scroll = {
+            trigger-width =
+              optional float-or-int 30.0
+              // {
+                description = ''
+                  The width of the edge of the screen where dragging a window will scroll the view.
+                '';
+              };
+            delay-ms =
+              optional types.int 100
+              // {
+                description = ''
+                  The delay in milliseconds before the view starts scrolling.
+                '';
+              };
+            max-speed =
+              optional float-or-int 1500.0
+              // {
+                description = ''
+                  When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+                '';
+              };
+          };
+        });
       }
 
       {
@@ -2998,6 +3024,14 @@
       pointer-tablet' = ext: name: cfg: plain name (pointer-tablet cfg (ext cfg));
       pointer' = pointer-tablet' pointer;
       tablet' = pointer-tablet' tablet;
+
+      gestures = map' plain (cfg: [
+        (plain "dnd-edge-view-scroll" [
+          (leaf "trigger-width" cfg.dnd-edge-view-scroll.trigger-width)
+          (leaf "delay-ms" cfg.dnd-edge-view-scroll.delay-ms)
+          (leaf "max-speed" cfg.dnd-edge-view-scroll.max-speed)
+        ])
+      ]);
     in [
       (plain "input" [
         (plain "keyboard" [
@@ -3129,6 +3163,8 @@
       (map (map' leaf (builtins.getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
       (map window-rule cfg.window-rules)
       (map layer-rule cfg.layer-rules)
+
+      (nullable gestures "gestures" cfg.gestures)
 
       (plain "animations" [
         (toggle "off" cfg.animations [
