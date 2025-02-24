@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`25.01`](https://github.com/YaLTeR/niri/releases/tag/25.01) with no additional patches.
+Currently, this is release [`25.02`](https://github.com/YaLTeR/niri/releases/tag/25.02) with no additional patches.
 
 
 
@@ -355,10 +355,10 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `screenshot`
 - `λ screenshot-screen :: { write-to-disk :: bool }`
 - `λ screenshot-window :: { write-to-disk :: bool }`
-- `toggle-keyboard-shortcuts-inhibit` (only on niri-unstable)
+- `toggle-keyboard-shortcuts-inhibit`
 - `close-window`
 - `fullscreen-window`
-- `λ focus-window-in-column :: u8` (only on niri-unstable)
+- `λ focus-window-in-column :: u8`
 - `focus-window-previous`
 - `focus-column-left`
 - `focus-column-right`
@@ -378,10 +378,10 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-window-up-or-column-right`
 - `focus-window-or-workspace-down`
 - `focus-window-or-workspace-up`
-- `focus-window-top` (only on niri-unstable)
-- `focus-window-bottom` (only on niri-unstable)
-- `focus-window-down-or-top` (only on niri-unstable)
-- `focus-window-up-or-bottom` (only on niri-unstable)
+- `focus-window-top`
+- `focus-window-bottom`
+- `focus-window-down-or-top`
+- `focus-window-up-or-bottom`
 - `move-column-left`
 - `move-column-right`
 - `move-column-to-first`
@@ -398,8 +398,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `expel-window-from-column`
 - `swap-window-left`
 - `swap-window-right`
-- `toggle-column-tabbed-display` (only on niri-unstable)
-- `λ set-column-display :: string` (only on niri-unstable)
+- `toggle-column-tabbed-display`
+- `λ set-column-display :: string`
 - `center-column`
 - `center-window`
 - `focus-workspace-down`
@@ -414,8 +414,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ move-column-to-workspace :: u8 | string`
 - `move-workspace-down`
 - `move-workspace-up`
-- `λ move-workspace-to-index :: usize` (only on niri-unstable)
-- `λ move-workspace-to-monitor :: string` (only on niri-unstable)
+- `λ move-workspace-to-index :: usize`
+- `λ move-workspace-to-monitor :: string`
 - `λ set-workspace-name :: string`
 - `unset-workspace-name`
 - `focus-monitor-left`
@@ -444,7 +444,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `switch-preset-window-height`
 - `maximize-column`
 - `λ set-column-width :: size-change`
-- `expand-column-to-available-width` (only on niri-unstable)
+- `expand-column-to-available-width`
 - `λ switch-layout :: "next" | "prev"`
 - `show-hotkey-overlay`
 - `move-workspace-to-monitor-left`
@@ -459,7 +459,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-floating`
 - `focus-tiling`
 - `switch-focus-between-floating-and-tiling`
-- `toggle-window-rule-opacity` (only on niri-unstable)
+- `toggle-window-rule-opacity`
 
 
 <!-- sorting key: programs.niri.settings.a.binds.allow-inhibiting -->

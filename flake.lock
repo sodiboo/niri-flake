@@ -3,16 +3,16 @@
     "niri-stable": {
       "flake": false,
       "locked": {
-        "lastModified": 1736614405,
-        "narHash": "sha256-AJ1rlgNOPb3/+DbS5hkhm21t6Oz8IgqLllwmZt0lyzk=",
+        "lastModified": 1740117926,
+        "narHash": "sha256-mTTHA0RAaQcdYe+9A3Jx77cmmyLFHmRoZdd8RpWa+m8=",
         "owner": "YaLTeR",
         "repo": "niri",
-        "rev": "e05bc269e678ecf828b96ae79c991c13b00b38a5",
+        "rev": "b94a5db8790339cf9134873d8b490be69e02ac71",
         "type": "github"
       },
       "original": {
         "owner": "YaLTeR",
-        "ref": "v25.01",
+        "ref": "v25.02",
         "repo": "niri",
         "type": "github"
       }

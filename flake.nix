@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
 
-    niri-stable.url = "github:YaLTeR/niri/v25.01";
+    niri-stable.url = "github:YaLTeR/niri/v25.02";
     niri-unstable.url = "github:YaLTeR/niri";
 
     xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.5.1";
@@ -148,22 +148,6 @@
           export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix $NIX_BUILD_TOP/source=./"
 
           patchShebangs resources/niri-session
-        '';
-
-        # ever since this commit:
-        # https://github.com/YaLTeR/niri/commit/771ea1e81557ffe7af9cbdbec161601575b64d81
-        # niri now runs an actual instance of the real compositor (with a mock backend) during tests
-        # and thus creates a real socket file in the runtime dir.
-        # this is fine for our build, we just need to make sure it has a directory to write to.
-        #
-        # additionally, these tests are mutlithreaded, and can cause conflicts between threads
-        # when writing to the same socket. so, to avoid failures, we limit it to just one thread.
-        #
-        # i believe both of these should be removed once niri doesn't create socket files during tests.
-        # see https://github.com/YaLTeR/niri/issues/953
-        preCheck = ''
-          export XDG_RUNTIME_DIR="$(mktemp -d)"
-          export RAYON_NUM_THREADS=1
         '';
 
         postInstall =
