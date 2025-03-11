@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`87b6c12`](https://github.com/YaLTeR/niri/tree/87b6c1262544a463703a34d8404ef339b7d18536) which was authored on `2025-03-10 20:14:34`.
+Currently, this is exactly commit [`8cdabe8`](https://github.com/YaLTeR/niri/tree/8cdabe8adf0a7821046104286217327d3a7f5ed9) which was authored on `2025-03-11 06:22:26`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -343,6 +343,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 > }
 > ```
 
+- `λ screenshot-screen :: { write-to-disk :: bool }` (only on niri-stable)
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
@@ -352,8 +353,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `debug-toggle-damage`
 - `λ spawn :: [string]`
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
-- `screenshot`
-- `λ screenshot-screen :: { write-to-disk :: bool }`
+- `λ screenshot :: { show-pointer :: bool }`
 - `λ screenshot-window :: { write-to-disk :: bool }`
 - `toggle-keyboard-shortcuts-inhibit`
 - `close-window`
@@ -424,18 +424,21 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-monitor-up`
 - `focus-monitor-previous`
 - `focus-monitor-next`
+- `λ focus-monitor :: string` (only on niri-unstable)
 - `move-window-to-monitor-left`
 - `move-window-to-monitor-right`
 - `move-window-to-monitor-down`
 - `move-window-to-monitor-up`
 - `move-window-to-monitor-previous`
 - `move-window-to-monitor-next`
+- `λ move-window-to-monitor :: string` (only on niri-unstable)
 - `move-column-to-monitor-left`
 - `move-column-to-monitor-right`
 - `move-column-to-monitor-down`
 - `move-column-to-monitor-up`
 - `move-column-to-monitor-previous`
 - `move-column-to-monitor-next`
+- `λ move-column-to-monitor :: string` (only on niri-unstable)
 - `λ set-window-width :: size-change`
 - `λ set-window-height :: size-change`
 - `reset-window-height`
