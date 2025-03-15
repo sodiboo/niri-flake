@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`392fc27`](https://github.com/YaLTeR/niri/tree/392fc27de110d3548095e465d5cb38bd8d5730ea) which was authored on `2025-03-15 15:42:05`.
+Currently, this is exactly commit [`6257679`](https://github.com/YaLTeR/niri/tree/62576796be91a5425abb6a1e8af35ebeca3fbcad) which was authored on `2025-03-15 16:58:18`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -465,6 +465,15 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-tiling`
 - `switch-focus-between-floating-and-tiling`
 - `toggle-window-rule-opacity`
+- `set-dynamic-cast-window` (only on niri-unstable)
+- `λ set-dynamic-cast-monitor :: unknown` (only on niri-unstable)
+
+  The code that generates this documentation does not know how to parse the definition:
+  ```rs
+  SetDynamicCastMonitor(#[knuffel(argument)] Option<String>)
+  ```
+
+- `clear-dynamic-cast-target` (only on niri-unstable)
 
 
 <!-- sorting key: programs.niri.settings.a.binds.allow-inhibiting -->

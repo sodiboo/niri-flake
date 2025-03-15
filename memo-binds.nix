@@ -124,4 +124,7 @@
   "focus-tiling"
   "switch-focus-between-floating-and-tiling"
   "toggle-window-rule-opacity"
+  "set-dynamic-cast-window"
+  "set-dynamic-cast-monitor"
+  "clear-dynamic-cast-target"
 ]
