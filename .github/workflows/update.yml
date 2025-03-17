@@ -4,8 +4,8 @@ on:
     branches:
       - main
   workflow_dispatch:
-  schedule:
-    - cron: '0 * * * *' # Hourly. We want it to run frequently.
+  # schedule:
+  #   - cron: '0 * * * *' # Hourly. We want it to run frequently.
 
 jobs:
   lockfile:
