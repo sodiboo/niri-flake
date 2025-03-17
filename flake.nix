@@ -70,7 +70,8 @@
       systemdLibs,
       eudev,
       pipewire,
-      mesa,
+      mesa, # on NixOS 24.11, `libgbm` is in the `mesa` package
+      libgbm ? mesa,
       libglvnd,
       seatd,
       libinput,
@@ -98,7 +99,7 @@
         buildInputs =
           [
             wayland
-            mesa
+            libgbm
             libglvnd
             seatd
             libinput
