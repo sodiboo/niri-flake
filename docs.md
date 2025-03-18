@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`5b6b6a5`](https://github.com/YaLTeR/niri/tree/5b6b6a5fe111c3b55ba1f8976ec7a3daac3fc04c) which was authored on `2025-03-17 19:03:43`.
+Currently, this is exactly commit [`e251ca7`](https://github.com/YaLTeR/niri/tree/e251ca7340bc71870c3a81a7ffc3d9bde58e685a) which was authored on `2025-03-18 05:43:20`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -358,6 +358,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `toggle-keyboard-shortcuts-inhibit`
 - `close-window`
 - `fullscreen-window`
+- `toggle-windowed-fullscreen` (only on niri-unstable)
 - `λ focus-window-in-column :: u8`
 - `focus-window-previous`
 - `focus-column-left`

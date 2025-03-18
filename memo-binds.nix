@@ -17,6 +17,7 @@
   "toggle-keyboard-shortcuts-inhibit"
   "close-window"
   "fullscreen-window"
+  "toggle-windowed-fullscreen"
   "focus-window-in-column"
   "focus-window-previous"
   "focus-column-left"
