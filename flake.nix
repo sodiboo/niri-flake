@@ -86,35 +86,14 @@
       hasShellCompletion ? false,
       fetchzip,
       runCommand,
-    }: let
-      vendored-deps = fetchzip {
-        url = "https://github.com/YaLTeR/niri/releases/download/v25.02/niri-25.02-vendored-dependencies.tar.xz";
-        hash = "sha256-sB4COhG+6ovl7OZAW8s1XLBxgz+et6jeuNidq2hROX8=";
-      };
-
-      src' =
-        runCommand "patched-niri-source" {
-        } ''
-          mkdir $out
-          for f in $(ls ${src}); do
-            cp -r ${src}/$f $out/$f
-          done
-
-          substituteInPlace $out/Cargo.toml \
-            --replace-fail 'git = "https://gitlab.freedesktop.org/pipewire/pipewire-rs.git"' 'path = "${vendored-deps}/pipewire"'
-
-          substituteInPlace $out/Cargo.lock \
-            --replace-warn 'source = "git+https://gitlab.freedesktop.org/pipewire/pipewire-rs.git#fd3d8f7861a29c2eeaa4c393402e013578bb36d9"' ""
-
-        '';
-    in
+    }:
       rustPlatform.buildRustPackage {
         pname = "niri";
         version = package-version src;
-        src = src';
+        src = src;
         inherit patches;
         cargoLock = {
-          lockFile = "${src'}/Cargo.lock";
+          lockFile = "${src}/Cargo.lock";
           allowBuiltinFetchGit = true;
         };
         nativeBuildInputs = [
