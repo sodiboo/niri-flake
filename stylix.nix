@@ -9,8 +9,10 @@ in {
 
   config = mkIf (config.stylix.enable && config.stylix.targets.niri.enable) {
     programs.niri.settings = {
-      cursor.size = mkDefault config.stylix.cursor.size;
-      cursor.theme = mkDefault config.stylix.cursor.name;
+      cursor = mkIf (config.stylix.cursor != null) {
+        size = mkDefault config.stylix.cursor.size;
+        theme = mkDefault config.stylix.cursor.name;
+      };
       layout.focus-ring.enable = mkDefault false;
       layout.border = with config.lib.stylix.colors.withHashtag; {
         enable = mkDefault true;
