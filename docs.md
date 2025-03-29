@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`7cfecf4`](https://github.com/YaLTeR/niri/tree/7cfecf4b1b9b8c11c80061fb31926f888228499d) which was authored on `2025-03-26 19:37:00`.
+Currently, this is exactly commit [`b2c34e7`](https://github.com/YaLTeR/niri/tree/b2c34e7fe94a12a65083ac73759672427ea2ccbf) which was authored on `2025-03-29 14:56:47`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -344,6 +344,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 > ```
 
 - `λ screenshot-screen :: { write-to-disk :: bool }` (only on niri-stable)
+- `λ move-window-to-workspace :: u8 | string` (only on niri-stable)
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
@@ -411,7 +412,6 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-workspace-previous`
 - `move-window-to-workspace-down`
 - `move-window-to-workspace-up`
-- `λ move-window-to-workspace :: u8 | string`
 - `move-column-to-workspace-down`
 - `move-column-to-workspace-up`
 - `λ move-column-to-workspace :: u8 | string`
