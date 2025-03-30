@@ -70,7 +70,6 @@
   "focus-workspace-previous"
   "move-window-to-workspace-down"
   "move-window-to-workspace-up"
-  "move-window-to-workspace"
   "move-column-to-workspace-down"
   "move-column-to-workspace-up"
   "move-column-to-workspace"
