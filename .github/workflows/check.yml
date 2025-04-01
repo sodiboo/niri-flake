@@ -38,7 +38,13 @@ jobs:
       with:
         name: niri
     - run: |
+        # note: docs really do exceed the default call depth limit. as a workaround, increase it.
+        export NIX_CONFIG="max-call-depth = 20000"
+
         nix eval --raw .#lib.internal.docs-markdown > docs.fresh.md
+
+        # this to print the full docs in the logs so we can easier see what's going on
         cat docs.fresh.md
         cat docs.md
+
         diff docs.md docs.fresh.md
