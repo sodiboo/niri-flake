@@ -2405,7 +2405,15 @@
                   };
               })
               {
-                baba-is-float = nullable types.bool // {visible = false;};
+                baba-is-float =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Makes your window FLOAT up and down, like in the game Baba Is You.
+
+                      Made for April Fools 2025.
+                    '';
+                  };
                 default-floating-position =
                   nullable (record {
                     x = required float-or-int;

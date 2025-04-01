@@ -3059,6 +3059,16 @@ Sets the minimum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
 
 
+<!-- sorting key: programs.niri.settings.n.window-rules.g.baba-is-float -->
+## `programs.niri.settings.window-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Makes your window FLOAT up and down, like in the game Baba Is You.
+
+Made for April Fools 2025.
+
+
 <!-- sorting key: programs.niri.settings.n.window-rules.g.default-floating-position -->
 ## `programs.niri.settings.window-rules.*.default-floating-position`
 - type: `null or (submodule)`
