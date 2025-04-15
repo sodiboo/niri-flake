@@ -1048,7 +1048,9 @@
                             ```
                         '';
                       }
-                      .${params.kind}
+                      .${
+                        params.kind
+                      }
                       or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
                   in
                     builtins.concatStringsSep "\n" (builtins.concatLists [

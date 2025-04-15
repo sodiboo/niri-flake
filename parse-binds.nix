@@ -65,7 +65,9 @@ in
               inherit actions;
             };
           }
-          .${state}
+          .${
+            state
+          }
       ) {
         state = "leading";
         actions = [];
