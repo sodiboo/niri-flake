@@ -127,4 +127,7 @@
   "set-dynamic-cast-window"
   "set-dynamic-cast-monitor"
   "clear-dynamic-cast-target"
+  "toggle-overview"
+  "open-overview"
+  "close-overview"
 ]

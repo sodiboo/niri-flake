@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`6ab055a`](https://github.com/YaLTeR/niri/tree/6ab055a4b968ccf115a1be3b65b0d5ec4d7c33f1) which was authored on `2025-04-22 19:51:56`.
+Currently, this is exactly commit [`85cd64e`](https://github.com/YaLTeR/niri/tree/85cd64e83017459f0a6edfd7b91ba31d70b0ef17) which was authored on `2025-04-25 09:00:18`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -475,6 +475,9 @@ For actions that don't take any arguments, just use the corresponding attribute 
   ```
 
 - `clear-dynamic-cast-target` (only on niri-unstable)
+- `toggle-overview` (only on niri-unstable)
+- `open-overview` (only on niri-unstable)
+- `close-overview` (only on niri-unstable)
 
 
 <!-- sorting key: programs.niri.settings.a.binds.allow-inhibiting -->
