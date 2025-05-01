@@ -72,7 +72,6 @@
   "move-window-to-workspace-up"
   "move-column-to-workspace-down"
   "move-column-to-workspace-up"
-  "move-column-to-workspace"
   "move-workspace-down"
   "move-workspace-up"
   "move-workspace-to-index"

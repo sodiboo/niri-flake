@@ -32,7 +32,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`02baad9`](https://github.com/YaLTeR/niri/tree/02baad91aca414a9adb9e77b4967d63bb366fb1b) which was authored on `2025-05-01 13:28:28`.
+Currently, this is exactly commit [`eb590c5`](https://github.com/YaLTeR/niri/tree/eb590c53460c24a23024db192a3132687aabc06d) which was authored on `2025-05-01 18:06:34`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -345,6 +345,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 
 - `λ screenshot-screen :: { write-to-disk :: bool }` (only on niri-stable)
 - `λ move-window-to-workspace :: u8 | string` (only on niri-stable)
+- `λ move-column-to-workspace :: u8 | string` (only on niri-stable)
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
@@ -412,9 +413,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-workspace-previous`
 - `move-window-to-workspace-down`
 - `move-window-to-workspace-up`
-- `move-column-to-workspace-down`
-- `move-column-to-workspace-up`
-- `λ move-column-to-workspace :: u8 | string`
+- `λ move-column-to-workspace-down :: { focus :: bool }`
+- `λ move-column-to-workspace-up :: { focus :: bool }`
 - `move-workspace-down`
 - `move-workspace-up`
 - `λ move-workspace-to-index :: usize`
