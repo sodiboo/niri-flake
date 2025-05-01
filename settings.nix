@@ -1546,6 +1546,15 @@
       {
         outputs = attrs (record {
           enable = optional types.bool true;
+          backdrop-color =
+            nullable types.str
+            // {
+              description = ''
+                ${unstable-note}
+
+                The backdrop color that niri draws for this output. This is visible between workspaces or in the overview.
+              '';
+            };
           background-color =
             nullable types.str
             // {
@@ -3087,6 +3096,7 @@
       (lib.mapAttrsToList (name: cfg:
         node "output" name [
           (toggle' "off" cfg [
+            (nullable leaf "backdrop-color" cfg.backdrop-color)
             (nullable leaf "background-color" cfg.background-color)
             (nullable leaf "scale" cfg.scale)
             (map' leaf transform "transform" cfg.transform)
