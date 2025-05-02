@@ -1376,6 +1376,22 @@ Of note is that it does not switch to the previous *index*, but the previous *wo
 - type: `attribute set of (submodule)`
 
 
+<!-- sorting key: programs.niri.settings.i.outputs.backdrop-color -->
+## `programs.niri.settings.outputs.<name>.backdrop-color`
+- type: `null or string`
+- default: `null`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+The backdrop color that niri draws for this output. This is visible between workspaces or in the overview.
+
+
 <!-- sorting key: programs.niri.settings.i.outputs.background-color -->
 ## `programs.niri.settings.outputs.<name>.background-color`
 - type: `null or string`
