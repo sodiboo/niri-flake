@@ -136,6 +136,6 @@ These will usually be installed through home-manager. No particular configuratio
 
 If using waybar, you'll want to set `programs.waybar.settings.mainBar.layer = "top";`, to ensure it is visible over applications running in niri. You'll also wanna set `programs.waybar.systemd.enable = true;` which i've found seems to exceed the default restart limit of 5, so you may want to run `systemctl --user reset-failed waybar.service` in `spawn-at-startup` to get it to start.
 
-For electron applications such as vscode, you will want to set `programs.niri.settings.environment."NIXOS_OZONE_WL" = 1`. Several packages in nixpkgs look for this variable, and pass some ozone flags in that case. Note that you must use `niri-session` to start niri for this to have any effect, because running just `niri` will not set the neccecary environment variables.
+For electron applications such as vscode, you will want to set `programs.niri.settings.environment."NIXOS_OZONE_WL" = "1"`. Several packages in nixpkgs look for this variable, and pass some ozone flags in that case. Note that you must use `niri-session` to start niri for this to have any effect, because running just `niri` will not set the neccecary environment variables.
 
 Visual Studio Code does not properly detect the correct keyring to use on my system. It works fine if you launch it with `code --password-store="gnome-libsecret"`. You persist this flag in `Preferences > Configure Runtime Arguments` (`argv.json`), by setting `"password-store": "gnome-libsecret"`.
