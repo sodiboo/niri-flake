@@ -422,10 +422,9 @@
         };
       };
 
-      options.niri-flake.cache.enable = nixpkgs.lib.mkOption {
-        type = nixpkgs.lib.types.bool;
-        default = true;
-      };
+      options.niri-flake.cache.enable =
+        nixpkgs.lib.mkEnableOption "the niri-flake binary cache"
+        // {default = true;};
 
       config = nixpkgs.lib.mkMerge [
         (nixpkgs.lib.mkIf config.niri-flake.cache.enable {
