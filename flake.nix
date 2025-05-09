@@ -383,6 +383,7 @@
         package = nixpkgs.lib.mkOption {
           type = nixpkgs.lib.types.package;
           default = (make-package-set pkgs).niri-stable;
+          description = "The niri package to use.";
         };
       };
 
@@ -417,6 +418,7 @@
         package = nixpkgs.lib.mkOption {
           type = nixpkgs.lib.types.package;
           default = (make-package-set pkgs).niri-stable;
+          description = "The niri package to use.";
         };
       };
 
