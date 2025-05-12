@@ -64,6 +64,7 @@
   "set-column-display"
   "center-column"
   "center-window"
+  "center-visible-columns"
   "focus-workspace-down"
   "focus-workspace-up"
   "focus-workspace"
