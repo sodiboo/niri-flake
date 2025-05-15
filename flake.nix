@@ -434,34 +434,17 @@
           };
         })
         (nixpkgs.lib.mkIf cfg.enable {
-          environment.systemPackages = [pkgs.xdg-utils];
+          environment.systemPackages = [pkgs.xdg-utils cfg.package];
           xdg = {
             autostart.enable = nixpkgs.lib.mkDefault true;
             menus.enable = nixpkgs.lib.mkDefault true;
             mime.enable = nixpkgs.lib.mkDefault true;
             icons.enable = nixpkgs.lib.mkDefault true;
           };
-        })
-        (nixpkgs.lib.mkIf cfg.enable {
-          services =
-            if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
-            then {
-              displayManager.sessionPackages = [cfg.package];
-            }
-            else {
-              xserver.displayManager.sessionPackages = [cfg.package];
-            };
-          hardware =
-            if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
-            then {
-              graphics.enable = nixpkgs.lib.mkDefault true;
-            }
-            else {
-              opengl.enable = nixpkgs.lib.mkDefault true;
-            };
-        })
-        (nixpkgs.lib.mkIf cfg.enable {
-          environment.systemPackages = [cfg.package];
+
+          services.displayManager.sessionPackages = [cfg.package];
+          hardware.graphics.enable = nixpkgs.lib.mkDefault true;
+
           xdg.portal = {
             enable = true;
             extraPortals = nixpkgs.lib.mkIf (
