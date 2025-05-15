@@ -443,19 +443,21 @@
         }
         (nixpkgs.lib.mkIf cfg.enable {
           services =
-            if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
-            then {
-              displayManager.sessionPackages = [cfg.package];
-            }
-            else {
-              xserver.displayManager.sessionPackages = [cfg.package];
-            };
+            nixpkgs.lib.mkIf (nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05")
+            {displayManager.sessionPackages = [cfg.package];};
           hardware =
-            if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
-            then {
+            nixpkgs.lib.mkIf (nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11")
+            {
               graphics.enable = nixpkgs.lib.mkDefault true;
-            }
-            else {
+            };
+        })
+        (nixpkgs.lib.mkIf cfg.enable {
+          services =
+            nixpkgs.lib.mkIf (!nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05")
+            {xserver.displayManager.sessionPackages = [cfg.package];};
+          hardware =
+            nixpkgs.lib.mkIf (!nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11")
+            {
               opengl.enable = nixpkgs.lib.mkDefault true;
             };
         })
