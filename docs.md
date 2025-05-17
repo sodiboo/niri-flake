@@ -104,6 +104,19 @@ You may wish to set it to the following values:
 
 
 
+<!-- sorting key: _.b.modules.a.nixos.withUWSM -->
+## `programs.niri.withUWSM`
+
+- type: `boolean`
+- default: `false`
+
+Whether to enable and configure USWM to start niri.
+
+Disables installation of default niri `.desktop` file. `greetd` or a display manager should
+be configured. See `programs.uwsm` NixOs options for more info.
+
+
+
 <!-- sorting key: _.b.modules.a.nixos.z.cache -->
 ## `niri-flake.cache.enable`
 
