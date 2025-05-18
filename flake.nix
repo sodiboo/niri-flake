@@ -433,7 +433,7 @@
             trusted-public-keys = ["niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="];
           };
         })
-        {
+        (nixpkgs.lib.mkIf cfg.enable {
           environment.systemPackages = [pkgs.xdg-utils];
           xdg = {
             autostart.enable = nixpkgs.lib.mkDefault true;
@@ -441,7 +441,7 @@
             mime.enable = nixpkgs.lib.mkDefault true;
             icons.enable = nixpkgs.lib.mkDefault true;
           };
-        }
+        })
         (nixpkgs.lib.mkIf cfg.enable {
           services =
             if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
