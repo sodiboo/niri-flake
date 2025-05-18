@@ -2121,6 +2121,15 @@
                 '';
               };
           };
+          hot-corners = {
+            enable =
+              nullable types.bool
+              // {
+                description = ''
+                  Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+                '';
+              };
+          };
         });
       }
 
@@ -3049,6 +3058,9 @@
           (leaf "trigger-width" cfg.dnd-edge-view-scroll.trigger-width)
           (leaf "delay-ms" cfg.dnd-edge-view-scroll.delay-ms)
           (leaf "max-speed" cfg.dnd-edge-view-scroll.max-speed)
+        ])
+        (plain "hot-corners" [
+          (flag' "off" (cfg.hot-corners.enable == false))
         ])
       ]);
     in [
