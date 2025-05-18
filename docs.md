@@ -2353,6 +2353,14 @@ When the cursor is at boundary of the trigger width, the view will not be scroll
 The width of the edge of the screen where dragging a window will scroll the view.
 
 
+<!-- sorting key: programs.niri.settings.l.gestures.hot-corners.enable -->
+## `programs.niri.settings.gestures.hot-corners.enable`
+- type: `null or boolean`
+- default: `null`
+
+Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+
+
 <!-- sorting key: programs.niri.settings.m.environment -->
 ## `programs.niri.settings.environment`
 - type: `attribute set of (null or string)`
