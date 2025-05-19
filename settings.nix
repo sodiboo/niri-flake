@@ -2459,7 +2459,7 @@
                   nullable (record {
                     x = required float-or-int;
                     y = required float-or-int;
-                    relative-to = required (enum ["top-left" "top-right" "bottom-left" "bottom-right"]);
+                    relative-to = required (enum ["top-left" "top-right" "bottom-left" "bottom-right" "top" "bottom" "left" "right"]);
                   })
                   // {
                     description = ''
