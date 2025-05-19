@@ -3107,7 +3107,7 @@ The `x` and `y` fields are the distances from the edge of the screen to the edge
 
 <!-- sorting key: programs.niri.settings.n.window-rules.g.default-floating-position.relative-to -->
 ## `programs.niri.settings.window-rules.*.default-floating-position.relative-to`
-- type: `one of "top-left", "top-right", "bottom-left", "bottom-right"`
+- type: `one of "top-left", "top-right", "bottom-left", "bottom-right", "top", "bottom", "left", "right"`
 
 
 <!-- sorting key: programs.niri.settings.n.window-rules.g.default-floating-position.x -->
