@@ -420,6 +420,16 @@
           default = (make-package-set pkgs).niri-stable;
           description = "The niri package to use.";
         };
+        withUWSM =
+          nixpkgs.lib.mkEnableOption null
+          // {
+            description = ''
+              Launch niri with the UWSM (Universal Wayland Session Manager) session manager.
+              ::: {.note}
+              Requires extra configuration of greetd or from a display manager like SDDM
+              :::
+            '';
+          };
       };
 
       options.niri-flake.cache.enable =
@@ -442,7 +452,7 @@
             icons.enable = nixpkgs.lib.mkDefault true;
           };
         }
-        (nixpkgs.lib.mkIf cfg.enable {
+        (nixpkgs.lib.mkIf (cfg.enable && !cfg.withUWSM) {
           services =
             if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.05"
             then {
@@ -451,6 +461,26 @@
             else {
               xserver.displayManager.sessionPackages = [cfg.package];
             };
+        })
+        (nixpkgs.lib.mkIf (cfg.enable && cfg.withUWSM) {
+          programs.uwsm = {
+            enable = true;
+            waylandCompositors = {
+              niri = {
+                prettyName = "Niri";
+                comment = "Niri compositor managed by UWSM";
+                # Only takes a path, and `niri-session` uses
+                # the niri default systemd units
+                binPath = nixpkgs.lib.getExe (
+                  pkgs.writeShellScriptBin "niriSession" ''
+                    exec /run/current-system/sw/bin/niri --session
+                  ''
+                );
+              };
+            };
+          };
+        })
+        (nixpkgs.lib.mkIf cfg.enable {
           hardware =
             if nixpkgs.lib.strings.versionAtLeast config.system.nixos.release "24.11"
             then {
