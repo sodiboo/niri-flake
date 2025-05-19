@@ -1214,6 +1214,27 @@
       }
 
       {
+        overview = {
+          zoom =
+            nullable float-or-int
+            // {
+              description = ''
+                Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
+              '';
+            };
+          backdrop-color =
+            nullable types.str
+            // {
+              description = ''
+                Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
+
+                The alpha channel for this color will be ignored.
+              '';
+            };
+        };
+      }
+
+      {
         input = {
           keyboard = {
             xkb = let
@@ -3124,6 +3145,15 @@
 
       (leaf "screenshot-path" cfg.screenshot-path)
       (flag' "prefer-no-csd" cfg.prefer-no-csd)
+
+      (nullable plain "overview" (
+        let
+          children = lib.mapAttrsToList (nullable leaf) cfg.overview;
+        in
+          if lib.remove null children == []
+          then null
+          else children
+      ))
 
       (plain "layout" [
         (leaf "gaps" cfg.layout.gaps)
