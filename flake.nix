@@ -482,6 +482,7 @@
     homeModules.niri = {
       config,
       pkgs,
+      lib,
       ...
     }: let
       cfg = config.programs.niri;
@@ -491,10 +492,27 @@
       ];
       options.programs.niri = {
         enable = nixpkgs.lib.mkEnableOption "niri";
+        doScreenTransitionOnActivation =
+          nixpkgs.lib.mkEnableOption "calling `do-screen-transition` in the activation script";
       };
 
       config = nixpkgs.lib.mkIf cfg.enable {
-        home.packages = [cfg.package];
+        home = {
+          packages = [cfg.package];
+          activation.doScreenTransition =
+            nixpkgs.lib.mkIf cfg.doScreenTransitionOnActivation
+            (lib.hm.dag.entryAfter ["writeBoundary"] ''
+              if [[ ! -v NIRI_SOCKET ]]; then
+                export NIRI_SOCKET="''$(find /run/user/* -maxdepth 1 -name 'niri*.sock' 2>/dev/null | head -n 1)"
+                if [[ -n "$NIRI_SOCKET" ]]; then
+                  echo "NIRI_SOCKET is unset; using socket found at $NIRI_SOCKET"
+                else
+                  echo "NIRI_SOCKET is unset; skipping screen transition"
+                fi
+              fi
+              [[ -n "$NIRI_SOCKET" ]] && run --quiet ${nixpkgs.lib.getExe cfg.package} msg action do-screen-transition
+            '');
+        };
         services.gnome-keyring.enable = true;
         xdg.portal = {
           enable = true;
