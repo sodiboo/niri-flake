@@ -3447,6 +3447,25 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
+<!-- sorting key: programs.niri.settings.p.layer-rules.e.baba-is-float -->
+## `programs.niri.settings.layer-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Make your layer surfaces FLOAT up and down.
+
+This is a natural extension of the April Fools' 2025 feature.
+
+
+<!-- sorting key: programs.niri.settings.p.layer-rules.e.place-within-backdrop -->
+## `programs.niri.settings.layer-rules.*.place-within-backdrop`
+- type: `null or boolean`
+- default: `null`
+
+Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
+This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+
+
 <!-- sorting key: programs.niri.settings.q.debug -->
 ## `programs.niri.settings.debug`
 - type: `null or (attribute set of kdl arguments)`

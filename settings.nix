@@ -2533,6 +2533,26 @@
                     '';
                   };
               }
+              {
+                place-within-backdrop =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
+                      This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+                    '';
+                  };
+
+                baba-is-float =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Make your layer surfaces FLOAT up and down.
+
+                      This is a natural extension of the April Fools' 2025 feature.
+                    '';
+                  };
+              }
             ]
             // {
               description = "layer rule";
@@ -3010,6 +3030,8 @@
           (nullable leaf "block-out-from" cfg.block-out-from)
           (shadow-rule "shadow" cfg.shadow)
           (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+          (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
+          (nullable leaf "baba-is-float" cfg.baba-is-float)
         ];
 
       transform = cfg: let
