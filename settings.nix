@@ -1351,6 +1351,13 @@
                   By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
                 '';
               };
+            numlock =
+              optional types.bool false
+              // {
+                description = ''
+                  Enable numlock by default
+                '';
+              };
           };
           touchpad =
             pointer-tablet-common
@@ -3098,6 +3105,7 @@
           (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
           (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
           (leaf "track-layout" cfg.input.keyboard.track-layout)
+          (flag' "numlock" cfg.input.keyboard.numlock)
         ])
         (plain "touchpad" (pointer-tablet cfg.input.touchpad [
           (flag' "tap" cfg.input.touchpad.tap)
