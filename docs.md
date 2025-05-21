@@ -748,6 +748,14 @@ Whether to focus the window under the mouse when the mouse moves.
 The maximum proportion of the screen to scroll at a time
 
 
+<!-- sorting key: programs.niri.settings.i.input.keyboard.numlock -->
+## `programs.niri.settings.input.keyboard.numlock`
+- type: `boolean`
+- default: `false`
+
+Enable numlock by default
+
+
 <!-- sorting key: programs.niri.settings.i.input.keyboard.repeat-delay -->
 ## `programs.niri.settings.input.keyboard.repeat-delay`
 - type: `signed integer`

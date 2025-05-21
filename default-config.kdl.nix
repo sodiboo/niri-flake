@@ -68,6 +68,8 @@ in {
         # - "global" - layout change is global for all windows.
         # - "window" - layout is tracked for each window individually.
         # (leaf "track-layout" "global")
+        #
+        (flag "numlock")
       ])
 
       # Next sections include libinput settings.
