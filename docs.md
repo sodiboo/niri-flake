@@ -343,9 +343,6 @@ For actions that don't take any arguments, just use the corresponding attribute 
 > }
 > ```
 
-- `λ screenshot-screen :: { write-to-disk :: bool }` (only on niri-stable)
-- `λ move-window-to-workspace :: u8 | string` (only on niri-stable)
-- `λ move-column-to-workspace :: u8 | string` (only on niri-stable)
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
@@ -356,6 +353,13 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ spawn :: [string]`
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
 - `λ screenshot :: { show-pointer :: bool }`
+- `λ screenshot-screen :: unknown`
+
+  The code that generates this documentation does not know how to parse the definition:
+  ```rs
+  #[knuffel(property(name = "write-to-disk"), default = true)] bool,#[knuffel(property(name = "show-pointer"), default = true)] bool,)
+  ```
+
 - `λ screenshot-window :: { write-to-disk :: bool }`
 - `toggle-keyboard-shortcuts-inhibit`
 - `close-window`
@@ -414,8 +418,22 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-workspace-previous`
 - `move-window-to-workspace-down`
 - `move-window-to-workspace-up`
+- `λ move-window-to-workspace :: unknown`
+
+  The code that generates this documentation does not know how to parse the definition:
+  ```rs
+  #[knuffel(argument)] WorkspaceReference,#[knuffel(property(name = "focus"), default = true)] bool,)
+  ```
+
 - `λ move-column-to-workspace-down :: { focus :: bool }`
 - `λ move-column-to-workspace-up :: { focus :: bool }`
+- `λ move-column-to-workspace :: unknown`
+
+  The code that generates this documentation does not know how to parse the definition:
+  ```rs
+  #[knuffel(argument)] WorkspaceReference,#[knuffel(property(name = "focus"), default = true)] bool,)
+  ```
+
 - `move-workspace-down`
 - `move-workspace-up`
 - `λ move-workspace-to-index :: usize`
@@ -472,7 +490,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 
   The code that generates this documentation does not know how to parse the definition:
   ```rs
-  SetDynamicCastMonitor(#[knuffel(argument)] Option<String>)
+  #[knuffel(argument)] Option<String>)
   ```
 
 - `clear-dynamic-cast-target` (only on niri-unstable)

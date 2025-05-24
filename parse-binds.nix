@@ -30,12 +30,14 @@ with lib; let
   ];
 in
   flip short-circuit [
+    # Read the file
     (src: "${src}/niri-config/src/lib.rs")
     (path:
       if builtins.pathExists path
       then path
       else null)
     builtins.readFile
+    # Only collect the Action enum
     (strings.splitString "\n")
     (lists.foldl (
         {
@@ -77,76 +79,77 @@ in
       actions,
     }:
       assert (state == "trailing"); actions)
+    # Remove whitespaces
     (remove "")
-    (map (removePrefix "    "))
-    (filter-prev (prev: prev != "#[knuffel(skip)]"))
-    (remove "#[knuffel(skip)]")
+    (map (strings.trim))
+    # Turn multi-lined actions back into a single line
+    concatStrings
+    (builtins.split ''(([A-Z][A-Za-z]*)(\(((#\[knuffel\([^]]*] [^,]*,?)*)\)| \{[^}]*})?,)'')
+    # Remove internal items
+    (filter-prev (prev: if isString prev then !(strings.hasSuffix "#[knuffel(skip)]" prev) else true))
+    (filter isList)
+    # Get the params
     (map (
-      flip short-circuit [
-        (strings.match ''([A-Za-z]*)(\((.*)\))?,'')
-        (
-          m: let
-            raw-name = elemAt m 0;
-            raw = elemAt m 2;
-            name = kebaberize raw-name;
-            params =
-              if raw == null
-              then {
-                kind = "empty";
-              }
-              else
-                coalesce [
-                  (short-circuit raw [
-                    (strings.match ''#\[knuffel\(argument(, str)?\)] ([A-Za-z0-9]+)'')
-                    (m: {
-                      kind = "arg";
-                      as-str = elemAt m 0 != null;
-                      type = elemAt m 1;
-                    })
-                  ])
-                  (short-circuit raw [
-                    (strings.match ''#\[knuffel\(arguments\)] Vec<([A-Za-z0-9]+)>'')
-                    (m: {
-                      kind = "list";
-                      type = elemAt m 0;
-                    })
-                  ])
-                  (short-circuit raw [
-                    (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)(, default( = true)?)?\)] ([A-Za-z0-9]+)'')
-                    (m: let
-                      field = elemAt m 0;
-                      use-default = elemAt m 1 != null;
-                      type = elemAt m 3;
-                    in {
-                      kind = "prop";
-                      none-important = false;
-                      inherit field use-default type;
-                    })
-                  ])
-                  (short-circuit raw [
-                    (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)\)] Option<([A-Za-z0-9]+)>'')
-                    (m: let
-                      field = elemAt m 0;
-                      type = elemAt m 1;
-                    in {
-                      kind = "prop";
-                      # Option<T> always has a default value.
-                      use-default = true;
-                      # And it is actively meaningful to omit.
-                      none-important = true;
-                      inherit field type;
-                    })
-                  ])
-                  {
-                    kind = "unknown";
-                    inherit raw-name raw;
-                  }
-                ];
-          in {
-            inherit name params;
+      m: let
+        name = kebaberize (elemAt m 1);
+
+        raw-params = elemAt m 3;
+        params =
+          if raw-params == null
+          then {
+            kind = "empty";
           }
-        )
-      ]
+          else
+            # TODO: Make this work with multiple arguments
+            coalesce [
+              (short-circuit raw-params [
+                (strings.match ''#\[knuffel\(argument(, str)?\)] ([A-Za-z0-9]+)'')
+                (m: {
+                  kind = "arg";
+                  as-str = elemAt m 0 != null;
+                  type = elemAt m 1;
+                })
+              ])
+              (short-circuit raw-params [
+                (strings.match ''#\[knuffel\(arguments\)] Vec<([A-Za-z0-9]+)>'')
+                (m: {
+                  kind = "list";
+                  type = elemAt m 0;
+                })
+              ])
+              (short-circuit raw-params [
+                (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)(, default( = true)?)?\)] ([A-Za-z0-9]+)'')
+                (m: let
+                  field = elemAt m 0;
+                  use-default = elemAt m 1 != null;
+                  type = elemAt m 3;
+                in {
+                  kind = "prop";
+                  none-important = false;
+                  inherit field use-default type;
+                })
+              ])
+              (short-circuit raw-params [
+                (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)\)] Option<([A-Za-z0-9]+)>'')
+                (m: let
+                  field = elemAt m 0;
+                  type = elemAt m 1;
+                in {
+                  kind = "prop";
+                  # Option<T> always has a default value.
+                  use-default = true;
+                  # And it is actively meaningful to omit.
+                  none-important = true;
+                  inherit field type;
+                })
+              ])
+              {
+                kind = "unknown";
+                inherit raw-params;
+              }
+            ];
+      in {
+        inherit name params;
+      }
     ))
-    (remove null)
   ]
