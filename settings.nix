@@ -1816,6 +1816,15 @@
               };
           }
           {
+            background-color =
+              nullable types.str
+              // {
+                description = ''
+                  The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
+                '';
+              };
+          }
+          {
             preset-column-widths =
               list preset-width
               // {

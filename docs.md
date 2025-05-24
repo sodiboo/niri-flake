@@ -1869,7 +1869,15 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- sorting key: programs.niri.settings.l.layout.e.preset-column-widths -->
+<!-- sorting key: programs.niri.settings.l.layout.e.background-color -->
+## `programs.niri.settings.layout.background-color`
+- type: `null or string`
+- default: `null`
+
+The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
+
+
+<!-- sorting key: programs.niri.settings.l.layout.f.preset-column-widths -->
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of variant of: fixed | proportion`
 
@@ -1892,21 +1900,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.l.layout.e.preset-column-widths.fixed -->
+<!-- sorting key: programs.niri.settings.l.layout.f.preset-column-widths.fixed -->
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.l.layout.e.preset-column-widths.proportion -->
+<!-- sorting key: programs.niri.settings.l.layout.f.preset-column-widths.proportion -->
 ## `programs.niri.settings.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.l.layout.e.preset-window-heights -->
+<!-- sorting key: programs.niri.settings.l.layout.f.preset-window-heights -->
 ## `programs.niri.settings.layout.preset-window-heights`
 - type: `list of variant of: fixed | proportion`
 
@@ -1929,21 +1937,21 @@ Example:
 ```
 
 
-<!-- sorting key: programs.niri.settings.l.layout.e.preset-window-heights.fixed -->
+<!-- sorting key: programs.niri.settings.l.layout.f.preset-window-heights.fixed -->
 ## `programs.niri.settings.layout.preset-window-heights.*.fixed`
 - type: `signed integer`
 
 The height of the window in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.l.layout.e.preset-window-heights.proportion -->
+<!-- sorting key: programs.niri.settings.l.layout.f.preset-window-heights.proportion -->
 ## `programs.niri.settings.layout.preset-window-heights.*.proportion`
 - type: `floating point number`
 
 The height of the window as a proportion of the screen's height
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.always-center-single-column -->
+<!-- sorting key: programs.niri.settings.l.layout.g.always-center-single-column -->
 ## `programs.niri.settings.layout.always-center-single-column`
 - type: `boolean`
 - default: `false`
@@ -1951,7 +1959,7 @@ The height of the window as a proportion of the screen's height
 This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.center-focused-column -->
+<!-- sorting key: programs.niri.settings.l.layout.g.center-focused-column -->
 ## `programs.niri.settings.layout.center-focused-column`
 - type: `one of "never", "always", "on-overflow"`
 - default: `"never"`
@@ -1963,7 +1971,7 @@ When changing focus, niri can automatically center the focused column.
 - `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.default-column-display -->
+<!-- sorting key: programs.niri.settings.l.layout.g.default-column-display -->
 ## `programs.niri.settings.layout.default-column-display`
 - type: `one of "normal", "tabbed"`
 - default: `"normal"`
@@ -1978,7 +1986,7 @@ Note that you can override this for a given column at any time. Every column rem
 Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.default-column-width -->
+<!-- sorting key: programs.niri.settings.l.layout.g.default-column-width -->
 ## `programs.niri.settings.layout.default-column-width`
 - type: `{} or (variant of: fixed | proportion)`
 
@@ -1991,81 +1999,81 @@ See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-wid
 You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.default-column-width.fixed -->
+<!-- sorting key: programs.niri.settings.l.layout.g.default-column-width.fixed -->
 ## `programs.niri.settings.layout.default-column-width.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.default-column-width.proportion -->
+<!-- sorting key: programs.niri.settings.l.layout.g.default-column-width.proportion -->
 ## `programs.niri.settings.layout.default-column-width.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator -->
 ## `programs.niri.settings.layout.tab-indicator`
 - type: `null or (submodule)`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.corner-radius -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.corner-radius -->
 ## `programs.niri.settings.layout.tab-indicator.corner-radius`
 - type: `floating point number or signed integer`
 - default: `0.000000`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.enable -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.enable -->
 ## `programs.niri.settings.layout.tab-indicator.enable`
 - type: `boolean`
 - default: `true`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.gap -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.gap -->
 ## `programs.niri.settings.layout.tab-indicator.gap`
 - type: `floating point number or signed integer`
 - default: `5.000000`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.gaps-between-tabs -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.gaps-between-tabs -->
 ## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
 - type: `floating point number or signed integer`
 - default: `0.000000`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.hide-when-single-tab -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.hide-when-single-tab -->
 ## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
 - type: `boolean`
 - default: `false`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.length.total-proportion -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.length.total-proportion -->
 ## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
 - type: `floating point number`
 - default: `0.500000`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.place-within-column -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.place-within-column -->
 ## `programs.niri.settings.layout.tab-indicator.place-within-column`
 - type: `boolean`
 - default: `false`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.position -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.position -->
 ## `programs.niri.settings.layout.tab-indicator.position`
 - type: `one of "left", "right", "top", "bottom"`
 - default: `"left"`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.a.width -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.a.width -->
 ## `programs.niri.settings.layout.tab-indicator.width`
 - type: `floating point number or signed integer`
 - default: `4.000000`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.b.active -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.b.active -->
 ## `programs.niri.settings.layout.tab-indicator.active`
 - type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default: `config.programs.niri.settings.layout.border.active`
@@ -2073,7 +2081,7 @@ The width of the column as a proportion of the screen's width
 The color of the tab indicator for the window that has keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.layout.f.tab-indicator.b.inactive -->
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.b.inactive -->
 ## `programs.niri.settings.layout.tab-indicator.inactive`
 - type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
 - default: `config.programs.niri.settings.layout.border.inactive`
@@ -2081,7 +2089,7 @@ The color of the tab indicator for the window that has keyboard focus.
 The color of the the tab indicator for windows that do not have keyboard focus.
 
 
-<!-- sorting key: programs.niri.settings.l.layout.g.empty-workspace-above-first -->
+<!-- sorting key: programs.niri.settings.l.layout.h.empty-workspace-above-first -->
 ## `programs.niri.settings.layout.empty-workspace-above-first`
 - type: `boolean`
 - default: `false`
@@ -2091,7 +2099,7 @@ Normally, niri has a dynamic amount of workspaces, with one empty workspace at t
 When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
 
 
-<!-- sorting key: programs.niri.settings.l.layout.g.gaps -->
+<!-- sorting key: programs.niri.settings.l.layout.h.gaps -->
 ## `programs.niri.settings.layout.gaps`
 - type: `floating point number or signed integer`
 - default: `16`
@@ -2099,7 +2107,7 @@ When this is enabled, there will be an empty workspace above the first workspace
 The gap between windows in the layout, measured in logical pixels.
 
 
-<!-- sorting key: programs.niri.settings.l.layout.g.struts -->
+<!-- sorting key: programs.niri.settings.l.layout.h.struts -->
 ## `programs.niri.settings.layout.struts`
 
 
@@ -2112,25 +2120,25 @@ Struts are computed in addition to layer-shell surfaces. If you have a waybar of
 The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
 
 
-<!-- sorting key: programs.niri.settings.l.layout.g.struts.bottom -->
+<!-- sorting key: programs.niri.settings.l.layout.h.struts.bottom -->
 ## `programs.niri.settings.layout.struts.bottom`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.g.struts.left -->
+<!-- sorting key: programs.niri.settings.l.layout.h.struts.left -->
 ## `programs.niri.settings.layout.struts.left`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.g.struts.right -->
+<!-- sorting key: programs.niri.settings.l.layout.h.struts.right -->
 ## `programs.niri.settings.layout.struts.right`
 - type: `floating point number or signed integer`
 - default: `0`
 
 
-<!-- sorting key: programs.niri.settings.l.layout.g.struts.top -->
+<!-- sorting key: programs.niri.settings.l.layout.h.struts.top -->
 ## `programs.niri.settings.layout.struts.top`
 - type: `floating point number or signed integer`
 - default: `0`
