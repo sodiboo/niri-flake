@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
 
     niri-stable.url = "github:YaLTeR/niri/v25.02";
     niri-unstable.url = "github:YaLTeR/niri";
@@ -71,8 +71,7 @@
       systemdLibs,
       eudev,
       pipewire,
-      mesa, # on NixOS 24.11, `libgbm` is in the `mesa` package
-      libgbm ? mesa,
+      libgbm,
       libglvnd,
       seatd,
       libinput,
