@@ -296,7 +296,7 @@
             ln -s ${combined-closure name nixpkgs'.legacyPackages.${system}} $out/${name}
           '') {
             nixos-unstable = nixpkgs;
-            "nixos-24.11" = nixpkgs-stable;
+            "nixos-25.05" = nixpkgs-stable;
           }));
 
     systems = ["x86_64-linux" "aarch64-linux"];
