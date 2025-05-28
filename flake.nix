@@ -475,7 +475,7 @@
         (nixpkgs.lib.optionalAttrs (options ? home-manager) {
           home-manager.sharedModules =
             [
-              self.homeModules.config
+              self.homeModules.niri
               {programs.niri.package = nixpkgs.lib.mkDefault cfg.package;}
             ]
             ++ nixpkgs.lib.optionals (options ? stylix) [self.homeModules.stylix];
