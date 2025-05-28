@@ -433,7 +433,7 @@
           };
         })
         (nixpkgs.lib.mkIf cfg.enable {
-          environment.systemPackages = [pkgs.xdg-utils cfg.package];
+          environment.systemPackages = [pkgs.xdg-utils];
           xdg = {
             autostart.enable = nixpkgs.lib.mkDefault true;
             menus.enable = nixpkgs.lib.mkDefault true;
@@ -441,7 +441,7 @@
             icons.enable = nixpkgs.lib.mkDefault true;
           };
 
-          services.displayManager.sessionPackages = [cfg.package];
+          services.displayManager.sessionPackages = nixpkgs.lib.mapAttrsToList (_name: user: user.programs.niri.package or cfg.package) config.home-manager.users;
           hardware.graphics.enable = nixpkgs.lib.mkDefault true;
 
           xdg.portal = {
@@ -476,7 +476,7 @@
           home-manager.sharedModules =
             [
               self.homeModules.config
-              {programs.niri.package = nixpkgs.lib.mkForce cfg.package;}
+              {programs.niri.package = nixpkgs.lib.mkDefault cfg.package;}
             ]
             ++ nixpkgs.lib.optionals (options ? stylix) [self.homeModules.stylix];
         })
