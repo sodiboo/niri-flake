@@ -32,4 +32,5 @@
   "b6d281967cb0b7bf1dfdb8d0f597b517dc4aa5c5" = "v0.4";
   "a713cf46cb7db84a0d1b57c3a397c610cad3cf98" = "v0.5";
   "44590a416d4a3e8220e19e29e0b6efe64a80315d" = "v0.5.1";
+  "3ba30b149f9eb2bbf42cf4758d2158ca8cceef73" = "v0.6";
 }
