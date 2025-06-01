@@ -466,8 +466,8 @@
             enable = true;
             waylandCompositors = {
               niri = {
-                prettyName = "Niri";
-                comment = "Niri compositor managed by UWSM";
+                prettyName = "niri";
+                comment = "niri compositor managed by UWSM";
                 # Only takes a path, and `niri-session` uses
                 # the niri default systemd units
                 binPath = nixpkgs.lib.getExe (
