@@ -1816,6 +1816,15 @@
               };
           }
           {
+            background-color =
+              nullable types.str
+              // {
+                description = ''
+                  The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
+                '';
+              };
+          }
+          {
             preset-column-widths =
               list preset-width
               // {
@@ -3165,6 +3174,7 @@
         ])
         (borderish "focus-ring" cfg.layout.focus-ring)
         (borderish "border" cfg.layout.border)
+        (nullable leaf "background-color" cfg.layout.background-color)
         (shadow "shadow" cfg.layout.shadow)
         (nullable tab-indicator "tab-indicator" cfg.layout.tab-indicator)
         (plain "insert-hint" [
