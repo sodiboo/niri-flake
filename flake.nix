@@ -494,10 +494,32 @@
       ];
       options.programs.niri = {
         enable = nixpkgs.lib.mkEnableOption "niri";
+        doScreenTransitionOnActivation =
+          nixpkgs.lib.mkEnableOption "calling `do-screen-transition` in the activation script"
+          // {default = true;};
       };
 
       config = nixpkgs.lib.mkIf cfg.enable {
-        home.packages = [cfg.package];
+        home = {
+          packages = [cfg.package];
+          # As we have no dependency on home-manager, use the underlying implementation of `lib.hm.dag.entryAfter`
+          # https://github.com/nix-community/home-manager/blob/45c2985644b60ab64de2a2d93a4d132ecb87cf66/modules/lib/dag.nix#L108
+          activation.doScreenTransition = nixpkgs.lib.mkIf cfg.doScreenTransitionOnActivation {
+            before = [];
+            after = ["writeBoundary"];
+            data = ''
+              if [[ ! -v NIRI_SOCKET ]]; then
+                export NIRI_SOCKET="''$(find /run/user/* -maxdepth 1 -name 'niri*.sock' 2>/dev/null | head -n 1)"
+                if [[ -n "$NIRI_SOCKET" ]]; then
+                  echo "NIRI_SOCKET is unset; using socket found at $NIRI_SOCKET"
+                else
+                  echo "NIRI_SOCKET is unset; skipping screen transition"
+                fi
+              fi
+              [[ -n "$NIRI_SOCKET" ]] && run --quiet ${nixpkgs.lib.getExe cfg.package} msg action do-screen-transition
+            '';
+          };
+        };
         services.gnome-keyring.enable = true;
         xdg.portal = {
           enable = true;
