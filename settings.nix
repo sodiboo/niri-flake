@@ -462,6 +462,54 @@
       inactive-color = nullable types.str;
     };
 
+    workspace-shadow-rule = section {
+      enable =
+        nullable types.bool
+        // {
+          default = false;
+        };
+      offset =
+        nullable (record {
+          x =
+            required float-or-int
+            // {
+              default = 0.0;
+            };
+          y =
+            required float-or-int
+            // {
+              default = 10.0;
+            };
+        })
+        // {
+          description = shadow-descriptions.offset;
+        };
+
+      softness =
+        nullable float-or-int
+        // {
+          default = 40.0;
+          description = shadow-descriptions.softness;
+        };
+
+      spread =
+        nullable float-or-int
+        // {
+          default = 10.0;
+          description = shadow-descriptions.spread;
+        };
+
+      draw-behind-window = nullable types.bool;
+
+      color =
+        nullable types.str
+        // {
+          default = "#00000050";
+        };
+
+      inactive-color = nullable types.str;
+    };
+
     geometry-corner-radius-rule = nullable (record {
       top-left = required types.float;
       top-right = required types.float;
@@ -1229,6 +1277,13 @@
                 Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
 
                 The alpha channel for this color will be ignored.
+              '';
+            };
+          workspace-shadow =
+            workspace-shadow-rule
+            // {
+              description = ''
+                Configure shadows for workspaces in the overview mode.
               '';
             };
         };
@@ -2537,6 +2592,26 @@
                     '';
                   };
               }
+              {
+                place-within-backdrop =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
+                      This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+                    '';
+                  };
+
+                baba-is-float =
+                  nullable types.bool
+                  // {
+                    description = ''
+                      Make your layer surfaces FLOAT up and down.
+
+                      This is a natural extension of the April Fools' 2025 feature.
+                    '';
+                  };
+              }
             ]
             // {
               description = "layer rule";
@@ -2965,6 +3040,17 @@
         (nullable leaf "inactive-color" cfg.inactive-color)
       ]);
 
+      workspace-shadow = map' plain' (cfg: [
+        (flag' "on" (cfg.enable == true))
+        (flag' "off" (cfg.enable == false))
+        (nullable leaf "offset" cfg.offset)
+        (nullable leaf "softness" cfg.softness)
+        (nullable leaf "spread" cfg.spread)
+        (nullable leaf "draw-behind-window" cfg.draw-behind-window)
+        (nullable leaf "color" cfg.color)
+        (nullable leaf "inactive-color" cfg.inactive-color)
+      ]);
+
       tab-indicator-rule = map' plain' (cfg: [
         (nullable leaf "active-color" cfg.active.color or null)
         (nullable gradient' "active-gradient" cfg.active.gradient or null)
@@ -3014,6 +3100,8 @@
           (nullable leaf "block-out-from" cfg.block-out-from)
           (shadow-rule "shadow" cfg.shadow)
           (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+          (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
+          (nullable leaf "baba-is-float" cfg.baba-is-float)
         ];
 
       transform = cfg: let
@@ -3148,7 +3236,14 @@
 
       (nullable plain "overview" (
         let
-          children = lib.mapAttrsToList (nullable leaf) cfg.overview;
+          children =
+            lib.mapAttrsToList (
+              name: value:
+                if name == "workspace-shadow"
+                then workspace-shadow "workspace-shadow" value
+                else nullable leaf name value
+            )
+            cfg.overview;
         in
           if lib.remove null children == []
           then null
