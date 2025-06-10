@@ -328,10 +328,7 @@
 
     packages = forAllSystems (system: make-package-set inputs.nixpkgs.legacyPackages.${system});
 
-    overlays.niri = final: prev: (make-package-set final
-      // {
-        xwayland-satellite-nixpkgs = nixpkgs.lib.warn "please change pkgs.xwayland-satellite-nixpkgs -> pkgs.xwayland-satellite" prev.xwayland-satellite;
-      });
+    overlays.niri = final: prev: make-package-set final;
 
     apps = forAllSystems (system:
       (
