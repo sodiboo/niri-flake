@@ -1668,6 +1668,18 @@
                 Setting this to `"on-demand"` will enable VRR only when a window with ${link' "programs.niri.settings.window-rules.*.variable-refresh-rate"} is present on this output.
               '';
             };
+
+          focus-at-startup =
+            optional types.bool false
+            // {
+              description = ''
+                Focus this output by default when niri starts.
+
+                If multiple outputs with focus-at-startup are connected, niri will normally prioritize them in the order that they appear in the config, but in the case of this settings module, they are always sorted by name, so only the first one by name.
+
+                When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
+              '';
+            };
         });
       }
 
@@ -3149,6 +3161,7 @@
             (nullable leaf "backdrop-color" cfg.backdrop-color)
             (nullable leaf "background-color" cfg.background-color)
             (nullable leaf "scale" cfg.scale)
+            (flag' "focus-at-startup" cfg.focus-at-startup)
             (map' leaf transform "transform" cfg.transform)
             (nullable leaf "position" cfg.position)
             (nullable (map' leaf mode) "mode" cfg.mode)

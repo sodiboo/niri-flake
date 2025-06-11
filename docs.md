@@ -1433,6 +1433,18 @@ The background color of this output. This is equivalent to launching `swaybg -c 
 - default: `true`
 
 
+<!-- sorting key: programs.niri.settings.j.outputs.focus-at-startup -->
+## `programs.niri.settings.outputs.<name>.focus-at-startup`
+- type: `boolean`
+- default: `false`
+
+Focus this output by default when niri starts.
+
+If multiple outputs with focus-at-startup are connected, niri will normally prioritize them in the order that they appear in the config, but in the case of this settings module, they are always sorted by name, so only the first one by name.
+
+When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
+
+
 <!-- sorting key: programs.niri.settings.j.outputs.mode -->
 ## `programs.niri.settings.outputs.<name>.mode`
 - type: `null or (submodule)`
