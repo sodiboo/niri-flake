@@ -14,6 +14,7 @@
   "do-screen-transition"
   "screenshot"
   "screenshot-window"
+  "screenshot-screen"
   "toggle-keyboard-shortcuts-inhibit"
   "close-window"
   "fullscreen-window"
