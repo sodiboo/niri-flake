@@ -1409,10 +1409,21 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.warp-mouse-to-focus -->
 ## `programs.niri.settings.input.warp-mouse-to-focus`
+
+
+Whether to warp the mouse to the focused window when switching focus.
+
+
+<!-- sorting key: programs.niri.settings.i.input.warp-mouse-to-focus.enable -->
+## `programs.niri.settings.input.warp-mouse-to-focus.enable`
 - type: `boolean`
 - default: `false`
 
-Whether to warp the mouse to the focused window when switching focus.
+
+<!-- sorting key: programs.niri.settings.i.input.warp-mouse-to-focus.mode -->
+## `programs.niri.settings.input.warp-mouse-to-focus.mode`
+- type: `null or string`
+- default: `null`
 
 
 <!-- sorting key: programs.niri.settings.i.input.workspace-auto-back-and-forth -->

@@ -1504,8 +1504,33 @@
             };
           touch.enable = optional types.bool true;
           touch.map-to-output = nullable types.str;
-          warp-mouse-to-focus =
-            optional types.bool false
+          warp-mouse-to-focus = let
+            inner = record {
+              enable =
+                optional types.bool false;
+              mode =
+                nullable types.str;
+            };
+
+            actual-type = mkOptionType {
+              inherit (inner) name description getSubOptions nestedTypes;
+
+              check = value: builtins.isBool value || inner.check value;
+              merge = loc: defs:
+                lib.warnIf (builtins.any (def: builtins.isBool def.value) defs) ''
+                  ${showOption loc} is deprecated.
+                  use ${showOption (loc ++ ["enable"])} instead.
+                  ${builtins.concatStringsSep "\n" (map (def: "- used in ${def.file}") defs)}
+                ''
+                inner.merge
+                loc (map (def:
+                  if builtins.isBool def.value
+                  then def // {value.enable = def.value;}
+                  else def)
+                defs);
+            };
+          in
+            optional actual-type {}
             // {
               description = ''
                 Whether to warp the mouse to the focused window when switching focus.
@@ -3158,7 +3183,11 @@
         (pointer' "trackball" cfg.input.trackball)
         (tablet' "tablet" cfg.input.tablet)
         (plain "touch" (touch cfg.input.touch))
-        (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
+        (optional-node cfg.input.warp-mouse-to-focus.enable (
+          leaf "warp-mouse-to-focus" (lib.optionalAttrs (cfg.input.warp-mouse-to-focus.mode != null) {
+            inherit (cfg.input.warp-mouse-to-focus) mode;
+          })
+        ))
         (optional-node cfg.input.focus-follows-mouse.enable (
           leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
             inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
