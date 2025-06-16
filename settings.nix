@@ -2492,6 +2492,9 @@
               {
                 scroll-factor = nullable float-or-int;
               }
+              {
+                tiled-state = nullable types.bool;
+              }
             ]
             // {
               description = "window rule";
@@ -3033,6 +3036,7 @@
           (nullable leaf "default-floating-position" cfg.default-floating-position)
           (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
           (nullable leaf "scroll-factor" cfg.scroll-factor)
+          (nullable leaf "tiled-state" cfg.tiled-state)
         ];
 
       layer-rule = cfg:

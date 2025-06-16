@@ -3203,6 +3203,12 @@ Takes effect only when the window is on an output with [`outputs.*.variable-refr
 - default: `null`
 
 
+<!-- sorting key: programs.niri.settings.o.window-rules.j.tiled-state -->
+## `programs.niri.settings.window-rules.*.tiled-state`
+- type: `null or boolean`
+- default: `null`
+
+
 <!-- sorting key: programs.niri.settings.p.layer-rules -->
 ## `programs.niri.settings.layer-rules`
 - type: `list of layer rule`
