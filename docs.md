@@ -2218,8 +2218,8 @@ The left and right structs work in a similar way, except the padded space is not
 
 <!-- sorting key: programs.niri.settings.m.animations.a.slowdown -->
 ## `programs.niri.settings.animations.slowdown`
-- type: `floating point number`
-- default: `1.000000`
+- type: `null or floating point number`
+- default: `null`
 
 
 <!-- sorting key: programs.niri.settings.m.animations.c.config-notification-open-close -->

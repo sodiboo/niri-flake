@@ -2094,7 +2094,7 @@
           ordered-section [
             {
               enable = optional types.bool true;
-              slowdown = optional types.float 1.0;
+              slowdown = nullable types.float;
             }
             {
               all-anims = mkOption {
@@ -2928,7 +2928,7 @@
 
       nullable = f: name: value: optional-node (value != null) (f name value);
       flag' = name: lib.flip optional-node (flag name);
-      plain' = name: children: optional-node (builtins.any (v: v != null) children) (plain name children);
+      plain' = name: children: optional-node (builtins.any (v: v != null) (lib.flatten children)) (plain name children);
 
       map' = node: f: name: val: node name (f val);
 
@@ -3315,9 +3315,9 @@
 
       (nullable gestures "gestures" cfg.gestures)
 
-      (plain "animations" [
+      (plain' "animations" [
         (toggle "off" cfg.animations [
-          (leaf "slowdown" cfg.animations.slowdown)
+          (nullable leaf "slowdown" cfg.animations.slowdown)
           (map (name: animation name cfg.animations.${name}) cfg.animations.all-anims)
         ])
       ])
