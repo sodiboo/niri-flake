@@ -3150,11 +3150,6 @@
           (lib.mapAttrsToList leaf cfg.action)
         ];
 
-      switch-bind = name: cfg:
-        plain name [
-          (lib.mapAttrsToList leaf cfg.action)
-        ];
-
       workspace = cfg:
         node "workspace" cfg.name [
           (nullable leaf "open-on-output" cfg.open-on-output)
@@ -3298,13 +3293,11 @@
       (plain' "environment" (lib.mapAttrsToList leaf cfg.environment))
       (plain' "binds" (lib.mapAttrsToList bind cfg.binds))
 
-      (nullable plain "switch-events" (
-        let
-          children = lib.mapAttrsToList (nullable switch-bind) cfg.switch-events;
-        in
-          if lib.remove null children == []
-          then null
-          else children
+      (plain' "switch-events" (
+        lib.mapAttrsToList (nullable (map' plain (cfg: [
+          (lib.mapAttrsToList leaf cfg.action)
+        ])))
+        cfg.switch-events
       ))
 
       (map workspace (builtins.attrValues cfg.workspaces))
