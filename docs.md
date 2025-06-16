@@ -1020,6 +1020,12 @@ Further reading:
 - default: `null`
 
 
+<!-- sorting key: programs.niri.settings.i.input.touch.enable -->
+## `programs.niri.settings.input.touch.enable`
+- type: `boolean`
+- default: `true`
+
+
 <!-- sorting key: programs.niri.settings.i.input.touch.map-to-output -->
 ## `programs.niri.settings.input.touch.map-to-output`
 - type: `null or string`

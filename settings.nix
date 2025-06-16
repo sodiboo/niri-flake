@@ -1494,6 +1494,7 @@
                   '';
                 };
             };
+          touch.enable = optional types.bool true;
           touch.map-to-output = nullable types.str;
           warp-mouse-to-focus =
             optional types.bool false
@@ -2896,6 +2897,10 @@
           (nullable leaf "calibration-matrix" cfg.calibration-matrix)
         ];
 
+      touch = cfg: (toggle "off" cfg [
+        (touchy cfg)
+      ]);
+
       gradient' = name: cfg:
         leaf name
         (lib.concatMapAttrs (name: value:
@@ -3136,7 +3141,7 @@
         (pointer' "trackpoint" cfg.input.trackpoint)
         (pointer' "trackball" cfg.input.trackball)
         (tablet' "tablet" cfg.input.tablet)
-        (plain "touch" (touchy cfg.input.touch))
+        (plain "touch" (touch cfg.input.touch))
         (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
         (optional-node cfg.input.focus-follows-mouse.enable (leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
           inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
