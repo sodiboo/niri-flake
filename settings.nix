@@ -1545,6 +1545,9 @@
                 You can disable this behaviour if you prefer to configure the power button elsewhere.
               '';
             };
+
+          mod-key = nullable types.str;
+          mod-key-nested = nullable types.str;
         };
       }
 
@@ -3161,6 +3164,8 @@
         })))
         (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
         (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
+        (nullable leaf "mod-key" cfg.input.mod-key)
+        (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
       ])
 
       (lib.mapAttrsToList (name: cfg:

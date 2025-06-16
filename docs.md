@@ -867,6 +867,18 @@ If this is set to an empty string, the variant will be read from the `XKB_DEFAUL
 
 
 
+<!-- sorting key: programs.niri.settings.i.input.mod-key -->
+## `programs.niri.settings.input.mod-key`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.i.input.mod-key-nested -->
+## `programs.niri.settings.input.mod-key-nested`
+- type: `null or string`
+- default: `null`
+
+
 <!-- sorting key: programs.niri.settings.i.input.mouse.accel-profile -->
 ## `programs.niri.settings.input.mouse.accel-profile`
 - type: `null or one of "adaptive", "flat"`
