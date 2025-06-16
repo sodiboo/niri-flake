@@ -2222,193 +2222,197 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `1.000000`
 
 
-<!-- sorting key: programs.niri.settings.m.animations.b.config-notification-open-close -->
-## `programs.niri.settings.animations.config-notification-open-close`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 0.600000;
-      epsilon = 0.001000;
-      stiffness = 1000;
-    };
-  }
-  ```
+<!-- sorting key: programs.niri.settings.m.animations.c.config-notification-open-close -->
+<!-- programs.niri.settings.animations.config-notification-open-close -->
+
+<!-- sorting key: programs.niri.settings.m.animations.c.config-notification-open-close.enable -->
+## `programs.niri.settings.animations.config-notification-open-close.enable`
+- type: `boolean`
+- default: `true`
 
 
-
-<!-- sorting key: programs.niri.settings.m.animations.b.horizontal-view-movement -->
-## `programs.niri.settings.animations.horizontal-view-movement`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 1.000000;
-      epsilon = 0.000100;
-      stiffness = 800;
-    };
-  }
-  ```
+<!-- sorting key: programs.niri.settings.m.animations.c.config-notification-open-close.kind -->
+## `programs.niri.settings.animations.config-notification-open-close.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- default: `null`
 
 
+<!-- sorting key: programs.niri.settings.m.animations.c.horizontal-view-movement -->
+<!-- programs.niri.settings.animations.horizontal-view-movement -->
 
-<!-- sorting key: programs.niri.settings.m.animations.b.screenshot-ui-open -->
-## `programs.niri.settings.animations.screenshot-ui-open`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    easing = {
-      curve = "ease-out-quad";
-      duration-ms = 200;
-    };
-  }
-  ```
+<!-- sorting key: programs.niri.settings.m.animations.c.horizontal-view-movement.enable -->
+## `programs.niri.settings.animations.horizontal-view-movement.enable`
+- type: `boolean`
+- default: `true`
 
 
-
-<!-- sorting key: programs.niri.settings.m.animations.b.window-close -->
-## `programs.niri.settings.animations.window-close`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    easing = {
-      curve = "ease-out-quad";
-      duration-ms = 150;
-    };
-  }
-  ```
+<!-- sorting key: programs.niri.settings.m.animations.c.horizontal-view-movement.kind -->
+## `programs.niri.settings.animations.horizontal-view-movement.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- default: `null`
 
 
+<!-- sorting key: programs.niri.settings.m.animations.c.screenshot-ui-open -->
+<!-- programs.niri.settings.animations.screenshot-ui-open -->
 
-<!-- sorting key: programs.niri.settings.m.animations.b.window-movement -->
-## `programs.niri.settings.animations.window-movement`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 1.000000;
-      epsilon = 0.000100;
-      stiffness = 800;
-    };
-  }
-  ```
+<!-- sorting key: programs.niri.settings.m.animations.c.screenshot-ui-open.enable -->
+## `programs.niri.settings.animations.screenshot-ui-open.enable`
+- type: `boolean`
+- default: `true`
 
 
-
-<!-- sorting key: programs.niri.settings.m.animations.b.window-open -->
-## `programs.niri.settings.animations.window-open`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    easing = {
-      curve = "ease-out-expo";
-      duration-ms = 150;
-    };
-  }
-  ```
+<!-- sorting key: programs.niri.settings.m.animations.c.screenshot-ui-open.kind -->
+## `programs.niri.settings.animations.screenshot-ui-open.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- default: `null`
 
 
+<!-- sorting key: programs.niri.settings.m.animations.c.window-close -->
+<!-- programs.niri.settings.animations.window-close -->
 
-<!-- sorting key: programs.niri.settings.m.animations.b.window-resize -->
-## `programs.niri.settings.animations.window-resize`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 1.000000;
-      epsilon = 0.000100;
-      stiffness = 800;
-    };
-  }
-  ```
+<!-- sorting key: programs.niri.settings.m.animations.c.window-close.custom-shader -->
+## `programs.niri.settings.animations.window-close.custom-shader`
+- type: `null or string`
+- default: `null`
 
+Source code for a GLSL shader to use for this animation.
 
-
-<!-- sorting key: programs.niri.settings.m.animations.b.workspace-switch -->
-## `programs.niri.settings.animations.workspace-switch`
-- type: `null or `[`<animation>`](#animation)
-- default:
-  ```nix
-  {
-    spring = {
-      damping-ratio = 1.000000;
-      epsilon = 0.000100;
-      stiffness = 1000;
-    };
-  }
-  ```
-
-
-
-<!-- sorting key: programs.niri.settings.m.animations.c.shaders -->
-## `programs.niri.settings.animations.shaders`
-
-
-These options should contain the *source code* for GLSL shaders.
+For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
 
 See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
-<!-- sorting key: programs.niri.settings.m.animations.c.shaders.window-close -->
-## `programs.niri.settings.animations.shaders.window-close`
-- type: `null or string`
+<!-- sorting key: programs.niri.settings.m.animations.c.window-close.enable -->
+## `programs.niri.settings.animations.window-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-close.kind -->
+## `programs.niri.settings.animations.window-close.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.m.animations.c.shaders.window-open -->
-## `programs.niri.settings.animations.shaders.window-open`
-- type: `null or string`
+<!-- sorting key: programs.niri.settings.m.animations.c.window-movement -->
+<!-- programs.niri.settings.animations.window-movement -->
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-movement.enable -->
+## `programs.niri.settings.animations.window-movement.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-movement.kind -->
+## `programs.niri.settings.animations.window-movement.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
 - default: `null`
 
 
-<!-- sorting key: programs.niri.settings.m.animations.c.shaders.window-resize -->
-## `programs.niri.settings.animations.shaders.window-resize`
+<!-- sorting key: programs.niri.settings.m.animations.c.window-open -->
+<!-- programs.niri.settings.animations.window-open -->
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-open.custom-shader -->
+## `programs.niri.settings.animations.window-open.custom-shader`
 - type: `null or string`
 - default: `null`
 
+Source code for a GLSL shader to use for this animation.
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation> -->
-## `<animation>`
+For example, set it to `builtins.readFile ./window-open.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-open.enable -->
+## `programs.niri.settings.animations.window-open.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-open.kind -->
+## `programs.niri.settings.animations.window-open.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-resize -->
+<!-- programs.niri.settings.animations.window-resize -->
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-resize.custom-shader -->
+## `programs.niri.settings.animations.window-resize.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-resize.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-resize.enable -->
+## `programs.niri.settings.animations.window-resize.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.window-resize.kind -->
+## `programs.niri.settings.animations.window-resize.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.workspace-switch -->
+<!-- programs.niri.settings.animations.workspace-switch -->
+
+<!-- sorting key: programs.niri.settings.m.animations.c.workspace-switch.enable -->
+## `programs.niri.settings.animations.workspace-switch.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.workspace-switch.kind -->
+## `programs.niri.settings.animations.workspace-switch.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind> -->
+## `<animation-kind>`
 - type: `variant of: easing | spring`
 
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation>.easing -->
-<!-- <animation>.easing -->
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind>.easing -->
+<!-- <animation-kind>.easing -->
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation>.easing.curve -->
-## `<animation>.easing.curve`
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind>.easing.curve -->
+## `<animation-kind>.easing.curve`
 - type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo"`
 
 The curve to use for the easing function.
 
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation>.easing.duration-ms -->
-## `<animation>.easing.duration-ms`
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind>.easing.duration-ms -->
+## `<animation-kind>.easing.duration-ms`
 - type: `signed integer`
 
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation>.spring -->
-<!-- <animation>.spring -->
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind>.spring -->
+<!-- <animation-kind>.spring -->
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation>.spring.damping-ratio -->
-## `<animation>.spring.damping-ratio`
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind>.spring.damping-ratio -->
+## `<animation-kind>.spring.damping-ratio`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation>.spring.epsilon -->
-## `<animation>.spring.epsilon`
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind>.spring.epsilon -->
+## `<animation-kind>.spring.epsilon`
 - type: `floating point number`
 
 
-<!-- sorting key: programs.niri.settings.m.animations.d.<animation>.spring.stiffness -->
-## `<animation>.spring.stiffness`
+<!-- sorting key: programs.niri.settings.m.animations.d.<animation-kind>.spring.stiffness -->
+## `<animation-kind>.spring.stiffness`
 - type: `signed integer`
 
 

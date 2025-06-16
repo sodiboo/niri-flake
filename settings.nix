@@ -102,6 +102,14 @@
 
     inherit (docs.lib) libinput-link libinput-doc link-niri-release link-this-github link' anchor' unstable-note;
 
+    obsolete-warning = from: to: defs: ''
+      ${from} is obsolete.
+      Use ${to} instead.
+      ${builtins.concatStringsSep "\n" (map (def: "- defined in ${def.file}") defs)}
+    '';
+
+    rename-warning = from: to: obsolete-warning (showOption from) (showOption to);
+
     basic-pointer = default-natural-scroll: {
       natural-scroll =
         optional types.bool default-natural-scroll
@@ -2056,7 +2064,7 @@
 
       {
         animations = let
-          animation = variant {
+          animation-kind = variant {
             spring = record {
               damping-ratio = required types.float;
               stiffness = required types.int;
@@ -2074,44 +2082,15 @@
             };
           };
 
-          defaults = {
-            workspace-switch.spring = {
-              damping-ratio = 1.0;
-              stiffness = 1000;
-              epsilon = 0.0001;
-            };
-            horizontal-view-movement.spring = {
-              damping-ratio = 1.0;
-              stiffness = 800;
-              epsilon = 0.0001;
-            };
-            config-notification-open-close.spring = {
-              damping-ratio = 0.6;
-              stiffness = 1000;
-              epsilon = 0.001;
-            };
-            window-movement.spring = {
-              damping-ratio = 1.0;
-              stiffness = 800;
-              epsilon = 0.0001;
-            };
-            window-open.easing = {
-              duration-ms = 150;
-              curve = "ease-out-expo";
-            };
-            window-close.easing = {
-              duration-ms = 150;
-              curve = "ease-out-quad";
-            };
-            window-resize.spring = {
-              damping-ratio = 1.0;
-              stiffness = 800;
-              epsilon = 0.0001;
-            };
-            screenshot-ui-open.easing = {
-              duration-ms = 200;
-              curve = "ease-out-quad";
-            };
+          anims = {
+            workspace-switch.has-shader = false;
+            horizontal-view-movement.has-shader = false;
+            config-notification-open-close.has-shader = false;
+            window-movement.has-shader = false;
+            window-open.has-shader = true;
+            window-close.has-shader = true;
+            window-resize.has-shader = true;
+            screenshot-ui-open.has-shader = false;
           };
         in
           ordered-section [
@@ -2119,59 +2098,91 @@
               enable = optional types.bool true;
               slowdown = optional types.float 1.0;
             }
-            (builtins.mapAttrs (lib.const (v:
-              optional (nullOr (newtype (link-type "animation") animation)) (removeAttrs v ["unstable"])
-              // {visible = "shallow";}
-              // lib.optionalAttrs (v.unstable or false) {
-                description = ''
-                  ${unstable-note}
-                '';
-              }))
-            defaults)
             {
-              shaders =
-                section {
-                  window-open = nullable types.str;
-                  window-close = nullable types.str;
-                  window-resize = nullable types.str;
-                }
-                // {
-                  description = ''
-                    These options should contain the *source code* for GLSL shaders.
+              all-anims = mkOption {
+                type = types.raw;
+                internal = true;
+                visible = false;
 
-                    See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-                  '';
-                };
-            }
-            {
-              __module = {
-                config,
-                options,
-                ...
-              }: {
-                options._internal_niri_flake =
-                  readonly
-                  (record (
-                    lib.concatMapAttrs (name:
-                      lib.const {
-                        ${name} = readonly (record {
-                          is-defined =
-                            readonly types.bool (config.${name} != (removeAttrs defaults.${name} ["unstable"]));
-                        }) {};
-                      })
-                    defaults
-                  )) {}
-                  // {visible = false;};
+                default = builtins.attrNames anims;
               };
             }
+            (builtins.mapAttrs (name: (
+                {has-shader}: let
+                  inner = record ({
+                      enable = optional types.bool true;
+                      kind =
+                        optional (newtype (link-type "animation-kind") (nullOr animation-kind)) null
+                        // {
+                          visible = "shallow";
+                        };
+                    }
+                    // lib.optionalAttrs has-shader {
+                      custom-shader =
+                        nullable types.str
+                        // {
+                          description = ''
+                            Source code for a GLSL shader to use for this animation.
+
+                            For example, set it to `builtins.readFile ./${name}.glsl` to use a shader from the same directory as your configuration file.
+
+                            See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+                          '';
+                        };
+                    });
+
+                  actual-type = mkOptionType {
+                    inherit (inner) name description getSubOptions nestedTypes;
+
+                    check = value: builtins.isNull value || animation-kind.check value || inner.check value;
+                    merge = loc: defs:
+                      inner.merge
+                      loc (map (def:
+                        if builtins.isNull def.value
+                        then
+                          lib.warn (obsolete-warning "${showOption loc} = null;" "${showOption (loc ++ ["enable"])} = false;" [def])
+                          def
+                          // {value.enable = false;}
+                        else if animation-kind.check def.value
+                        then
+                          lib.warn (rename-warning loc (loc ++ ["kind"]) [def])
+                          def
+                          // {value.kind = def.value;}
+                        else def)
+                      defs);
+                  };
+                in
+                  optional actual-type {}
+              ))
+              anims)
             {
               __docs-only = true;
-              "<animation>" =
-                required animation
+              "<animation-kind>" =
+                required animation-kind
                 // {
-                  override-loc = lib.const ["<animation>"];
+                  override-loc = lib.const ["<animation-kind>"];
                 };
             }
+            (let
+              deprecated-shaders = ["window-open" "window-close" "window-resize"];
+            in {
+              __module = {
+                options,
+                config,
+                ...
+              }: {
+                options.shaders = lib.genAttrs deprecated-shaders (_: required (nullOr types.str) // {visible = false;});
+                config = lib.genAttrs deprecated-shaders (name: let
+                  old = options.shaders.${name};
+                in
+                  lib.mkIf (old.isDefined) (
+                    lib.warn (rename-warning (old.loc) (options.${name}.loc ++ ["custom-shader"]) old.definitionsWithLocations)
+                    {
+                      custom-shader = config.shaders.${name};
+                    }
+                  ));
+              };
+            })
           ];
 
         gestures = nullable (record {
@@ -3013,18 +3024,15 @@
         then null
         else map (lib.mapAttrsToList leaf) (lib.toList cfg));
 
-      animation = shader:
-        map' plain (cfg: [
-          (flag' "off" (cfg == null))
-          (optional-node (cfg ? easing) [
+      animation = map' plain' (cfg:
+        toggle "off" cfg [
+          (optional-node (cfg.kind ? easing) [
             (leaf "duration-ms" cfg.easing.duration-ms)
             (leaf "curve" cfg.easing.curve)
           ])
-          (nullable leaf "spring" cfg.spring or null)
-          (nullable leaf "custom-shader" shader)
+          (nullable leaf "spring" cfg.kind.spring or null)
+          (nullable leaf "custom-shader" cfg.custom-shader or null)
         ]);
-
-      animation' = shader: name: cfg: optional-node (cfg._internal_niri_flake.${name}.is-defined || shader != null) (animation shader name cfg.${name});
 
       opt-props = lib.filterAttrs (lib.const (value: value != null));
       border-rule = map' plain' (cfg: [
@@ -3319,14 +3327,7 @@
       (plain "animations" [
         (toggle "off" cfg.animations [
           (leaf "slowdown" cfg.animations.slowdown)
-          (animation' null "workspace-switch" cfg.animations)
-          (animation' null "horizontal-view-movement" cfg.animations)
-          (animation' null "config-notification-open-close" cfg.animations)
-          (animation' null "window-movement" cfg.animations)
-          (animation' cfg.animations.shaders.window-open "window-open" cfg.animations)
-          (animation' cfg.animations.shaders.window-close "window-close" cfg.animations)
-          (animation' cfg.animations.shaders.window-resize "window-resize" cfg.animations)
-          (animation' null "screenshot-ui-open" cfg.animations)
+          (map (name: animation name cfg.animations.${name}) cfg.animations.all-anims)
         ])
       ])
 
