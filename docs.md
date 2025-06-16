@@ -2431,6 +2431,13 @@ The curve to use for the easing function.
 - type: `signed integer`
 
 
+<!-- sorting key: programs.niri.settings.m.gestures.dnd-edge-view-scroll -->
+## `programs.niri.settings.gestures.dnd-edge-view-scroll`
+
+
+When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+
+
 <!-- sorting key: programs.niri.settings.m.gestures.dnd-edge-view-scroll.delay-ms -->
 ## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
 - type: `null or signed integer`
@@ -2453,6 +2460,39 @@ When the cursor is at boundary of the trigger width, the view will not be scroll
 - default: `null`
 
 The width of the edge of the screen where dragging a window will scroll the view.
+
+
+<!-- sorting key: programs.niri.settings.m.gestures.dnd-edge-workspace-switch -->
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
+
+
+In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
+
+This does not happen when the overview is not open.
+
+
+<!-- sorting key: programs.niri.settings.m.gestures.dnd-edge-workspace-switch.delay-ms -->
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+<!-- sorting key: programs.niri.settings.m.gestures.dnd-edge-workspace-switch.max-speed -->
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.max-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+<!-- sorting key: programs.niri.settings.m.gestures.dnd-edge-workspace-switch.trigger-height -->
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The height of the edge of the screen where dragging a window will scroll the view.
 
 
 <!-- sorting key: programs.niri.settings.m.gestures.hot-corners.enable -->
