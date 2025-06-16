@@ -3287,7 +3287,7 @@
         (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
       ])
 
-      (plain "hotkey-overlay" [
+      (plain' "hotkey-overlay" [
         (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
       ])
 
@@ -3295,8 +3295,9 @@
         (flag' "disable-primary" cfg.clipboard.disable-primary)
       ])
 
-      (plain "environment" (lib.mapAttrsToList leaf cfg.environment))
-      (plain "binds" (lib.mapAttrsToList bind cfg.binds))
+      (plain' "environment" (lib.mapAttrsToList leaf cfg.environment))
+      (plain' "binds" (lib.mapAttrsToList bind cfg.binds))
+
       (nullable plain "switch-events" (
         let
           children = lib.mapAttrsToList (nullable switch-bind) cfg.switch-events;
