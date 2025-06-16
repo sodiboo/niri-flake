@@ -2635,7 +2635,7 @@
 
       {
         debug =
-          nullable (attrsOf kdl.types.kdl-args)
+          attrs kdl.types.kdl-args
           // {
             description = ''
               Debug options for niri.
@@ -3322,6 +3322,6 @@
         ])
       ])
 
-      (nullable (map' plain (lib.mapAttrsToList leaf)) "debug" cfg.debug)
+      (map' plain' (lib.mapAttrsToList leaf) "debug" cfg.debug)
     ];
 }

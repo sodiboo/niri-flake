@@ -3530,8 +3530,7 @@ This will only work for background layer surfaces that ignore exclusive zones (t
 
 <!-- sorting key: programs.niri.settings.q.debug -->
 ## `programs.niri.settings.debug`
-- type: `null or (attribute set of kdl arguments)`
-- default: `null`
+- type: `attribute set of kdl arguments`
 
 Debug options for niri.
 
