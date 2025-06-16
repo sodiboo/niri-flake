@@ -1540,11 +1540,8 @@
 
               check = value: builtins.isBool value || inner.check value;
               merge = loc: defs:
-                lib.warnIf (builtins.any (def: builtins.isBool def.value) defs) ''
-                  ${showOption loc} is deprecated.
-                  use ${showOption (loc ++ ["enable"])} instead.
-                  ${builtins.concatStringsSep "\n" (map (def: "- used in ${def.file}") defs)}
-                ''
+                lib.warnIf (builtins.any (def: builtins.isBool def.value) defs)
+                (rename-warning loc (loc ++ ["enable"]) (builtins.filter (def: builtins.isBool def.value) defs))
                 inner.merge
                 loc (map (def:
                   if builtins.isBool def.value
