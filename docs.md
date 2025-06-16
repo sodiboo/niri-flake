@@ -1475,7 +1475,7 @@ The background color of this output. This is equivalent to launching `swaybg -c 
 
 Focus this output by default when niri starts.
 
-If multiple outputs with focus-at-startup are connected, niri will normally prioritize them in the order that they appear in the config, but in the case of this settings module, they are always sorted by name, so only the first one by name.
+If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set [`outputs.<name>.name`](#programsnirisettingsoutputsnamename) to be the actual name of the output.
 
 When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
 
@@ -1508,6 +1508,14 @@ The refresh rate of this output. When this is null, but the resolution is set, n
 <!-- sorting key: programs.niri.settings.j.outputs.mode.width -->
 ## `programs.niri.settings.outputs.<name>.mode.width`
 - type: `signed integer`
+
+
+<!-- sorting key: programs.niri.settings.j.outputs.name -->
+## `programs.niri.settings.outputs.<name>.name`
+- type: `string`
+- default: `the key of the output`
+
+The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
 
 
 <!-- sorting key: programs.niri.settings.j.outputs.position -->

@@ -1592,7 +1592,15 @@
       }
 
       {
-        outputs = attrs (record {
+        outputs = attrs-record (key: {
+          name =
+            optional types.str key
+            // {
+              defaultText = "the key of the output";
+              description = ''
+                The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
+              '';
+            };
           enable = optional types.bool true;
           backdrop-color =
             nullable types.str
@@ -1695,7 +1703,7 @@
               description = ''
                 Focus this output by default when niri starts.
 
-                If multiple outputs with focus-at-startup are connected, niri will normally prioritize them in the order that they appear in the config, but in the case of this settings module, they are always sorted by name, so only the first one by name.
+                If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set ${link' "programs.niri.settings.outputs.<name>.name"} to be the actual name of the output.
 
                 When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
               '';
@@ -3214,8 +3222,8 @@
         (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
       ])
 
-      (lib.mapAttrsToList (name: cfg:
-        node "output" name [
+      (map (cfg:
+        node "output" cfg.name [
           (toggle' "off" cfg [
             (nullable leaf "backdrop-color" cfg.backdrop-color)
             (nullable leaf "background-color" cfg.background-color)
@@ -3230,7 +3238,7 @@
             )
           ])
         ])
-      cfg.outputs)
+      (builtins.attrValues cfg.outputs))
 
       (leaf "screenshot-path" cfg.screenshot-path)
       (flag' "prefer-no-csd" cfg.prefer-no-csd)
