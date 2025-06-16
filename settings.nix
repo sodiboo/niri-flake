@@ -34,6 +34,23 @@
     attrs = type: optional (attrsOf type) {};
     list = type: optional (listOf type) [];
 
+    attrs-record = opts:
+      attrs (
+        if builtins.isFunction opts
+        then
+          submodule (
+            {name, ...}: let
+              opts' = opts name;
+            in
+              if (opts' ? options && opts' ? config)
+              then opts'
+              else {
+                options = opts';
+              }
+          )
+        else record opts
+      );
+
     float-or-int = types.either types.float types.int;
 
     variant = variants:
@@ -1132,15 +1149,13 @@
 
       {
         workspaces =
-          attrs (record {
+          attrs-record (key: {
             name =
-              nullable types.str
+              optional types.str key
               // {
+                defaultText = "the key of the workspace";
                 description = ''
-                  An (optional) name for the workspace. Defaults to the value of the key.
-
-                  This attribute is intended to be used when you wish to preserve a specific
-                  order for the named workspaces.
+                  The name of the workspace. You set this manually if you want the keys to be ordered in a specific way.
                 '';
               };
             open-on-output =
@@ -3285,17 +3300,7 @@
           else children
       ))
 
-      (map workspace (builtins.sort (a: b: a.sort-name < b.sort-name)
-        (lib.mapAttrsToList (key: cfg:
-          cfg
-          // {
-            sort-name = key;
-            name =
-              if cfg.name != null
-              then cfg.name
-              else key;
-          })
-        cfg.workspaces)))
+      (map workspace (builtins.attrValues cfg.workspaces))
 
       (map (map' leaf (builtins.getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
       (map window-rule cfg.window-rules)

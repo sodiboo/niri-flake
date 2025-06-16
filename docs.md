@@ -697,13 +697,10 @@ and a `name` attribute to have a friendlier name.
 
 <!-- sorting key: programs.niri.settings.g.workspaces.name -->
 ## `programs.niri.settings.workspaces.<name>.name`
-- type: `null or string`
-- default: `null`
+- type: `string`
+- default: `the key of the workspace`
 
-An (optional) name for the workspace. Defaults to the value of the key.
-
-This attribute is intended to be used when you wish to preserve a specific
-order for the named workspaces.
+The name of the workspace. You set this manually if you want the keys to be ordered in a specific way.
 
 
 <!-- sorting key: programs.niri.settings.g.workspaces.open-on-output -->
