@@ -1735,6 +1735,14 @@ The color of the border for the window that has keyboard focus.
 The color of the border for windows that do not have keyboard focus.
 
 
+<!-- sorting key: programs.niri.settings.l.layout.a.border.b.urgent -->
+## `programs.niri.settings.layout.border.urgent`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
+
+
 <!-- sorting key: programs.niri.settings.l.layout.a.focus-ring -->
 ## `programs.niri.settings.layout.focus-ring`
 
@@ -1788,6 +1796,14 @@ The color of the focus ring for the window that has keyboard focus.
 
 
 The color of the focus ring for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.l.layout.a.focus-ring.b.urgent -->
+## `programs.niri.settings.layout.focus-ring.urgent`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
 
 
 <!-- sorting key: programs.niri.settings.l.layout.b.shadow -->
@@ -2204,6 +2220,14 @@ The color of the tab indicator for the window that has keyboard focus.
 - default: `config.programs.niri.settings.layout.border.inactive`
 
 The color of the the tab indicator for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.l.layout.g.tab-indicator.b.urgent -->
+## `programs.niri.settings.layout.tab-indicator.urgent`
+- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- default: `config.programs.niri.settings.layout.border.urgent`
+
+The color of the tab indicator for windows that are requesting attention.
 
 
 <!-- sorting key: programs.niri.settings.l.layout.h.empty-workspace-above-first -->
@@ -3046,6 +3070,14 @@ The color of the border for the window that has keyboard focus.
 The color of the border for windows that do not have keyboard focus.
 
 
+<!-- sorting key: programs.niri.settings.o.window-rules.e.border.b.urgent -->
+## `programs.niri.settings.window-rules.*.border.urgent`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
+
+
 <!-- sorting key: programs.niri.settings.o.window-rules.e.clip-to-geometry -->
 ## `programs.niri.settings.window-rules.*.clip-to-geometry`
 - type: `null or boolean`
@@ -3109,6 +3141,14 @@ The color of the focus ring for the window that has keyboard focus.
 - default: `null`
 
 The color of the focus ring for windows that do not have keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.o.window-rules.e.focus-ring.b.urgent -->
+## `programs.niri.settings.window-rules.*.focus-ring.urgent`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
 
 
 <!-- sorting key: programs.niri.settings.o.window-rules.e.geometry-corner-radius -->
@@ -3236,6 +3276,14 @@ See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoracti
 - default: `null`
 
 See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
+
+
+<!-- sorting key: programs.niri.settings.o.window-rules.e.tab-indicator.urgent -->
+## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
 
 
 <!-- sorting key: programs.niri.settings.o.window-rules.f.max-height -->

@@ -388,6 +388,14 @@
         }
 
         {
+          urgent =
+            nullable decoration'
+            // {
+              visible = "shallow";
+              description = ''
+                The color of the ${name} for windows that are requesting attention.
+              '';
+            };
           active =
             optional decoration' {color = default-active-color;}
             // {
@@ -435,6 +443,14 @@
         }
 
         {
+          urgent =
+            nullable decoration'
+            // {
+              visible = "shallow";
+              description = ''
+                The color of the ${name} for windows that are requesting attention.
+              '';
+            };
           active =
             nullable decoration'
             // {
@@ -2028,6 +2044,13 @@
                       defaultText = "config.programs.niri.settings.layout.border.${state}";
                     };
                 in {
+                  urgent =
+                    this-fucking-type "urgent"
+                    // {
+                      description = ''
+                        The color of the tab indicator for windows that are requesting attention.
+                      '';
+                    };
                   active =
                     this-fucking-type "active"
                     // {
@@ -2475,6 +2498,14 @@
                 };
 
                 tab-indicator = {
+                  urgent =
+                    nullable decoration'
+                    // {
+                      visible = "shallow";
+                      description = ''
+                        See ${link' "programs.niri.settings.layout.tab-indicator.urgent"}.
+                      '';
+                    };
                   active =
                     nullable decoration'
                     // {
@@ -3021,6 +3052,8 @@
       borderish = map' plain (cfg:
         toggle "off" cfg [
           (leaf "width" cfg.width)
+          (nullable leaf "urgent-color" cfg.urgent.color or null)
+          (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
           (nullable leaf "active-color" cfg.active.color or null)
           (nullable gradient' "active-gradient" cfg.active.gradient or null)
           (nullable leaf "inactive-color" cfg.inactive.color or null)
@@ -3049,6 +3082,8 @@
           (leaf "position" cfg.position)
           (leaf "gaps-between-tabs" cfg.gaps-between-tabs)
           (leaf "corner-radius" cfg.corner-radius)
+          (nullable leaf "urgent-color" cfg.urgent.color or null)
+          (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
           (nullable leaf "active-color" cfg.active.color or null)
           (nullable gradient' "active-gradient" cfg.active.gradient or null)
           (nullable leaf "inactive-color" cfg.inactive.color or null)
@@ -3075,6 +3110,8 @@
         (flag' "on" (cfg.enable == true))
         (flag' "off" (cfg.enable == false))
         (nullable leaf "width" cfg.width)
+        (nullable leaf "urgent-color" cfg.urgent.color or null)
+        (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
         (nullable leaf "active-color" cfg.active.color or null)
         (nullable gradient' "active-gradient" cfg.active.gradient or null)
         (nullable leaf "inactive-color" cfg.inactive.color or null)
@@ -3093,6 +3130,8 @@
       ]);
 
       tab-indicator-rule = map' plain' (cfg: [
+        (nullable leaf "urgent-color" cfg.urgent.color or null)
+        (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
         (nullable leaf "active-color" cfg.active.color or null)
         (nullable gradient' "active-gradient" cfg.active.gradient or null)
         (nullable leaf "inactive-color" cfg.inactive.color or null)
