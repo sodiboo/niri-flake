@@ -2932,6 +2932,9 @@
 
       map' = node: f: name: val: node name (f val);
 
+      each = list: f: map f list;
+      each' = attrs: each (builtins.attrValues attrs);
+
       toggle = disabled: cfg: contents:
         if cfg.enable
         then contents
@@ -3061,51 +3064,6 @@
 
       corner-radius = cfg: [cfg.top-left cfg.top-right cfg.bottom-right cfg.bottom-left];
 
-      window-rule = cfg:
-        plain "window-rule" [
-          (map (leaf "match") (map opt-props cfg.matches))
-          (map (leaf "exclude") (map opt-props cfg.excludes))
-          (nullable preset-sizes "default-column-width" cfg.default-column-width)
-          (nullable preset-sizes "default-window-height" cfg.default-window-height)
-          (nullable leaf "default-column-display" cfg.default-column-display)
-          (nullable leaf "open-on-output" cfg.open-on-output)
-          (nullable leaf "open-on-workspace" cfg.open-on-workspace)
-          (nullable leaf "open-maximized" cfg.open-maximized)
-          (nullable leaf "open-fullscreen" cfg.open-fullscreen)
-          (nullable leaf "open-floating" cfg.open-floating)
-          (nullable leaf "open-focused" cfg.open-focused)
-          (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
-          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
-          (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
-          (border-rule "border" cfg.border)
-          (border-rule "focus-ring" cfg.focus-ring)
-          (shadow-rule "shadow" cfg.shadow)
-          (tab-indicator-rule "tab-indicator" cfg.tab-indicator)
-          (nullable leaf "opacity" cfg.opacity)
-          (nullable leaf "min-width" cfg.min-width)
-          (nullable leaf "max-width" cfg.max-width)
-          (nullable leaf "min-height" cfg.min-height)
-          (nullable leaf "max-height" cfg.max-height)
-          (nullable leaf "block-out-from" cfg.block-out-from)
-          (nullable leaf "baba-is-float" cfg.baba-is-float)
-          (nullable leaf "default-floating-position" cfg.default-floating-position)
-          (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
-          (nullable leaf "scroll-factor" cfg.scroll-factor)
-          (nullable leaf "tiled-state" cfg.tiled-state)
-        ];
-
-      layer-rule = cfg:
-        plain "layer-rule" [
-          (map (leaf "match") (map opt-props cfg.matches))
-          (map (leaf "exclude") (map opt-props cfg.excludes))
-          (nullable leaf "opacity" cfg.opacity)
-          (nullable leaf "block-out-from" cfg.block-out-from)
-          (shadow-rule "shadow" cfg.shadow)
-          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
-          (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
-          (nullable leaf "baba-is-float" cfg.baba-is-float)
-        ];
-
       transform = cfg: let
         rotation = toString cfg.rotation;
         basic =
@@ -3150,23 +3108,9 @@
           (lib.mapAttrsToList leaf cfg.action)
         ];
 
-      workspace = cfg:
-        node "workspace" cfg.name [
-          (nullable leaf "open-on-output" cfg.open-on-output)
-        ];
-
       pointer-tablet' = ext: name: cfg: plain name (pointer-tablet cfg (ext cfg));
       pointer' = pointer-tablet' pointer;
       tablet' = pointer-tablet' tablet;
-
-      gestures = map' plain' (cfg: [
-        (plain' "dnd-edge-view-scroll" [
-          (nullable leaf "trigger-width" cfg.dnd-edge-view-scroll.trigger-width)
-          (nullable leaf "delay-ms" cfg.dnd-edge-view-scroll.delay-ms)
-          (nullable leaf "max-speed" cfg.dnd-edge-view-scroll.max-speed)
-        ])
-        (plain' "hot-corners" (toggle "off" cfg.hot-corners []))
-      ]);
     in [
       (plain "input" [
         (plain "keyboard" [
@@ -3219,8 +3163,8 @@
         (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
       ])
 
-      (map (cfg:
-        node "output" cfg.name [
+      (each' cfg.outputs (cfg: [
+        (node "output" cfg.name [
           (toggle' "off" cfg [
             (nullable leaf "backdrop-color" cfg.backdrop-color)
             (nullable leaf "background-color" cfg.background-color)
@@ -3235,7 +3179,7 @@
             )
           ])
         ])
-      (builtins.attrValues cfg.outputs))
+      ]))
 
       (leaf "screenshot-path" cfg.screenshot-path)
       (flag' "prefer-no-csd" cfg.prefer-no-csd)
@@ -3300,13 +3244,70 @@
         cfg.switch-events
       ))
 
-      (map workspace (builtins.attrValues cfg.workspaces))
+      (each' cfg.workspaces (cfg: [
+        (node "workspace" cfg.name [
+          (nullable leaf "open-on-output" cfg.open-on-output)
+        ])
+      ]))
 
-      (map (map' leaf (builtins.getAttr "command") "spawn-at-startup") cfg.spawn-at-startup)
-      (map window-rule cfg.window-rules)
-      (map layer-rule cfg.layer-rules)
+      (each cfg.spawn-at-startup (cfg: [
+        (leaf "spawn-at-startup" cfg.command)
+      ]))
 
-      (nullable gestures "gestures" cfg.gestures)
+      (each cfg.window-rules (cfg: [
+        (plain "window-rule" [
+          (map (leaf "match") (map opt-props cfg.matches))
+          (map (leaf "exclude") (map opt-props cfg.excludes))
+          (nullable preset-sizes "default-column-width" cfg.default-column-width)
+          (nullable preset-sizes "default-window-height" cfg.default-window-height)
+          (nullable leaf "default-column-display" cfg.default-column-display)
+          (nullable leaf "open-on-output" cfg.open-on-output)
+          (nullable leaf "open-on-workspace" cfg.open-on-workspace)
+          (nullable leaf "open-maximized" cfg.open-maximized)
+          (nullable leaf "open-fullscreen" cfg.open-fullscreen)
+          (nullable leaf "open-floating" cfg.open-floating)
+          (nullable leaf "open-focused" cfg.open-focused)
+          (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
+          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+          (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
+          (border-rule "border" cfg.border)
+          (border-rule "focus-ring" cfg.focus-ring)
+          (shadow-rule "shadow" cfg.shadow)
+          (tab-indicator-rule "tab-indicator" cfg.tab-indicator)
+          (nullable leaf "opacity" cfg.opacity)
+          (nullable leaf "min-width" cfg.min-width)
+          (nullable leaf "max-width" cfg.max-width)
+          (nullable leaf "min-height" cfg.min-height)
+          (nullable leaf "max-height" cfg.max-height)
+          (nullable leaf "block-out-from" cfg.block-out-from)
+          (nullable leaf "baba-is-float" cfg.baba-is-float)
+          (nullable leaf "default-floating-position" cfg.default-floating-position)
+          (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
+          (nullable leaf "scroll-factor" cfg.scroll-factor)
+          (nullable leaf "tiled-state" cfg.tiled-state)
+        ])
+      ]))
+      (each cfg.layer-rules (cfg: [
+        (plain "layer-rule" [
+          (map (leaf "match") (map opt-props cfg.matches))
+          (map (leaf "exclude") (map opt-props cfg.excludes))
+          (nullable leaf "opacity" cfg.opacity)
+          (nullable leaf "block-out-from" cfg.block-out-from)
+          (shadow-rule "shadow" cfg.shadow)
+          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+          (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
+          (nullable leaf "baba-is-float" cfg.baba-is-float)
+        ])
+      ]))
+
+      (plain' "gestures" [
+        (plain' "dnd-edge-view-scroll" [
+          (nullable leaf "trigger-width" cfg.gestures.dnd-edge-view-scroll.trigger-width)
+          (nullable leaf "delay-ms" cfg.gestures.dnd-edge-view-scroll.delay-ms)
+          (nullable leaf "max-speed" cfg.gestures.dnd-edge-view-scroll.max-speed)
+        ])
+        (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners []))
+      ])
 
       (plain' "animations" [
         (toggle "off" cfg.animations [
