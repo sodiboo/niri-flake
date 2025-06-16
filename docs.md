@@ -721,6 +721,60 @@ Set the backdrop color behind workspaces in the overview. The backdrop is also v
 The alpha channel for this color will be ignored.
 
 
+<!-- sorting key: programs.niri.settings.h.overview.workspace-shadow.color -->
+## `programs.niri.settings.overview.workspace-shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.h.overview.workspace-shadow.enable -->
+## `programs.niri.settings.overview.workspace-shadow.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.h.overview.workspace-shadow.offset -->
+## `programs.niri.settings.overview.workspace-shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.h.overview.workspace-shadow.offset.x -->
+## `programs.niri.settings.overview.workspace-shadow.offset.x`
+- type: `floating point number or signed integer`
+- default: `0.000000`
+
+
+<!-- sorting key: programs.niri.settings.h.overview.workspace-shadow.offset.y -->
+## `programs.niri.settings.overview.workspace-shadow.offset.y`
+- type: `floating point number or signed integer`
+- default: `5.000000`
+
+
+<!-- sorting key: programs.niri.settings.h.overview.workspace-shadow.softness -->
+## `programs.niri.settings.overview.workspace-shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+<!-- sorting key: programs.niri.settings.h.overview.workspace-shadow.spread -->
+## `programs.niri.settings.overview.workspace-shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
 <!-- sorting key: programs.niri.settings.h.overview.zoom -->
 ## `programs.niri.settings.overview.zoom`
 - type: `null or floating point number or signed integer`

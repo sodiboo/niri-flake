@@ -1222,6 +1222,32 @@
                 The alpha channel for this color will be ignored.
               '';
             };
+
+          workspace-shadow = {
+            enable = optional types.bool true;
+            offset =
+              nullable (record {
+                x = optional float-or-int 0.0;
+                y = optional float-or-int 5.0;
+              })
+              // {
+                description = shadow-descriptions.offset;
+              };
+
+            softness =
+              nullable float-or-int
+              // {
+                description = shadow-descriptions.softness;
+              };
+
+            spread =
+              nullable float-or-int
+              // {
+                description = shadow-descriptions.spread;
+              };
+
+            color = nullable types.str;
+          };
         };
       }
 
@@ -3198,6 +3224,14 @@
       (plain' "overview" [
         (nullable leaf "zoom" cfg.overview.zoom)
         (nullable leaf "backdrop-color" cfg.overview.backdrop-color)
+        (plain' "workspace-shadow" [
+          (toggle "off" cfg.overview.workspace-shadow [
+            (nullable leaf "offset" cfg.overview.workspace-shadow.offset)
+            (nullable leaf "softness" cfg.overview.workspace-shadow.softness)
+            (nullable leaf "spread" cfg.overview.workspace-shadow.spread)
+            (nullable leaf "color" cfg.overview.workspace-shadow.color)
+          ])
+        ])
       ])
 
       (plain "layout" [
