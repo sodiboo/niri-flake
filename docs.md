@@ -2252,6 +2252,21 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `null`
 
 
+<!-- sorting key: programs.niri.settings.m.animations.c.overview-open-close -->
+<!-- programs.niri.settings.animations.overview-open-close -->
+
+<!-- sorting key: programs.niri.settings.m.animations.c.overview-open-close.enable -->
+## `programs.niri.settings.animations.overview-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.m.animations.c.overview-open-close.kind -->
+## `programs.niri.settings.animations.overview-open-close.kind`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- default: `null`
+
+
 <!-- sorting key: programs.niri.settings.m.animations.c.screenshot-ui-open -->
 <!-- programs.niri.settings.animations.screenshot-ui-open -->
 

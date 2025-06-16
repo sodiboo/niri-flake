@@ -2088,6 +2088,7 @@
             window-close.has-shader = true;
             window-resize.has-shader = true;
             screenshot-ui-open.has-shader = false;
+            overview-open-close.has-shader = false;
           };
         in
           ordered-section [
@@ -3248,14 +3249,10 @@
       (leaf "screenshot-path" cfg.screenshot-path)
       (flag' "prefer-no-csd" cfg.prefer-no-csd)
 
-      (nullable plain "overview" (
-        let
-          children = lib.mapAttrsToList (nullable leaf) cfg.overview;
-        in
-          if lib.remove null children == []
-          then null
-          else children
-      ))
+      (plain' "overview" [
+        (nullable leaf "zoom" cfg.overview.zoom)
+        (nullable leaf "backdrop-color" cfg.overview.backdrop-color)
+      ])
 
       (plain "layout" [
         (leaf "gaps" cfg.layout.gaps)
