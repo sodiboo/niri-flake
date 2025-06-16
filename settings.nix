@@ -2183,40 +2183,38 @@
             })
           ];
 
-        gestures = nullable (record {
+        gestures = {
           dnd-edge-view-scroll = {
             trigger-width =
-              optional float-or-int 30.0
+              nullable float-or-int
               // {
                 description = ''
                   The width of the edge of the screen where dragging a window will scroll the view.
                 '';
               };
             delay-ms =
-              optional types.int 100
+              nullable types.int
               // {
                 description = ''
                   The delay in milliseconds before the view starts scrolling.
                 '';
               };
             max-speed =
-              optional float-or-int 1500.0
+              nullable float-or-int
               // {
                 description = ''
                   When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
                 '';
               };
           };
-          hot-corners = {
-            enable =
-              nullable types.bool
-              // {
-                description = ''
-                  Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
-                '';
-              };
-          };
-        });
+          hot-corners.enable =
+            optional types.bool true
+            // {
+              description = ''
+                Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+              '';
+            };
+        };
       }
 
       {
@@ -3166,15 +3164,13 @@
       pointer' = pointer-tablet' pointer;
       tablet' = pointer-tablet' tablet;
 
-      gestures = map' plain (cfg: [
-        (plain "dnd-edge-view-scroll" [
-          (leaf "trigger-width" cfg.dnd-edge-view-scroll.trigger-width)
-          (leaf "delay-ms" cfg.dnd-edge-view-scroll.delay-ms)
-          (leaf "max-speed" cfg.dnd-edge-view-scroll.max-speed)
+      gestures = map' plain' (cfg: [
+        (plain' "dnd-edge-view-scroll" [
+          (nullable leaf "trigger-width" cfg.dnd-edge-view-scroll.trigger-width)
+          (nullable leaf "delay-ms" cfg.dnd-edge-view-scroll.delay-ms)
+          (nullable leaf "max-speed" cfg.dnd-edge-view-scroll.max-speed)
         ])
-        (plain "hot-corners" [
-          (flag' "off" (cfg.hot-corners.enable == false))
-        ])
+        (plain' "hot-corners" (toggle "off" cfg.hot-corners []))
       ]);
     in [
       (plain "input" [
