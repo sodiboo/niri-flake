@@ -3159,9 +3159,11 @@
         (tablet' "tablet" cfg.input.tablet)
         (plain "touch" (touch cfg.input.touch))
         (flag' "warp-mouse-to-focus" cfg.input.warp-mouse-to-focus)
-        (optional-node cfg.input.focus-follows-mouse.enable (leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
-          inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
-        })))
+        (optional-node cfg.input.focus-follows-mouse.enable (
+          leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
+            inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
+          })
+        ))
         (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
         (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
         (nullable leaf "mod-key" cfg.input.mod-key)
