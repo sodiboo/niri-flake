@@ -134,7 +134,7 @@
           '';
         };
       accel-speed =
-        optional float-or-int 0.0
+        nullable float-or-int
         // {
           description = ''
             Further reading:
@@ -3051,7 +3051,7 @@
       pointer = cfg: [
         (flag' "natural-scroll" cfg.natural-scroll)
         (flag' "middle-emulation" cfg.middle-emulation)
-        (leaf "accel-speed" cfg.accel-speed)
+        (nullable leaf "accel-speed" cfg.accel-speed)
         (nullable leaf "accel-profile" cfg.accel-profile)
         (nullable leaf "scroll-button" cfg.scroll-button)
         (nullable leaf "scroll-method" cfg.scroll-method)
@@ -3219,7 +3219,7 @@
           (lib.mapAttrsToList leaf cfg.action)
         ];
 
-      pointer-tablet' = ext: name: cfg: plain name (pointer-tablet cfg (ext cfg));
+      pointer-tablet' = ext: name: cfg: plain' name (pointer-tablet cfg (ext cfg));
       pointer' = pointer-tablet' pointer;
       tablet' = pointer-tablet' tablet;
     in [
@@ -3238,7 +3238,7 @@
           (leaf "track-layout" cfg.input.keyboard.track-layout)
           (flag' "numlock" cfg.input.keyboard.numlock)
         ])
-        (plain "touchpad" (pointer-tablet cfg.input.touchpad [
+        (plain' "touchpad" (pointer-tablet cfg.input.touchpad [
           (flag' "tap" cfg.input.touchpad.tap)
           (flag' "dwt" cfg.input.touchpad.dwt)
           (flag' "dwtp" cfg.input.touchpad.dwtp)
@@ -3250,14 +3250,14 @@
           (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
           (nullable leaf "scroll-factor" cfg.input.touchpad.scroll-factor)
         ]))
-        (plain "mouse" (pointer-tablet cfg.input.mouse [
+        (plain' "mouse" (pointer-tablet cfg.input.mouse [
           (pointer cfg.input.mouse)
           (nullable leaf "scroll-factor" cfg.input.mouse.scroll-factor)
         ]))
         (pointer' "trackpoint" cfg.input.trackpoint)
         (pointer' "trackball" cfg.input.trackball)
         (tablet' "tablet" cfg.input.tablet)
-        (plain "touch" (touch cfg.input.touch))
+        (plain' "touch" (touch cfg.input.touch))
         (optional-node cfg.input.warp-mouse-to-focus.enable (
           leaf "warp-mouse-to-focus" (lib.optionalAttrs (cfg.input.warp-mouse-to-focus.mode != null) {
             inherit (cfg.input.warp-mouse-to-focus) mode;

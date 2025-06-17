@@ -957,8 +957,8 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.mouse.accel-speed -->
 ## `programs.niri.settings.input.mouse.accel-speed`
-- type: `floating point number or signed integer`
-- default: `0.000000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
@@ -1122,8 +1122,8 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.touchpad.accel-speed -->
 ## `programs.niri.settings.input.touchpad.accel-speed`
-- type: `floating point number or signed integer`
-- default: `0.000000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
@@ -1319,8 +1319,8 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.trackball.accel-speed -->
 ## `programs.niri.settings.input.trackball.accel-speed`
-- type: `floating point number or signed integer`
-- default: `0.000000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
@@ -1402,8 +1402,8 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.trackpoint.accel-speed -->
 ## `programs.niri.settings.input.trackpoint.accel-speed`
-- type: `floating point number or signed integer`
-- default: `0.000000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
