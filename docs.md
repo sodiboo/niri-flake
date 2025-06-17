@@ -2721,6 +2721,16 @@ A note on terminology used here: a window is actually a toplevel surface, and a 
 For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
 
 
+<!-- sorting key: programs.niri.settings.o.window-rules.a.matches.b.is-urgent -->
+## `programs.niri.settings.window-rules.*.matches.*.is-urgent`
+- type: `null or boolean`
+- default: `null`
+
+When non-null, for this field to match a window, the value must match whether the window is in the urgent state or not.
+
+A window can request attention by sending an XDG activation request. Such a request can be associated with an input event (e.g. in response to you clicking a notification), in which case it will be focused right away. It can also request attention without an input event, in which case it will simply be marked as "urgent". An urgent state doesn't do anything by itself, but it can be matched on to apply a window rule only to such windows.
+
+
 <!-- sorting key: programs.niri.settings.o.window-rules.a.matches.b.is-window-cast-target -->
 ## `programs.niri.settings.window-rules.*.matches.*.is-window-cast-target`
 - type: `null or boolean`
@@ -2808,6 +2818,16 @@ When non-null, for this field to match a window, the value must match whether th
 A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
 
 For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
+
+
+<!-- sorting key: programs.niri.settings.o.window-rules.b.excludes.b.is-urgent -->
+## `programs.niri.settings.window-rules.*.excludes.*.is-urgent`
+- type: `null or boolean`
+- default: `null`
+
+When non-null, for this field to match a window, the value must match whether the window is in the urgent state or not.
+
+A window can request attention by sending an XDG activation request. Such a request can be associated with an input event (e.g. in response to you clicking a notification), in which case it will be focused right away. It can also request attention without an input event, in which case it will simply be marked as "urgent". An urgent state doesn't do anything by itself, but it can be matched on to apply a window rule only to such windows.
 
 
 <!-- sorting key: programs.niri.settings.o.window-rules.b.excludes.b.is-window-cast-target -->

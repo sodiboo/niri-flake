@@ -557,6 +557,15 @@
           };
       }
       {
+        is-urgent =
+          nullable types.bool
+          // {
+            description = ''
+              When non-null, for this field to match a window, the value must match whether the window is in the urgent state or not.
+
+              A window can request attention by sending an XDG activation request. Such a request can be associated with an input event (e.g. in response to you clicking a notification), in which case it will be focused right away. It can also request attention without an input event, in which case it will simply be marked as "urgent". An urgent state doesn't do anything by itself, but it can be matched on to apply a window rule only to such windows.
+            '';
+          };
         is-active =
           nullable types.bool
           // {
