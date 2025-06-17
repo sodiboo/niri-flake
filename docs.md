@@ -18,7 +18,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`25.02`](https://github.com/YaLTeR/niri/releases/tag/25.02) with no additional patches.
+Currently, this is release [`25.05.1`](https://github.com/YaLTeR/niri/releases/tag/25.05.1) with no additional patches.
 
 
 
@@ -343,9 +343,6 @@ For actions that don't take any arguments, just use the corresponding attribute 
 > }
 > ```
 
-- `λ screenshot-screen :: { write-to-disk :: bool }` (only on niri-stable)
-- `λ move-window-to-workspace :: u8 | string` (only on niri-stable)
-- `λ move-column-to-workspace :: u8 | string` (only on niri-stable)
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
@@ -360,7 +357,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `toggle-keyboard-shortcuts-inhibit`
 - `close-window`
 - `fullscreen-window`
-- `toggle-windowed-fullscreen` (only on niri-unstable)
+- `toggle-windowed-fullscreen`
 - `λ focus-window-in-column :: u8`
 - `focus-window-previous`
 - `focus-column-left`
@@ -369,7 +366,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-column-last`
 - `focus-column-right-or-first`
 - `focus-column-left-or-last`
-- `λ focus-column :: usize` (only on niri-unstable)
+- `λ focus-column :: usize`
 - `focus-window-or-monitor-up`
 - `focus-window-or-monitor-down`
 - `focus-column-or-monitor-left`
@@ -392,7 +389,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `move-column-to-last`
 - `move-column-left-or-to-monitor-left`
 - `move-column-right-or-to-monitor-right`
-- `λ move-column-to-index :: usize` (only on niri-unstable)
+- `λ move-column-to-index :: usize`
 - `move-window-down`
 - `move-window-up`
 - `move-window-down-or-to-workspace-down`
@@ -407,7 +404,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ set-column-display :: string`
 - `center-column`
 - `center-window`
-- `center-visible-columns` (only on niri-unstable)
+- `center-visible-columns`
 - `focus-workspace-down`
 - `focus-workspace-up`
 - `λ focus-workspace :: u8 | string`
@@ -428,21 +425,21 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-monitor-up`
 - `focus-monitor-previous`
 - `focus-monitor-next`
-- `λ focus-monitor :: string` (only on niri-unstable)
+- `λ focus-monitor :: string`
 - `move-window-to-monitor-left`
 - `move-window-to-monitor-right`
 - `move-window-to-monitor-down`
 - `move-window-to-monitor-up`
 - `move-window-to-monitor-previous`
 - `move-window-to-monitor-next`
-- `λ move-window-to-monitor :: string` (only on niri-unstable)
+- `λ move-window-to-monitor :: string`
 - `move-column-to-monitor-left`
 - `move-column-to-monitor-right`
 - `move-column-to-monitor-down`
 - `move-column-to-monitor-up`
 - `move-column-to-monitor-previous`
 - `move-column-to-monitor-next`
-- `λ move-column-to-monitor :: string` (only on niri-unstable)
+- `λ move-column-to-monitor :: string`
 - `λ set-window-width :: size-change`
 - `λ set-window-height :: size-change`
 - `reset-window-height`
@@ -467,18 +464,18 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-tiling`
 - `switch-focus-between-floating-and-tiling`
 - `toggle-window-rule-opacity`
-- `set-dynamic-cast-window` (only on niri-unstable)
-- `λ set-dynamic-cast-monitor :: unknown` (only on niri-unstable)
+- `set-dynamic-cast-window`
+- `λ set-dynamic-cast-monitor :: unknown`
 
   The code that generates this documentation does not know how to parse the definition:
   ```rs
   SetDynamicCastMonitor(#[knuffel(argument)] Option<String>)
   ```
 
-- `clear-dynamic-cast-target` (only on niri-unstable)
-- `toggle-overview` (only on niri-unstable)
-- `open-overview` (only on niri-unstable)
-- `close-overview` (only on niri-unstable)
+- `clear-dynamic-cast-target`
+- `toggle-overview`
+- `open-overview`
+- `close-overview`
 
 
 <!-- sorting key: programs.niri.settings.a.binds.allow-inhibiting -->
@@ -3701,7 +3698,32 @@ Set to `true` to place the surface into the backdrop visible in the Overview and
 This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
 
 
-<!-- sorting key: programs.niri.settings.q.debug -->
+<!-- sorting key: programs.niri.settings.q.xwayland-satellite -->
+## `programs.niri.settings.xwayland-satellite`
+
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+
+<!-- sorting key: programs.niri.settings.q.xwayland-satellite.enable -->
+## `programs.niri.settings.xwayland-satellite.enable`
+- type: `boolean`
+- default: `true`
+
+
+<!-- sorting key: programs.niri.settings.q.xwayland-satellite.path -->
+## `programs.niri.settings.xwayland-satellite.path`
+- type: `null or string`
+- default: `null`
+
+
+<!-- sorting key: programs.niri.settings.r.debug -->
 ## `programs.niri.settings.debug`
 - type: `attribute set of kdl arguments`
 

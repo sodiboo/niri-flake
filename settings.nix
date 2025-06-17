@@ -2724,6 +2724,19 @@
       }
 
       {
+        xwayland-satellite =
+          section {
+            enable = optional types.bool true;
+            path = nullable types.str;
+          }
+          // {
+            description = ''
+              ${unstable-note}
+            '';
+          };
+      }
+
+      {
         debug =
           attrs kdl.types.kdl-args
           // {
@@ -3425,6 +3438,12 @@
         (toggle "off" cfg.animations [
           (nullable leaf "slowdown" cfg.animations.slowdown)
           (map (name: animation name cfg.animations.${name}) cfg.animations.all-anims)
+        ])
+      ])
+
+      (plain' "xwayland-satellite" [
+        (toggle "off" cfg.xwayland-satellite [
+          (nullable leaf "path" cfg.xwayland-satellite.path)
         ])
       ])
 
