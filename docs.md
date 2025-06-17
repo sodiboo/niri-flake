@@ -623,6 +623,25 @@ If the path starts with a `~`, then it will be expanded to the user's home direc
 The path is then passed to [`stftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
 
 
+<!-- sorting key: programs.niri.settings.c.hotkey-overlay.hide-not-bound -->
+## `programs.niri.settings.hotkey-overlay.hide-not-bound`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+>
+> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
+>
+> Otherwise, your system might fail to build.
+
+
+By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
+In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
+
+You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
+
+
 <!-- sorting key: programs.niri.settings.c.hotkey-overlay.skip-at-startup -->
 ## `programs.niri.settings.hotkey-overlay.skip-at-startup`
 - type: `boolean`

@@ -1137,13 +1137,28 @@
       }
 
       {
-        hotkey-overlay.skip-at-startup =
-          optional types.bool false
-          // {
-            description = ''
-              Whether to skip the hotkey overlay shown when niri starts.
-            '';
-          };
+        hotkey-overlay = {
+          skip-at-startup =
+            optional types.bool false
+            // {
+              description = ''
+                Whether to skip the hotkey overlay shown when niri starts.
+              '';
+            };
+
+          hide-not-bound =
+            optional types.bool false
+            // {
+              description = ''
+                ${unstable-note}
+
+                By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
+                In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
+
+                You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
+              '';
+            };
+        };
       }
 
       {
@@ -3319,6 +3334,7 @@
 
       (plain' "hotkey-overlay" [
         (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
+        (flag' "hide-not-bound" cfg.hotkey-overlay.hide-not-bound)
       ])
 
       (plain' "clipboard" [
