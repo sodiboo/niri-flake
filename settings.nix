@@ -3133,8 +3133,8 @@
       animation = map' plain' (cfg:
         toggle "off" cfg [
           (optional-node (cfg.kind ? easing) [
-            (leaf "duration-ms" cfg.easing.duration-ms)
-            (leaf "curve" cfg.easing.curve)
+            (leaf "duration-ms" cfg.kind.easing.duration-ms)
+            (leaf "curve" cfg.kind.easing.curve)
           ])
           (nullable leaf "spring" cfg.kind.spring or null)
           (nullable leaf "custom-shader" cfg.custom-shader or null)
