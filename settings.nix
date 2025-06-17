@@ -134,7 +134,7 @@
           '';
         };
       accel-speed =
-        optional types.float 0.0
+        optional float-or-int 0.0
         // {
           description = ''
             Further reading:
@@ -2165,7 +2165,7 @@
           ordered-section [
             {
               enable = optional types.bool true;
-              slowdown = nullable types.float;
+              slowdown = nullable float-or-int;
             }
             {
               all-anims = mkOption {

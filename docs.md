@@ -957,7 +957,7 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.mouse.accel-speed -->
 ## `programs.niri.settings.input.mouse.accel-speed`
-- type: `floating point number`
+- type: `floating point number or signed integer`
 - default: `0.000000`
 
 Further reading:
@@ -1122,7 +1122,7 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.touchpad.accel-speed -->
 ## `programs.niri.settings.input.touchpad.accel-speed`
-- type: `floating point number`
+- type: `floating point number or signed integer`
 - default: `0.000000`
 
 Further reading:
@@ -1319,7 +1319,7 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.trackball.accel-speed -->
 ## `programs.niri.settings.input.trackball.accel-speed`
-- type: `floating point number`
+- type: `floating point number or signed integer`
 - default: `0.000000`
 
 Further reading:
@@ -1402,7 +1402,7 @@ Further reading:
 
 <!-- sorting key: programs.niri.settings.i.input.trackpoint.accel-speed -->
 ## `programs.niri.settings.input.trackpoint.accel-speed`
-- type: `floating point number`
+- type: `floating point number or signed integer`
 - default: `0.000000`
 
 Further reading:
@@ -2304,7 +2304,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 <!-- sorting key: programs.niri.settings.m.animations.a.slowdown -->
 ## `programs.niri.settings.animations.slowdown`
-- type: `null or floating point number`
+- type: `null or floating point number or signed integer`
 - default: `null`
 
 
