@@ -2,7 +2,7 @@ This flake contains nix packages for [niri](https://github.com/YaLTeR/niri), a s
 
 This flake also contains NixOS and home-manager modules to install all necessary components of a working Wayland environment, and to let you manage your configuration declaratively, validating it at build-time. This ensures that your config's schema is always in sync with the installed version of niri.
 
-**The main location for documentation is [`docs.md`](./docs.md)**. The most important outputs are `overlays.niri` and `nixosModules.niri`. You may also use my configuration as a reference at [`github:sodiboo/nix-config`](https://github.com/sodiboo/nix-config/blob/main/niri.mod.nix)
+**The main location for documentation is [`docs.md`](./docs.md)**. The most important outputs are `overlays.niri` and `nixosModules.niri`. You may also use my configuration as a reference at [`github:sodiboo/system`](https://github.com/sodiboo/system/blob/main/personal/niri.mod.nix)
 
 The rest of this README covers miscellaneous topics related to this flake or repo as a whole.
 
@@ -28,7 +28,7 @@ Currently, there is no `home-manager` input to this flake since i felt it was un
 
 # Binary Cache
 
-I have a binary cache for this flake's outputs. `niri.cachix.org` hosts builds of `niri-stable` and `niri-unstable` for `nixos-unstable` and `nixos-24.05`. It only contains builds for `x86_64-linux` for the time being, mainly because GitHub Actions doesn't support other platforms. (and i do not wish to use qemu for this)
+I have a binary cache for this flake's outputs. `niri.cachix.org` hosts builds of `niri-stable` and `niri-unstable` for `nixos-unstable` and `nixos-25.05`. It only contains builds for `x86_64-linux` for the time being, mainly because GitHub Actions doesn't support other platforms. (and i do not wish to use qemu for this)
 
 > [!note]
 > This binary cache is managed by me, sodiboo. By using it, you are trusting me to not serve you malicious software. Using a binary cache is entirely optional.
