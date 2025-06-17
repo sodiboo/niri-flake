@@ -82,7 +82,6 @@
       withDinit ? false,
       withScreencastSupport ? true,
       withSystemd ? true,
-      hasShellCompletion ? false,
       fetchzip,
       runCommand,
     }:
@@ -172,9 +171,7 @@
           + nixpkgs.lib.optionalString withDinit ''
             install -Dm0644 resources/dinit/niri{,-shutdown} -t $out/lib/dinit.d/user
           ''
-          # install shell completions
-          + nixpkgs.lib.optionalString hasShellCompletion
-          ''
+          + ''
             installShellCompletion --cmd niri \
               --bash <($out/bin/niri completions bash) \
               --zsh <($out/bin/niri completions zsh) \
@@ -269,7 +266,6 @@
       };
       niri-unstable = pkgs.callPackage make-niri {
         src = inputs.niri-unstable;
-        hasShellCompletion = true;
       };
       xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
         src = inputs.xwayland-satellite-stable;
