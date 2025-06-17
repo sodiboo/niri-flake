@@ -3427,9 +3427,9 @@
           (nullable leaf "max-speed" cfg.gestures.dnd-edge-view-scroll.max-speed)
         ])
         (plain' "dnd-edge-workspace-switch" [
-          (nullable leaf "trigger-width" cfg.gestures.dnd-edge-view-scroll.trigger-width)
-          (nullable leaf "delay-ms" cfg.gestures.dnd-edge-view-scroll.delay-ms)
-          (nullable leaf "max-speed" cfg.gestures.dnd-edge-view-scroll.max-speed)
+          (nullable leaf "trigger-height" cfg.gestures.dnd-edge-workspace-switch.trigger-height)
+          (nullable leaf "delay-ms" cfg.gestures.dnd-edge-workspace-switch.delay-ms)
+          (nullable leaf "max-speed" cfg.gestures.dnd-edge-workspace-switch.max-speed)
         ])
         (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners []))
       ])
