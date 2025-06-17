@@ -1662,8 +1662,6 @@
             nullable types.str
             // {
               description = ''
-                ${unstable-note}
-
                 The backdrop color that niri draws for this output. This is visible between workspaces or in the overview.
               '';
             };
