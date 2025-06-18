@@ -1,17 +1,16 @@
-{lib, ...}:
-with lib; let
+{lib, ...}: let
   node = name: args: children:
-    foldl (
+    lib.foldl (
       self: this:
-        if isAttrs this
+        if lib.isAttrs this
         then self // {props = self.props // this;}
         else self // {args = self.args ++ [this];}
     ) {
       inherit name;
-      children = toList children;
+      children = lib.toList children;
       args = [];
       props = {};
-    } (toList args);
+    } (lib.toList args);
 
   plain = name: node name [];
   leaf = name: args: node name args [];
@@ -19,16 +18,16 @@ with lib; let
     ${node-name} = [];
     __functor = self: arg: {
       inherit (self) __functor;
-      ${node-name} = self.${node-name} ++ toList arg;
+      ${node-name} = self.${node-name} ++ lib.toList arg;
     };
   };
   flag = name: node name [] [];
 
-  serialize.string = flip pipe [
-    (escape ["\\" "\""])
+  serialize.string = lib.flip lib.pipe [
+    (lib.escape ["\\" "\""])
     # including newlines will cause the serialized output to contain additional indentation
     # so we escape them
-    (replaceStrings ["\n"] ["\\n"])
+    (lib.replaceStrings ["\n"] ["\\n"])
     (v: "\"${v}\"")
   ];
   serialize.path = serialize.string;
@@ -38,7 +37,7 @@ with lib; let
     if v
     then "true"
     else "false";
-  serialize.null = const "null";
+  serialize.null = lib.const "null";
 
   serialize.value = v: serialize.${builtins.typeOf v} v;
 
@@ -49,7 +48,7 @@ with lib; let
   # but not something that looks like a number (e.g. 0, -4, +12)
   bare-ident = "[A-Za-z][A-Za-z0-9+-]*|[+-]|[+-][A-Za-z+-][A-Za-z0-9+-]*";
   serialize.ident = v:
-    if strings.match bare-ident v != null
+    if lib.strings.match bare-ident v != null
     then v
     else serialize.string v;
 
@@ -59,17 +58,17 @@ with lib; let
   }: "${serialize.ident name}=${serialize.value value}";
 
   prefix-lines = prefix:
-    flip pipe [
-      (splitString "\n")
+    lib.flip lib.pipe [
+      (lib.splitString "\n")
       (map (s: "${prefix}${s}"))
-      (concatStringsSep "\n")
+      (lib.concatStringsSep "\n")
     ];
 
   indent = prefix-lines "    ";
 
-  count-lines = flip pipe [
-    (splitString "\n")
-    length
+  count-lines = lib.flip lib.pipe [
+    (lib.splitString "\n")
+    lib.length
   ];
 
   # a common pattern when declaring a config is to have "optional" nodes
@@ -82,14 +81,14 @@ with lib; let
   # or adding an infix list of nodes by ignoring null nodes, and flattening the result
   # this is completely fine because in this context,
   # nested lists are not meaningful and neither are null nodes.
-  transform-nodes = flip pipe [
-    flatten
-    (remove null)
+  transform-nodes = lib.flip lib.pipe [
+    lib.flatten
+    (lib.remove null)
   ];
 
-  internal-serialize-nodes = flip pipe [
+  internal-serialize-nodes = lib.flip lib.pipe [
     (map serialize.node)
-    (concatStringsSep "\n")
+    (lib.concatStringsSep "\n")
   ];
 
   serialize.node = {
@@ -98,16 +97,16 @@ with lib; let
     props,
     children,
   }:
-    concatStringsSep " " (flatten [
+    lib.concatStringsSep " " (lib.flatten [
       (serialize.ident name)
       (map serialize.value args)
-      (map serialize.prop (attrsToList props))
+      (map serialize.prop (lib.attrsToList props))
       (
         let
           children' = transform-nodes children;
           serialized = internal-serialize-nodes children';
         in
-          if length children' == 0
+          if lib.length children' == 0
           then []
           else if count-lines serialized == 1
           then "{ ${serialized}; }"
@@ -115,50 +114,50 @@ with lib; let
       )
     ]);
 
-  serialize.nodes = flip pipe [
+  serialize.nodes = lib.flip lib.pipe [
     transform-nodes
     internal-serialize-nodes
   ];
 
-  kdl-value = types.nullOr (
-    types.oneOf [
-      types.str
-      types.int
-      types.float
-      types.bool
+  kdl-value = lib.types.nullOr (
+    lib.types.oneOf [
+      lib.types.str
+      lib.types.int
+      lib.types.float
+      lib.types.bool
     ]
   );
 
-  kdl-node = types.submodule {
-    options.name = mkOption {
-      type = types.str;
+  kdl-node = lib.types.submodule {
+    options.name = lib.mkOption {
+      type = lib.types.str;
     };
-    options.args = mkOption {
-      type = types.listOf kdl-value;
+    options.args = lib.mkOption {
+      type = lib.types.listOf kdl-value;
       default = [];
     };
-    options.props = mkOption {
-      type = types.attrsOf kdl-value;
+    options.props = lib.mkOption {
+      type = lib.types.attrsOf kdl-value;
       default = {};
     };
-    options.children = mkOption {
+    options.children = lib.mkOption {
       type = kdl-nodes;
       default = [];
     };
   };
 
-  kdl-leaf = mkOptionType {
+  kdl-leaf = lib.mkOptionType {
     name = "kdl-leaf";
     description = "kdl leaf";
     descriptionClass = "noun";
     check = v: let
-      leaves = mapAttrsToList leaf (removeAttrs v ["__functor"]);
+      leaves = lib.mapAttrsToList leaf (removeAttrs v ["__functor"]);
     in
-      isAttrs v && length leaves == 1 && all kdl-node.check leaves;
-    merge = loc: defs: removeAttrs (mergeOneOption loc defs) ["__functor"];
+      lib.isAttrs v && lib.length leaves == 1 && lib.all kdl-node.check leaves;
+    merge = loc: defs: removeAttrs (lib.mergeOneOption loc defs) ["__functor"];
   };
 
-  kdl-args = mkOptionType {
+  kdl-args = lib.mkOptionType {
     name = "kdl-args";
     description = "kdl arguments";
     descriptionClass = "noun";
@@ -166,7 +165,7 @@ with lib; let
   };
 
   kdl-nodes =
-    (types.oneOf [(types.listOf (types.nullOr kdl-nodes)) kdl-node])
+    (lib.types.oneOf [(lib.types.listOf (lib.types.nullOr kdl-nodes)) kdl-node])
     // {
       name = "kdl-nodes";
       description = "kdl nodes";
