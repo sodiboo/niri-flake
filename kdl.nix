@@ -150,19 +150,35 @@
     name = "kdl-leaf";
     description = "kdl leaf";
     descriptionClass = "noun";
-    check = v: let
-      leaves = lib.mapAttrsToList leaf (removeAttrs v ["__functor"]);
-    in
-      lib.isAttrs v && lib.length leaves == 1 && lib.all kdl-node.check leaves;
-    merge = loc: defs: removeAttrs (lib.mergeOneOption loc defs) ["__functor"];
+    check = v: lib.isAttrs v && lib.length (builtins.attrNames (builtins.removeAttrs v ["__functor"])) == 1;
+    merge = lib.mergeUniqueOption {
+      message = "";
+      merge = loc: defs: let
+        def = builtins.head defs;
+
+        name = builtins.head (builtins.attrNames (builtins.removeAttrs def.value ["__functor"]));
+
+        args = kdl-args.merge (loc ++ name) [
+          {
+            inherit (def) file;
+            value = def.value.${name};
+          }
+        ];
+      in {${name} = args;};
+    };
   };
 
-  kdl-args = lib.mkOptionType {
-    name = "kdl-args";
-    description = "kdl arguments";
-    descriptionClass = "noun";
-    check = v: kdl-leaf.check {inherit v;};
-  };
+  kdl-args = let
+    arg = lib.types.either (lib.types.attrsOf kdl-value) kdl-value;
+    args = lib.types.either (lib.types.listOf arg) arg;
+  in
+    lib.mkOptionType {
+      name = "kdl-args";
+      description = "kdl arguments";
+      descriptionClass = "noun";
+
+      inherit (lib.types.uniq args) check merge;
+    };
 
   kdl-nodes =
     (lib.types.oneOf [(lib.types.listOf (lib.types.nullOr kdl-nodes)) kdl-node])
