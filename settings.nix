@@ -3023,7 +3023,13 @@
     if cfg == null
     then null
     else let
-      inherit (kdl) node leaf plain flag;
+      normalize-nodes = nodes: lib.remove null (lib.flatten nodes);
+
+      node = name: args: children: kdl.node name (lib.toList args) (normalize-nodes children);
+      plain = name: node name [];
+      leaf = name: args: node name args [];
+      flag = name: node name [] [];
+
       optional-node = cond: v:
         if cond
         then v
@@ -3222,231 +3228,232 @@
       pointer-tablet' = ext: name: cfg: plain' name (pointer-tablet cfg (ext cfg));
       pointer' = pointer-tablet' pointer;
       tablet' = pointer-tablet' tablet;
-    in [
-      (plain "input" [
-        (plain "keyboard" [
-          (plain "xkb" [
-            (nullable leaf "file" cfg.input.keyboard.xkb.file)
-            (leaf "layout" cfg.input.keyboard.xkb.layout)
-            (leaf "model" cfg.input.keyboard.xkb.model)
-            (leaf "rules" cfg.input.keyboard.xkb.rules)
-            (leaf "variant" cfg.input.keyboard.xkb.variant)
-            (nullable leaf "options" cfg.input.keyboard.xkb.options)
+    in
+      normalize-nodes [
+        (plain "input" [
+          (plain "keyboard" [
+            (plain "xkb" [
+              (nullable leaf "file" cfg.input.keyboard.xkb.file)
+              (leaf "layout" cfg.input.keyboard.xkb.layout)
+              (leaf "model" cfg.input.keyboard.xkb.model)
+              (leaf "rules" cfg.input.keyboard.xkb.rules)
+              (leaf "variant" cfg.input.keyboard.xkb.variant)
+              (nullable leaf "options" cfg.input.keyboard.xkb.options)
+            ])
+            (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
+            (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
+            (leaf "track-layout" cfg.input.keyboard.track-layout)
+            (flag' "numlock" cfg.input.keyboard.numlock)
           ])
-          (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
-          (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
-          (leaf "track-layout" cfg.input.keyboard.track-layout)
-          (flag' "numlock" cfg.input.keyboard.numlock)
+          (plain' "touchpad" (pointer-tablet cfg.input.touchpad [
+            (flag' "tap" cfg.input.touchpad.tap)
+            (flag' "dwt" cfg.input.touchpad.dwt)
+            (flag' "dwtp" cfg.input.touchpad.dwtp)
+            (nullable leaf "drag" cfg.input.touchpad.drag)
+            (flag' "drag-lock" cfg.input.touchpad.drag-lock)
+            (flag' "disabled-on-external-mouse" cfg.input.touchpad.disabled-on-external-mouse)
+            (pointer cfg.input.touchpad)
+            (nullable leaf "click-method" cfg.input.touchpad.click-method)
+            (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
+            (nullable leaf "scroll-factor" cfg.input.touchpad.scroll-factor)
+          ]))
+          (plain' "mouse" (pointer-tablet cfg.input.mouse [
+            (pointer cfg.input.mouse)
+            (nullable leaf "scroll-factor" cfg.input.mouse.scroll-factor)
+          ]))
+          (pointer' "trackpoint" cfg.input.trackpoint)
+          (pointer' "trackball" cfg.input.trackball)
+          (tablet' "tablet" cfg.input.tablet)
+          (plain' "touch" (touch cfg.input.touch))
+          (optional-node cfg.input.warp-mouse-to-focus.enable (
+            leaf "warp-mouse-to-focus" (lib.optionalAttrs (cfg.input.warp-mouse-to-focus.mode != null) {
+              inherit (cfg.input.warp-mouse-to-focus) mode;
+            })
+          ))
+          (optional-node cfg.input.focus-follows-mouse.enable (
+            leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
+              inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
+            })
+          ))
+          (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
+          (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
+          (nullable leaf "mod-key" cfg.input.mod-key)
+          (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
         ])
-        (plain' "touchpad" (pointer-tablet cfg.input.touchpad [
-          (flag' "tap" cfg.input.touchpad.tap)
-          (flag' "dwt" cfg.input.touchpad.dwt)
-          (flag' "dwtp" cfg.input.touchpad.dwtp)
-          (nullable leaf "drag" cfg.input.touchpad.drag)
-          (flag' "drag-lock" cfg.input.touchpad.drag-lock)
-          (flag' "disabled-on-external-mouse" cfg.input.touchpad.disabled-on-external-mouse)
-          (pointer cfg.input.touchpad)
-          (nullable leaf "click-method" cfg.input.touchpad.click-method)
-          (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
-          (nullable leaf "scroll-factor" cfg.input.touchpad.scroll-factor)
+
+        (each' cfg.outputs (cfg: [
+          (node "output" cfg.name [
+            (toggle' "off" cfg [
+              (nullable leaf "backdrop-color" cfg.backdrop-color)
+              (nullable leaf "background-color" cfg.background-color)
+              (nullable leaf "scale" cfg.scale)
+              (flag' "focus-at-startup" cfg.focus-at-startup)
+              (map' leaf transform "transform" cfg.transform)
+              (nullable leaf "position" cfg.position)
+              (nullable (map' leaf mode) "mode" cfg.mode)
+              (
+                optional-node (cfg.variable-refresh-rate != false)
+                (leaf "variable-refresh-rate" {on-demand = cfg.variable-refresh-rate == "on-demand";})
+              )
+            ])
+          ])
         ]))
-        (plain' "mouse" (pointer-tablet cfg.input.mouse [
-          (pointer cfg.input.mouse)
-          (nullable leaf "scroll-factor" cfg.input.mouse.scroll-factor)
+
+        (leaf "screenshot-path" cfg.screenshot-path)
+        (flag' "prefer-no-csd" cfg.prefer-no-csd)
+
+        (plain' "overview" [
+          (nullable leaf "zoom" cfg.overview.zoom)
+          (nullable leaf "backdrop-color" cfg.overview.backdrop-color)
+          (plain' "workspace-shadow" [
+            (toggle "off" cfg.overview.workspace-shadow [
+              (nullable leaf "offset" cfg.overview.workspace-shadow.offset)
+              (nullable leaf "softness" cfg.overview.workspace-shadow.softness)
+              (nullable leaf "spread" cfg.overview.workspace-shadow.spread)
+              (nullable leaf "color" cfg.overview.workspace-shadow.color)
+            ])
+          ])
+        ])
+
+        (plain "layout" [
+          (leaf "gaps" cfg.layout.gaps)
+          (plain "struts" [
+            (leaf "left" cfg.layout.struts.left)
+            (leaf "right" cfg.layout.struts.right)
+            (leaf "top" cfg.layout.struts.top)
+            (leaf "bottom" cfg.layout.struts.bottom)
+          ])
+          (borderish "focus-ring" cfg.layout.focus-ring)
+          (borderish "border" cfg.layout.border)
+          (nullable leaf "background-color" cfg.layout.background-color)
+          (shadow "shadow" cfg.layout.shadow)
+          (nullable tab-indicator "tab-indicator" cfg.layout.tab-indicator)
+          (plain "insert-hint" [
+            (toggle "off" cfg.layout.insert-hint [
+              (nullable leaf "color" cfg.layout.insert-hint.display.color or null)
+              (nullable gradient' "gradient" cfg.layout.insert-hint.display.gradient or null)
+            ])
+          ])
+          (preset-sizes "default-column-width" cfg.layout.default-column-width)
+          (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
+          (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
+          (leaf "center-focused-column" cfg.layout.center-focused-column)
+          (optional-node (cfg.layout.default-column-display != "normal") (
+            leaf "default-column-display" cfg.layout.default-column-display
+          ))
+          (flag' "always-center-single-column" cfg.layout.always-center-single-column)
+          (flag' "empty-workspace-above-first" cfg.layout.empty-workspace-above-first)
+        ])
+
+        (plain "cursor" [
+          (leaf "xcursor-theme" cfg.cursor.theme)
+          (leaf "xcursor-size" cfg.cursor.size)
+          (flag' "hide-when-typing" cfg.cursor.hide-when-typing)
+          (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
+        ])
+
+        (plain' "hotkey-overlay" [
+          (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
+          (flag' "hide-not-bound" cfg.hotkey-overlay.hide-not-bound)
+        ])
+
+        (plain' "clipboard" [
+          (flag' "disable-primary" cfg.clipboard.disable-primary)
+        ])
+
+        (plain' "environment" (lib.mapAttrsToList leaf cfg.environment))
+        (plain' "binds" (lib.mapAttrsToList bind cfg.binds))
+
+        (plain' "switch-events" (
+          lib.mapAttrsToList (nullable (map' plain (cfg: [
+            (lib.mapAttrsToList leaf cfg.action)
+          ])))
+          cfg.switch-events
+        ))
+
+        (each' cfg.workspaces (cfg: [
+          (node "workspace" cfg.name [
+            (nullable leaf "open-on-output" cfg.open-on-output)
+          ])
         ]))
-        (pointer' "trackpoint" cfg.input.trackpoint)
-        (pointer' "trackball" cfg.input.trackball)
-        (tablet' "tablet" cfg.input.tablet)
-        (plain' "touch" (touch cfg.input.touch))
-        (optional-node cfg.input.warp-mouse-to-focus.enable (
-          leaf "warp-mouse-to-focus" (lib.optionalAttrs (cfg.input.warp-mouse-to-focus.mode != null) {
-            inherit (cfg.input.warp-mouse-to-focus) mode;
-          })
-        ))
-        (optional-node cfg.input.focus-follows-mouse.enable (
-          leaf "focus-follows-mouse" (lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
-            inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
-          })
-        ))
-        (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
-        (toggle "disable-power-key-handling" cfg.input.power-key-handling [])
-        (nullable leaf "mod-key" cfg.input.mod-key)
-        (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
-      ])
 
-      (each' cfg.outputs (cfg: [
-        (node "output" cfg.name [
-          (toggle' "off" cfg [
-            (nullable leaf "backdrop-color" cfg.backdrop-color)
-            (nullable leaf "background-color" cfg.background-color)
-            (nullable leaf "scale" cfg.scale)
-            (flag' "focus-at-startup" cfg.focus-at-startup)
-            (map' leaf transform "transform" cfg.transform)
-            (nullable leaf "position" cfg.position)
-            (nullable (map' leaf mode) "mode" cfg.mode)
-            (
-              optional-node (cfg.variable-refresh-rate != false)
-              (leaf "variable-refresh-rate" {on-demand = cfg.variable-refresh-rate == "on-demand";})
-            )
+        (each cfg.spawn-at-startup (cfg: [
+          (leaf "spawn-at-startup" cfg.command)
+        ]))
+
+        (each cfg.window-rules (cfg: [
+          (plain "window-rule" [
+            (map (leaf "match") (map opt-props cfg.matches))
+            (map (leaf "exclude") (map opt-props cfg.excludes))
+            (nullable preset-sizes "default-column-width" cfg.default-column-width)
+            (nullable preset-sizes "default-window-height" cfg.default-window-height)
+            (nullable leaf "default-column-display" cfg.default-column-display)
+            (nullable leaf "open-on-output" cfg.open-on-output)
+            (nullable leaf "open-on-workspace" cfg.open-on-workspace)
+            (nullable leaf "open-maximized" cfg.open-maximized)
+            (nullable leaf "open-fullscreen" cfg.open-fullscreen)
+            (nullable leaf "open-floating" cfg.open-floating)
+            (nullable leaf "open-focused" cfg.open-focused)
+            (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
+            (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+            (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
+            (border-rule "border" cfg.border)
+            (border-rule "focus-ring" cfg.focus-ring)
+            (shadow-rule "shadow" cfg.shadow)
+            (tab-indicator-rule "tab-indicator" cfg.tab-indicator)
+            (nullable leaf "opacity" cfg.opacity)
+            (nullable leaf "min-width" cfg.min-width)
+            (nullable leaf "max-width" cfg.max-width)
+            (nullable leaf "min-height" cfg.min-height)
+            (nullable leaf "max-height" cfg.max-height)
+            (nullable leaf "block-out-from" cfg.block-out-from)
+            (nullable leaf "baba-is-float" cfg.baba-is-float)
+            (nullable leaf "default-floating-position" cfg.default-floating-position)
+            (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
+            (nullable leaf "scroll-factor" cfg.scroll-factor)
+            (nullable leaf "tiled-state" cfg.tiled-state)
+          ])
+        ]))
+        (each cfg.layer-rules (cfg: [
+          (plain "layer-rule" [
+            (map (leaf "match") (map opt-props cfg.matches))
+            (map (leaf "exclude") (map opt-props cfg.excludes))
+            (nullable leaf "opacity" cfg.opacity)
+            (nullable leaf "block-out-from" cfg.block-out-from)
+            (shadow-rule "shadow" cfg.shadow)
+            (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+            (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
+            (nullable leaf "baba-is-float" cfg.baba-is-float)
+          ])
+        ]))
+
+        (plain' "gestures" [
+          (plain' "dnd-edge-view-scroll" [
+            (nullable leaf "trigger-width" cfg.gestures.dnd-edge-view-scroll.trigger-width)
+            (nullable leaf "delay-ms" cfg.gestures.dnd-edge-view-scroll.delay-ms)
+            (nullable leaf "max-speed" cfg.gestures.dnd-edge-view-scroll.max-speed)
+          ])
+          (plain' "dnd-edge-workspace-switch" [
+            (nullable leaf "trigger-height" cfg.gestures.dnd-edge-workspace-switch.trigger-height)
+            (nullable leaf "delay-ms" cfg.gestures.dnd-edge-workspace-switch.delay-ms)
+            (nullable leaf "max-speed" cfg.gestures.dnd-edge-workspace-switch.max-speed)
+          ])
+          (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners []))
+        ])
+
+        (plain' "animations" [
+          (toggle "off" cfg.animations [
+            (nullable leaf "slowdown" cfg.animations.slowdown)
+            (map (name: animation name cfg.animations.${name}) cfg.animations.all-anims)
           ])
         ])
-      ]))
 
-      (leaf "screenshot-path" cfg.screenshot-path)
-      (flag' "prefer-no-csd" cfg.prefer-no-csd)
-
-      (plain' "overview" [
-        (nullable leaf "zoom" cfg.overview.zoom)
-        (nullable leaf "backdrop-color" cfg.overview.backdrop-color)
-        (plain' "workspace-shadow" [
-          (toggle "off" cfg.overview.workspace-shadow [
-            (nullable leaf "offset" cfg.overview.workspace-shadow.offset)
-            (nullable leaf "softness" cfg.overview.workspace-shadow.softness)
-            (nullable leaf "spread" cfg.overview.workspace-shadow.spread)
-            (nullable leaf "color" cfg.overview.workspace-shadow.color)
+        (plain' "xwayland-satellite" [
+          (toggle "off" cfg.xwayland-satellite [
+            (nullable leaf "path" cfg.xwayland-satellite.path)
           ])
         ])
-      ])
 
-      (plain "layout" [
-        (leaf "gaps" cfg.layout.gaps)
-        (plain "struts" [
-          (leaf "left" cfg.layout.struts.left)
-          (leaf "right" cfg.layout.struts.right)
-          (leaf "top" cfg.layout.struts.top)
-          (leaf "bottom" cfg.layout.struts.bottom)
-        ])
-        (borderish "focus-ring" cfg.layout.focus-ring)
-        (borderish "border" cfg.layout.border)
-        (nullable leaf "background-color" cfg.layout.background-color)
-        (shadow "shadow" cfg.layout.shadow)
-        (nullable tab-indicator "tab-indicator" cfg.layout.tab-indicator)
-        (plain "insert-hint" [
-          (toggle "off" cfg.layout.insert-hint [
-            (nullable leaf "color" cfg.layout.insert-hint.display.color or null)
-            (nullable gradient' "gradient" cfg.layout.insert-hint.display.gradient or null)
-          ])
-        ])
-        (preset-sizes "default-column-width" cfg.layout.default-column-width)
-        (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
-        (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
-        (leaf "center-focused-column" cfg.layout.center-focused-column)
-        (optional-node (cfg.layout.default-column-display != "normal") (
-          leaf "default-column-display" cfg.layout.default-column-display
-        ))
-        (flag' "always-center-single-column" cfg.layout.always-center-single-column)
-        (flag' "empty-workspace-above-first" cfg.layout.empty-workspace-above-first)
-      ])
-
-      (plain "cursor" [
-        (leaf "xcursor-theme" cfg.cursor.theme)
-        (leaf "xcursor-size" cfg.cursor.size)
-        (flag' "hide-when-typing" cfg.cursor.hide-when-typing)
-        (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
-      ])
-
-      (plain' "hotkey-overlay" [
-        (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
-        (flag' "hide-not-bound" cfg.hotkey-overlay.hide-not-bound)
-      ])
-
-      (plain' "clipboard" [
-        (flag' "disable-primary" cfg.clipboard.disable-primary)
-      ])
-
-      (plain' "environment" (lib.mapAttrsToList leaf cfg.environment))
-      (plain' "binds" (lib.mapAttrsToList bind cfg.binds))
-
-      (plain' "switch-events" (
-        lib.mapAttrsToList (nullable (map' plain (cfg: [
-          (lib.mapAttrsToList leaf cfg.action)
-        ])))
-        cfg.switch-events
-      ))
-
-      (each' cfg.workspaces (cfg: [
-        (node "workspace" cfg.name [
-          (nullable leaf "open-on-output" cfg.open-on-output)
-        ])
-      ]))
-
-      (each cfg.spawn-at-startup (cfg: [
-        (leaf "spawn-at-startup" cfg.command)
-      ]))
-
-      (each cfg.window-rules (cfg: [
-        (plain "window-rule" [
-          (map (leaf "match") (map opt-props cfg.matches))
-          (map (leaf "exclude") (map opt-props cfg.excludes))
-          (nullable preset-sizes "default-column-width" cfg.default-column-width)
-          (nullable preset-sizes "default-window-height" cfg.default-window-height)
-          (nullable leaf "default-column-display" cfg.default-column-display)
-          (nullable leaf "open-on-output" cfg.open-on-output)
-          (nullable leaf "open-on-workspace" cfg.open-on-workspace)
-          (nullable leaf "open-maximized" cfg.open-maximized)
-          (nullable leaf "open-fullscreen" cfg.open-fullscreen)
-          (nullable leaf "open-floating" cfg.open-floating)
-          (nullable leaf "open-focused" cfg.open-focused)
-          (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
-          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
-          (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
-          (border-rule "border" cfg.border)
-          (border-rule "focus-ring" cfg.focus-ring)
-          (shadow-rule "shadow" cfg.shadow)
-          (tab-indicator-rule "tab-indicator" cfg.tab-indicator)
-          (nullable leaf "opacity" cfg.opacity)
-          (nullable leaf "min-width" cfg.min-width)
-          (nullable leaf "max-width" cfg.max-width)
-          (nullable leaf "min-height" cfg.min-height)
-          (nullable leaf "max-height" cfg.max-height)
-          (nullable leaf "block-out-from" cfg.block-out-from)
-          (nullable leaf "baba-is-float" cfg.baba-is-float)
-          (nullable leaf "default-floating-position" cfg.default-floating-position)
-          (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
-          (nullable leaf "scroll-factor" cfg.scroll-factor)
-          (nullable leaf "tiled-state" cfg.tiled-state)
-        ])
-      ]))
-      (each cfg.layer-rules (cfg: [
-        (plain "layer-rule" [
-          (map (leaf "match") (map opt-props cfg.matches))
-          (map (leaf "exclude") (map opt-props cfg.excludes))
-          (nullable leaf "opacity" cfg.opacity)
-          (nullable leaf "block-out-from" cfg.block-out-from)
-          (shadow-rule "shadow" cfg.shadow)
-          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
-          (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
-          (nullable leaf "baba-is-float" cfg.baba-is-float)
-        ])
-      ]))
-
-      (plain' "gestures" [
-        (plain' "dnd-edge-view-scroll" [
-          (nullable leaf "trigger-width" cfg.gestures.dnd-edge-view-scroll.trigger-width)
-          (nullable leaf "delay-ms" cfg.gestures.dnd-edge-view-scroll.delay-ms)
-          (nullable leaf "max-speed" cfg.gestures.dnd-edge-view-scroll.max-speed)
-        ])
-        (plain' "dnd-edge-workspace-switch" [
-          (nullable leaf "trigger-height" cfg.gestures.dnd-edge-workspace-switch.trigger-height)
-          (nullable leaf "delay-ms" cfg.gestures.dnd-edge-workspace-switch.delay-ms)
-          (nullable leaf "max-speed" cfg.gestures.dnd-edge-workspace-switch.max-speed)
-        ])
-        (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners []))
-      ])
-
-      (plain' "animations" [
-        (toggle "off" cfg.animations [
-          (nullable leaf "slowdown" cfg.animations.slowdown)
-          (map (name: animation name cfg.animations.${name}) cfg.animations.all-anims)
-        ])
-      ])
-
-      (plain' "xwayland-satellite" [
-        (toggle "off" cfg.xwayland-satellite [
-          (nullable leaf "path" cfg.xwayland-satellite.path)
-        ])
-      ])
-
-      (map' plain' (lib.mapAttrsToList leaf) "debug" cfg.debug)
-    ];
+        (map' plain' (lib.mapAttrsToList leaf) "debug" cfg.debug)
+      ];
 }

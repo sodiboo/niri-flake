@@ -9,8 +9,9 @@
       inherit name;
       arguments = [];
       properties = {};
-      children = lib.toList children;
-    } (lib.toList args);
+      inherit children;
+    }
+    args;
 
   plain = name: node name [];
   leaf = name: args: node name args [];
@@ -71,26 +72,6 @@
     lib.length
   ];
 
-  # a common pattern when declaring a config is to have "optional" nodes
-  # that only exist if a certain condition is met.
-  # without special handling, this would be done with list concatenation
-  # and lib.optional, which is ugly and hard to read.
-  # it's also not unthinkable that a user might want to declare many nodes
-  # in a separate function, and include in the current list.
-  # this function makes it easier to declare optional nodes
-  # or adding an infix list of nodes by ignoring null nodes, and flattening the result
-  # this is completely fine because in this context,
-  # nested lists are not meaningful and neither are null nodes.
-  transform-nodes = lib.flip lib.pipe [
-    lib.flatten
-    (lib.remove null)
-  ];
-
-  internal-serialize-nodes = lib.flip lib.pipe [
-    (map serialize.node)
-    (lib.concatStringsSep "\n")
-  ];
-
   serialize.node = {
     name,
     arguments,
@@ -103,10 +84,9 @@
       (map serialize.prop (lib.attrsToList properties))
       (
         let
-          children' = transform-nodes children;
-          serialized = internal-serialize-nodes children';
+          serialized = serialize.nodes children;
         in
-          if lib.length children' == 0
+          if lib.length children == 0
           then []
           else if count-lines serialized == 1
           then "{ ${serialized}; }"
@@ -115,8 +95,8 @@
     ]);
 
   serialize.nodes = lib.flip lib.pipe [
-    transform-nodes
-    internal-serialize-nodes
+    (map serialize.node)
+    (lib.concatStringsSep "\n")
   ];
 
   kdl-value = lib.types.nullOr (
@@ -141,7 +121,7 @@
       default = {};
     };
     options.children = lib.mkOption {
-      type = kdl-nodes;
+      type = kdl-document;
       default = [];
     };
   };
@@ -181,19 +161,30 @@
     };
 
   kdl-nodes =
-    (lib.types.oneOf [(lib.types.listOf (lib.types.nullOr kdl-nodes)) kdl-node])
+    lib.types.listOf kdl-node
     // {
       name = "kdl-nodes";
       description = "kdl nodes";
       descriptionClass = "noun";
     };
 
-  kdl-document =
-    kdl-nodes
-    // {
-      name = "kdl-document";
-      description = "kdl document";
-    };
+  kdl-document = lib.mkOptionType {
+    name = "kdl-document";
+    description = "kdl document";
+    descriptionClass = "noun";
+
+    check = v: builtins.isList v || builtins.isAttrs v;
+    merge = loc: defs:
+      kdl-nodes.merge loc (map (def: {
+          inherit (def) file;
+          value = let
+            value' = lib.remove null (lib.flatten def.value);
+          in
+            lib.warnIf (def.value != value') "kdl document defined in `${def.file}` for `${lib.showOption loc}` is not normalized. please ensure that it is a flat list of nodes."
+            value';
+        })
+        defs);
+  };
 in {
   inherit node plain leaf magic-leaf flag serialize;
   types = {inherit kdl-value kdl-node kdl-nodes kdl-leaf kdl-args kdl-document;};
