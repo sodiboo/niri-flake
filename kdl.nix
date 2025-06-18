@@ -1,17 +1,19 @@
 {lib, ...}: let
-  node = name: args: children:
+  fold-args =
     lib.foldl (
       self: arg:
         if lib.isAttrs arg
         then self // {properties = self.properties // arg;}
         else self // {arguments = self.arguments ++ [arg];}
     ) {
-      inherit name;
       arguments = [];
       properties = {};
-      inherit children;
-    }
-    args;
+    };
+  node = name: args: children: {
+    inherit name;
+    inherit (fold-args args) arguments properties;
+    inherit children;
+  };
 
   plain = name: node name [];
   leaf = name: args: node name args [];
