@@ -138,6 +138,8 @@
 
         NIRI_BUILD_VERSION_STRING = version-string src;
 
+        outputs = ["out" "doc"];
+
         # previously, the second line was part of RUSTFLAGS above
         # but i noticed it stopped working? because it doesn't interpolate the env var anymore.
         #
@@ -176,6 +178,9 @@
               --bash <($out/bin/niri completions bash) \
               --zsh <($out/bin/niri completions zsh) \
               --fish <($out/bin/niri completions fish)
+
+            install -Dm0644 README.md resources/default-config.kdl -t $doc/share/doc/niri
+            mv wiki $doc/share/doc/niri/wiki
           '';
 
         postFixup = ''
