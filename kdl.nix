@@ -1,15 +1,15 @@
 {lib, ...}: let
   node = name: args: children:
     lib.foldl (
-      self: this:
-        if lib.isAttrs this
-        then self // {props = self.props // this;}
-        else self // {args = self.args ++ [this];}
+      self: arg:
+        if lib.isAttrs arg
+        then self // {properties = self.properties // arg;}
+        else self // {arguments = self.arguments ++ [arg];}
     ) {
       inherit name;
+      arguments = [];
+      properties = {};
       children = lib.toList children;
-      args = [];
-      props = {};
     } (lib.toList args);
 
   plain = name: node name [];
@@ -93,14 +93,14 @@
 
   serialize.node = {
     name,
-    args,
-    props,
+    arguments,
+    properties,
     children,
   }:
     lib.concatStringsSep " " (lib.flatten [
       (serialize.ident name)
-      (map serialize.value args)
-      (map serialize.prop (lib.attrsToList props))
+      (map serialize.value arguments)
+      (map serialize.prop (lib.attrsToList properties))
       (
         let
           children' = transform-nodes children;
@@ -132,11 +132,11 @@
     options.name = lib.mkOption {
       type = lib.types.str;
     };
-    options.args = lib.mkOption {
+    options.arguments = lib.mkOption {
       type = lib.types.listOf kdl-value;
       default = [];
     };
-    options.props = lib.mkOption {
+    options.properties = lib.mkOption {
       type = lib.types.attrsOf kdl-value;
       default = {};
     };
