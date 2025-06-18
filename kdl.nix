@@ -60,46 +60,40 @@
     value,
   }: "${serialize.ident name}=${serialize.value value}";
 
-  prefix-lines = prefix:
-    lib.flip lib.pipe [
-      (lib.splitString "\n")
-      (map (s: "${prefix}${s}"))
-      (lib.concatStringsSep "\n")
-    ];
+  single-indent = "    ";
 
-  indent = prefix-lines "    ";
+  should-collapse = children: let
+    length = lib.length children;
+  in
+    length == 0 || (length == 1 && should-collapse (lib.head children).children);
 
-  count-lines = lib.flip lib.pipe [
-    (lib.splitString "\n")
-    lib.length
-  ];
-
-  serialize.node = {
+  serialize.node = serialize.node-with "";
+  serialize.node-with = indent: {
     name,
     arguments,
     properties,
     children,
   }:
-    lib.concatStringsSep " " (lib.flatten [
+    indent
+    + lib.concatStringsSep " " (lib.flatten [
       (serialize.ident name)
       (map serialize.value arguments)
       (map serialize.prop (lib.attrsToList properties))
       (
-        let
-          serialized = serialize.nodes children;
-        in
-          if lib.length children == 0
-          then []
-          else if count-lines serialized == 1
-          then "{ ${serialized}; }"
-          else "{\n${indent serialized}\n}"
+        if lib.length children == 0
+        then []
+        else if should-collapse children
+        then "{ ${serialize.nodes children}; }"
+        else "{\n${serialize.nodes-with (indent + single-indent) children}\n${indent}}"
       )
     ]);
 
-  serialize.nodes = lib.flip lib.pipe [
-    (map serialize.node)
-    (lib.concatStringsSep "\n")
-  ];
+  serialize.nodes = serialize.nodes-with "";
+  serialize.nodes-with = indent:
+    lib.flip lib.pipe [
+      (map (serialize.node-with indent))
+      (lib.concatStringsSep "\n")
+    ];
 
   kdl-value = lib.types.nullOr (
     lib.types.oneOf [
