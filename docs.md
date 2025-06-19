@@ -468,13 +468,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `switch-focus-between-floating-and-tiling`
 - `toggle-window-rule-opacity`
 - `set-dynamic-cast-window` (only on niri-unstable)
-- `λ set-dynamic-cast-monitor :: unknown` (only on niri-unstable)
-
-  The code that generates this documentation does not know how to parse the definition:
-  ```rs
-  #[knuffel(argument)] Option<String>)
-  ```
-
+- `λ set-dynamic-cast-monitor :: Option<String>` (only on niri-unstable)
 - `clear-dynamic-cast-target` (only on niri-unstable)
 - `toggle-overview` (only on niri-unstable)
 - `open-overview` (only on niri-unstable)

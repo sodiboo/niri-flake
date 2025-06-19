@@ -104,49 +104,35 @@ in
           }
           else
             short-circuit raw-params [
-              (builtins.split ''(#\[knuffel\(([^]]*)\)] ([A-Za-z0-9<>]*)),?'')
+              (builtins.split ''#\[knuffel\(([^]]*)\)] ([A-Za-z0-9<>]+),?'')
               (filter isList)
-              # TODO: Rewrite the section below
               (
                 map
                 (p:
                   coalesce [
                     (short-circuit p [
                       (flip elemAt 0)
-                      (strings.match ''#\[knuffel\(argument(, str)?\)] ([A-Za-z0-9]+)'')
+                      (strings.match ''argument(, str)?'')
                       (m: {
                         kind = "arg";
                         as-str = elemAt m 0 != null;
-                        type = elemAt m 1;
+                        type = elemAt p 1;
                       })
                     ])
                     (short-circuit p [
-                      (flip elemAt 0)
-                      (strings.match ''#\[knuffel\(arguments\)] Vec<([A-Za-z0-9]+)>'')
+                      (flip elemAt 1)
+                      (strings.match ''Vec<([A-Za-z0-9]+)>'')
                       (m: {
                         kind = "list";
-                        type = elemAt m 0;
+                        type = head m;
                       })
                     ])
                     (short-circuit p [
-                      (flip elemAt 0)
-                      (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)(, default( = true)?)?\)] ([A-Za-z0-9]+)'')
+                      (flip elemAt 1)
+                      (strings.match ''Option<([A-Za-z0-9]+)>'')
                       (m: let
-                        field = elemAt m 0;
-                        use-default = elemAt m 1 != null;
-                        type = elemAt m 3;
-                      in {
-                        kind = "prop";
-                        none-important = false;
-                        inherit field use-default type;
-                      })
-                    ])
-                    (short-circuit p [
-                      (flip elemAt 0)
-                      (strings.match ''#\[knuffel\(property\(name = "([^"]*)"\)\)] Option<([A-Za-z0-9]+)>'')
-                      (m: let
-                        field = elemAt m 0;
-                        type = elemAt m 1;
+                        field = head (strings.match ''property\(name = "([^"]+)"\)'' (head p));
+                        type = head m;
                       in {
                         kind = "prop";
                         # Option<T> always has a default value.
@@ -156,9 +142,22 @@ in
                         inherit field type;
                       })
                     ])
+                    (short-circuit p [
+                      (flip elemAt 0)
+                      (strings.match ''property\(name = "([^"]+)"\)(, default( = true)?)?'')
+                      (m: let
+                        field = elemAt m 0;
+                        use-default = elemAt m 1 != null;
+                        type = elemAt p 1;
+                      in {
+                        kind = "prop";
+                        none-important = false;
+                        inherit field use-default type;
+                      })
+                    ])
                     {
                       kind = "unknown";
-                      raw-params = elemAt p 0;
+                      raw-params = raw-params;
                     }
                   ])
               )
