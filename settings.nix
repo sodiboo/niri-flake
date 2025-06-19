@@ -2727,11 +2727,21 @@
         xwayland-satellite =
           section {
             enable = optional types.bool true;
-            path = nullable types.str;
+            path =
+              nullable types.str
+              // {
+                description = ''
+                  Path to the xwayland-satellite binary.
+
+                  Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
+                '';
+              };
           }
           // {
             description = ''
               ${unstable-note}
+
+              Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
             '';
           };
       }

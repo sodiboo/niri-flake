@@ -3710,6 +3710,8 @@ This will only work for background layer surfaces that ignore exclusive zones (t
 > Otherwise, your system might fail to build.
 
 
+Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
+
 
 <!-- sorting key: programs.niri.settings.q.xwayland-satellite.enable -->
 ## `programs.niri.settings.xwayland-satellite.enable`
@@ -3721,6 +3723,10 @@ This will only work for background layer surfaces that ignore exclusive zones (t
 ## `programs.niri.settings.xwayland-satellite.path`
 - type: `null or string`
 - default: `null`
+
+Path to the xwayland-satellite binary.
+
+Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
 
 
 <!-- sorting key: programs.niri.settings.r.debug -->
