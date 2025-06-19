@@ -1190,9 +1190,43 @@
       }
 
       {
-        spawn-at-startup = list (record {
-          command = list types.str;
-        });
+        spawn-at-startup =
+          list (record {
+            command = list types.str;
+          })
+          // {
+            description = ''
+              A list of commands to run when niri starts.
+
+              Each command is represented as its raw arguments, meaning you **cannot** use shell syntax here.
+
+              A leading tilde in the zeroth argument will be expanded to the user's home directory.
+
+              Usage is like so:
+
+              ```nix
+              {
+                programs.niri.settings.spawn-at-startup = [
+                  { command = ["waybar"]; }
+                  { command = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
+                  { command = ["~/.config/niri/scripts/startup.sh"]; }
+                ];
+              }
+              ```
+
+              If you need shell syntax, you can spawn something like this:
+
+              ```nix
+              {
+                programs.niri.settings.spawn-at-startup = [
+                  { command = ["sh" "-c" "echo $NIRI_SOCKET > ~/.niri-socket"]; }
+                ];
+              }
+              ```
+
+              When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` action) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+            '';
+          };
       }
 
       {
