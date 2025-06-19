@@ -353,6 +353,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ spawn :: [string]`
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
 - `λ screenshot :: { show-pointer :: bool }`
+- `λ screenshot-screen :: { write-to-disk :: bool }`
 - `λ screenshot-window :: { write-to-disk :: bool }`
 - `toggle-keyboard-shortcuts-inhibit`
 - `close-window`
@@ -411,8 +412,10 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `focus-workspace-previous`
 - `move-window-to-workspace-down`
 - `move-window-to-workspace-up`
+- `λ move-window-to-workspace :: u8 | string`
 - `λ move-column-to-workspace-down :: { focus :: bool }`
 - `λ move-column-to-workspace-up :: { focus :: bool }`
+- `λ move-column-to-workspace :: u8 | string`
 - `move-workspace-down`
 - `move-workspace-up`
 - `λ move-workspace-to-index :: usize`
@@ -469,7 +472,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 
   The code that generates this documentation does not know how to parse the definition:
   ```rs
-  SetDynamicCastMonitor(#[knuffel(argument)] Option<String>)
+  #[knuffel(argument)] Option<String>)
   ```
 
 - `clear-dynamic-cast-target`

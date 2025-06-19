@@ -1094,7 +1094,7 @@
 
                             The code that generates this documentation does not know how to parse the definition:
                             ```rs
-                            ${params.raw-name}(${params.raw})
+                            ${params.raw-params})
                             ```
                         '';
                       }
