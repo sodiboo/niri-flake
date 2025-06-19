@@ -2017,7 +2017,7 @@
               optional types.bool false
               // {
                 description = ''
-                  This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing is `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+                  This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
                 '';
               };
             default-column-display =
