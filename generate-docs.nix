@@ -2,20 +2,19 @@
   inputs,
   lib,
   ...
-}:
-with lib; let
-  showOption = concatStringsSep ".";
+}: let
+  showOption = lib.concatStringsSep ".";
   match = name: cases: cases.${name} or cases._;
-  indent = entries: "${pipe entries [
-    toList
-    (concatStringsSep "\n")
-    (splitString "\n")
+  indent = entries: "${lib.pipe entries [
+    lib.toList
+    (lib.concatStringsSep "\n")
+    (lib.splitString "\n")
     (map (s: "  ${s}"))
-    (concatStringsSep "\n")
+    (lib.concatStringsSep "\n")
   ]}";
 
-  delimit-pretty = start: content: end: concatStringsSep "\n" [start content end];
-  delimit-min = start: content: end: concatStrings [start content end];
+  delimit-pretty = start: content: end: lib.concatStringsSep "\n" [start content end];
+  delimit-min = start: content: end: lib.concatStrings [start content end];
   display-value = {
     pretty ? true,
     omit-empty-composites ? false,
@@ -24,7 +23,7 @@ with lib; let
     indent' =
       if pretty
       then indent
-      else id;
+      else lib.id;
     delimit' =
       if pretty
       then delimit-pretty
@@ -45,7 +44,7 @@ with lib; let
             if omit-empty-composites
             then null
             else "{}"
-          else delimit' "{" (indent' (mapAttrsToList (name: val: "${name} = ${display-value' val};") v)) "}";
+          else delimit' "{" (indent' (lib.mapAttrsToList (name: val: "${name} = ${display-value' val};") v)) "}";
         null = "null";
         list =
           if v == []
@@ -73,8 +72,8 @@ with lib; let
 
   traverse = path: v: (
     if (v ? _type && v._type == "option")
-    then let v' = v // {loc = v.override-loc or id v.loc;}; in (optionalAttrs (v.visible or true != false) (describe path v')) // (optionalAttrs (v.visible or true == true) (traverse path (v.type.getSubOptions v'.loc)))
-    else concatMapAttrs (name: traverse (path ++ [name])) (filterAttrs (name: const (name != "_module")) v)
+    then let v' = v // {loc = v.override-loc or lib.id v.loc;}; in (lib.optionalAttrs (v.visible or true != false) (describe path v')) // (lib.optionalAttrs (v.visible or true == true) (traverse path (v.type.getSubOptions v'.loc)))
+    else lib.concatMapAttrs (name: traverse (path ++ [name])) (lib.filterAttrs (name: lib.const (name != "_module")) v)
   );
 
   maybe = f: v:
@@ -95,10 +94,10 @@ with lib; let
     > [!important]
     > The following values for this option are not yet available in stable niri:
     >
-    ${pipe values [
+    ${lib.pipe values [
       (map (display-value {pretty = false;}))
       (map (s: "> - `${s}`"))
-      (concatStringsSep "\n")
+      (lib.concatStringsSep "\n")
     ]}
     >
     > If you wish to use one of the mentioned values, you should make sure ${link' "programs.niri.package"} is set to ${pkg-link "niri-unstable"}.
@@ -107,8 +106,8 @@ with lib; let
   '';
 
   section = contents:
-    mkOption {
-      type = mkOptionType {name = "docs-override";};
+    lib.mkOption {
+      type = lib.mkOptionType {name = "docs-override";};
       description = contents;
     };
 
@@ -130,18 +129,18 @@ with lib; let
 
   link-this-github = path: "https://github.com/sodiboo/niri-flake/blob/${inputs.self.rev or "main"}/${path}";
 
-  test = pat: str: strings.match pat str != null;
+  test = pat: str: lib.strings.match pat str != null;
 
-  anchor = flip pipe [
-    (replaceStrings (upperChars ++ [" "]) (lowerChars ++ ["-"]))
-    (splitString "")
-    (filter (test "[a-z0-9-]"))
-    concatStrings
+  anchor = lib.flip lib.pipe [
+    (lib.replaceStrings (lib.upperChars ++ [" "]) (lib.lowerChars ++ ["-"]))
+    (lib.splitString "")
+    (lib.filter (test "[a-z0-9-]"))
+    lib.concatStrings
   ];
   anchor' = loc: anchor "`${loc}`";
 
   link = title: "[${title}](#${anchor title})";
-  link' = loc: "[`${removePrefix "programs.niri.settings." loc}`](#${anchor "`${loc}`"})";
+  link' = loc: "[`${lib.removePrefix "programs.niri.settings." loc}`](#${anchor "`${loc}`"})";
 
   module-doc = name: desc: opts:
     {
@@ -163,7 +162,7 @@ with lib; let
   libinput-doc = page: header: "[${header}](${libinput-link page header})";
 
   make-default = text:
-    if length (splitString "\n" text) == 1
+    if lib.length (lib.splitString "\n" text) == 1
     then "- default: `${text}`"
     else ''
       - default:
@@ -186,7 +185,7 @@ with lib; let
         display' = describe-type type.nestedTypes.display;
         inner' = describe-type type.nestedTypes.inner;
       in
-        display' + optionalString (inner' != null) ", which is a ${inner'}";
+        display' + lib.optionalString (inner' != null) ", which is a ${inner'}";
       shorthand = link' "<${type.description}>";
       _ = match type.description {
         submodule = null;
@@ -195,35 +194,35 @@ with lib; let
           desc = "`${type.description}`";
         in
           if type' != null && type'.nestedTypes.display.name == "shorthand"
-          then replaceStrings ["``"] [""] (replaceStrings [type'.nestedTypes.display.description] ["`${describe-type type'.nestedTypes.display}`"] desc)
+          then lib.replaceStrings ["``"] [""] (lib.replaceStrings [type'.nestedTypes.display.description] ["`${describe-type type'.nestedTypes.display}`"] desc)
           else desc;
       };
     };
 
-  make-docs = flip pipe [
-    types.submodule
+  make-docs = lib.flip lib.pipe [
+    lib.types.submodule
     (m: m.getSubOptions [])
     (traverse [])
-    (mapAttrsToList (
+    (lib.mapAttrsToList (
       path: opt: (
         if opt.type.name == "docs-override"
         then "${opt.description}"
-        else if elem opt.type.name ["record" "submodule"] && opt.description or null == null
+        else if lib.elem opt.type.name ["record" "submodule"] && opt.description or null == null
         then "<!-- ${showOption opt.loc} -->"
         else
-          (concatStringsSep "\n" (
-            remove null [
+          (lib.concatStringsSep "\n" (
+            lib.remove null [
               "## ${opt.override-header or "`${showOption opt.loc}`"}"
-              (optionalString (opt.type.description != "submodule")
+              (lib.optionalString (opt.type.description != "submodule")
                 "- type: ${describe-type opt.type}")
               (maybe make-default opt.defaultText)
               ""
-              (maybe id opt.description or null)
+              (maybe lib.id opt.description or null)
             ]
           ))
       )
     ))
-    (concatStringsSep "\n\n")
+    (lib.concatStringsSep "\n\n")
   ];
 in {
   inherit make-docs;
