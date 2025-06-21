@@ -796,13 +796,10 @@
       grouped = lib.groupBy (s:
         if s ? __module
         then "module"
-        else if s ? __config
-        then "config"
         else "options")
       sections;
 
       options' = grouped.options or [];
-      config' = map (builtins.getAttr "__config") grouped.config or [];
       module' = map (builtins.getAttr "__module") grouped.module or [];
 
       normalize = map (flip removeAttrs ["__docs-only"]);
@@ -822,9 +819,6 @@
             {config, ...}: {
               imports = module';
               options = real-sections-flat;
-              config = lib.mkMerge (map (f:
-                f config)
-              config');
             }
           ))
           name
