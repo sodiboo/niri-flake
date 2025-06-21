@@ -205,25 +205,23 @@ with lib; let
     (m: m.getSubOptions [])
     (traverse [])
     (mapAttrsToList (
-      path: opt:
-        "<!-- sorting key: ${path} -->\n"
-        + (
-          if opt.type.name == "docs-override"
-          then "${opt.description}"
-          else if elem opt.type.name ["record" "submodule"] && opt.description or null == null
-          then "<!-- ${showOption opt.loc} -->"
-          else
-            (concatStringsSep "\n" (
-              remove null [
-                "## ${opt.override-header or "`${showOption opt.loc}`"}"
-                (optionalString (opt.type.description != "submodule")
-                  "- type: ${describe-type opt.type}")
-                (maybe make-default opt.defaultText)
-                ""
-                (maybe id opt.description or null)
-              ]
-            ))
-        )
+      path: opt: (
+        if opt.type.name == "docs-override"
+        then "${opt.description}"
+        else if elem opt.type.name ["record" "submodule"] && opt.description or null == null
+        then "<!-- ${showOption opt.loc} -->"
+        else
+          (concatStringsSep "\n" (
+            remove null [
+              "## ${opt.override-header or "`${showOption opt.loc}`"}"
+              (optionalString (opt.type.description != "submodule")
+                "- type: ${describe-type opt.type}")
+              (maybe make-default opt.defaultText)
+              ""
+              (maybe id opt.description or null)
+            ]
+          ))
+      )
     ))
     (concatStringsSep "\n\n")
   ];
