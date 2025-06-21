@@ -9,7 +9,7 @@ nom-path := `command -v nom || true`
 default: check
 
 fmt:
-    nix fmt --quiet --quiet $(fd '^[^.]*\\.nix$' .) -- --quiet
+    nixfmt $(fd '^[^.]*\\.nix$' .)
 
 hook:
     -ln -s ../../pre-commit .git/hooks/pre-commit

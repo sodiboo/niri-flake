@@ -344,13 +344,14 @@
         default = self.apps.${system}.niri-stable;
       });
 
-    formatter = forAllSystems (system: inputs.nixpkgs.legacyPackages.${system}.alejandra);
+    formatter = forAllSystems (system: inputs.nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
 
     devShells = forAllSystems (system: let
       pkgs = inputs.nixpkgs.legacyPackages.${system};
     in {
       default = pkgs.mkShell {
         packages = with pkgs; [
+          self.formatter.${system}
           just
           fish
           fd
