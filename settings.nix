@@ -14,17 +14,12 @@
     binds-stable = binds inputs.niri-stable;
     binds-unstable = binds inputs.niri-unstable;
 
-    record = opts: let
-      base = submodule (
+    record = opts:
+      submodule (
         if builtins.isFunction opts || (opts ? options && opts ? config)
         then opts
         else {options = opts;}
       );
-    in
-      mkOptionType {
-        name = "record";
-        inherit (base) description check merge nestedTypes getSubOptions;
-      };
 
     required = type: mkOption {inherit type;};
     nullable = type: optional (nullOr type) null;

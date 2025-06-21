@@ -207,7 +207,7 @@
       path: opt: (
         if opt.type.name == "docs-override"
         then "${opt.description}"
-        else if lib.elem opt.type.name ["record" "submodule"] && opt.description or null == null
+        else if opt.type.name == "submodule" && opt.description or null == null
         then "<!-- ${showOption opt.loc} -->"
         else
           (lib.concatStringsSep "\n" (
