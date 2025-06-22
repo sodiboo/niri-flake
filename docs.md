@@ -2379,7 +2379,7 @@ Examples:
 
 
 ## `programs.niri.settings.window-rules`
-- type: `list of window rule`
+- type: `list of (window rule)`
 
 Window rules.
 
@@ -3108,7 +3108,7 @@ Takes effect only when the window is on an output with [`outputs.*.variable-refr
 
 
 ## `programs.niri.settings.layer-rules`
-- type: `list of layer rule`
+- type: `list of (layer rule)`
 
 Layer rules.
 

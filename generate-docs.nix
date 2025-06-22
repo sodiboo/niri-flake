@@ -60,31 +60,6 @@ let
       _ = "<${(builtins.typeOf v)}>";
     };
 
-  describe = path: opt: {
-    ${showOption path} = opt // {
-      defaultText =
-        opt.defaultText
-          or (if opt ? default then display-value { omit-empty-composites = true; } opt.default else null);
-    };
-  };
-
-  traverse =
-    path: v:
-    (
-      if (v ? _type && v._type == "option") then
-        let
-          v' = v // {
-            loc = v.override-loc or lib.id v.loc;
-          };
-        in
-        (lib.optionalAttrs (v.visible or true != false) (describe path v'))
-        // (lib.optionalAttrs (v.visible or true == true) (traverse path (v.type.getSubOptions v'.loc)))
-      else
-        lib.concatMapAttrs (name: traverse (path ++ [ name ])) (
-          lib.filterAttrs (name: lib.const (name != "_module")) v
-        )
-    );
-
   maybe = f: v: if v != null then f v else null;
 
   unstable-note = ''
@@ -226,29 +201,77 @@ let
       };
     };
 
+  render-option =
+    opt:
+    assert opt._type or null == "option";
+    lib.optional (opt.visible != false) (
+
+      if opt.type.name == "docs-override" then
+        "${opt.description}"
+      else if opt.type.name == "submodule" && opt.description or null == null then
+        "<!-- ${showOption opt.loc} -->"
+      else
+        lib.concatStringsSep "\n" (
+          lib.remove null [
+            "## ${opt.override-header or "`${showOption opt.loc}`"}"
+            (lib.optionalString (opt.type.description != "submodule") "- type: ${describe-type opt.type}")
+            (maybe make-default opt.defaultText)
+            ""
+            (maybe lib.id opt.description or null)
+          ]
+        )
+    )
+    ++ lib.optionals (opt.visible == true) (render-suboptions opt.loc (opt.type.getSubOptions opt.loc));
+
+  render-suboptions =
+    loc: options:
+    assert !(options ? _type);
+    let
+      to-list = lib.mapAttrsToList (name: opt: { inherit name opt; });
+
+      options' =
+        if options ? _module.niri-flake-ordered-record then
+          let
+            ord-record = options._module.niri-flake-ordered-record;
+            ordering = ord-record.ordering.value;
+            extra-docs-options = ord-record.extra-docs-options;
+
+            ordering' = builtins.listToAttrs (
+              lib.imap0 (i: v: {
+                name = v;
+                value = i;
+              }) ordering
+            );
+            max-ordering = builtins.length ordering;
+          in
+          builtins.sort (
+            a: b: (ordering'.${a.name} or max-ordering) < (ordering'.${b.name} or max-ordering)
+          ) (to-list (builtins.removeAttrs (options // extra-docs-options) [ "_module" ]))
+        else
+          to-list (builtins.removeAttrs options [ "_module" ]);
+
+    in
+    builtins.concatMap (
+      { name, opt }:
+      if opt ? _type then
+        render-option (
+          opt
+          // {
+            defaultText =
+              opt.defaultText
+                or (if opt ? default then display-value { omit-empty-composites = true; } opt.default else null);
+            visible = if opt.niri-flake-document-internal or false then true else opt.visible or true;
+            loc = opt.override-loc or lib.id opt.loc;
+          }
+        )
+      else
+        render-suboptions (loc ++ [ name ]) opt
+    ) options';
+
   make-docs = lib.flip lib.pipe [
     lib.types.submodule
     (m: m.getSubOptions [ ])
-    (traverse [ ])
-    (lib.mapAttrsToList (
-      path: opt:
-      (
-        if opt.type.name == "docs-override" then
-          "${opt.description}"
-        else if opt.type.name == "submodule" && opt.description or null == null then
-          "<!-- ${showOption opt.loc} -->"
-        else
-          (lib.concatStringsSep "\n" (
-            lib.remove null [
-              "## ${opt.override-header or "`${showOption opt.loc}`"}"
-              (lib.optionalString (opt.type.description != "submodule") "- type: ${describe-type opt.type}")
-              (maybe make-default opt.defaultText)
-              ""
-              (maybe lib.id opt.description or null)
-            ]
-          ))
-      )
-    ))
+    (render-suboptions [ ])
     (lib.concatStringsSep "\n\n")
   ];
 in

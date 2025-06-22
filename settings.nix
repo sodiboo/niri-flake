@@ -39,6 +39,16 @@
       nullable = type: optional (nullOr type) null;
       optional = type: default: mkOption { inherit type default; };
       readonly = type: value: optional type value // { readOnly = true; };
+      docs-only =
+        type:
+        required (type // { check = _: true; })
+        // {
+          internal = true;
+          visible = false;
+          readOnly = true;
+          apply = _: null;
+          niri-flake-document-internal = true;
+        };
 
       attrs = type: optional (attrsOf type) { };
       list = type: optional (listOf type) [ ];
@@ -792,44 +802,51 @@
           }) sections
         );
 
-      ordered-record =
-        sections:
+      ordered-record = ordered-record' null;
+
+      ordered-record' =
+        description: sections:
         let
           grouped = lib.groupBy (s: if s ? __module then "module" else "options") sections;
 
           options' = grouped.options or [ ];
           module' = map (builtins.getAttr "__module") grouped.module or [ ];
 
-          normalize = map (flip removeAttrs [ "__docs-only" ]);
-          real-sections-flat = pipe options' [
-            (builtins.filter (s: !(s.__docs-only or false)))
-            normalize
-            lib.mergeAttrsList
-          ];
-          ord-sections = pipe options' [
-            normalize
-            alphabetize
-          ];
+          flat-options = lib.mergeAttrsList options';
+
+          real-options = lib.filterAttrs (_: opt: !(opt ? niri-flake-document-internal)) flat-options;
+
+          extra-docs-options = lib.filterAttrs (_: opt: opt ? niri-flake-document-internal) flat-options;
         in
-        mkOptionType {
-          inherit
-            (record (
-              { config, ... }:
-              {
-                imports = module';
-                options = real-sections-flat;
-              }
-            ))
-            name
-            description
-            check
-            merge
-            nestedTypes
-            ;
-          getSubOptions = loc: lib.mapAttrs (_section: opts: (record opts).getSubOptions loc) ord-sections;
+        types.submoduleWith {
+          inherit description;
+          shorthandOnlyDefinesConfig = true;
+          modules = module' ++ [
+            {
+              options = real-options;
+            }
+            {
+              options._module.niri-flake-ordered-record = {
+                ordering = lib.mkOption {
+                  internal = true;
+                  readOnly = true;
+                  visible = false;
+                  description = ''
+                    Used to influence the order of options in the documentation, such that they are not always sorted alphabetically.
+
+                    Does not affect any other functionality.
+                  '';
+                  default = builtins.concatMap builtins.attrNames options';
+                };
+
+                inherit extra-docs-options;
+              };
+            }
+
+          ];
         };
 
-      make-section = flip optional { };
+      make-section = type: optional type { };
 
       section = flip pipe [
         record
@@ -875,8 +892,7 @@
               lid-close = switch-bind';
             }
             {
-              __docs-only = true;
-              "<switch-bind>" = required switch-bind // {
+              "<switch-bind>" = docs-only switch-bind // {
                 override-loc = lib.const [ "<switch-bind>" ];
                 description = ''
                   <!--
@@ -1873,8 +1889,7 @@
               };
           }
           {
-            __docs-only = true;
-            decoration = required (decoration "<decoration>") // {
+            "<decoration>" = docs-only (decoration "<decoration>") // {
               override-loc = lib.const [ "<decoration>" ];
               description = ''
                 A decoration is drawn around a surface, adding additional elements that are not necessarily part of an application, but are part of what we think of as a "window".
@@ -2191,8 +2206,7 @@
               )
             ) anims)
             {
-              __docs-only = true;
-              "<animation-kind>" = required animation-kind // {
+              "<animation-kind>" = docs-only animation-kind // {
                 override-loc = lib.const [ "<animation-kind>" ];
               };
             }
@@ -2316,7 +2330,7 @@
       {
         window-rules =
           list (
-            ordered-record [
+            ordered-record' "window rule" [
               {
                 matches = list window-match // {
                   description = ''
@@ -2613,10 +2627,6 @@
                 tiled-state = nullable types.bool;
               }
             ]
-            // {
-              description = "window rule";
-              descriptionClass = "noun";
-            }
           )
           // {
             description = window-rule-descriptions.top-option;
@@ -2626,7 +2636,7 @@
       {
         layer-rules =
           list (
-            ordered-record [
+            ordered-record' "layer rule" [
               {
                 matches = list layer-match // {
                   description = layer-rule-descriptions.match;
@@ -2676,10 +2686,6 @@
                 };
               }
             ]
-            // {
-              description = "layer rule";
-              descriptionClass = "noun";
-            }
           )
           // {
             description = layer-rule-descriptions.top-option;
