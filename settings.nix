@@ -75,69 +75,6 @@
 
       float-or-int = types.either types.float types.int;
 
-      variant =
-        variants:
-        mkOptionType {
-          name = "variant";
-          description =
-            if variants == { } then
-              "impossible (empty variant)"
-            else
-              "variant of: ${builtins.concatStringsSep " | " (builtins.attrNames variants)}";
-          descriptionClass = if variants == { } then "noun" else "composite";
-
-          check =
-            v:
-            let
-              names = builtins.attrNames v;
-              name = builtins.head names;
-            in
-            builtins.isAttrs v
-            && builtins.length names == 1
-            && builtins.elem name (builtins.attrNames variants)
-            && variants.${name}.check v.${name};
-
-          merge =
-            loc: definitions:
-            let
-              defs-for =
-                name:
-                pipe definitions [
-                  (builtins.filter (
-                    lib.hasAttrByPath [
-                      "value"
-                      name
-                    ]
-                  ))
-                  (map (def: def // { value = def.value.${name}; }))
-                ];
-              merged = builtins.mapAttrs (name: type: type.merge (loc ++ [ name ]) (defs-for name)) (
-                lib.filterAttrs (name: _type: defs-for name != [ ]) variants
-              );
-            in
-            if merged == { } then
-              throw "The option `${showOption loc}` has no definitions, but one is required"
-            else if builtins.length (builtins.attrNames merged) == 1 then
-              merged
-            else
-              throw "The option `${showOption loc}` has conflicting definitions of multiple variants";
-
-          nestedTypes = variants;
-
-          inherit
-            (record (
-              builtins.mapAttrs (lib.const (
-                type:
-                (required type)
-                // (lib.optionalAttrs (type ? variant-description) {
-                  description = type.variant-description;
-                })
-              )) variants
-            ))
-            getSubOptions
-            ;
-        };
-
       inherit (docs.lib)
         libinput-link
         libinput-doc
@@ -235,14 +172,16 @@
 
       preset-size =
         dimension: object:
-        variant {
-          fixed = types.int // {
-            variant-description = ''
+        types.attrTag {
+          fixed = lib.mkOption {
+            type = types.int;
+            description = ''
               The ${dimension} of the ${object} in logical pixels
             '';
           };
-          proportion = types.float // {
-            variant-description = ''
+          proportion = lib.mkOption {
+            type = types.float;
+            description = ''
               The ${dimension} of the ${object} as a proportion of the screen's ${dimension}
             '';
           };
@@ -385,9 +324,10 @@
 
       decoration =
         path:
-        variant {
-          color = types.str // {
-            variant-description = ''
+        types.attrTag {
+          color = lib.mkOption {
+            type = types.str;
+            description = ''
               A solid color to use for the decoration.
 
               This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
@@ -395,8 +335,9 @@
               The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
             '';
           };
-          gradient = (gradient path) // {
-            variant-description = ''
+          gradient = lib.mkOption {
+            type = gradient path;
+            description = ''
               A linear gradient to use for the decoration.
 
               This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
@@ -937,14 +878,16 @@
               };
               hotkey-overlay =
                 optional
-                  (variant {
-                    hidden = types.bool // {
-                      variant-description = ''
+                  (types.attrTag {
+                    hidden = lib.mkOption {
+                      type = types.bool;
+                      description = ''
                         When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
                       '';
                     };
-                    title = types.str // {
-                      variant-description = ''
+                    title = lib.mkOption {
+                      type = types.str;
+                      description = ''
                         The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
                       '';
                     };
@@ -2099,13 +2042,13 @@
       {
         animations =
           let
-            animation-kind = variant {
-              spring = record {
+            animation-kind = types.attrTag {
+              spring = section {
                 damping-ratio = required types.float;
                 stiffness = required types.int;
                 epsilon = required types.float;
               };
-              easing = record {
+              easing = section {
                 duration-ms = required types.int;
                 curve =
                   required (enum [

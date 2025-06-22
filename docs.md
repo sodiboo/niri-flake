@@ -488,7 +488,7 @@ This is mostly useful for binds on the mouse wheel, where you might not want to 
 
 
 ## `programs.niri.settings.binds.<name>.hotkey-overlay`
-- type: `variant of: hidden | title`
+- type: `attribute-tagged union`
 - default:
   ```nix
   {
@@ -1597,7 +1597,7 @@ The width of the border drawn around each window.
 
 
 ## `programs.niri.settings.layout.border.active`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default:
   ```nix
   {
@@ -1610,7 +1610,7 @@ The color of the border for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.border.inactive`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default:
   ```nix
   {
@@ -1654,7 +1654,7 @@ The width of the focus ring drawn around each focused window.
 
 
 ## `programs.niri.settings.layout.focus-ring.active`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default:
   ```nix
   {
@@ -1667,7 +1667,7 @@ The color of the focus ring for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.focus-ring.inactive`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default:
   ```nix
   {
@@ -1758,7 +1758,7 @@ Whether to enable the insert hint.
 
 
 ## `programs.niri.settings.layout.insert-hint.display`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default:
   ```nix
   {
@@ -1771,7 +1771,7 @@ The color of the insert hint.
 
 
 ## `<decoration>`
-- type: `variant of: color | gradient`
+- type: `attribute-tagged union`
 
 A decoration is drawn around a surface, adding additional elements that are not necessarily part of an application, but are part of what we think of as a "window".
 
@@ -1869,7 +1869,7 @@ The default background color that niri draws for workspaces. This is visible whe
 
 
 ## `programs.niri.settings.layout.preset-column-widths`
-- type: `list of variant of: fixed | proportion`
+- type: `list of attribute-tagged union`
 
 The widths that `switch-preset-column-width` will cycle through.
 
@@ -1903,7 +1903,7 @@ The width of the column as a proportion of the screen's width
 
 
 ## `programs.niri.settings.layout.preset-window-heights`
-- type: `list of variant of: fixed | proportion`
+- type: `list of attribute-tagged union`
 
 The heights that `switch-preset-window-height` will cycle through.
 
@@ -1969,7 +1969,7 @@ Also, since a newly created column always contains a single window, you can over
 
 
 ## `programs.niri.settings.layout.default-column-width`
-- type: `{} or (variant of: fixed | proportion)`
+- type: `{} or attribute-tagged union`
 
 The default width for new columns.
 
@@ -2043,21 +2043,21 @@ The width of the column as a proportion of the screen's width
 
 
 ## `programs.niri.settings.layout.tab-indicator.active`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default: `config.programs.niri.settings.layout.border.active`
 
 The color of the tab indicator for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.tab-indicator.inactive`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default: `config.programs.niri.settings.layout.border.inactive`
 
 The color of the the tab indicator for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.layout.tab-indicator.urgent`
-- type: [`<decoration>`](#decoration), which is a `variant of: color | gradient`
+- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
 - default: `config.programs.niri.settings.layout.border.urgent`
 
 The color of the tab indicator for windows that are requesting attention.
@@ -2131,7 +2131,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.config-notification-open-close.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2143,7 +2143,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.horizontal-view-movement.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2155,7 +2155,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.overview-open-close.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2167,7 +2167,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.screenshot-ui-open.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2190,7 +2190,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-close.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2202,7 +2202,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-movement.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2225,7 +2225,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-open.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2248,7 +2248,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-resize.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
@@ -2260,12 +2260,12 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.workspace-switch.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or (variant of: easing | spring)`
+- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
 - default: `null`
 
 
 ## `<animation-kind>`
-- type: `variant of: easing | spring`
+- type: `attribute-tagged union`
 
 
 <!-- <animation-kind>.easing -->
@@ -2610,7 +2610,7 @@ If the final value of this field is null, then the default display mode is taken
 
 
 ## `programs.niri.settings.window-rules.*.default-column-width`
-- type: `null or {} or (variant of: fixed | proportion)`
+- type: `null or {} or attribute-tagged union`
 - default: `null`
 
 The default width for new columns.
@@ -2636,7 +2636,7 @@ The width of the column as a proportion of the screen's width
 
 
 ## `programs.niri.settings.window-rules.*.default-window-height`
-- type: `null or {} or (variant of: fixed | proportion)`
+- type: `null or {} or attribute-tagged union`
 - default: `null`
 
 The default height for new floating windows.
