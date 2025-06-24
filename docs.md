@@ -1644,27 +1644,15 @@ The width of the border drawn around each window.
 
 
 ## `programs.niri.settings.layout.border.active`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default:
-  ```nix
-  {
-    color = "rgb(255 200 127)";
-  }
-  ```
-
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
 The color of the border for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.border.inactive`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default:
-  ```nix
-  {
-    color = "rgb(80 80 80)";
-  }
-  ```
-
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
 The color of the border for windows that do not have keyboard focus.
 
@@ -1701,27 +1689,15 @@ The width of the focus ring drawn around each focused window.
 
 
 ## `programs.niri.settings.layout.focus-ring.active`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default:
-  ```nix
-  {
-    color = "rgb(127 200 255)";
-  }
-  ```
-
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
 The color of the focus ring for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.focus-ring.inactive`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default:
-  ```nix
-  {
-    color = "rgb(80 80 80)";
-  }
-  ```
-
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
 The color of the focus ring for windows that do not have keyboard focus.
 
@@ -1805,14 +1781,8 @@ Whether to enable the insert hint.
 
 
 ## `programs.niri.settings.layout.insert-hint.display`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default:
-  ```nix
-  {
-    color = "rgb(127 200 255 / 50%)";
-  }
-  ```
-
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
 The color of the insert hint.
 
@@ -1823,8 +1793,6 @@ The color of the insert hint.
 A decoration is drawn around a surface, adding additional elements that are not necessarily part of an application, but are part of what we think of as a "window".
 
 This type specifically represents decorations drawn by niri: that is, [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) and/or [`layout.border`](#programsnirisettingslayoutborder).
-
-
 
 
 ## `<decoration>.color`
@@ -2094,22 +2062,22 @@ The width of the column as a proportion of the screen's width
 
 
 ## `programs.niri.settings.layout.tab-indicator.active`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default: `config.programs.niri.settings.layout.border.active`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
 The color of the tab indicator for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.tab-indicator.inactive`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default: `config.programs.niri.settings.layout.border.inactive`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
-The color of the the tab indicator for windows that do not have keyboard focus.
+The color of the tab indicator for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.layout.tab-indicator.urgent`
-- type: [`<decoration>`](#decoration), which is a `attribute-tagged union`
-- default: `config.programs.niri.settings.layout.border.urgent`
+- type: `null or `[`<decoration>`](#decoration)
+- default: `null`
 
 The color of the tab indicator for windows that are requesting attention.
 
@@ -2472,7 +2440,7 @@ If the final value of a given field is null, then it usually means that the clie
 
 
 ## `programs.niri.settings.window-rules.*.matches`
-- type: `list of match rule`
+- type: `list of (match rule)`
 
 A list of rules to match windows.
 
@@ -2561,7 +2529,7 @@ When true, this rule will match windows opened within the first 60 seconds of ni
 
 
 ## `programs.niri.settings.window-rules.*.excludes`
-- type: `list of match rule`
+- type: `list of (match rule)`
 
 A list of rules to exclude windows.
 
@@ -3043,6 +3011,8 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
+<!-- programs.niri.settings.window-rules.*.tab-indicator -->
+
 ## `programs.niri.settings.window-rules.*.tab-indicator.active`
 - type: `null or `[`<decoration>`](#decoration)
 - default: `null`
@@ -3145,7 +3115,7 @@ The `x` and `y` fields are the distances from the edge of the screen to the edge
 - type: `null or boolean`
 - default: `null`
 
-Takes effect only when the window is on an output with [`outputs.*.variable-refresh-rate`](#programsnirisettingsoutputsvariable-refresh-rate) set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
+Takes effect only when the window is on an output with [`outputs.<name>.variable-refresh-rate`](#programsnirisettingsoutputsnamevariable-refresh-rate) set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
 
 
 ## `programs.niri.settings.window-rules.*.scroll-factor`
@@ -3199,7 +3169,7 @@ If the final value of a given field is null, then it usually means that the clie
 
 
 ## `programs.niri.settings.layer-rules.*.matches`
-- type: `list of match rule`
+- type: `list of (match rule)`
 
 A list of rules to match layer surfaces.
 
@@ -3225,7 +3195,7 @@ When true, this rule will match layer surfaces opened within the first 60 second
 
 
 ## `programs.niri.settings.layer-rules.*.excludes`
-- type: `list of match rule`
+- type: `list of (match rule)`
 
 A list of rules to exclude layer surfaces.
 
@@ -3441,7 +3411,7 @@ Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
 
 Debug options for niri.
 
-`kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See [`binds`](#programsnirisettingsbinds) for more information on all the ways you can use this.
+`kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more information on all the ways you can use this.
 
 Note that for no-argument nodes, there is no special way to define them here. You can't pass them as just a "string" because that makes no sense here. You must pass it an empty array of arguments.
 
@@ -3457,6 +3427,6 @@ Here's an example of how to use this:
 ```
 
 
-This option is, just like [`binds`](#programsnirisettingsbinds), not verified by the nix module. But, it will be validated by niri before committing the config.
+This option is, just like [`binds.<name>.action`](#programsnirisettingsbindsnameaction), not verified by the nix module. But, it will be validated by niri before committing the config.
 
 Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.

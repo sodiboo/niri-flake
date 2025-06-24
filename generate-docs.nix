@@ -317,7 +317,7 @@ in
         if lines == [ ] then "" else builtins.concatStringsSep "\n" lines';
     in
     rec {
-      link-to-setting = loc: "#${anchor' "`${loc}`"}";
+      link-to-setting = loc: "#${anchor' "`${showOption loc}`"}";
 
       bare-link = url: url;
       masked-link =
