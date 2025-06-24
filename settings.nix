@@ -878,7 +878,7 @@
 
                       ${fmt.nix-code-block ''
                         {
-                          programs.niri.settings.switch-events = {
+                          ${options.switch-events} = {
                             tablet-mode-on.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "true"];
                             tablet-mode-off.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "false"];
                           };
@@ -990,7 +990,7 @@
 
                       ${fmt.nix-code-block ''
                         {
-                          programs.niri.settings.binds = {
+                          ${options.binds} = {
                             "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
                             "XF86AudioLowerVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
                           };
@@ -1001,7 +1001,7 @@
 
                       ${fmt.nix-code-block ''
                         {
-                          programs.niri.settings.binds = {
+                          ${options.binds} = {
                             "Mod+D".action.spawn = "fuzzel";
                             "Mod+1".action.focus-workspace = 1;
                           };
@@ -1012,7 +1012,7 @@
 
                       ${fmt.nix-code-block ''
                         {
-                          programs.niri.settings.binds = {
+                          ${options.binds} = {
                             "Mod+Shift+E".action.quit.skip-confirmation = true;
                           };
                         }
@@ -1024,7 +1024,7 @@
 
                       ${fmt.nix-code-block ''
                         {
-                          programs.niri.settings.binds = with config.lib.niri.actions; {
+                          ${options.binds} = with config.lib.niri.actions; {
                             "XF86AudioRaiseVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
                             "XF86AudioLowerVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
 
@@ -1066,7 +1066,7 @@
                         You can use partial application to create a spawn command with full support for shell syntax:
                         ${fmt.nix-code-block ''
                           {
-                            programs.niri.settings.binds = with config.lib.niri.actions; let
+                            ${options.binds} = with config.lib.niri.actions; let
                               sh = spawn "sh" "-c";
                             in {
                               "Print".action = sh '''grim -g "$(slurp)" - | wl-copy''';
@@ -1246,7 +1246,7 @@
 
                   ${fmt.nix-code-block ''
                     {
-                      programs.niri.settings.spawn-at-startup = [
+                      ${options.spawn-at-startup} = [
                         { command = ["waybar"]; }
                         { command = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
                         { command = ["~/.config/niri/scripts/startup.sh"]; }
@@ -1258,7 +1258,7 @@
 
                   ${fmt.nix-code-block ''
                     {
-                      programs.niri.settings.spawn-at-startup = [
+                      ${options.spawn-at-startup} = [
                         { command = ["sh" "-c" "echo $NIRI_SOCKET > ~/.niri-socket"]; }
                       ];
                     }
@@ -1296,8 +1296,8 @@
 
                   ${fmt.nix-code-block ''
                     {
-                      programs.niri.settings.workspaces."name" = {};
-                      programs.niri.settings.workspaces."01-another-one" = {
+                      ${options.workspaces}."name" = {};
+                      ${options.workspaces}."01-another-one" = {
                         open-on-output = "DP-1";
                         name = "another-one";
                       };
@@ -1994,7 +1994,7 @@
 
                     ${fmt.nix-code-block ''
                       {
-                        programs.niri.settings.layout.preset-column-widths = [
+                        ${(subopts options.layout).preset-column-widths} = [
                           { proportion = 1. / 3.; }
                           { proportion = 1. / 2.; }
                           { proportion = 2. / 3.; }
@@ -2015,7 +2015,7 @@
 
                     ${fmt.nix-code-block ''
                       {
-                        programs.niri.settings.layout.preset-window-heights = [
+                        ${(subopts options.layout).preset-window-heights} = [
                           { proportion = 1. / 3.; }
                           { proportion = 1. / 2.; }
                           { proportion = 2. / 3.; }
@@ -2376,7 +2376,7 @@
 
                 ${fmt.nix-code-block ''
                   {
-                    programs.niri.settings.environment = {
+                    ${options.environment} = {
                       QT_QPA_PLATFORM = "wayland";
                       DISPLAY = null;
                     };
@@ -2907,7 +2907,7 @@
 
                 ${fmt.nix-code-block ''
                   {
-                    programs.niri.settings.debug = {
+                    ${options.debug} = {
                       disable-cursor-plane = [];
                       render-drm-device = "/dev/dri/renderD129";
                     };
