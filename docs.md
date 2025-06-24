@@ -233,7 +233,7 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 
 
 ## `programs.niri.settings.binds`
-- type: `attribute set of niri keybind`
+- type: `attribute set of (niri keybind)`
 
 
 ## `programs.niri.settings.binds.<name>.action`
