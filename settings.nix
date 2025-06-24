@@ -8,7 +8,8 @@
   ...
 }:
 {
-  type =
+  type-with =
+    fmt:
     let
       inherit (lib)
         flip
@@ -29,11 +30,17 @@
       binds-stable = binds inputs.niri-stable;
       binds-unstable = binds inputs.niri-unstable;
 
-      record =
-        opts:
-        submodule (
-          if builtins.isFunction opts || (opts ? options && opts ? config) then opts else { options = opts; }
-        );
+      record = record' null;
+
+      record' =
+        description: options:
+        types.submoduleWith {
+          inherit description;
+          shorthandOnlyDefinesConfig = true;
+          modules = [
+            { inherit options; }
+          ];
+        };
 
       required = type: mkOption { inherit type; };
       nullable = type: optional (nullOr type) null;
@@ -75,16 +82,6 @@
 
       float-or-int = types.either types.float types.int;
 
-      inherit (docs.lib)
-        libinput-link
-        libinput-doc
-        link-niri-release
-        link-this-github
-        link'
-        anchor'
-        unstable-note
-        ;
-
       obsolete-warning = from: to: defs: ''
         ${from} is obsolete.
         Use ${to} instead.
@@ -93,14 +90,56 @@
 
       rename-warning = from: to: obsolete-warning (showOption from) (showOption to);
 
+      libinput-anchor-for-header = lib.flip lib.pipe [
+        (lib.replaceStrings (lib.upperChars ++ [ " " ]) (lib.lowerChars ++ [ "-" ]))
+        (lib.splitString "")
+        (lib.filter (str: lib.strings.match "[a-z0-9-]" str != null))
+        lib.concatStrings
+      ];
+      libinput-link-href =
+        page: header:
+        "https://wayland.freedesktop.org/libinput/doc/latest/${page}.html#${libinput-anchor-for-header header}";
+      libinput-link = page: header: fmt.bare-link (libinput-link-href page header);
+
+      libinput-doc =
+        page: header:
+        fmt.masked-link {
+          href = libinput-link-href page header;
+          content = header;
+        };
+
+      link-niri-release =
+        version:
+        fmt.masked-link {
+          href = "https://github.com/YaLTeR/niri/releases/tag/${version}";
+          content = fmt.code version;
+        };
+
+      link' =
+        loc:
+        fmt.masked-link {
+          href = fmt.link-to-setting loc;
+          content = fmt.code (lib.removePrefix "programs.niri.settings." loc);
+        };
+
+      unstable-note = fmt.admonition.important ''
+        This option is not yet available in stable niri.
+
+        If you wish to modify this option, you should make sure you're using the latest unstable niri.
+
+        Otherwise, your system might fail to build.
+      '';
+
       basic-pointer = default-natural-scroll: {
         natural-scroll = optional types.bool default-natural-scroll // {
           description = ''
             Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
 
             Further reading:
-            - ${libinput-link "configuration" "Scrolling"}
-            - ${libinput-link "scrolling" "Natural scrolling vs. traditional scrolling"}
+            ${fmt.list [
+              (libinput-link "configuration" "Scrolling")
+              (libinput-link "scrolling" "Natural scrolling vs. traditional scrolling")
+            ]}
           '';
         };
         middle-emulation = optional types.bool false // {
@@ -108,14 +147,18 @@
             Whether a middle mouse button press should be sent when you press the left and right mouse buttons
 
             Further reading:
-            - ${libinput-link "configuration" "Middle Button Emulation"}
-            - ${libinput-link "middle-button-emulation" "Middle button emulation"}
+            ${fmt.list [
+              (libinput-link "configuration" "Middle Button Emulation")
+              (libinput-link "middle-button-emulation" "Middle button emulation")
+            ]}
           '';
         };
         accel-speed = nullable float-or-int // {
           description = ''
             Further reading:
-            - ${libinput-link "configuration" "Pointer acceleration"}
+            ${fmt.list [
+              (libinput-link "configuration" "Pointer acceleration")
+            ]}
           '';
         };
         accel-profile =
@@ -126,16 +169,27 @@
           // {
             description = ''
               Further reading:
-              - ${libinput-link "pointer-acceleration" "Pointer acceleration profiles"}
+              ${fmt.list [
+                (libinput-link "pointer-acceleration" "Pointer acceleration profiles")
+              ]}
             '';
           };
         scroll-button = nullable types.int // {
-          description = ''
-            When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+          description =
+            let
+              input-event-codes-h = fmt.masked-link {
+                href = "https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363";
+                content = fmt.code "input-event-codes.h";
+              };
+            in
+            ''
+              When ${fmt.code ''scroll-method = "on-button-down"''}, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in ${input-event-codes-h}. Most commonly, this will be set to ${fmt.code "BTN_LEFT"}, ${fmt.code "BTN_MIDDLE"}, or ${fmt.code "BTN_RIGHT"}, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
 
-            Further reading:
-            - ${libinput-link "scrolling" "On-Button scrolling"}
-          '';
+              Further reading:
+              ${fmt.list [
+                (libinput-link "scrolling" "On-Button scrolling")
+              ]}
+            '';
         };
         scroll-method =
           nullable (
@@ -152,7 +206,9 @@
               The default and supported values vary based on the device type.
 
               Further reading:
-              - ${libinput-link "scrolling" "Scrolling"}
+              ${fmt.list [
+                (libinput-link "scrolling" "Scrolling")
+              ]}
             '';
           };
       };
@@ -165,7 +221,9 @@
             This varies based on the exact device, but will for example swap left/right mouse buttons.
 
             Further reading:
-            - ${libinput-link "configuration" "Left-handed Mode"}
+            ${fmt.list [
+              (libinput-link "configuration" "Left-handed Mode")
+            ]}
           '';
         };
       };
@@ -247,101 +305,127 @@
       #   check = v: isList v && length v == 4 && all isInt v;
       # };
 
-      gradient =
-        path:
-        newtype (plain-type "gradient") (record {
-          from = required types.str // {
-            description = ''
-              The starting [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-              For more details, see ${link' "${path}.color"}.
-            '';
-          };
-          to = required types.str // {
-            description = ''
-              The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
-
-              For more details, see ${link' "${path}.color"}.
-            '';
-          };
-          angle = optional types.int 180 // {
-            description = ''
-              The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
-
-              This is the same as the angle parameter in the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, except you can only express it in degrees.
-            '';
-          };
-          in' =
-            nullable (enum [
-              "srgb"
-              "srgb-linear"
-              "oklab"
-              "oklch shorter hue"
-              "oklch longer hue"
-              "oklch increasing hue"
-              "oklch decreasing hue"
-            ])
-            // {
-              description = ''
-                The colorspace to interpolate the gradient in. This option is named `in'` because `in` is a reserved keyword in Nix.
-
-                This is a subset of the [`<color-interpolation-method>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method) values in CSS.
-              '';
-            };
-          relative-to =
-            optional (enum [
-              "window"
-              "workspace-view"
-            ]) "window"
-            // {
-              description = ''
-                The rectangle that this gradient is contained within.
-
-                If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
-
-                ![
-                four windows arranged in two columns; a big window to the left of three stacked windows.
-                a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
-                the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
-                the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
-                the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
-                ](assets/relative-to-window.png 'behaviour of relative-to="window"')
-
-                If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
-
-                ![
-                four windows arranged in two columns; a big window to the left of three stacked windows.
-                a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
-                it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
-                the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
-                the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
-                ](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
-
-                these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
-              '';
-            };
-        });
-
       decoration =
         path:
+
+        let
+          css-color = fmt.masked-link {
+            href = "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value";
+            content = fmt.code "<color>";
+          };
+
+          css-linear-gradient = fmt.masked-link {
+            href = "https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient";
+            content = fmt.code "linear-gradient()";
+          };
+
+          css-color-interpolation-method = fmt.masked-link {
+            href = "https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method";
+            content = fmt.code "<color-interpolation-method>";
+          };
+
+          csscolorparser-crate = fmt.masked-link {
+            href = "https://crates.io/crates/csscolorparser";
+            content = fmt.code "csscolorparser";
+          };
+        in
         types.attrTag {
           color = lib.mkOption {
             type = types.str;
             description = ''
               A solid color to use for the decoration.
 
-              This is a CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) value, like `"rgb(255 0 0)"`, `"#C0FFEE"`, or `"sandybrown"`.
+              This is a CSS ${css-color} value, like ${fmt.code ''"rgb(255 0 0)"''}, ${fmt.code ''"#C0FFEE"''}, or ${fmt.code ''"sandybrown"''}.
 
-              The specific crate that niri uses to parse this also supports some nonstandard color functions, like `hwba()`, `hsv()`, `hsva()`. See [`csscolorparser`](https://crates.io/crates/csscolorparser) for details.
+              The specific crate that niri uses to parse this also supports some nonstandard color functions, like ${fmt.code "hwba()"}, ${fmt.code "hsv()"}, ${fmt.code "hsva()"}. See ${csscolorparser-crate} for details.
             '';
           };
           gradient = lib.mkOption {
-            type = gradient path;
             description = ''
               A linear gradient to use for the decoration.
 
-              This is meant to approximate the CSS [`linear-gradient()`](https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient) function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
+              This is meant to approximate the CSS ${css-linear-gradient} function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
             '';
+            type = record' "gradient" {
+              from = required types.str // {
+                description = ''
+                  The starting ${css-color} of the gradient.
+
+                  For more details, see ${link' "${path}.color"}.
+                '';
+              };
+              to = required types.str // {
+                description = ''
+                  The ending ${css-color} of the gradient.
+
+                  For more details, see ${link' "${path}.color"}.
+                '';
+              };
+              angle = optional types.int 180 // {
+                description = ''
+                  The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
+
+                  This is the same as the angle parameter in the CSS ${css-linear-gradient} function, except you can only express it in degrees.
+                '';
+              };
+              in' =
+                nullable (enum [
+                  "srgb"
+                  "srgb-linear"
+                  "oklab"
+                  "oklch shorter hue"
+                  "oklch longer hue"
+                  "oklch increasing hue"
+                  "oklch decreasing hue"
+                ])
+                // {
+                  description = ''
+                    The colorspace to interpolate the gradient in. This option is named ${fmt.code "in'"} because ${fmt.code "in"} is a reserved keyword in Nix.
+
+                    This is a subset of the ${css-color-interpolation-method} values in CSS.
+                  '';
+                };
+              relative-to =
+                optional (enum [
+                  "window"
+                  "workspace-view"
+                ]) "window"
+                // {
+                  description = ''
+                    The rectangle that this gradient is contained within.
+
+                    If a gradient is ${fmt.code "relative-to"} the ${fmt.code ''"window"''}, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
+
+                    ${fmt.img {
+                      src = "/assets/relative-to-window.png";
+                      alt = ''
+                        four windows arranged in two columns; a big window to the left of three stacked windows.
+                        a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
+                        the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
+                        the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
+                        the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
+                      '';
+                      title = ''behaviour of relative-to="window"'';
+                    }}
+
+                    If the gradient is instead ${fmt.code "relative-to"} the ${fmt.code ''"workspace-view"''}, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
+
+                    ${fmt.img {
+                      src = "/assets/relative-to-workspace-view.png";
+                      alt = ''
+                        four windows arranged in two columns; a big window to the left of three stacked windows.
+                        a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
+                        it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
+                        the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
+                        the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
+                      '';
+                      title = ''behaviour of relative-to="workspace-view"'';
+                    }}
+
+                    these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
+                  '';
+                };
+            };
           };
         };
 
@@ -474,25 +558,34 @@
         bottom-left = required types.float;
       });
 
-      shadow-descriptions = {
-        offset = ''
-          The offset of the shadow from the window, measured in logical pixels.
+      shadow-descriptions =
+        let
+          css-box-shadow =
+            prop:
+            fmt.masked-link {
+              href = "https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax";
+              content = "CSS box-shadow ${prop}";
+            };
+        in
+        {
+          offset = ''
+            The offset of the shadow from the window, measured in logical pixels.
 
-          This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-        '';
+            This behaves like a ${css-box-shadow "offset"}
+          '';
 
-        softness = ''
-          The softness/size of the shadow, measured in logical pixels.
+          softness = ''
+            The softness/size of the shadow, measured in logical pixels.
 
-          This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-        '';
+            This behaves like a ${css-box-shadow "blur radius"}
+          '';
 
-        spread = ''
-          The spread of the shadow, measured in logical pixels.
+          spread = ''
+            The spread of the shadow, measured in logical pixels.
 
-          This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-        '';
-      };
+            This behaves like a ${css-box-shadow "spread radius"}
+          '';
+        };
 
       regex = newtype (plain-type "regular expression") types.str;
 
@@ -528,7 +621,7 @@
             description = ''
               When non-null, for this field to match a window, the value must match whether the window is active or not.
 
-              Every monitor has up to one active window, and `is-active=true` will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
+              Every monitor has up to one active window, and ${fmt.code "is-active=true"} will match the active window on each monitor. A monitor can have zero active windows if no windows are open on it. There can never be more than one active window on a monitor.
             '';
           };
           is-active-in-column = nullable types.bool // {
@@ -546,7 +639,7 @@
 
               A note on terminology used here: a window is actually a toplevel surface, and a surface just refers to any rectangular region that a client can draw to. A toplevel surface is just a surface with additional capabilities and properties (e.g. "fullscreen", "resizable", "min size", etc)
 
-              For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does *not* have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no *window* with keyboard focus.
+              For a window to be focused, its surface must be focused. There is up to one focused surface, and it is the surface that can receive keyboard input. There can never be more than one focused surface. There can be zero focused surfaces if and only if there are zero surfaces. The focused surface does ${fmt.em "not"} have to be a toplevel surface. It can also be a layer-shell surface. In that case, there is a surface with keyboard focus but no ${fmt.em "window"} with keyboard focus.
             '';
           };
           is-floating = nullable types.bool // {
@@ -601,19 +694,27 @@
 
             A given match rule can match based on one of several fields. For a given match rule to "match" a ${surface}, it must match on all fields.
 
-            ${example-fields}
-
-            - The `at_startup` field, when non-null, will match a ${surface} based on whether it was opened within the first 60 seconds of niri starting up.
-
-            - If a field is null, it will always match.
+            ${fmt.list (
+              example-fields
+              ++ [
+                "The ${fmt.code "at-startup"} field, when non-null, will match a ${surface} based on whether it was opened within the first 60 seconds of niri starting up."
+                "If a field is null, it will always match."
+              ]
+            )}
 
             For a given ${surface-rule} to match a ${surface}, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the ${surface-rule} as a whole will match. For a given ${surface-rule}:
 
-            - A given ${surface} is "considered" if any of the match rules in ${link' "programs.niri.settings.${option}.*.matches"} successfully match this ${surface}. If all of the match rules do not match this ${surface}, then that ${surface} will never match this ${surface-rule}.
-
-            - If ${link' "programs.niri.settings.${option}.*.matches"} contains no match rules, it will match any ${surface} and "consider" it for this ${surface-rule}.
-
-            - If a given ${surface} is "considered" for this ${surface-rule} according to the above rules, the selection can be further refined with ${link' "programs.niri.settings.${option}.*.excludes"}. If any of the match rules in `excludes` match this ${surface}, it will be rejected and this ${surface-rule} will not match the given ${surface}.
+            ${fmt.list [
+              ''
+                A given ${surface} is "considered" if any of the match rules in ${link' "programs.niri.settings.${option}.*.matches"} successfully match this ${surface}. If all of the match rules do not match this ${surface}, then that ${surface} will never match this ${surface-rule}.
+              ''
+              ''
+                If ${link' "programs.niri.settings.${option}.*.matches"} contains no match rules, it will match any ${surface} and "consider" it for this ${surface-rule}.
+              ''
+              ''
+                If a given ${surface} is "considered" for this ${surface-rule} according to the above rules, the selection can be further refined with ${link' "programs.niri.settings.${option}.*.excludes"}. If any of the match rules in ${fmt.code "excludes"} match this ${surface}, it will be rejected and this ${surface-rule} will not match the given ${surface}.
+              ''
+            ]}
 
             That is, a given ${surface-rule} will apply to a given ${surface} if any of the entries in ${link' "programs.niri.settings.${option}.*.matches"} match that ${surface} (or there are none), AND none of the entries in ${link' "programs.niri.settings.${option}.*.excludes"} match that ${surface}.
 
@@ -625,10 +726,16 @@
 
             Then, for each applicable ${surface-rule}:
 
-            - If a given field is null on this ${surface-rule}, it has no effect. It does nothing and "inherits" the value from the previous rule.
-            - If the given field is not null, it will overwrite the value from any previous rule.
+            ${fmt.list [
+              ''
+                If a given field is null on this ${surface-rule}, it has no effect. It does nothing and "inherits" the value from the previous rule.
+              ''
+              ''
+                If the given field is not null, it will overwrite the value from any previous rule.
+              ''
+            ]}
 
-            The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* ${surface-rule} that matches the given ${surface-rule} (not considering null entries, unless there are no non-null entries)
+            The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the ${fmt.em "last"} ${surface-rule} that matches the given ${surface-rule} (not considering null entries, unless there are no non-null entries)
 
             If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
           '';
@@ -650,7 +757,7 @@
           '';
 
           match-at-startup = ''
-            When true, this rule will match ${surfaces} opened within the first 60 seconds of niri starting up. When false, this rule will match ${surfaces} opened *more than* 60 seconds after niri started up. This is useful for applying different rules to ${surfaces} opened from ${link' "programs.niri.settings.spawn-at-startup"} versus those opened later.
+            When true, this rule will match ${surfaces} opened within the first 60 seconds of niri starting up. When false, this rule will match ${surfaces} opened ${fmt.em "more than"} 60 seconds after niri started up. This is useful for applying different rules to ${surfaces} opened from ${link' "programs.niri.settings.spawn-at-startup"} versus those opened later.
           '';
 
           opacity = ''
@@ -664,48 +771,95 @@
           block-out-from = ''
             Whether to block out this ${surface} from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
 
-            This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+            This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, ${fmt.strong "especially if you are a streamer or content creator"}.
 
-            Some of this may be obvious, but in general, these invariants *should* hold true:
-            - a ${surface} is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
-            - a `block-out-from` ${surface} *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
-            - a `block-out-from` ${surface} is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+            Some of this may be obvious, but in general, these invariants ${fmt.em "should"} hold true:
+            ${fmt.list [
+              ''
+                a ${surface} is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+              ''
+              ''
+                a ${fmt.code "block-out-from"} ${surface} ${fmt.em "is"} meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+              ''
+              ''
+                a ${fmt.code "block-out-from"} ${surface} is ${fmt.em "not"} supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+              ''
+            ]}
 
             There are three methods of screencapture in niri:
 
-            1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this ${surface} is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+            ${fmt.ordered-list [
+              ''
+                The ${fmt.code "org.freedesktop.portal.ScreenCast"} interface, which is used by tools like OBS primarily to capture video. When ${fmt.code ''block-out-from = "screencast";''} or ${fmt.code ''block-out-from = "screen-capture";''}, this ${surface} is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+              ''
+              ''
+                The ${fmt.code "wlr-screencopy"} protocol, which is used by tools like ${fmt.code "grim"} primarily to capture screenshots. When ${fmt.code ''block-out-from = "screencast";''}, this protocol is not affected and tools like ${fmt.code "grim"} can still capture the ${surface} just fine. This is because you may still want to take a screenshot of such ${surfaces}. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is ${fmt.em "not"} blocked out in the same way, and may leak the ${surface} contents to an active screencast. When ${fmt.code ''block-out-from = "screen-capture";''}, this ${surface} is blocked out from ${fmt.code "wlr-screencopy"} and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+              ''
+              ''
+                The built in ${fmt.code "screenshot"} action, implemented in niri itself. This tool works similarly to those based on ${fmt.code "wlr-screencopy"}, but being a part of the compositor gets superpowers regarding secrecy of ${surface} contents. Its frozen overlay will never leak ${surface} contents to an active screencast, because information of blocked ${surfaces} and can be distinguished for the physical output and screencasts. ${fmt.code "block-out-from"} does not affect the built in screenshot tool at all, and you can always take a screenshot of any ${surface}.
+              ''
+            ]}
 
-            1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the ${surface} just fine. This is because you may still want to take a screenshot of such ${surfaces}. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the ${surface} contents to an active screencast. When `block-out-from = "screen-capture";`, this ${surface} is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+            ${fmt.table {
+              headers = [
+                (fmt.code "block-out-from")
+                "can ${fmt.code "ScreenCast"}?"
+                "can ${fmt.code "screencopy"}?"
+                "can ${fmt.code "screenshot"}?"
+              ];
+              align = [
+                null
+                "center"
+                "center"
+                "center"
+              ];
+              rows = [
+                [
+                  (fmt.code "null")
+                  "yes"
+                  "yes"
+                  "yes"
+                ]
+                [
+                  (fmt.code ''"screencast"'')
+                  "no"
+                  "yes"
+                  "yes"
+                ]
+                [
+                  (fmt.code ''"screen-capture"'')
+                  "no"
+                  "no"
+                  "yes"
+                ]
+              ];
+            }}
 
-            1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of ${surface} contents. Its frozen overlay will never leak ${surface} contents to an active screencast, because information of blocked ${surfaces} and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any ${surface}.
+            ${fmt.admonition.caution ''
+              ${fmt.strong "Streamers: Do not accidentally leak ${surface} contents via screenshots."}
 
-            | `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
-            | --- | :---: | :---: | :---: |
-            | `null` | yes | yes | yes |
-            | `"screencast"` | no | yes | yes |
-            | `"screen-capture"` | no | no | yes |
+              For ${surfaces} where ${fmt.code ''block-out-from = "screencast";''}, contents of a ${surface} may still be visible in a screencast, if the ${surface} is indirectly displayed by a tool using ${fmt.code "wlr-screencopy"}.
 
-            > [!caution]
-            > **Streamers: Do not accidentally leak ${surface} contents via screenshots.**
-            >
-            > For ${surfaces} where `block-out-from = "screencast";`, contents of a ${surface} may still be visible in a screencast, if the ${surface} is indirectly displayed by a tool using `wlr-screencopy`.
-            >
-            > If you are a streamer, either:
-            > - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
-            > - **set `block-out-from = "screen-capture";` to ensure that the ${surface} is never visible in a screencast.**
+              If you are a streamer, either:
+              ${fmt.list [
+                "make sure not to use ${fmt.code "wlr-screencopy"} tools that display a preview during your stream, or"
+                (fmt.strong "set ${fmt.code ''block-out-from = "screen-capture";''} to ensure that the ${surface} is never visible in a screencast.")
+              ]}
+            ''}
 
-            > [!caution]
-            > **Do not let malicious `wlr-screencopy` clients capture your top secret ${surfaces}.**
-            >
-            > (and don't let malicious software run on your system in the first place, you silly goose)
-            >
-            > For ${surfaces} where `block-out-from = "screencast";`, contents of a ${surface} will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
-            >
-            > Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
-            >
-            > **If a ${surface}'s contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+            ${fmt.admonition.caution ''
+              ${fmt.strong "Do not let malicious ${fmt.code "wlr-screencopy"} clients capture your top secret ${surfaces}."}
 
-            Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the ${surface} is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the ${surface} without its contents normally being visible in a screencast. (at the risk of some tools still leaking the ${surface} contents, see above)
+              (and don't let malicious software run on your system in the first place, you silly goose)
+
+              For ${surfaces} where ${fmt.code ''block-out-from = "screencast";''}, contents of a ${surface} will still be visible to any application using ${fmt.code "wlr-screencopy"}, even if you did not consent to this application capturing your screen.
+
+              Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to ${fmt.code "wlr-screencopy"} at all, and are not a concern.
+
+              ${fmt.strong "If a ${surface}'s contents are so secret that they must never be captured by any (non-sandboxed) application, set ${fmt.code ''block-out-from = "screen-capture";''}."}
+            ''}
+
+            Essentially, use ${fmt.code ''block-out-from = "screen-capture";''} if you want to be sure that the ${surface} is never visible to any external tool no matter what; or use ${fmt.code ''block-out-from = "screencast";''} if you want to be able to capture screenshots of the ${surface} without its contents normally being visible in a screencast. (at the risk of some tools still leaking the ${surface} contents, see above)
           '';
         };
 
@@ -716,11 +870,14 @@
         Surface-rules = "Window rules";
         option = "window-rules";
 
-        example-fields = ''
-          - The `title` field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
-
-          - The `app-id` field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
-        '';
+        example-fields = [
+          ''
+            The ${fmt.code "title"} field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
+          ''
+          ''
+            The ${fmt.code "app-id"} field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
+          ''
+        ];
       };
 
       layer-rule-descriptions = rule-descriptions {
@@ -730,9 +887,11 @@
         Surface-rules = "Layer rules";
         option = "layer-rules";
 
-        example-fields = ''
-          - The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
-        '';
+        example-fields = [
+          ''
+            The ${fmt.code "namespace"} field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
+          ''
+        ];
       };
 
       alphabetize =
@@ -747,6 +906,14 @@
 
       ordered-record' =
         description: sections:
+        types.submoduleWith {
+          inherit description;
+          shorthandOnlyDefinesConfig = true;
+          modules = make-ordered-options sections;
+        };
+
+      make-ordered-options =
+        sections:
         let
           grouped = lib.groupBy (s: if s ? __module then "module" else "options") sections;
 
@@ -759,36 +926,37 @@
 
           extra-docs-options = lib.filterAttrs (_: opt: opt ? niri-flake-document-internal) flat-options;
         in
-        types.submoduleWith {
-          inherit description;
-          shorthandOnlyDefinesConfig = true;
-          modules = module' ++ [
-            {
-              options = real-options;
-            }
-            {
-              options._module.niri-flake-ordered-record = {
-                ordering = lib.mkOption {
-                  internal = true;
-                  readOnly = true;
-                  visible = false;
-                  description = ''
-                    Used to influence the order of options in the documentation, such that they are not always sorted alphabetically.
+        module'
+        ++ [
+          {
+            options = real-options;
+          }
+          {
+            options._module.niri-flake-ordered-record = {
+              ordering = lib.mkOption {
+                internal = true;
+                readOnly = true;
+                visible = false;
+                description = ''
+                  Used to influence the order of options in the documentation, such that they are not always sorted alphabetically.
 
-                    Does not affect any other functionality.
-                  '';
-                  default = builtins.concatMap builtins.attrNames options';
-                };
-
-                inherit extra-docs-options;
+                  Does not affect any other functionality.
+                '';
+                default = builtins.concatMap builtins.attrNames options';
               };
-            }
 
-          ];
-        };
+              inherit extra-docs-options;
+            };
+          }
+
+        ];
 
       make-section = type: optional type { };
 
+      section' = flip pipe [
+        submodule
+        make-section
+      ];
       section = flip pipe [
         record
         make-section
@@ -809,14 +977,14 @@
 
                   See also ${link' "programs.niri.settings.binds.<name>.action"} for more information on how this works, it has the exact same option type. Beware that switch binds are not the same as regular binds, and the actions they take are different. Currently, they can only accept spawn binds. Correct usage is like so:
 
-                  ```nix
-                  {
-                    programs.niri.settings.switch-events = {
-                      tablet-mode-on.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "true"];
-                      tablet-mode-off.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "false"];
-                    };
-                  }
-                  ```
+                  ${fmt.nix-code-block ''
+                    {
+                      programs.niri.settings.switch-events = {
+                        tablet-mode-on.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "true"];
+                        tablet-mode-off.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "false"];
+                      };
+                    }
+                  ''}
                 '';
               };
             });
@@ -850,18 +1018,18 @@
                 description = ''
                   Whether this keybind should be allowed when the screen is locked.
 
-                  This is only applicable for `spawn` keybinds.
+                  This is only applicable for ${fmt.code "spawn"} keybinds.
                 '';
               };
               allow-inhibiting = optional types.bool true // {
                 description = ''
-                  When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
+                  When a surface is inhibiting keyboard shortcuts, this option dictates wether ${fmt.em "this"} keybind will be inhibited as well.
 
                   By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
 
                   When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
 
-                  Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
+                  Has no effect when ${fmt.code "action"} is ${fmt.code "toggle-keyboard-shortcuts-inhibit"}. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
                 '';
               };
               cooldown-ms = nullable types.int // {
@@ -882,13 +1050,18 @@
                     hidden = lib.mkOption {
                       type = types.bool;
                       description = ''
-                        When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
+                        When ${fmt.code "true"}, the hotkey overlay will not contain this keybind at all. When ${fmt.code "false"}, it will show the default title of the action.
                       '';
                     };
                     title = lib.mkOption {
                       type = types.str;
                       description = ''
-                        The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
+                        The title of this keybind in the hotkey overlay. ${
+                          fmt.masked-link {
+                            href = "https://docs.gtk.org/Pango/pango_markup.html";
+                            content = "Pango markup";
+                          }
+                        } is supported.
                       '';
                     };
                   })
@@ -899,94 +1072,109 @@
                   description = ''
                     How this keybind should be displayed in the hotkey overlay.
 
-                    - By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
-                    - `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
-                    - `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+                    ${fmt.list [
+                      ''
+                        By default, ${fmt.code "{hidden = false;}"} maps to omitting this from the KDL config; the default title of the action will be used.
+                      ''
+                      ''
+                        ${fmt.code "{hidden = true;}"} will emit ${fmt.code "hotkey-overlay-title=null"} in the KDL config, and the hotkey overlay will not contain this keybind at all.
+                      ''
+                      ''
+                        ${fmt.code ''{title = "foo";}''} will emit ${fmt.code ''hotkey-overlay-title="foo"''} in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+                      ''
+                    ]}
                   '';
                 };
               action = required (newtype (plain-type "niri action") kdl.types.kdl-leaf) // {
                 description = ''
                   An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
-                  ```nix
-                  {
-                    programs.niri.settings.binds = {
-                      "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
-                      "XF86AudioLowerVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
-                    };
-                  }
-                  ```
+                  ${fmt.nix-code-block ''
+                    {
+                      programs.niri.settings.binds = {
+                        "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
+                        "XF86AudioLowerVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
+                      };
+                    }
+                  ''}
 
                   If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
 
-                  ```nix
-                  {
-                    programs.niri.settings.binds = {
-                      "Mod+D".action.spawn = "fuzzel";
-                      "Mod+1".action.focus-workspace = 1;
-                    };
-                  }
-                  ```
+                  ${fmt.nix-code-block ''
+                    {
+                      programs.niri.settings.binds = {
+                        "Mod+D".action.spawn = "fuzzel";
+                        "Mod+1".action.focus-workspace = 1;
+                      };
+                    }
+                  ''}
 
                   For actions taking properties (named arguments), you can pass an attrset.
 
-                  ```nix
-                  {
-                    programs.niri.settings.binds = {
-                      "Mod+Shift+E".action.quit.skip-confirmation = true;
-                    };
-                  }
-                  ```
+                  ${fmt.nix-code-block ''
+                    {
+                      programs.niri.settings.binds = {
+                        "Mod+Shift+E".action.quit.skip-confirmation = true;
+                      };
+                    }
+                  ''}
 
-                  There is also a set of functions available under `config.lib.niri.actions`.
+                  There is also a set of functions available under ${fmt.code "config.lib.niri.actions"}.
 
                   Usage is like so:
 
-                  ```nix
-                  {
-                    programs.niri.settings.binds = with config.lib.niri.actions; {
-                      "XF86AudioRaiseVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
-                      "XF86AudioLowerVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
+                  ${fmt.nix-code-block ''
+                    {
+                      programs.niri.settings.binds = with config.lib.niri.actions; {
+                        "XF86AudioRaiseVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
+                        "XF86AudioLowerVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
 
-                      "Mod+D".action = spawn "fuzzel";
-                      "Mod+1".action = focus-workspace 1;
+                        "Mod+D".action = spawn "fuzzel";
+                        "Mod+1".action = focus-workspace 1;
 
-                      "Mod+Shift+E".action = quit;
-                      "Mod+Ctrl+Shift+E".action = quit { skip-confirmation=true; };
+                        "Mod+Shift+E".action = quit;
+                        "Mod+Ctrl+Shift+E".action = quit { skip-confirmation=true; };
 
-                      "Mod+Plus".action = set-column-width "+10%";
+                        "Mod+Plus".action = set-column-width "+10%";
+                      }
                     }
-                  }
-                  ```
+                  ''}
 
-                  Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the *real* acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
+                  Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the ${fmt.em "real"} acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
 
-                  For actions that don't take any arguments, just use the corresponding attribute from `config.lib.niri.actions`. They are listed as `action-name`. For actions that *do* take arguments, they are notated like so: `λ action-name :: <args>`, to clarify that they "should" be used as functions. Hopefully, `<args>` will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
+                  For actions that don't take any arguments, just use the corresponding attribute from ${fmt.code "config.lib.niri.actions"}. They are listed as ${fmt.code "action-name"}. For actions that ${fmt.em "do"} take arguments, they are notated like so: ${fmt.code "λ action-name :: <args>"}, to clarify that they "should" be used as functions. Hopefully, ${fmt.code "<args>"} will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
 
-                  - `size-change`: This is a special argument type used for some actions by niri. It's a string. \
-                    It can take either a fixed size as an integer number of logical pixels (`"480"`, `"1200"`) or a proportion of your screen as a percentage (`"30%"`, `"70%"`) \
-                    Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
-                    Relative size changes are written with a `+`/`-` prefix, and absolute size changes have no prefix.
+                  ${fmt.list [
+                    ''
+                      ${fmt.code "size-change"}: This is a special argument type used for some actions by niri. It's a string. \
+                      It can take either a fixed size as an integer number of logical pixels (${fmt.code ''"480"''}, ${fmt.code ''"1200"''}) or a proportion of your screen as a percentage (${fmt.code ''"30%"''}, ${fmt.code ''"70%"''}) \
+                      Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
+                      Relative size changes are written with a ${fmt.code "+"}/${fmt.code "-"} prefix, and absolute size changes have no prefix.
+                    ''
+                    ''
+                      ${fmt.code "{ field :: type }"}: This means that the action takes a named argument (in kdl, we call it a property). \
+                      To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
+                      Required fields are marked with ${fmt.code "*"} before their name, and if no fields are required, you can use the action without any arguments too (see ${fmt.code "quit"} in the example above). \
+                      If a field is marked with ${fmt.code "?"}, then omitting it is meaningful. (without ${fmt.code "?"}, it will have a default value)
+                    ''
+                    ''
+                      ${fmt.code "[type]"}: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
+                      ${fmt.code ''spawn ["foo" "bar" "baz"]''} is equivalent to ${fmt.code ''spawn "foo" "bar" "baz"''}.
+                    ''
+                  ]}
 
-                  - `{ field :: type }`: This means that the action takes a named argument (in kdl, we call it a property). \
-                    To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
-                    Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above). \
-                    If a field is marked with `?`, then omitting it is meaningful. (without `?`, it will have a default value)
-
-                  - `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
-                    `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
-
-                  > [!tip]
-                  > You can use partial application to create a spawn command with full support for shell syntax:
-                  > ```nix
-                  > {
-                  >   programs.niri.settings.binds = with config.lib.niri.actions; let
-                  >     sh = spawn "sh" "-c";
-                  >   in {
-                  >     "Print".action = sh '''grim -g "$(slurp)" - | wl-copy''';
-                  >   };
-                  > }
-                  > ```
+                  ${fmt.admonition.tip ''
+                    You can use partial application to create a spawn command with full support for shell syntax:
+                    ${fmt.nix-code-block ''
+                      {
+                        programs.niri.settings.binds = with config.lib.niri.actions; let
+                          sh = spawn "sh" "-c";
+                        in {
+                          "Print".action = sh '''grim -g "$(slurp)" - | wl-copy''';
+                        };
+                      }
+                    ''}
+                  ''}
 
                   ${
                     let
@@ -1019,7 +1207,7 @@
                           type-or =
                             rust-name: fallback: type-names.${rust-name} or (lib.warn "unhandled type `${rust-name}`" fallback);
 
-                          base = content: "- `${content}`${exclusive}";
+                          base = content: "${fmt.code content}${exclusive}";
                           lambda = args: base "λ ${name} :: ${args}";
                         in
                         {
@@ -1043,15 +1231,13 @@
                         .${params.kind}
                           or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
                     in
-                    builtins.concatStringsSep "\n" (
-                      builtins.concatLists [
-                        (map show-bind (
-                          builtins.filter (
-                            stable: builtins.all (unstable: stable.name != unstable.name) binds-unstable
-                          ) binds-stable
-                        ))
-                        (map show-bind binds-unstable)
-                      ]
+                    fmt.list (
+                      (map show-bind (
+                        builtins.filter (
+                          stable: builtins.all (unstable: stable.name != unstable.name) binds-unstable
+                        ) binds-stable
+                      ))
+                      ++ (map show-bind binds-unstable)
                     )
                   }
                 '';
@@ -1082,9 +1268,14 @@
 
               If this is null, then no screenshots will be saved.
 
-              If the path starts with a `~`, then it will be expanded to the user's home directory.
+              If the path starts with a ${fmt.code "~"}, then it will be expanded to the user's home directory.
 
-              The path is then passed to [`stftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+              The path is then passed to ${
+                fmt.masked-link {
+                  href = "https://man7.org/linux/man-pages/man3/strftime.3.html";
+                  content = fmt.code "strftime(3)";
+                }
+              } with the current time, and the result is used as the final path.
             '';
           };
       }
@@ -1104,7 +1295,7 @@
               By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
               In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
 
-              You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
+              You can disable this behaviour by setting this option to ${fmt.code "true"}. Then, niri will only show keybinds that are actually bound to a key.
             '';
           };
         };
@@ -1115,13 +1306,18 @@
           description = ''
             The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
 
-            This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
+            This is a feature that is not inherently part of the core Wayland protocol, but ${
+              fmt.masked-link {
+                href = "https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support";
+                content = "a widely supported protocol extension";
+              }
+            } enables support for it anyway.
 
             This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
 
             If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
 
-            Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
+            Note that this option has nothing to do with the "clipboard" that is commonly invoked with ${fmt.kbd "Ctrl+C"} and ${fmt.kbd "Ctrl+V"}.
           '';
         };
       }
@@ -1143,33 +1339,33 @@
             description = ''
               A list of commands to run when niri starts.
 
-              Each command is represented as its raw arguments, meaning you **cannot** use shell syntax here.
+              Each command is represented as its raw arguments, meaning you ${fmt.strong "cannot"} use shell syntax here.
 
               A leading tilde in the zeroth argument will be expanded to the user's home directory.
 
               Usage is like so:
 
-              ```nix
-              {
-                programs.niri.settings.spawn-at-startup = [
-                  { command = ["waybar"]; }
-                  { command = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
-                  { command = ["~/.config/niri/scripts/startup.sh"]; }
-                ];
-              }
-              ```
+              ${fmt.nix-code-block ''
+                {
+                  programs.niri.settings.spawn-at-startup = [
+                    { command = ["waybar"]; }
+                    { command = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
+                    { command = ["~/.config/niri/scripts/startup.sh"]; }
+                  ];
+                }
+              ''}
 
               If you need shell syntax, you can spawn something like this:
 
-              ```nix
-              {
-                programs.niri.settings.spawn-at-startup = [
-                  { command = ["sh" "-c" "echo $NIRI_SOCKET > ~/.niri-socket"]; }
-                ];
-              }
-              ```
+              ${fmt.nix-code-block ''
+                {
+                  programs.niri.settings.spawn-at-startup = [
+                    { command = ["sh" "-c" "echo $NIRI_SOCKET > ~/.niri-socket"]; }
+                  ];
+                }
+              ''}
 
-              When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` action) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+              When niri is built with the ${fmt.code "systemd"} feature (on by default), commands spawned this way (or with the ${fmt.code "spawn"} action) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
             '';
           };
       }
@@ -1199,22 +1395,22 @@
 
               Usage is like so:
 
-              ```nix
-              {
-                programs.niri.settings.workspaces."name" = {};
-                programs.niri.settings.workspaces."01-another-one" = {
-                  open-on-output = "DP-1";
-                  name = "another-one";
-                };
-              }
-              ```
+              ${fmt.nix-code-block ''
+                {
+                  programs.niri.settings.workspaces."name" = {};
+                  programs.niri.settings.workspaces."01-another-one" = {
+                    open-on-output = "DP-1";
+                    name = "another-one";
+                  };
+                }
+              ''}
 
-              Unless a `name` is declared, the workspace will use the attribute key as the name.
+              Unless a ${fmt.code "name"} is declared, the workspace will use the attribute key as the name.
 
               Workspaces will be created in a specific order: sorted by key. If you do not care
-              about the order of named workspaces, you can skip using the `name` attribute, and
+              about the order of named workspaces, you can skip using the ${fmt.code "name"} attribute, and
               use the key instead. If you do care about it, you can use the key to order them,
-              and a `name` attribute to have a friendlier name.
+              and a ${fmt.code "name"} attribute to have a friendlier name.
             '';
           };
       }
@@ -1264,10 +1460,14 @@
             xkb =
               let
                 arch-man-xkb =
-                  anchor: "[`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#${anchor})";
+                  anchor:
+                  fmt.masked-link {
+                    href = "https://man.archlinux.org/man/xkeyboard-config.7#${anchor}";
+                    content = fmt.code "xkeyboard-config(7)";
+                  };
 
                 default-env = default: field: ''
-                  If this is set to ${default}, the ${field} will be read from the `XKB_DEFAULT_${lib.toUpper field}` environment variable.
+                  If this is set to ${default}, the ${field} will be read from the ${fmt.code "XKB_DEFAULT_${lib.toUpper field}"} environment variable.
                 '';
 
                 str-fallback = default-env "an empty string";
@@ -1328,7 +1528,7 @@
                 {
                   file = nullable types.str // {
                     description = ''
-                      Path to a `.xkb` keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
+                      Path to a ${fmt.code ".xkb"} keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
                     '';
                   };
                 }
@@ -1339,7 +1539,12 @@
                   Parameters passed to libxkbcommon, which handles the keyboard in niri.
 
                   Further reading:
-                  - [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
+                  ${fmt.list [
+                    (fmt.masked-link {
+                      href = "https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html";
+                      content = fmt.code "smithay::wayland::seat::XkbConfig";
+                    })
+                  ]}
                 '';
               };
             repeat-delay = optional types.int 600 // {
@@ -1359,9 +1564,9 @@
               ]) "global"
               // {
                 description = ''
-                  The keyboard layout can be remembered per `"window"`, such that when you switch to a window, the keyboard layout is set to the one that was last used in that window.
+                  The keyboard layout can be remembered per ${fmt.code ''"window"''}, such that when you switch to a window, the keyboard layout is set to the one that was last used in that window.
 
-                  By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
+                  By default, there is only one ${fmt.code ''"global"''} keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
                 '';
               };
             numlock = optional types.bool false // {
@@ -1379,8 +1584,10 @@
                   Whether to enable tap-to-click.
 
                   Further reading:
-                  - ${libinput-link "configuration" "Tap-to-click"}
-                  - ${libinput-link "tapping" "Tap-to-click behaviour"}
+                  ${fmt.list [
+                    (libinput-link "configuration" "Tap-to-click")
+                    (libinput-link "tapping" "Tap-to-click behaviour")
+                  ]}
                 '';
               };
               dwt = optional types.bool false // {
@@ -1388,8 +1595,10 @@
                   Whether to disable the touchpad while typing.
 
                   Further reading:
-                  - ${libinput-link "configuration" "Disable while typing"}
-                  - ${libinput-link "palm-detection" "Disable-while-typing"}
+                  ${fmt.list [
+                    (libinput-link "configuration" "Disable while typing")
+                    (libinput-link "palm-detection" "Disable-while-typing")
+                  ]}
                 '';
               };
               dwtp = optional types.bool false // {
@@ -1397,8 +1606,10 @@
                   Whether to disable the touchpad while the trackpoint is in use.
 
                   Further reading:
-                  - ${libinput-link "configuration" "Disable while trackpointing"}
-                  - ${libinput-link "palm-detection" "Disable-while-trackpointing"}
+                  ${fmt.list [
+                    (libinput-link "configuration" "Disable while trackpointing")
+                    (libinput-link "palm-detection" "Disable-while-trackpointing")
+                  ]}
                 '';
               };
               drag = nullable types.bool // {
@@ -1408,7 +1619,9 @@
                   Tap and drag means that to drag an item, you tap the touchpad with some amount of fingers to decide what kind of button press is emulated, but don't hold those fingers, and then you immediately start dragging with one finger.
 
                   Further reading:
-                  - ${libinput-link "tapping" "Tap-and-drag"}
+                  ${fmt.list [
+                    (libinput-link "tapping" "Tap-and-drag")
+                  ]}
                 '';
               };
               drag-lock = optional types.bool false // {
@@ -1420,7 +1633,9 @@
                   Drag lock is only applicable when tap and drag is enabled.
 
                   Further reading:
-                  - ${libinput-link "tapping" "Tap-and-drag"}
+                  ${fmt.list [
+                    (libinput-link "tapping" "Tap-and-drag")
+                  ]}
                 '';
               };
 
@@ -1429,7 +1644,9 @@
                   Whether to disable the touchpad when an external mouse is plugged in.
 
                   Further reading:
-                  - ${libinput-link "configuration" "Send Events Mode"}
+                  ${fmt.list [
+                    (libinput-link "configuration" "Send Events Mode")
+                  ]}
                 '';
               };
               tap-button-map =
@@ -1442,7 +1659,9 @@
                     The mouse button to register when tapping with 1, 2, or 3 fingers, when ${link' "programs.niri.settings.input.touchpad.tap"} is enabled.
 
                     Further reading:
-                    - ${libinput-link "configuration" "Tap-to-click"}
+                    ${fmt.list [
+                      (libinput-link "configuration" "Tap-to-click")
+                    ]}
                   '';
                 };
               click-method =
@@ -1454,15 +1673,22 @@
                   description = ''
                     Method to determine which mouse button is pressed when you click the touchpad.
 
-                    - `"button-areas"`: ${libinput-doc "clickpad-softbuttons" "Software button areas"} \
-                      The button is determined by which part of the touchpad was clicked.
-
-                    - `"clickfinger"`: ${libinput-doc "clickpad-softbuttons" "Clickfinger behavior"} \
-                      The button is determined by how many fingers clicked.
+                    ${fmt.list [
+                      ''
+                        ${fmt.code ''"button-areas"''}: ${libinput-doc "clickpad-softbuttons" "Software button areas"} \
+                        The button is determined by which part of the touchpad was clicked.
+                      ''
+                      ''
+                        ${fmt.code ''"clickfinger"''}: ${libinput-doc "clickpad-softbuttons" "Clickfinger behavior"} \
+                        The button is determined by how many fingers clicked.
+                      ''
+                    ]}
 
                     Further reading:
-                    - ${libinput-link "configuration" "Click method"}
-                    - ${libinput-link "clickpad-softbuttons" "Clickpad software button behavior"}
+                    ${fmt.list [
+                      (libinput-link "configuration" "Click method")
+                      (libinput-link "clickpad-softbuttons" "Clickpad software button behavior")
+                    ]}
                   '';
                 };
 
@@ -1513,20 +1739,31 @@
                   This is represented in Nix as a 2-list of 3-lists of floats.
 
                   For example:
-                  ```nix
-                  {
-                    # 90 degree rotation clockwise
-                    calibration-matrix = [
-                      [ 0.0 -1.0 1.0 ]
-                      [ 1.0  0.0 0.0 ]
-                    ];
-                  }
-                  ```
+                  ${fmt.nix-code-block ''
+                    {
+                      # 90 degree rotation clockwise
+                      calibration-matrix = [
+                        [ 0.0 -1.0 1.0 ]
+                        [ 1.0  0.0 0.0 ]
+                      ];
+                    }
+                  ''}
 
                   Further reading:
-                  - [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
-                  - [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
-                  - [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+                  ${fmt.list [
+                    (fmt.masked-link {
+                      href = "https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b";
+                      content = fmt.code "libinput_device_config_calibration_get_default_matrix()";
+                    })
+                    (fmt.masked-link {
+                      href = "https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804";
+                      content = fmt.code "libinput_device_config_calibration_set_matrix()";
+                    })
+                    (fmt.masked-link {
+                      href = "https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix";
+                      content = "rustdoc because libinput's web docs are an eyesore";
+                    })
+                  ]}
                 '';
               };
           };
@@ -1576,9 +1813,9 @@
 
           workspace-auto-back-and-forth = optional types.bool false // {
             description = ''
-              When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
+              When invoking ${fmt.code "focus-workspace"} to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
 
-              Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
+              Of note is that it does not switch to the previous ${fmt.em "index"}, but the previous ${fmt.em "workspace"}. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
             '';
           };
 
@@ -1611,7 +1848,7 @@
           };
           background-color = nullable types.str // {
             description = ''
-              The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
+              The background color of this output. This is equivalent to launching ${fmt.code "swaybg -c <color>"} on that output, but is handled by the compositor itself for solid colors.
             '';
           };
           scale = nullable float-or-int // {
@@ -1692,7 +1929,7 @@
 
                 VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
 
-                Setting this to `"on-demand"` will enable VRR only when a window with ${link' "programs.niri.settings.window-rules.*.variable-refresh-rate"} is present on this output.
+                Setting this to ${fmt.code ''"on-demand"''} will enable VRR only when a window with ${link' "programs.niri.settings.window-rules.*.variable-refresh-rate"} is present on this output.
               '';
             };
 
@@ -1700,7 +1937,7 @@
             description = ''
               Focus this output by default when niri starts.
 
-              If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set ${link' "programs.niri.settings.outputs.<name>.name"} to be the actual name of the output.
+              If multiple outputs with ${fmt.code "focus-at-startup"} are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set ${link' "programs.niri.settings.outputs.<name>.name"} to be the actual name of the output.
 
               When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
             '';
@@ -1709,40 +1946,37 @@
       }
 
       {
-        cursor = section (
-          { ... }:
-          {
-            imports = [
-              (lib.mkRenamedOptionModule [ "hide-on-key-press" ] [ "hide-when-typing" ])
-            ];
-            options = {
-              theme = optional types.str "default" // {
-                description = ''
-                  The name of the xcursor theme to use.
+        cursor = section' {
+          imports = [
+            (lib.mkRenamedOptionModule [ "hide-on-key-press" ] [ "hide-when-typing" ])
+          ];
+          options = {
+            theme = optional types.str "default" // {
+              description = ''
+                The name of the xcursor theme to use.
 
-                  This will also set the XCURSOR_THEME environment variable for all spawned processes.
-                '';
-              };
-              size = optional types.int 24 // {
-                description = ''
-                  The size of the cursor in logical pixels.
-
-                  This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-                '';
-              };
-              hide-when-typing = optional types.bool false // {
-                description = ''
-                  Whether to hide the cursor when typing.
-                '';
-              };
-              hide-after-inactive-ms = nullable types.int // {
-                description = ''
-                  If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
-                '';
-              };
+                This will also set the XCURSOR_THEME environment variable for all spawned processes.
+              '';
             };
-          }
-        );
+            size = optional types.int 24 // {
+              description = ''
+                The size of the cursor in logical pixels.
+
+                This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+              '';
+            };
+            hide-when-typing = optional types.bool false // {
+              description = ''
+                Whether to hide the cursor when typing.
+              '';
+            };
+            hide-after-inactive-ms = nullable types.int // {
+              description = ''
+                If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+              '';
+            };
+          };
+        };
       }
 
       {
@@ -1755,7 +1989,7 @@
               name = "focus ring";
               window = "focused window";
               description = ''
-                The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+                The focus ring is a decoration drawn ${fmt.em "around"} the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
 
                 The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.active"}, and the last focused window on all other monitors will be drawn according to ${link' "programs.niri.settings.layout.focus-ring.inactive"}.
 
@@ -1770,7 +2004,7 @@
               name = "border";
               window = "window";
               description = ''
-                The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+                The border is a decoration drawn ${fmt.em "inside"} every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
 
                 The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to ${link' "programs.niri.settings.layout.border.active"}, and all other windows will be drawn according to ${link' "programs.niri.settings.layout.border.inactive"}.
 
@@ -1827,7 +2061,7 @@
               ]
               // {
                 description = ''
-                  The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+                  The insert hint is a decoration drawn ${fmt.em "between"} windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
                 '';
               };
           }
@@ -1853,44 +2087,44 @@
           {
             preset-column-widths = list preset-width // {
               description = ''
-                The widths that `switch-preset-column-width` will cycle through.
+                The widths that ${fmt.code "switch-preset-column-width"} will cycle through.
 
                 Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
 
                 Example:
 
-                ```nix
-                {
-                  programs.niri.settings.layout.preset-column-widths = [
-                    { proportion = 1. / 3.; }
-                    { proportion = 1. / 2.; }
-                    { proportion = 2. / 3.; }
+                ${fmt.nix-code-block ''
+                  {
+                    programs.niri.settings.layout.preset-column-widths = [
+                      { proportion = 1. / 3.; }
+                      { proportion = 1. / 2.; }
+                      { proportion = 2. / 3.; }
 
-                    # { fixed = 1920; }
-                  ];
-                }
-                ```
+                      # { fixed = 1920; }
+                    ];
+                  }
+                ''}
               '';
             };
             preset-window-heights = list preset-height // {
               description = ''
-                The heights that `switch-preset-window-height` will cycle through.
+                The heights that ${fmt.code "switch-preset-window-height"} will cycle through.
 
                 Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
 
                 Example:
 
-                ```nix
-                {
-                  programs.niri.settings.layout.preset-window-heights = [
-                    { proportion = 1. / 3.; }
-                    { proportion = 1. / 2.; }
-                    { proportion = 2. / 3.; }
+                ${fmt.nix-code-block ''
+                  {
+                    programs.niri.settings.layout.preset-window-heights = [
+                      { proportion = 1. / 3.; }
+                      { proportion = 1. / 2.; }
+                      { proportion = 2. / 3.; }
 
-                    # { fixed = 1080; }
-                  ];
-                }
-                ```
+                      # { fixed = 1080; }
+                    ];
+                  }
+                ''}
               '';
             };
           }
@@ -1899,7 +2133,7 @@
               description = ''
                 The default width for new columns.
 
-                When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+                When this is set to an empty attrset ${fmt.code "{}"}, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
 
                 See ${link' "programs.niri.settings.layout.preset-column-widths"} for more information.
 
@@ -1916,14 +2150,16 @@
                 description = ''
                   When changing focus, niri can automatically center the focused column.
 
-                  - `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
-                  - `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
-                  - `"always"`: the focused column will always be centered, even if it was already fully visible.
+                  ${fmt.list [
+                    "${fmt.code ''"never"''}: If the focused column doesn't fit, it will be aligned to the edges of the screen."
+                    "${fmt.code ''"on-overflow"''}: if the focused column doesn't fit, it will be centered on the screen."
+                    "${fmt.code ''"always"''}: the focused column will always be centered, even if it was already fully visible."
+                  ]}
                 '';
               };
             always-center-single-column = optional types.bool false // {
               description = ''
-                This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+                This is like ${fmt.code ''center-focused-column = "always";''}, but only for workspaces with a single column. Changes nothing if ${fmt.code "center-focused-column"} is set to ${fmt.code ''"always"''}. Has no effect if more than one column is present.
               '';
             };
             default-column-display =
@@ -1935,10 +2171,12 @@
                 description = ''
                   How windows in columns should be displayed by default.
 
-                  - `"normal"`: Windows are arranged vertically, spread across the working area height.
-                  - `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+                  ${fmt.list [
+                    "${fmt.code ''"normal"''}: Windows are arranged vertically, spread across the working area height."
+                    "${fmt.code ''"tabbed"''}: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area."
+                  ]}
 
-                  Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+                  Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is ${fmt.em "created"}.
 
                   Also, since a newly created column always contains a single window, you can override this default value with ${link' "programs.niri.settings.window-rules.*.default-column-display"}.
                 '';
@@ -2007,7 +2245,7 @@
           {
             empty-workspace-above-first = optional types.bool false // {
               description = ''
-                Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really  is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+                Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
 
                 When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
               '';
@@ -2108,9 +2346,9 @@
                         description = ''
                           Source code for a GLSL shader to use for this animation.
 
-                          For example, set it to `builtins.readFile ./${name}.glsl` to use a shader from the same directory as your configuration file.
+                          For example, set it to ${fmt.code "builtins.readFile ./${name}.glsl"} to use a shader from the same directory as your configuration file.
 
-                          See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+                          See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
                         '';
                       };
                     }
@@ -2258,14 +2496,14 @@
 
             Examples:
 
-            ```nix
-            {
-              programs.niri.settings.environment = {
-                QT_QPA_PLATFORM = "wayland";
-                DISPLAY = null;
-              };
-            }
-            ```
+            ${fmt.nix-code-block ''
+              {
+                programs.niri.settings.environment = {
+                  QT_QPA_PLATFORM = "wayland";
+                  DISPLAY = null;
+                };
+              }
+            ''}
           '';
         };
       }
@@ -2305,7 +2543,7 @@
 
                     If the final value option is not null, then its value will take priority over ${link' "programs.niri.settings.layout.default-column-width"} for windows matching this rule.
 
-                    An empty attrset `{}` is not the same as null. When this is set to an empty attrset `{}`, windows will get to decide their initial width. When set to null, it represents that this particular window rule has no effect on the default width (and it should instead be taken from an earlier rule or the global default).
+                    An empty attrset ${fmt.code "{}"} is not the same as null. When this is set to an empty attrset ${fmt.code "{}"}, windows will get to decide their initial width. When set to null, it represents that this particular window rule has no effect on the default width (and it should instead be taken from an earlier rule or the global default).
 
                   '';
                 };
@@ -2315,13 +2553,13 @@
 
                     This does nothing if the window is not floating when it is created.
 
-                    There is no global default option for this in the layout section like for the column width. If the final value of this option is null, then it defaults to the empty attrset `{}`.
+                    There is no global default option for this in the layout section like for the column width. If the final value of this option is null, then it defaults to the empty attrset ${fmt.code "{}"}.
 
-                    If this is set to an empty attrset `{}`, then it effectively "unsets" the default height for this window rule evaluation, as opposed to `null` which doesn't change the value at all. Future rules may still set it to a value and unset it again as they wish.
+                    If this is set to an empty attrset ${fmt.code "{}"}, then it effectively "unsets" the default height for this window rule evaluation, as opposed to ${fmt.code "null"} which doesn't change the value at all. Future rules may still set it to a value and unset it again as they wish.
 
-                    If the final value of this option is an empty attrset `{}`, then the client gets to decide the height of the window.
+                    If the final value of this option is an empty attrset ${fmt.code "{}"}, then the client gets to decide the height of the window.
 
-                    If the final value of this option is not an empty attrset `{}`, and the window spawns as floating, then the window will be created with the specified height.
+                    If the final value of this option is not an empty attrset ${fmt.code "{}"}, and the window spawns as floating, then the window will be created with the specified height.
                   '';
                 };
                 default-column-display =
@@ -2394,10 +2632,12 @@
 
                     If the final value of this field is null, then the window will be focused based on several factors:
 
-                    - If it provided a valid activation token that hasn't expired, it will be focused.
-                    - If the strict activation policy is enabled (not by default), the procedure ends here. It will be focused if and only if the activation token is valid.
-                    - Otherwise, if no valid activation token was presented, but the window is a dialog, it will open next to its parent and be focused anyways.
-                    - If the window is not a dialog, it will be focused if there is no fullscreen window; we don't want to steal its focus unless a dialog belongs to it.
+                    ${fmt.list [
+                      "If it provided a valid activation token that hasn't expired, it will be focused."
+                      "If the strict activation policy is enabled (not by default), the procedure ends here. It will be focused if and only if the activation token is valid."
+                      "Otherwise, if no valid activation token was presented, but the window is a dialog, it will open next to its parent and be focused anyways."
+                      "If the window is not a dialog, it will be focused if there is no fullscreen window; we don't want to steal its focus unless a dialog belongs to it."
+                    ]}
 
                     (a dialog here means a toplevel surface that has a non-null parent)
 
@@ -2552,14 +2792,14 @@
 
                       If a window has already been placed as floating through one of the above methods, and moved back to the tiling layout, then this option has no effect the next time it enters the floating layout. It will be placed at the same position it was last time.
 
-                      The `x` and `y` fields are the distances from the edge of the screen to the edge of the window, in logical pixels. The `relative-to` field determines which two edges of the window and screen that these distances are measured from.
+                      The ${fmt.code "x"} and ${fmt.code "y"} fields are the distances from the edge of the screen to the edge of the window, in logical pixels. The ${fmt.code "relative-to"} field determines which two edges of the window and screen that these distances are measured from.
                     '';
                   };
               }
               {
                 variable-refresh-rate = nullable types.bool // {
                   description = ''
-                    Takes effect only when the window is on an output with ${link' "programs.niri.settings.outputs.*.variable-refresh-rate"} set to `"on-demand"`. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
+                    Takes effect only when the window is on an output with ${link' "programs.niri.settings.outputs.*.variable-refresh-rate"} set to ${fmt.code ''"on-demand"''}. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
                   '';
                 };
               }
@@ -2597,11 +2837,11 @@
                     "screen-capture"
                   ])
                   // {
-                    description = window-rule-descriptions.block-out-from;
+                    description = layer-rule-descriptions.block-out-from;
                   };
 
                 opacity = nullable types.float // {
-                  description = window-rule-descriptions.opacity;
+                  description = layer-rule-descriptions.opacity;
                 };
               }
               {
@@ -2615,7 +2855,7 @@
               {
                 place-within-backdrop = nullable types.bool // {
                   description = ''
-                    Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
+                    Set to ${fmt.code "true"} to place the surface into the backdrop visible in the Overview and between workspaces.
                     This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
                   '';
                 };
@@ -2643,7 +2883,7 @@
               description = ''
                 Path to the xwayland-satellite binary.
 
-                Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
+                Set it to something like ${fmt.code "lib.getExe pkgs.xwayland-satellite-unstable"}.
               '';
             };
           }
@@ -2661,20 +2901,20 @@
           description = ''
             Debug options for niri.
 
-            `kdl arguments` in the type refers to a list of arguments passed to a node under the `debug` section. This is a way to pass arbitrary KDL-valid data to niri. See ${link' "programs.niri.settings.binds"} for more information on all the ways you can use this.
+            ${fmt.code "kdl arguments"} in the type refers to a list of arguments passed to a node under the ${fmt.code "debug"} section. This is a way to pass arbitrary KDL-valid data to niri. See ${link' "programs.niri.settings.binds"} for more information on all the ways you can use this.
 
             Note that for no-argument nodes, there is no special way to define them here. You can't pass them as just a "string" because that makes no sense here. You must pass it an empty array of arguments.
 
             Here's an example of how to use this:
 
-            ```nix
-            {
-              programs.niri.settings.debug = {
-                disable-cursor-plane = [];
-                render-drm-device = "/dev/dri/renderD129";
-              };
-            }
-            ```
+            ${fmt.nix-code-block ''
+              {
+                programs.niri.settings.debug = {
+                  disable-cursor-plane = [];
+                  render-drm-device = "/dev/dri/renderD129";
+                };
+              }
+            ''}
 
             This option is, just like ${link' "programs.niri.settings.binds"}, not verified by the nix module. But, it will be validated by niri before committing the config.
 
@@ -2682,7 +2922,9 @@
           '';
         };
       }
-    ];
+    ]
+
+  ;
 
   module =
     { config, ... }:
@@ -2695,7 +2937,7 @@
     {
       options.programs.niri = {
         settings = mkOption {
-          type = types.nullOr settings.type;
+          type = types.nullOr (settings.type-with docs.settings-fmt);
           default = null;
           description = ''
             Nix-native settings for niri.

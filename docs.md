@@ -250,6 +250,7 @@ An action is represented as an attrset with a single key, being the name, and a 
 }
 ```
 
+
 If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
 
 ```nix
@@ -261,6 +262,7 @@ If there is only a single argument, you can pass it directly. It will be implici
 }
 ```
 
+
 For actions taking properties (named arguments), you can pass an attrset.
 
 ```nix
@@ -270,6 +272,7 @@ For actions taking properties (named arguments), you can pass an attrset.
   };
 }
 ```
+
 
 There is also a set of functions available under `config.lib.niri.actions`.
 
@@ -292,6 +295,7 @@ Usage is like so:
 }
 ```
 
+
 Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the *real* acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
 
 For actions that don't take any arguments, just use the corresponding attribute from `config.lib.niri.actions`. They are listed as `action-name`. For actions that *do* take arguments, they are notated like so: `λ action-name :: <args>`, to clarify that they "should" be used as functions. Hopefully, `<args>` will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
@@ -300,14 +304,13 @@ For actions that don't take any arguments, just use the corresponding attribute 
   It can take either a fixed size as an integer number of logical pixels (`"480"`, `"1200"`) or a proportion of your screen as a percentage (`"30%"`, `"70%"`) \
   Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
   Relative size changes are written with a `+`/`-` prefix, and absolute size changes have no prefix.
-
 - `{ field :: type }`: This means that the action takes a named argument (in kdl, we call it a property). \
   To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
   Required fields are marked with `*` before their name, and if no fields are required, you can use the action without any arguments too (see `quit` in the example above). \
   If a field is marked with `?`, then omitting it is meaningful. (without `?`, it will have a default value)
-
 - `[type]`: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
   `spawn ["foo" "bar" "baz"]` is equivalent to `spawn "foo" "bar" "baz"`.
+
 
 > [!tip]
 > You can use partial application to create a spawn command with full support for shell syntax:
@@ -444,16 +447,16 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `toggle-window-rule-opacity`
 - `set-dynamic-cast-window`
 - `λ set-dynamic-cast-monitor :: unknown`
-
-  The code that generates this documentation does not know how to parse the definition:
-  ```rs
-  SetDynamicCastMonitor(#[knuffel(argument)] Option<String>)
-  ```
-
+  
+    The code that generates this documentation does not know how to parse the definition:
+    ```rs
+    SetDynamicCastMonitor(#[knuffel(argument)] Option<String>)
+    ```
 - `clear-dynamic-cast-target`
 - `toggle-overview`
 - `open-overview`
 - `close-overview`
+
 
 
 ## `programs.niri.settings.binds.<name>.allow-inhibiting`
@@ -502,6 +505,7 @@ How this keybind should be displayed in the hotkey overlay.
 - By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
 - `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
 - `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+
 
 
 ## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
@@ -570,6 +574,7 @@ See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more 
 ```
 
 
+
 ## `programs.niri.settings.screenshot-path`
 - type: `null or string`
 - default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
@@ -580,7 +585,7 @@ If this is null, then no screenshots will be saved.
 
 If the path starts with a `~`, then it will be expanded to the user's home directory.
 
-The path is then passed to [`stftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
 
 
 ## `programs.niri.settings.hotkey-overlay.hide-not-bound`
@@ -589,11 +594,10 @@ The path is then passed to [`stftime(3)`](https://man7.org/linux/man-pages/man3/
 
 > [!important]
 > This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
 > Otherwise, your system might fail to build.
-
 
 By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
 In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
@@ -651,6 +655,7 @@ Usage is like so:
 }
 ```
 
+
 If you need shell syntax, you can spawn something like this:
 
 ```nix
@@ -660,6 +665,7 @@ If you need shell syntax, you can spawn something like this:
   ];
 }
 ```
+
 
 When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` action) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
 
@@ -688,6 +694,7 @@ Usage is like so:
   };
 }
 ```
+
 
 Unless a `name` is declared, the workspace will use the attribute key as the name.
 
@@ -755,7 +762,7 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 
 The softness/size of the shadow, measured in logical pixels.
 
-This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
 ## `programs.niri.settings.overview.workspace-shadow.spread`
@@ -825,6 +832,7 @@ Parameters passed to libxkbcommon, which handles the keyboard in niri.
 
 Further reading:
 - [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
+
 
 
 ## `programs.niri.settings.input.keyboard.xkb.file`
@@ -914,12 +922,14 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
+
 ## `programs.niri.settings.input.mouse.accel-speed`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
 
 
 ## `programs.niri.settings.input.mouse.enable`
@@ -938,6 +948,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
 
 
+
 ## `programs.niri.settings.input.mouse.middle-emulation`
 - type: `boolean`
 - default: `false`
@@ -947,6 +958,7 @@ Whether a middle mouse button press should be sent when you press the left and r
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
 - https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
 
 
 ## `programs.niri.settings.input.mouse.natural-scroll`
@@ -960,6 +972,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+
 ## `programs.niri.settings.input.mouse.scroll-button`
 - type: `null or signed integer`
 - default: `null`
@@ -968,6 +981,7 @@ When `scroll-method = "on-button-down"`, this is the button that will be used to
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
 
 
 ## `programs.niri.settings.input.mouse.scroll-factor`
@@ -988,6 +1002,7 @@ The default and supported values vary based on the device type.
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
 
 
 ## `programs.niri.settings.input.power-key-handling.enable`
@@ -1018,10 +1033,12 @@ For example:
 }
 ```
 
+
 Further reading:
 - [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
 - [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
 - [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+
 
 
 ## `programs.niri.settings.input.tablet.enable`
@@ -1038,6 +1055,7 @@ This varies based on the exact device, but will for example swap left/right mous
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
 
 
 ## `programs.niri.settings.input.tablet.map-to-output`
@@ -1063,12 +1081,14 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
+
 ## `programs.niri.settings.input.touchpad.accel-speed`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
 
 
 ## `programs.niri.settings.input.touchpad.click-method`
@@ -1079,13 +1099,14 @@ Method to determine which mouse button is pressed when you click the touchpad.
 
 - `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#software-button-areas) \
   The button is determined by which part of the touchpad was clicked.
-
 - `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickfinger-behavior) \
   The button is determined by how many fingers clicked.
+
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#click-method
 - https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
+
 
 
 ## `programs.niri.settings.input.touchpad.disabled-on-external-mouse`
@@ -1098,6 +1119,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#send-events-mode
 
 
+
 ## `programs.niri.settings.input.touchpad.drag`
 - type: `null or boolean`
 - default: `null`
@@ -1108,6 +1130,7 @@ Tap and drag means that to drag an item, you tap the touchpad with some amount o
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-and-drag
+
 
 
 ## `programs.niri.settings.input.touchpad.drag-lock`
@@ -1124,6 +1147,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-and-drag
 
 
+
 ## `programs.niri.settings.input.touchpad.dwt`
 - type: `boolean`
 - default: `false`
@@ -1135,6 +1159,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-typing
 
 
+
 ## `programs.niri.settings.input.touchpad.dwtp`
 - type: `boolean`
 - default: `false`
@@ -1144,6 +1169,7 @@ Whether to disable the touchpad while the trackpoint is in use.
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-trackpointing
 - https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
+
 
 
 ## `programs.niri.settings.input.touchpad.enable`
@@ -1162,6 +1188,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
 
 
+
 ## `programs.niri.settings.input.touchpad.middle-emulation`
 - type: `boolean`
 - default: `false`
@@ -1171,6 +1198,7 @@ Whether a middle mouse button press should be sent when you press the left and r
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
 - https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
 
 
 ## `programs.niri.settings.input.touchpad.natural-scroll`
@@ -1184,6 +1212,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+
 ## `programs.niri.settings.input.touchpad.scroll-button`
 - type: `null or signed integer`
 - default: `null`
@@ -1192,6 +1221,7 @@ When `scroll-method = "on-button-down"`, this is the button that will be used to
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
 
 
 ## `programs.niri.settings.input.touchpad.scroll-factor`
@@ -1214,6 +1244,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
 
 
+
 ## `programs.niri.settings.input.touchpad.tap`
 - type: `boolean`
 - default: `true`
@@ -1223,6 +1254,7 @@ Whether to enable tap-to-click.
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
 - https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-to-click-behaviour
+
 
 
 ## `programs.niri.settings.input.touchpad.tap-button-map`
@@ -1235,6 +1267,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
 
 
+
 ## `programs.niri.settings.input.trackball.accel-profile`
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
@@ -1243,12 +1276,14 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
+
 ## `programs.niri.settings.input.trackball.accel-speed`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
 
 
 ## `programs.niri.settings.input.trackball.enable`
@@ -1267,6 +1302,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
 
 
+
 ## `programs.niri.settings.input.trackball.middle-emulation`
 - type: `boolean`
 - default: `false`
@@ -1276,6 +1312,7 @@ Whether a middle mouse button press should be sent when you press the left and r
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
 - https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
 
 
 ## `programs.niri.settings.input.trackball.natural-scroll`
@@ -1289,6 +1326,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+
 ## `programs.niri.settings.input.trackball.scroll-button`
 - type: `null or signed integer`
 - default: `null`
@@ -1297,6 +1335,7 @@ When `scroll-method = "on-button-down"`, this is the button that will be used to
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
 
 
 ## `programs.niri.settings.input.trackball.scroll-method`
@@ -1310,6 +1349,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
 
 
+
 ## `programs.niri.settings.input.trackpoint.accel-profile`
 - type: `null or one of "adaptive", "flat"`
 - default: `null`
@@ -1318,12 +1358,14 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
 
 
+
 ## `programs.niri.settings.input.trackpoint.accel-speed`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
 
 
 ## `programs.niri.settings.input.trackpoint.enable`
@@ -1342,6 +1384,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
 
 
+
 ## `programs.niri.settings.input.trackpoint.middle-emulation`
 - type: `boolean`
 - default: `false`
@@ -1351,6 +1394,7 @@ Whether a middle mouse button press should be sent when you press the left and r
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
 - https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
 
 
 ## `programs.niri.settings.input.trackpoint.natural-scroll`
@@ -1364,6 +1408,7 @@ Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
 
 
+
 ## `programs.niri.settings.input.trackpoint.scroll-button`
 - type: `null or signed integer`
 - default: `null`
@@ -1372,6 +1417,7 @@ When `scroll-method = "on-button-down"`, this is the button that will be used to
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
 
 
 ## `programs.niri.settings.input.trackpoint.scroll-method`
@@ -1383,6 +1429,7 @@ The default and supported values vary based on the device type.
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
 
 
 ## `programs.niri.settings.input.warp-mouse-to-focus`
@@ -1732,7 +1779,7 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 
 The softness/size of the shadow, measured in logical pixels.
 
-This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
 ## `programs.niri.settings.layout.shadow.spread`
@@ -1832,23 +1879,23 @@ The rectangle that this gradient is contained within.
 
 If a gradient is `relative-to` the `"window"`, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
 
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
+![four windows arranged in two columns; a big window to the left of three stacked windows.
 a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
 the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
 the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
 the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
-](assets/relative-to-window.png 'behaviour of relative-to="window"')
+](/assets/relative-to-window.png "behaviour of relative-to=\"window\"")
+
 
 If the gradient is instead `relative-to` the `"workspace-view"`, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
 
-![
-four windows arranged in two columns; a big window to the left of three stacked windows.
+![four windows arranged in two columns; a big window to the left of three stacked windows.
 a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
 it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
 the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
 the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
-](/assets/relative-to-workspace-view.png 'behaviour of relative-to="workspace-view"')
+](/assets/relative-to-workspace-view.png "behaviour of relative-to=\"workspace-view\"")
+
 
 these beautiful images are sourced from the release notes for [`v0.1.3`](https://github.com/YaLTeR/niri/releases/tag/v0.1.3)
 
@@ -1890,6 +1937,7 @@ Example:
 ```
 
 
+
 ## `programs.niri.settings.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
@@ -1924,6 +1972,7 @@ Example:
 ```
 
 
+
 ## `programs.niri.settings.layout.preset-window-heights.*.fixed`
 - type: `signed integer`
 
@@ -1954,6 +2003,7 @@ When changing focus, niri can automatically center the focused column.
 - `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
+
 ## `programs.niri.settings.layout.default-column-display`
 - type: `one of "normal", "tabbed"`
 - default: `"normal"`
@@ -1962,6 +2012,7 @@ How windows in columns should be displayed by default.
 
 - `"normal"`: Windows are arranged vertically, spread across the working area height.
 - `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
 
 Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
 
@@ -2067,7 +2118,7 @@ The color of the tab indicator for windows that are requesting attention.
 - type: `boolean`
 - default: `false`
 
-Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really  is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
 
 When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
 
@@ -2378,6 +2429,7 @@ Examples:
 ```
 
 
+
 ## `programs.niri.settings.window-rules`
 - type: `list of (window rule)`
 
@@ -2388,21 +2440,17 @@ A window rule will match based on [`window-rules.*.matches`](#programsnirisettin
 A given match rule can match based on one of several fields. For a given match rule to "match" a window, it must match on all fields.
 
 - The `title` field, when non-null, is a regular expression. It will match a window if the client has set a title and its title matches the regular expression.
-
 - The `app-id` field, when non-null, is a regular expression. It will match a window if the client has set an app id and its app id matches the regular expression.
-
-
-- The `at_startup` field, when non-null, will match a window based on whether it was opened within the first 60 seconds of niri starting up.
-
+- The `at-startup` field, when non-null, will match a window based on whether it was opened within the first 60 seconds of niri starting up.
 - If a field is null, it will always match.
+
 
 For a given window rule to match a window, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the window rule as a whole will match. For a given window rule:
 
 - A given window is "considered" if any of the match rules in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) successfully match this window. If all of the match rules do not match this window, then that window will never match this window rule.
-
 - If [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) contains no match rules, it will match any window and "consider" it for this window rule.
-
 - If a given window is "considered" for this window rule according to the above rules, the selection can be further refined with [`window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes). If any of the match rules in `excludes` match this window, it will be rejected and this window rule will not match the given window.
+
 
 That is, a given window rule will apply to a given window if any of the entries in [`window-rules.*.matches`](#programsnirisettingswindow-rulesmatches) match that window (or there are none), AND none of the entries in [`window-rules.*.excludes`](#programsnirisettingswindow-rulesexcludes) match that window.
 
@@ -2416,6 +2464,7 @@ Then, for each applicable window rule:
 
 - If a given field is null on this window rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
 - If the given field is not null, it will overwrite the value from any previous rule.
+
 
 The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* window rule that matches the given window rule (not considering null entries, unless there are no non-null entries)
 
@@ -2690,6 +2739,7 @@ If the final value of this field is null, then the window will be focused based 
 - Otherwise, if no valid activation token was presented, but the window is a dialog, it will open next to its parent and be focused anyways.
 - If the window is not a dialog, it will be focused if there is no fullscreen window; we don't want to steal its focus unless a dialog belongs to it.
 
+
 (a dialog here means a toplevel surface that has a non-null parent)
 
 If the final value of this field is not null, all of the above is ignored. Whether the window provides an activation token or not, doesn't matter. The window will be focused if and only if this field is true. If it is false, the window will not be focused, even if it provides a valid activation token.
@@ -2754,13 +2804,13 @@ Some of this may be obvious, but in general, these invariants *should* hold true
 - a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
 - a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
 
+
 There are three methods of screencapture in niri:
 
 1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
-
 1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
-
 1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
+
 
 | `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
 | --- | :---: | :---: | :---: |
@@ -2768,24 +2818,25 @@ There are three methods of screencapture in niri:
 | `"screencast"` | no | yes | yes |
 | `"screen-capture"` | no | no | yes |
 
+
 > [!caution]
 > **Streamers: Do not accidentally leak window contents via screenshots.**
->
+> 
 > For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
->
+> 
 > If you are a streamer, either:
 > - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
 > - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
 
 > [!caution]
 > **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
->
+> 
 > (and don't let malicious software run on your system in the first place, you silly goose)
->
+> 
 > For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
->
+> 
 > Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
->
+> 
 > **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
 
 Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
@@ -2980,7 +3031,7 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 
 The softness/size of the shadow, measured in logical pixels.
 
-This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
 ## `programs.niri.settings.window-rules.*.shadow.spread`
@@ -3117,19 +3168,16 @@ A layer rule will match based on [`layer-rules.*.matches`](#programsnirisettings
 A given match rule can match based on one of several fields. For a given match rule to "match" a layer surface, it must match on all fields.
 
 - The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
-
-
-- The `at_startup` field, when non-null, will match a layer surface based on whether it was opened within the first 60 seconds of niri starting up.
-
+- The `at-startup` field, when non-null, will match a layer surface based on whether it was opened within the first 60 seconds of niri starting up.
 - If a field is null, it will always match.
+
 
 For a given layer rule to match a layer surface, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the layer rule as a whole will match. For a given layer rule:
 
 - A given layer surface is "considered" if any of the match rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) successfully match this layer surface. If all of the match rules do not match this layer surface, then that layer surface will never match this layer rule.
-
 - If [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) contains no match rules, it will match any layer surface and "consider" it for this layer rule.
-
 - If a given layer surface is "considered" for this layer rule according to the above rules, the selection can be further refined with [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). If any of the match rules in `excludes` match this layer surface, it will be rejected and this layer rule will not match the given layer surface.
+
 
 That is, a given layer rule will apply to a given layer surface if any of the entries in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) match that layer surface (or there are none), AND none of the entries in [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes) match that layer surface.
 
@@ -3143,6 +3191,7 @@ Then, for each applicable layer rule:
 
 - If a given field is null on this layer rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
 - If the given field is not null, it will overwrite the value from any previous rule.
+
 
 The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* layer rule that matches the given layer rule (not considering null entries, unless there are no non-null entries)
 
@@ -3205,22 +3254,22 @@ When true, this rule will match layer surfaces opened within the first 60 second
 - type: `null or one of "screencast", "screen-capture"`
 - default: `null`
 
-Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
+Whether to block out this layer surface from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
 
 This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
 
 Some of this may be obvious, but in general, these invariants *should* hold true:
-- a window is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
-- a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
-- a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+- a layer surface is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+- a `block-out-from` layer surface *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+- a `block-out-from` layer surface is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+
 
 There are three methods of screencapture in niri:
 
-1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this layer surface is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the layer surface just fine. This is because you may still want to take a screenshot of such layer surfaces. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the layer surface contents to an active screencast. When `block-out-from = "screen-capture";`, this layer surface is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of layer surface contents. Its frozen overlay will never leak layer surface contents to an active screencast, because information of blocked layer surfaces and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any layer surface.
 
-1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
-
-1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
 
 | `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
 | --- | :---: | :---: | :---: |
@@ -3228,38 +3277,39 @@ There are three methods of screencapture in niri:
 | `"screencast"` | no | yes | yes |
 | `"screen-capture"` | no | no | yes |
 
+
 > [!caution]
-> **Streamers: Do not accidentally leak window contents via screenshots.**
->
-> For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
->
+> **Streamers: Do not accidentally leak layer surface contents via screenshots.**
+> 
+> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface may still be visible in a screencast, if the layer surface is indirectly displayed by a tool using `wlr-screencopy`.
+> 
 > If you are a streamer, either:
 > - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
-> - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
+> - **set `block-out-from = "screen-capture";` to ensure that the layer surface is never visible in a screencast.**
 
 > [!caution]
-> **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
->
+> **Do not let malicious `wlr-screencopy` clients capture your top secret layer surfaces.**
+> 
 > (and don't let malicious software run on your system in the first place, you silly goose)
->
-> For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
->
+> 
+> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+> 
 > Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
->
-> **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+> 
+> **If a layer surface's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
 
-Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
+Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the layer surface is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the layer surface without its contents normally being visible in a screencast. (at the risk of some tools still leaking the layer surface contents, see above)
 
 
 ## `programs.niri.settings.layer-rules.*.opacity`
 - type: `null or floating point number`
 - default: `null`
 
-The opacity of the window, ranging from 0 to 1.
+The opacity of the layer surface, ranging from 0 to 1.
 
 If the final value of this field is null, niri will fall back to a value of 1.
 
-Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
+Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a layer surface that is already semitransparent will make it even more transparent.
 
 
 ## `programs.niri.settings.layer-rules.*.geometry-corner-radius`
@@ -3330,7 +3380,7 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 
 The softness/size of the shadow, measured in logical pixels.
 
-This behaves like a [CSS box-shadow blur-radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
 ## `programs.niri.settings.layer-rules.*.shadow.spread`
@@ -3364,11 +3414,10 @@ This will only work for background layer surfaces that ignore exclusive zones (t
 
 > [!important]
 > This option is not yet available in stable niri.
->
-> If you wish to modify this option, you should make sure [`programs.niri.package`](#programsniripackage) is set to [`pkgs.niri-unstable`](#packagessystemniri-unstable).
->
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
 > Otherwise, your system might fail to build.
-
 
 Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
 
@@ -3406,6 +3455,7 @@ Here's an example of how to use this:
   };
 }
 ```
+
 
 This option is, just like [`binds`](#programsnirisettingsbinds), not verified by the nix module. But, it will be validated by niri before committing the config.
 
