@@ -163,43 +163,24 @@ let
         ${indent (delimit-pretty "```nix" text "```")}
       '';
 
-  nested-newtype =
-    type:
-    if type == null then
-      null
-    else if type.name == "newtype" then
-      type
-    else
-      nested-newtype (type.nestedTypes.elemType or null);
-
   describe-type =
     type:
-    match type.name {
-      newtype =
-        let
-          display' = describe-type type.nestedTypes.display;
-          inner' = describe-type type.nestedTypes.inner;
-        in
-        display' + lib.optionalString (inner' != null) ", which is a ${inner'}";
-      shorthand = link' "<${type.description}>";
-      _ = match type.description {
-        submodule = null;
-        _ =
-          let
-            type' = nested-newtype type;
-            desc = "`${type.description}`";
-          in
-          if type' != null && type'.nestedTypes.display.name == "shorthand" then
-            lib.replaceStrings [ "``" ] [ "" ] (
-              lib.replaceStrings
-                [ type'.nestedTypes.display.description ]
-                [ "`${describe-type type'.nestedTypes.display}`" ]
-                desc
-            )
-          else
-            desc;
-      };
-    };
+    let
+      span = content: "`${content}`";
+    in
+    if type.name == "rename" then
+      (span type.description) + ", which is a ${describe-type type.nestedTypes.real}"
+    else if type.name == "shorthand" then
+      link' "${type.description}"
+    else if type.name == "nullOr" && type.nestedTypes.elemType.name == "rename" then
+      span type.description
+      + " (where ${span type.nestedTypes.elemType.description} is a ${describe-type type.nestedTypes.elemType.nestedTypes.real})"
+    else if type.name == "nullOr" && type.nestedTypes.elemType.name == "shorthand" then
+      span "null or" + link' "${type.nestedTypes.elemType.description}"
+    else
+      span type.description;
+
+  describe-type' = type: lib.replaceStrings [ "``" ] [ "" ] (describe-type type);
 
   render-option =
     opt:
@@ -214,7 +195,12 @@ let
         lib.concatStringsSep "\n" (
           lib.remove null [
             "## ${opt.override-header or "`${showOption opt.loc}`"}"
-            (lib.optionalString (opt.type.description != "submodule") "- type: ${describe-type opt.type}")
+            (
+              let
+                described = describe-type' opt.type;
+              in
+              lib.optionalString (described != "`submodule`") "- type: ${described}"
+            )
             (maybe make-default opt.defaultText)
             ""
             (maybe lib.id opt.description or null)

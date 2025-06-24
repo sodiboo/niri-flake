@@ -530,22 +530,22 @@ Whether this keybind should trigger repeatedly when held down.
 <!-- programs.niri.settings.switch-events -->
 
 ## `programs.niri.settings.switch-events.lid-close`
-- type: `null or `[`<switch-bind>`](#switch-bind)
+- type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 
 
 ## `programs.niri.settings.switch-events.lid-open`
-- type: `null or `[`<switch-bind>`](#switch-bind)
+- type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 
 
 ## `programs.niri.settings.switch-events.tablet-mode-off`
-- type: `null or `[`<switch-bind>`](#switch-bind)
+- type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 
 
 ## `programs.niri.settings.switch-events.tablet-mode-on`
-- type: `null or `[`<switch-bind>`](#switch-bind)
+- type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 
 
@@ -1644,21 +1644,21 @@ The width of the border drawn around each window.
 
 
 ## `programs.niri.settings.layout.border.active`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the border for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.border.inactive`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the border for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.layout.border.urgent`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the border for windows that are requesting attention.
@@ -1689,21 +1689,21 @@ The width of the focus ring drawn around each focused window.
 
 
 ## `programs.niri.settings.layout.focus-ring.active`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the focus ring for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.focus-ring.inactive`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the focus ring for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.layout.focus-ring.urgent`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the focus ring for windows that are requesting attention.
@@ -1781,7 +1781,7 @@ Whether to enable the insert hint.
 
 
 ## `programs.niri.settings.layout.insert-hint.display`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the insert hint.
@@ -2062,21 +2062,21 @@ The width of the column as a proportion of the screen's width
 
 
 ## `programs.niri.settings.layout.tab-indicator.active`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the tab indicator for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.layout.tab-indicator.inactive`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the tab indicator for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.layout.tab-indicator.urgent`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the tab indicator for windows that are requesting attention.
@@ -2150,7 +2150,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.config-notification-open-close.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2162,7 +2162,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.horizontal-view-movement.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2174,7 +2174,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.overview-open-close.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2186,7 +2186,7 @@ The left and right structs work in a similar way, except the padded space is not
 
 
 ## `programs.niri.settings.animations.screenshot-ui-open.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2209,7 +2209,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-close.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2221,7 +2221,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-movement.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2244,7 +2244,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-open.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2267,7 +2267,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.window-resize.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2279,7 +2279,7 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
 
 ## `programs.niri.settings.animations.workspace-switch.kind`
-- type: [`<animation-kind>`](#animation-kind), which is a `null or attribute-tagged union`
+- type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
@@ -2450,7 +2450,7 @@ If all of the rules do not match a window, then this window rule will not apply 
 
 
 ## `programs.niri.settings.window-rules.*.matches.*.app-id`
-- type: `null or regular expression`
+- type: `null or regular expression` (where `regular expression` is a `string`)
 - default: `null`
 
 A regular expression to match against the app id of the window.
@@ -2459,7 +2459,7 @@ When non-null, for this field to match a window, a client must set the app id of
 
 
 ## `programs.niri.settings.window-rules.*.matches.*.title`
-- type: `null or regular expression`
+- type: `null or regular expression` (where `regular expression` is a `string`)
 - default: `null`
 
 A regular expression to match against the title of the window.
@@ -2539,7 +2539,7 @@ If none of these rules match a window, then this window rule will not be rejecte
 
 
 ## `programs.niri.settings.window-rules.*.excludes.*.app-id`
-- type: `null or regular expression`
+- type: `null or regular expression` (where `regular expression` is a `string`)
 - default: `null`
 
 A regular expression to match against the app id of the window.
@@ -2548,7 +2548,7 @@ When non-null, for this field to match a window, a client must set the app id of
 
 
 ## `programs.niri.settings.window-rules.*.excludes.*.title`
-- type: `null or regular expression`
+- type: `null or regular expression` (where `regular expression` is a `string`)
 - default: `null`
 
 A regular expression to match against the title of the window.
@@ -2831,21 +2831,21 @@ The width of the border drawn around each matched window.
 
 
 ## `programs.niri.settings.window-rules.*.border.active`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the border for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.window-rules.*.border.inactive`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the border for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.window-rules.*.border.urgent`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the border for windows that are requesting attention.
@@ -2896,21 +2896,21 @@ The width of the focus ring drawn around each matched window with focus.
 
 
 ## `programs.niri.settings.window-rules.*.focus-ring.active`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the focus ring for the window that has keyboard focus.
 
 
 ## `programs.niri.settings.window-rules.*.focus-ring.inactive`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the focus ring for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.window-rules.*.focus-ring.urgent`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the focus ring for windows that are requesting attention.
@@ -3014,21 +3014,21 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 <!-- programs.niri.settings.window-rules.*.tab-indicator -->
 
 ## `programs.niri.settings.window-rules.*.tab-indicator.active`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
 
 
 ## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
 
 
 ## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
-- type: `null or `[`<decoration>`](#decoration)
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
@@ -3179,7 +3179,7 @@ If all of the rules do not match a layer surface, then this layer rule will not 
 
 
 ## `programs.niri.settings.layer-rules.*.matches.*.namespace`
-- type: `null or regular expression`
+- type: `null or regular expression` (where `regular expression` is a `string`)
 - default: `null`
 
 A regular expression to match against the namespace of the layer surface.
@@ -3205,7 +3205,7 @@ If none of these rules match a layer surface, then this layer rule will not be r
 
 
 ## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
-- type: `null or regular expression`
+- type: `null or regular expression` (where `regular expression` is a `string`)
 - default: `null`
 
 A regular expression to match against the namespace of the layer surface.

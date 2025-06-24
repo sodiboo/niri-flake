@@ -285,27 +285,24 @@
       default-width = emptyOr preset-width;
       default-height = emptyOr preset-height;
 
-      link-type =
-        name:
+      shorthand-for =
+        type-name: real:
         mkOptionType {
           name = "shorthand";
-          description = name;
+          description = "<${type-name}>";
           descriptionClass = "noun";
+          inherit (real) check merge getSubOptions;
+          nestedTypes = { inherit real; };
         };
-      plain-type =
-        description:
+
+      rename =
+        name: real:
         mkOptionType {
-          name = "plain";
-          inherit description;
+          name = "rename";
+          description = "${name}";
           descriptionClass = "noun";
-        };
-      newtype =
-        display: inner:
-        mkOptionType {
-          name = "newtype";
-          inherit (display) description descriptionClass;
-          inherit (inner) check merge getSubOptions;
-          nestedTypes = { inherit display inner; };
+          inherit (real) check merge getSubOptions;
+          nestedTypes = { inherit real; };
         };
 
       # niri seems to have deprecated this way of defining colors; so we won't support it
@@ -445,7 +442,7 @@
         builtins.mapAttrs (
           name:
           { description }:
-          nullable (newtype (link-type "decoration") (decoration (options.${name})))
+          nullable (shorthand-for "decoration" (decoration (options.${name})))
           // {
             visible = "shallow";
             inherit description;
@@ -597,7 +594,7 @@
           '';
         };
 
-      regex = newtype (plain-type "regular expression") types.str;
+      regex = rename "regular expression" types.str;
 
       rule-descriptions =
         {
@@ -833,7 +830,7 @@
             options._module.niri-flake-ordered-record = {
               ordering = lib.mkOption {
                 internal = true;
-                readOnly = true;
+                # readOnly = true;
                 visible = false;
                 description = ''
                   Used to influence the order of options in the documentation, such that they are not always sorted alphabetically.
@@ -867,12 +864,38 @@
     submodule (
       { options, ... }:
       {
+        # config._module.niri-flake-ordered-record.ordering = lib.mkForce [
+        #   "input"
+        #   "outputs"
+        #   "binds"
+        #   "switch-events"
+        #   "layout"
+
+        #   "workspaces"
+
+        #   "spawn-at-startup"
+        #   "prefer-no-csd"
+        #   "screenshot-path"
+        #   "environment"
+        #   "overview"
+        #   "cursor"
+        #   "xwayland-satellite"
+        #   "clipboard"
+        #   "hotkey-overlay"
+
+        #   "window-rules"
+        #   "layer-rules"
+        #   "animations"
+        #   "gestures"
+
+        #   "debug"
+        # ];
         imports = make-ordered-options [
           {
             switch-events =
               let
-                switch-bind = newtype (plain-type "niri switch bind") (record {
-                  action = required (newtype (plain-type "niri switch action") kdl.types.kdl-leaf) // {
+                switch-bind = record' "niri switch bind" {
+                  action = required (rename "niri switch action" kdl.types.kdl-leaf) // {
                     description = ''
                       A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
 
@@ -888,9 +911,9 @@
                       ''}
                     '';
                   };
-                });
+                };
 
-                switch-bind' = nullable (newtype (link-type "switch-bind") switch-bind) // {
+                switch-bind' = nullable (shorthand-for "switch-bind" switch-bind) // {
                   visible = "shallow";
                 };
               in
@@ -984,7 +1007,7 @@
                     ]}
                   '';
                 };
-              action = required (newtype (plain-type "niri action") kdl.types.kdl-leaf) // {
+              action = required (rename "niri action" kdl.types.kdl-leaf) // {
                 description = ''
                   An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
@@ -2201,7 +2224,7 @@
                       inner = record (
                         {
                           enable = optional types.bool true;
-                          kind = optional (newtype (link-type "animation-kind") (nullOr animation-kind)) null // {
+                          kind = nullable (shorthand-for "animation-kind" animation-kind) // {
                             visible = "shallow";
                           };
                         }
