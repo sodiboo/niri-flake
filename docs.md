@@ -324,6 +324,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 > }
 > ```
 
+
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
@@ -598,6 +599,7 @@ The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3
 > If you wish to modify this option, you should make sure you're using the latest unstable niri.
 > 
 > Otherwise, your system might fail to build.
+
 
 By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
 In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
@@ -2796,6 +2798,7 @@ There are three methods of screencapture in niri:
 > - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
 > - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
 
+
 > [!caution]
 > **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
 > 
@@ -2806,6 +2809,7 @@ There are three methods of screencapture in niri:
 > Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
 > 
 > **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
 
 Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
 
@@ -3257,6 +3261,7 @@ There are three methods of screencapture in niri:
 > - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
 > - **set `block-out-from = "screen-capture";` to ensure that the layer surface is never visible in a screencast.**
 
+
 > [!caution]
 > **Do not let malicious `wlr-screencopy` clients capture your top secret layer surfaces.**
 > 
@@ -3267,6 +3272,7 @@ There are three methods of screencapture in niri:
 > Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
 > 
 > **If a layer surface's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
 
 Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the layer surface is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the layer surface without its contents normally being visible in a screencast. (at the risk of some tools still leaking the layer surface contents, see above)
 
@@ -3388,6 +3394,7 @@ This will only work for background layer surfaces that ignore exclusive zones (t
 > If you wish to modify this option, you should make sure you're using the latest unstable niri.
 > 
 > Otherwise, your system might fail to build.
+
 
 Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
 

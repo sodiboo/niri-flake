@@ -318,8 +318,8 @@ in
         lib.pipe content [
           body
           (lib.splitString "\n")
-          (map (s: "> ${s}"))
-          (lib.concatStringsSep "\n")
+          (map (s: "> ${s}\n"))
+          lib.concatStrings
         ];
 
       code = code: "`${code}`";
