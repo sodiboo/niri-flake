@@ -39,6 +39,7 @@
       kdl = call ./kdl.nix;
       binds = call ./parse-binds.nix;
       docs = call ./generate-docs.nix;
+      html-docs = call ./generate-html-docs.nix;
       settings = call ./settings.nix;
       stylix-module = call ./stylix.nix;
 
@@ -345,6 +346,7 @@
           inherit make-package-set validated-config-for;
           package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
           docs-markdown = docs.make-docs (settings.fake-docs { inherit fmt-date fmt-time; });
+          docs-html = html-docs.make-docs (settings.type-with html-docs.settings-fmt);
           settings-module = settings.module;
           memo-binds = nixpkgs.lib.pipe (binds inputs.niri-unstable) [
             (map (bind: "  \"${bind.name}\""))
