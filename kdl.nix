@@ -15,7 +15,7 @@ let
       };
   node = name: args: children: {
     inherit name;
-    inherit (fold-args args) arguments properties;
+    inherit (fold-args (lib.toList args)) arguments properties;
     inherit children;
   };
 

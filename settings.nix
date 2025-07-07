@@ -3232,7 +3232,7 @@
 
         node =
           name: args: children:
-          kdl.node name (lib.toList args) (normalize-nodes children);
+          kdl.node name args (normalize-nodes children);
         plain = name: node name [ ];
         leaf = name: args: node name args [ ];
         flag = name: node name [ ] [ ];
