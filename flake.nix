@@ -381,28 +381,12 @@
 
       formatter = forAllSystems (system: inputs.nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
 
-      devShells = forAllSystems (
-        system:
-        let
-          pkgs = inputs.nixpkgs.legacyPackages.${system};
-        in
-        {
-          default = pkgs.mkShell {
-            packages = with pkgs; [
-              self.formatter.${system}
-              just
-              fish
-              fd
-              entr
-              moreutils
-            ];
-
-            shellHook = ''
-              just hook 2>/dev/null
-            '';
-          };
-        }
-      );
+      devShells = forAllSystems (system: {
+        default = import ./shell.nix {
+          flake = self;
+          inherit system;
+        };
+      });
 
       homeModules.stylix = stylix-module;
       homeModules.config =
