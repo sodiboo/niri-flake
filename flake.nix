@@ -114,20 +114,19 @@
             installShellFiles
           ];
 
-          buildInputs =
-            [
-              wayland
-              libgbm
-              libglvnd
-              seatd
-              libinput
-              libdisplay-info
-              libxkbcommon
-              pango
-            ]
-            ++ nixpkgs.lib.optional withScreencastSupport pipewire
-            ++ nixpkgs.lib.optional withSystemd systemdLibs # we only need udev, really.
-            ++ nixpkgs.lib.optional (!withSystemd) eudev; # drop-in replacement for systemd-udev
+          buildInputs = [
+            wayland
+            libgbm
+            libglvnd
+            seatd
+            libinput
+            libdisplay-info
+            libxkbcommon
+            pango
+          ]
+          ++ nixpkgs.lib.optional withScreencastSupport pipewire
+          ++ nixpkgs.lib.optional withSystemd systemdLibs # we only need udev, really.
+          ++ nixpkgs.lib.optional (!withSystemd) eudev; # drop-in replacement for systemd-udev
 
           buildNoDefaultFeatures = true;
           buildFeatures =
@@ -262,14 +261,13 @@
           # All tests require a display server to be running.
           doCheck = false;
 
-          postInstall =
-            ''
-              wrapProgram $out/bin/xwayland-satellite \
-                --prefix PATH : "${nixpkgs.lib.makeBinPath [ xwayland ]}"
-            ''
-            + nixpkgs.lib.optionalString withSystemd ''
-              install -Dm0644 resources/xwayland-satellite.service -t $out/lib/systemd/user
-            '';
+          postInstall = ''
+            wrapProgram $out/bin/xwayland-satellite \
+              --prefix PATH : "${nixpkgs.lib.makeBinPath [ xwayland ]}"
+          ''
+          + nixpkgs.lib.optionalString withSystemd ''
+            install -Dm0644 resources/xwayland-satellite.service -t $out/lib/systemd/user
+          '';
 
           postFixup = nixpkgs.lib.optionalString withSystemd ''
             substituteInPlace $out/lib/systemd/user/xwayland-satellite.service \
@@ -510,7 +508,8 @@
               home-manager.sharedModules = [
                 self.homeModules.config
                 { programs.niri.package = nixpkgs.lib.mkForce cfg.package; }
-              ] ++ nixpkgs.lib.optionals (options ? stylix) [ self.homeModules.stylix ];
+              ]
+              ++ nixpkgs.lib.optionals (options ? stylix) [ self.homeModules.stylix ];
             })
           ];
         };
@@ -560,7 +559,8 @@
                   fileSystems."/".device = "/dev/sda1";
                   boot.loader.systemd-boot.enable = true;
                 }
-              ] ++ modules;
+              ]
+              ++ modules;
             }).config.system.build.toplevel;
         in
         {
