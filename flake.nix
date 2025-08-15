@@ -128,6 +128,13 @@
           ++ nixpkgs.lib.optional withSystemd systemdLibs # we only need udev, really.
           ++ nixpkgs.lib.optional (!withSystemd) eudev; # drop-in replacement for systemd-udev
 
+          checkFlags = [
+            # These tests require surfaceless OpenGL displays. The "surfaceless" part means we don't need a Wayland or Xorg server;
+            # but they still fundamentally require GPU drivers, which are only (sometimes) present at runtime.
+            "--skip=tests::animations::clientside_height_change_doesnt_animate"
+            "--skip=tests::animations::height_resize_animates_next_y"
+          ];
+
           buildNoDefaultFeatures = true;
           buildFeatures =
             nixpkgs.lib.optional withDbus "dbus"
