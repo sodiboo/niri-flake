@@ -57,9 +57,6 @@
       fmt-date = raw: "${date.year raw}-${date.month raw}-${date.day raw}";
       fmt-time = raw: "${date.hour raw}:${date.minute raw}:${date.second raw}";
 
-      # note: against nixpkgs convention, i don't strip the "v"
-      # this is in part just slightly easier, but also distinguishes these package versions from nixpkgs
-
       version-string =
         src:
         if stable-revs ? ${src.rev} then
