@@ -267,6 +267,10 @@
           # All tests require a display server to be running.
           doCheck = false;
 
+          # https://github.com/Supreeeme/xwayland-satellite/blob/388d291e82ffbc73be18169d39470f340707edaa/src/lib.rs#L51
+          # https://github.com/rustyhorde/vergen/blob/9374f497395238b68ec4c6b43f69c4a78a111121/vergen-gitcl/src/lib.rs#L232
+          VERGEN_GIT_DESCRIBE = version-string src;
+
           postInstall = ''
             wrapProgram $out/bin/xwayland-satellite \
               --prefix PATH : "${nixpkgs.lib.makeBinPath [ xwayland ]}"
