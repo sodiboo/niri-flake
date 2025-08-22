@@ -28,7 +28,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`a6febb8`](https://github.com/YaLTeR/niri/tree/a6febb86aa5af0df7bf2792ca027ef95a503d599) which was authored on `2025-08-17 08:29:33`.
+Currently, this is exactly commit [`05337ce`](https://github.com/YaLTeR/niri/tree/05337ce85560efc4d20cc23e9452a1e1f360007d) which was authored on `2025-08-21 07:28:44`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -333,6 +333,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `debug-toggle-opaque-regions`
 - `debug-toggle-damage`
 - `λ spawn :: [string]`
+- `λ spawn-sh :: string` (only on niri-unstable)
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
 - `λ screenshot :: { show-pointer :: bool }`
 - `λ screenshot-window :: { write-to-disk :: bool }`

@@ -98,6 +98,8 @@
           withSystemd ? true,
           fetchzip,
           runCommand,
+
+          wiki-location,
         }:
         rustPlatform.buildRustPackage {
           pname = "niri";
@@ -203,7 +205,7 @@
                 --fish <($out/bin/niri completions fish)
 
               install -Dm0644 README.md resources/default-config.kdl -t $doc/share/doc/niri
-              mv wiki $doc/share/doc/niri/wiki
+              mv ${wiki-location} $doc/share/doc/niri/wiki
             '';
 
           postFixup = ''
@@ -294,9 +296,11 @@
       make-package-set = pkgs: {
         niri-stable = pkgs.callPackage make-niri {
           src = inputs.niri-stable;
+          wiki-location = "wiki";
         };
         niri-unstable = pkgs.callPackage make-niri {
           src = inputs.niri-unstable;
+          wiki-location = "docs/wiki";
         };
         xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
           src = inputs.xwayland-satellite-stable;

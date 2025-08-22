@@ -11,6 +11,7 @@
   "debug-toggle-opaque-regions"
   "debug-toggle-damage"
   "spawn"
+  "spawn-sh"
   "do-screen-transition"
   "screenshot"
   "screenshot-window"
