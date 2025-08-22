@@ -257,11 +257,11 @@
           nativeBuildInputs = [
             pkg-config
             rustPlatform.bindgenHook
+            makeWrapper
           ];
 
           buildInputs = [
             xcb-util-cursor
-            makeWrapper
           ];
 
           buildNoDefaultFeatures = true;
