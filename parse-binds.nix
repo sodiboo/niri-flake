@@ -33,7 +33,6 @@ let
   ];
 in
 flip short-circuit [
-  (src: "${src}/niri-config/src/lib.rs")
   (path: if builtins.pathExists path then path else null)
   builtins.readFile
   (strings.splitString "\n")

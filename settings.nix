@@ -27,8 +27,8 @@
         enum
         ;
 
-      binds-stable = binds inputs.niri-stable;
-      binds-unstable = binds inputs.niri-unstable;
+      binds-stable = binds "${inputs.niri-stable}/niri-config/src/lib.rs";
+      binds-unstable = binds "${inputs.niri-unstable}/niri-config/src/binds.rs";
 
       record = record' null;
 
