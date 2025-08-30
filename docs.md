@@ -990,6 +990,25 @@ Further reading:
 
 
 
+## `programs.niri.settings.input.mouse.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
+> Otherwise, your system might fail to build.
+
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
 ## `programs.niri.settings.input.mouse.scroll-factor`
 - type: `null or floating point number`
 - default: `null`
@@ -1230,6 +1249,25 @@ Further reading:
 
 
 
+## `programs.niri.settings.input.touchpad.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
+> Otherwise, your system might fail to build.
+
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
 ## `programs.niri.settings.input.touchpad.scroll-factor`
 - type: `null or floating point number`
 - default: `null`
@@ -1344,6 +1382,25 @@ Further reading:
 
 
 
+## `programs.niri.settings.input.trackball.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
+> Otherwise, your system might fail to build.
+
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
 ## `programs.niri.settings.input.trackball.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
 - default: `null`
@@ -1420,6 +1477,25 @@ Further reading:
 - default: `null`
 
 When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.trackpoint.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
+> Otherwise, your system might fail to build.
+
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
 
 Further reading:
 - https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling

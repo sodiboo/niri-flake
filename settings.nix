@@ -202,6 +202,18 @@
               ]}
             '';
         };
+        scroll-button-lock = optional types.bool false // {
+          description = ''
+            ${unstable-note}
+
+            When this is false, ${fmt.code "scroll-button"} needs to be held down for pointer motion to be converted to scrolling. When this is true, ${fmt.code "scroll-button"} can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+            Further reading:
+            ${fmt.list [
+              (libinput-link "scrolling" "On-Button scrolling")
+            ]}
+          '';
+        };
         scroll-method =
           nullable (
             types.enum [
@@ -3269,6 +3281,7 @@
           (nullable leaf "accel-speed" cfg.accel-speed)
           (nullable leaf "accel-profile" cfg.accel-profile)
           (nullable leaf "scroll-button" cfg.scroll-button)
+          (flag' "scroll-button-lock" cfg.scroll-button-lock)
           (nullable leaf "scroll-method" cfg.scroll-method)
         ];
 
