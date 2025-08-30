@@ -204,8 +204,6 @@
         };
         scroll-button-lock = optional types.bool false // {
           description = ''
-            ${unstable-note}
-
             When this is false, ${fmt.code "scroll-button"} needs to be held down for pointer motion to be converted to scrolling. When this is true, ${fmt.code "scroll-button"} can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
 
             Further reading:
@@ -1210,8 +1208,6 @@
 
               hide-not-bound = optional types.bool false // {
                 description = ''
-                  ${unstable-note}
-
                   By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
                   In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
 
@@ -1224,8 +1220,6 @@
             config-notification = {
               disable-failed = optional types.bool false // {
                 description = ''
-                  ${unstable-note}
-
                   Disable the notification that the config file failed to load.
                 '';
               };
@@ -2962,8 +2956,6 @@
               }
               // {
                 description = ''
-                  ${unstable-note}
-
                   Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
                 '';
               };

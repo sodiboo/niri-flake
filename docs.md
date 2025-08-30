@@ -597,14 +597,6 @@ The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
-> 
-> If you wish to modify this option, you should make sure you're using the latest unstable niri.
-> 
-> Otherwise, your system might fail to build.
-
-
 By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
 In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
 
@@ -621,14 +613,6 @@ Whether to skip the hotkey overlay shown when niri starts.
 ## `programs.niri.settings.config-notification.disable-failed`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
-> 
-> If you wish to modify this option, you should make sure you're using the latest unstable niri.
-> 
-> Otherwise, your system might fail to build.
-
 
 Disable the notification that the config file failed to load.
 
@@ -1017,14 +1001,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
-> 
-> If you wish to modify this option, you should make sure you're using the latest unstable niri.
-> 
-> Otherwise, your system might fail to build.
-
-
 When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
 
 Further reading:
@@ -1276,14 +1252,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
-> 
-> If you wish to modify this option, you should make sure you're using the latest unstable niri.
-> 
-> Otherwise, your system might fail to build.
-
-
 When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
 
 Further reading:
@@ -1409,14 +1377,6 @@ Further reading:
 - type: `boolean`
 - default: `false`
 
-> [!important]
-> This option is not yet available in stable niri.
-> 
-> If you wish to modify this option, you should make sure you're using the latest unstable niri.
-> 
-> Otherwise, your system might fail to build.
-
-
 When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
 
 Further reading:
@@ -1509,14 +1469,6 @@ Further reading:
 ## `programs.niri.settings.input.trackpoint.scroll-button-lock`
 - type: `boolean`
 - default: `false`
-
-> [!important]
-> This option is not yet available in stable niri.
-> 
-> If you wish to modify this option, you should make sure you're using the latest unstable niri.
-> 
-> Otherwise, your system might fail to build.
-
 
 When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
 
@@ -3507,14 +3459,6 @@ This will only work for background layer surfaces that ignore exclusive zones (t
 
 
 ## `programs.niri.settings.xwayland-satellite`
-
-
-> [!important]
-> This option is not yet available in stable niri.
-> 
-> If you wish to modify this option, you should make sure you're using the latest unstable niri.
-> 
-> Otherwise, your system might fail to build.
 
 
 Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
