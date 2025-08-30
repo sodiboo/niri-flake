@@ -2250,6 +2250,7 @@
                   workspace-switch.has-shader = false;
                   horizontal-view-movement.has-shader = false;
                   config-notification-open-close.has-shader = false;
+                  exit-confirmation-open-close.has-shader = false;
                   window-movement.has-shader = false;
                   window-open.has-shader = true;
                   window-close.has-shader = true;

@@ -2259,6 +2259,18 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `null`
 
 
+<!-- programs.niri.settings.animations.exit-confirmation-open-close -->
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
 <!-- programs.niri.settings.animations.horizontal-view-movement -->
 
 ## `programs.niri.settings.animations.horizontal-view-movement.enable`
