@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
 
-    niri-stable.url = "github:YaLTeR/niri/v25.05.1";
+    niri-stable.url = "github:YaLTeR/niri/v25.08";
     niri-unstable.url = "github:YaLTeR/niri";
 
     xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.7";
@@ -95,8 +95,6 @@
           withSystemd ? true,
           fetchzip,
           runCommand,
-
-          wiki-location,
         }:
         rustPlatform.buildRustPackage {
           pname = "niri";
@@ -194,6 +192,7 @@
             + nixpkgs.lib.optionalString withDinit ''
               install -Dm0644 resources/dinit/niri{,-shutdown} -t $out/lib/dinit.d/user
             ''
+            # TODO: add nushell after nixos-25.11
             + ''
               installShellCompletion --cmd niri \
                 --bash <($out/bin/niri completions bash) \
@@ -201,7 +200,7 @@
                 --fish <($out/bin/niri completions fish)
 
               install -Dm0644 README.md resources/default-config.kdl -t $doc/share/doc/niri
-              mv ${wiki-location} $doc/share/doc/niri/wiki
+              mv docs/wiki $doc/share/doc/niri/wiki
             '';
 
           postFixup = ''
@@ -296,11 +295,9 @@
       make-package-set = pkgs: {
         niri-stable = pkgs.callPackage make-niri {
           src = inputs.niri-stable;
-          wiki-location = "wiki";
         };
         niri-unstable = pkgs.callPackage make-niri {
           src = inputs.niri-unstable;
-          wiki-location = "docs/wiki";
         };
         xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
           src = inputs.xwayland-satellite-stable;

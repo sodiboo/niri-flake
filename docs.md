@@ -15,7 +15,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`25.05.1`](https://github.com/YaLTeR/niri/releases/tag/25.05.1) with no additional patches.
+Currently, this is release [`25.08`](https://github.com/YaLTeR/niri/releases/tag/25.08) with no additional patches.
 
 
 
@@ -333,7 +333,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `debug-toggle-opaque-regions`
 - `debug-toggle-damage`
 - `λ spawn :: [string]`
-- `λ spawn-sh :: string` (only on niri-unstable)
+- `λ spawn-sh :: string`
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
 - `λ screenshot :: { show-pointer :: bool }`
 - `λ screenshot-window :: { write-to-disk :: bool }`
@@ -427,11 +427,11 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ set-window-height :: size-change`
 - `reset-window-height`
 - `switch-preset-column-width`
-- `switch-preset-column-width-back` (only on niri-unstable)
+- `switch-preset-column-width-back`
 - `switch-preset-window-width`
-- `switch-preset-window-width-back` (only on niri-unstable)
+- `switch-preset-window-width-back`
 - `switch-preset-window-height`
-- `switch-preset-window-height-back` (only on niri-unstable)
+- `switch-preset-window-height-back`
 - `maximize-column`
 - `λ set-column-width :: size-change`
 - `expand-column-to-available-width`
