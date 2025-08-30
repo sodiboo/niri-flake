@@ -1025,7 +1025,7 @@ Further reading:
 
 
 ## `programs.niri.settings.input.mouse.scroll-factor`
-- type: `null or floating point number`
+- type: `null or floating point number or signed integer or (submodule)`
 - default: `null`
 
 For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
@@ -1284,7 +1284,7 @@ Further reading:
 
 
 ## `programs.niri.settings.input.touchpad.scroll-factor`
-- type: `null or floating point number`
+- type: `null or floating point number or signed integer or (submodule)`
 - default: `null`
 
 For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.

@@ -1623,25 +1623,39 @@
                       '';
                     };
 
-                  scroll-factor = nullable types.float // {
-                    description = ''
-                      For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
+                  scroll-factor =
+                    nullable (
+                      types.either float-or-int (record {
+                        horizontal = optional float-or-int 1.0;
+                        vertical = optional float-or-int 1.0;
+                      })
+                    )
+                    // {
+                      description = ''
+                        For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
 
-                      This is not a libinput property, but rather a niri-specific one.
-                    '';
-                  };
+                        This is not a libinput property, but rather a niri-specific one.
+                      '';
+                    };
                 };
               mouse =
                 pointer-tablet-common
                 // basic-pointer false
                 // {
-                  scroll-factor = nullable types.float // {
-                    description = ''
-                      For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
+                  scroll-factor =
+                    nullable (
+                      types.either float-or-int (record {
+                        horizontal = optional float-or-int 1.0;
+                        vertical = optional float-or-int 1.0;
+                      })
+                    )
+                    // {
+                      description = ''
+                        For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
 
-                      This is not a libinput property, but rather a niri-specific one.
-                    '';
-                  };
+                        This is not a libinput property, but rather a niri-specific one.
+                      '';
+                    };
                 };
               trackpoint = pointer-tablet-common // basic-pointer false;
               trackball = pointer-tablet-common // basic-pointer false;
