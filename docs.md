@@ -618,6 +618,21 @@ You can disable this behaviour by setting this option to `true`. Then, niri will
 Whether to skip the hotkey overlay shown when niri starts.
 
 
+## `programs.niri.settings.config-notification.disable-failed`
+- type: `boolean`
+- default: `false`
+
+> [!important]
+> This option is not yet available in stable niri.
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
+> Otherwise, your system might fail to build.
+
+
+Disable the notification that the config file failed to load.
+
+
 ## `programs.niri.settings.clipboard.disable-primary`
 - type: `boolean`
 - default: `false`

@@ -1220,6 +1220,17 @@
               };
             };
           }
+          {
+            config-notification = {
+              disable-failed = optional types.bool false // {
+                description = ''
+                  ${unstable-note}
+
+                  Disable the notification that the config file failed to load.
+                '';
+              };
+            };
+          }
 
           {
             clipboard.disable-primary = optional types.bool false // {
@@ -3614,6 +3625,10 @@
         (plain' "hotkey-overlay" [
           (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
           (flag' "hide-not-bound" cfg.hotkey-overlay.hide-not-bound)
+        ])
+
+        (plain' "config-notification" [
+          (flag' "disable-failed" cfg.config-notification.disable-failed)
         ])
 
         (plain' "clipboard" [
