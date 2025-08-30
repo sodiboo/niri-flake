@@ -656,43 +656,51 @@ Whether to prefer server-side decorations (SSD) over client-side decorations (CS
 
 
 ## `programs.niri.settings.spawn-at-startup`
-- type: `list of (submodule)`
+- type: `list of attribute-tagged union`
 
 A list of commands to run when niri starts.
 
-Each command is represented as its raw arguments, meaning you **cannot** use shell syntax here.
+Each command can be represented as its raw arguments, or as a shell invocation.
 
-A leading tilde in the zeroth argument will be expanded to the user's home directory.
+When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+
+
+## `programs.niri.settings.spawn-at-startup.*.argv`
+- type: `list of string`
+
+Almost raw process arguments to spawn, without shell syntax.
+
+A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
 
 Usage is like so:
 
 ```nix
 {
   programs.niri.settings.spawn-at-startup = [
-    { command = ["waybar"]; }
-    { command = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
-    { command = ["~/.config/niri/scripts/startup.sh"]; }
+    { argv = ["waybar"]; }
+    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
+    { argv = ["~/.config/niri/scripts/startup.sh"]; }
   ];
 }
 ```
 
 
-If you need shell syntax, you can spawn something like this:
+
+## `programs.niri.settings.spawn-at-startup.*.sh`
+- type: `string`
+
+A shell command to spawn. Run wild with POSIX syntax.
 
 ```nix
 {
   programs.niri.settings.spawn-at-startup = [
-    { command = ["sh" "-c" "echo $NIRI_SOCKET > ~/.niri-socket"]; }
+    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
   ];
 }
 ```
 
 
-When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` action) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
-
-
-## `programs.niri.settings.spawn-at-startup.*.command`
-- type: `list of string`
+Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
 
 
 ## `programs.niri.settings.workspaces`
