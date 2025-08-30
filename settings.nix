@@ -2237,12 +2237,21 @@
                         "ease-out-quad"
                         "ease-out-cubic"
                         "ease-out-expo"
+                        "cubic-bezier"
                       ])
                       // {
                         description = ''
                           The curve to use for the easing function.
                         '';
                       };
+
+                    # eh? not loving this. but anything better is kinda nontrivial.
+                    # will refactor, currently just a stopgap so that it is usable.
+                    curve-args = list kdl.types.kdl-value // {
+                      description = ''
+                        Arguments to the easing curve. ${fmt.code "cubic-bezier"} requires 4 arguments, all others don't allow arguments.
+                      '';
+                    };
                   };
                 };
 
@@ -3421,7 +3430,7 @@
           toggle "off" cfg [
             (optional-node (cfg.kind ? easing) [
               (leaf "duration-ms" cfg.kind.easing.duration-ms)
-              (leaf "curve" cfg.kind.easing.curve)
+              (leaf "curve" ([ cfg.kind.easing.curve ] ++ cfg.kind.easing.curve-args))
             ])
             (nullable leaf "spring" cfg.kind.spring or null)
             (nullable leaf "custom-shader" cfg.custom-shader or null)

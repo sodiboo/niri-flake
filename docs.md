@@ -2407,9 +2407,15 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 <!-- <animation-kind>.easing -->
 
 ## `<animation-kind>.easing.curve`
-- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo"`
+- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo", "cubic-bezier"`
 
 The curve to use for the easing function.
+
+
+## `<animation-kind>.easing.curve-args`
+- type: `list of (null or string or signed integer or floating point number or boolean)`
+
+Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
 
 
 ## `<animation-kind>.easing.duration-ms`
