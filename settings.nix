@@ -27,8 +27,18 @@
         enum
         ;
 
-      binds-stable = binds "${inputs.niri-stable}/niri-config/src/binds.rs";
-      binds-unstable = binds "${inputs.niri-unstable}/niri-config/src/binds.rs";
+      get-binds =
+        niri:
+        let
+          currentBindsSrcPath = "${niri}/niri-config/src/binds.rs";
+          legacyBindsSrcPath = "${niri}/niri-config/src/lib.rs"; # source location for binds prior to Niri v25.08
+          bindsPath =
+            if builtins.pathExists currentBindsSrcPath then currentBindsSrcPath else legacyBindsSrcPath;
+        in
+        binds bindsPath;
+
+      binds-stable = get-binds inputs.niri-stable;
+      binds-unstable = get-binds inputs.niri-unstable;
 
       record = record' null;
 

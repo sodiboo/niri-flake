@@ -200,7 +200,15 @@
                 --fish <($out/bin/niri completions fish)
 
               install -Dm0644 README.md resources/default-config.kdl -t $doc/share/doc/niri
-              mv docs/wiki $doc/share/doc/niri/wiki
+
+              # The wiki location moved in Niri v25.08 from wiki/ to docs/wiki/ -
+              # check both options to support building older version
+              if [ ! -d docs/wiki ] && [ -d wiki ]; then
+                wiki_location=wiki
+              else
+                wiki_location=docs/wiki
+              fi
+              mv "$wiki_location" "$doc/share/doc/niri/wiki"
             '';
 
           postFixup = ''
