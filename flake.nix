@@ -302,13 +302,9 @@
         xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
           src = inputs.xwayland-satellite-stable;
         };
-        xwayland-satellite-unstable =
-          if pkgs.lib.versionAtLeast pkgs.rustc.version "1.87.0" then
-            pkgs.callPackage make-xwayland-satellite {
-              src = inputs.xwayland-satellite-unstable;
-            }
-          else
-            throw "xwayland-satellite unstable requires rustc 1.87.0, but this packageset has rustc ${pkgs.rustc.version} (note: nixos-25.05 has rustc 1.86.0; please use nixos-unstable)";
+        xwayland-satellite-unstable = pkgs.callPackage make-xwayland-satellite {
+          src = inputs.xwayland-satellite-unstable;
+        };
       };
 
       combined-closure =
@@ -318,19 +314,9 @@
             mkdir $out
           ''
           + builtins.concatStringsSep "" (
-            nixpkgs.lib.mapAttrsToList
-              (name: package: ''
-                ln -s ${package} $out/${name}
-              '')
-              (
-                let
-                  packages = make-package-set pkgs;
-                in
-                if pkgs.lib.versionAtLeast pkgs.rustc.version "1.87.0" then
-                  packages
-                else
-                  builtins.removeAttrs packages [ "xwayland-satellite-unstable" ]
-              )
+            nixpkgs.lib.mapAttrsToList (name: package: ''
+              ln -s ${package} $out/${name}
+            '') (make-package-set pkgs)
           )
         );
 
