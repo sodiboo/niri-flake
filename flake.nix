@@ -103,7 +103,11 @@
           inherit patches;
           cargoLock = {
             lockFile = "${src}/Cargo.lock";
-            allowBuiltinFetchGit = true;
+            outputHashes = {
+              "libspa-0.8.0" = "sha256-twzqBGGprxXgQAtfp2ny+9pTdAQN4S+QHQlNXz+d+H0=";
+              "pipewire-0.8.0" = "sha256-twzqBGGprxXgQAtfp2ny+9pTdAQN4S+QHQlNXz+d+H0=";
+              "smithay-0.7.0" = "sha256-dCsCeDyMi5kLdbhk5y2OJdAknkbblgRR7sqc558MOEA=";
+            };
           };
           nativeBuildInputs = [
             pkg-config
