@@ -12,6 +12,6 @@ callPackage ../generic.nix rec {
     hash = "sha256-TIvyWzRt1miQj6Cf5Wy8Qz43XIZX7c4vTVwRLAT5S4Y=";
   };
   cargoLock = {
-    lockFile = ./Cargo.lock;
+    lockFile = "${src}/Cargo.lock";
   };
 }

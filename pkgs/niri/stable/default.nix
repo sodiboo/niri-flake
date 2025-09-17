@@ -12,7 +12,7 @@ callPackage ../generic.nix rec {
     hash = "sha256-RLD89dfjN0RVO86C/Mot0T7aduCygPGaYbog566F0Qo=";
   };
   cargoLock = {
-    lockFile = ./Cargo.lock;
+    lockFile = "${src}/Cargo.lock";
     outputHashes = {
       "libspa-0.8.0" = "sha256-twzqBGGprxXgQAtfp2ny+9pTdAQN4S+QHQlNXz+d+H0=";
       "smithay-0.7.0" = "sha256-dCsCeDyMi5kLdbhk5y2OJdAknkbblgRR7sqc558MOEA=";
