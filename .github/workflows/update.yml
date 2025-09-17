@@ -18,12 +18,18 @@ jobs:
         with:
           name: niri
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Update flake.lock
+      - name: Update versions
+        run: |
+          nix run nixpkgs#nix-update -- --flake --version=stable --override-file=pkgs/niri/stable/default.nix niri-stable
+          nix run nixpkgs#nix-update -- --flake --version=branch --override-file=pkgs/niri/unstable/default.nix niri-unstable
+          nix run nixpkgs#nix-update -- --flake --version=stable --override-file=pkgs/xwayland-satellite/stable/default.nix xwayland-satellite-stable
+          nix run nixpkgs#nix-update -- --flake --version=branch --override-file=pkgs/xwayland-satellite/unstable/default.nix xwayland-satellite-unstable
+      - name: Update flake and packages
         id: update
         uses: DeterminateSystems/update-flake-lock@v23
         with:
-          commit-msg: "Update flake.lock"
-          pr-title: "Update flake.lock"
+          commit-msg: "Update flake and packages"
+          pr-title: "Update flake and packages"
           pr-body: |
             ```
             {{ env.GIT_COMMIT_MESSAGE }}
