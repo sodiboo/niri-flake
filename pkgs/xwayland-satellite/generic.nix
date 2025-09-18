@@ -2,7 +2,7 @@
   version,
   versionString,
   src,
-  cargoLock,
+  cargoHash,
   lib,
   rustPlatform,
   pkg-config,
@@ -13,7 +13,7 @@
 }:
 rustPlatform.buildRustPackage {
   pname = "xwayland-satellite";
-  inherit version src cargoLock;
+  inherit version src cargoHash;
 
   nativeBuildInputs = [
     pkg-config
