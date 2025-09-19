@@ -28,7 +28,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`d9648e6`](https://github.com/YaLTeR/niri/tree/d9648e6bde1d2fc4a568dec93ba65c11073192a3) which was authored on `2025-09-18 08:26:11`.
+Currently, this is exactly commit [`86edeb3`](https://github.com/YaLTeR/niri/tree/86edeb3b0b3d1a08d4d4f59705cbc99a732f5e95) which was authored on `2025-09-19 12:48:07`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
