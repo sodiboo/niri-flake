@@ -425,7 +425,7 @@
             );
           };
 
-          config.xdg.configFile.niri-config = {
+          config.xdg.configFile.niri-config = nixpkgs.lib.mkIf cfg.enable {
             enable = cfg.finalConfig != null;
             target = "niri/config.kdl";
             source = validated-config-for pkgs cfg.package cfg.finalConfig;
