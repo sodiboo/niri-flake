@@ -111,6 +111,7 @@
   "switch-preset-window-height"
   "switch-preset-window-height-back"
   "maximize-column"
+  "maximize-window-to-edges"
   "set-column-width"
   "expand-column-to-available-width"
   "switch-layout"
