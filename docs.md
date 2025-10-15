@@ -28,7 +28,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`87dc96f`](https://github.com/YaLTeR/niri/tree/87dc96fa69738b5d57562a0a556efa7def138539) which was authored on `2025-10-14 07:18:22`.
+Currently, this is exactly commit [`2d67ff8`](https://github.com/YaLTeR/niri/tree/2d67ff8dc31deca35ebc4ed01b2d4f17137f420d) which was authored on `2025-10-15 06:14:27`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -433,6 +433,7 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `switch-preset-window-height`
 - `switch-preset-window-height-back`
 - `maximize-column`
+- `maximize-window-to-edges` (only on niri-unstable)
 - `λ set-column-width :: size-change`
 - `expand-column-to-available-width`
 - `λ switch-layout :: "next" | "prev"`
