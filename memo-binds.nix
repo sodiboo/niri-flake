@@ -13,8 +13,6 @@
   "spawn"
   "spawn-sh"
   "do-screen-transition"
-  "screenshot"
-  "screenshot-window"
   "toggle-keyboard-shortcuts-inhibit"
   "close-window"
   "fullscreen-window"

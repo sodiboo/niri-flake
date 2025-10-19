@@ -28,7 +28,7 @@ To access this package under `pkgs.niri-stable`, you should use [`overlays.niri`
 
 The latest commit to the development branch of niri.
 
-Currently, this is exactly commit [`8c84479`](https://github.com/YaLTeR/niri/tree/8c8447918f4fd7bc6c86a8622b1db52417fbbbbd) which was authored on `2025-10-18 06:14:57`.
+Currently, this is exactly commit [`23cd5aa`](https://github.com/YaLTeR/niri/tree/23cd5aa78a26ccf57c6a7993313e42a5c39d43d8) which was authored on `2025-10-19 11:22:31`.
 
 > [!warning]
 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
@@ -325,6 +325,8 @@ For actions that don't take any arguments, just use the corresponding attribute 
 > ```
 
 
+- `λ screenshot :: { show-pointer :: bool }` (only on niri-stable)
+- `λ screenshot-window :: { write-to-disk :: bool }` (only on niri-stable)
 - `λ quit :: { skip-confirmation :: bool }`
 - `suspend`
 - `power-off-monitors`
@@ -335,8 +337,6 @@ For actions that don't take any arguments, just use the corresponding attribute 
 - `λ spawn :: [string]`
 - `λ spawn-sh :: string`
 - `λ do-screen-transition :: { delay-ms? :: u16 }`
-- `λ screenshot :: { show-pointer :: bool }`
-- `λ screenshot-window :: { write-to-disk :: bool }`
 - `toggle-keyboard-shortcuts-inhibit`
 - `close-window`
 - `fullscreen-window`
