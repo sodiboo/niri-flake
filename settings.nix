@@ -902,6 +902,18 @@
         # ];
         imports = make-ordered-options [
           {
+            includes = list types.str // {
+              description = ''
+                List of kdl files to include in your configuration.
+
+                Settings from included files will be merged with the settings from the main config file.
+
+                Included files will be added to the end of the file sequentially, being able to override the settings defined here.
+              '';
+            };
+          }
+
+          {
             switch-events =
               let
                 switch-bind = record' "niri switch bind" {
@@ -3767,5 +3779,7 @@
         ])
 
         (map' plain' (lib.mapAttrsToList leaf) "debug" cfg.debug)
+
+        (each cfg.includes (cfg: (leaf "include" cfg)))
       ];
 }
