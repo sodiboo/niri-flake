@@ -1864,6 +1864,18 @@
                       The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
                     '';
                   };
+                  custom = optional types.bool false // {
+                    description = ''
+                      Whether this is a custom mode (not offered by the monitor).
+
+                      ${fmt.admonition.caution ''
+                        Custom modes may damage your monitor, especially if it's a CRT.
+                        Follow the maximum supported limits in your monitor's instructions.
+                      ''}
+
+                      ${unstable-note}
+                    '';
+                  };
                 })
                 // {
                   description = ''
@@ -1872,6 +1884,141 @@
                     By default, when this is null, niri will automatically pick a mode for you.
 
                     If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
+
+                    If ${
+                      link' [
+                        "programs"
+                        "niri"
+                        "settings"
+                        "outputs"
+                        "<n>"
+                        "mode"
+                        "custom"
+                      ]
+                    } is set to true, this creates a custom mode that the monitor may not advertise. In this case, the refresh rate must be specified.
+                  '';
+                };
+
+              modeline =
+                let
+                  modeline-list = types.listOf (types.either float-or-int types.str) // {
+                    description = "list of (floating point number or signed integer or string)";
+                  };
+                  modeline-record = record {
+                    clock = required float-or-int // {
+                      description = ''
+                        The rate at which pixels are drawn in MHz.
+                      '';
+                    };
+                    hdisplay = required types.int // {
+                      description = ''
+                        Horizontal active pixels.
+                      '';
+                    };
+                    hsync-start = required types.int // {
+                      description = ''
+                        Horizontal sync start position.
+                      '';
+                    };
+                    hsync-end = required types.int // {
+                      description = ''
+                        Horizontal sync end position.
+                      '';
+                    };
+                    htotal = required types.int // {
+                      description = ''
+                        Total horizontal pixels including blanking.
+                      '';
+                    };
+                    vdisplay = required types.int // {
+                      description = ''
+                        Vertical active pixels.
+                      '';
+                    };
+                    vsync-start = required types.int // {
+                      description = ''
+                        Vertical sync start position.
+                      '';
+                    };
+                    vsync-end = required types.int // {
+                      description = ''
+                        Vertical sync end position.
+                      '';
+                    };
+                    vtotal = required types.int // {
+                      description = ''
+                        Total vertical pixels including blanking.
+                      '';
+                    };
+                    hsync-polarity =
+                      required (enum [
+                        "positive"
+                        "negative"
+                      ])
+                      // {
+                        description = ''
+                          Horizontal sync polarity. Use ${fmt.code ''"positive"''} for +HSync or ${fmt.code ''"negative"''} for -HSync.
+                        '';
+                      };
+                    vsync-polarity =
+                      required (enum [
+                        "positive"
+                        "negative"
+                      ])
+                      // {
+                        description = ''
+                          Vertical sync polarity. Use ${fmt.code ''"positive"''} for +VSync or ${fmt.code ''"negative"''} for -VSync.
+                        '';
+                      };
+                  };
+                in
+                nullable (types.either modeline-list modeline-record)
+                // {
+                  description = ''
+                    Directly configure the monitor's mode via a modeline.
+
+                    This overrides any configured ${
+                      link' [
+                        "programs"
+                        "niri"
+                        "settings"
+                        "outputs"
+                        "<n>"
+                        "mode"
+                      ]
+                    }.
+
+                    The modeline can be calculated via utilities such as ${fmt.bare-link "https://man.archlinux.org/man/cvt.1.en"} or ${fmt.bare-link "https://man.archlinux.org/man/gtf.1.en"}.
+
+                    ${fmt.admonition.caution ''
+                      Out of spec modelines may damage your monitor, especially if it's a CRT.
+                      Follow the maximum supported limits in your monitor's instructions.
+                    ''}
+
+                    This option accepts two formats:
+
+                    ${fmt.admonition.note ''
+                              **List format** (recommended for ease of use):
+                      ```nix
+                              modeline = [ 173.00  1920 2048 2248 2576  1080 1083 1088 1120  "-hsync" "+vsync" ];
+                      ```
+                              This format is convenient for copy-pasting from ${fmt.code "cvt"} or ${fmt.code "gtf"} output.
+                    ''}
+
+                    ${fmt.admonition.note ''
+                              **Record format** (for explicit field names):
+                      ```nix
+                              modeline = {
+                                clock = 173.00;
+                                hdisplay = 1920;
+                                hsync-start = 2048;
+                                # ... etc
+                              };
+                      ```
+                              This format provides better documentation and validation for each field.
+                    ''}
+
+                    ${unstable-note}
                   '';
                 };
 
@@ -3489,6 +3636,29 @@
           else
             "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
 
+        modeline =
+          cfg:
+          if builtins.isList cfg then
+            cfg
+          else
+            let
+              hsync = if cfg.hsync-polarity == "positive" then "+hsync" else "-hsync";
+              vsync = if cfg.vsync-polarity == "positive" then "+vsync" else "-vsync";
+            in
+            [
+              cfg.clock
+              cfg.hdisplay
+              cfg.hsync-start
+              cfg.hsync-end
+              cfg.htotal
+              cfg.vdisplay
+              cfg.vsync-start
+              cfg.vsync-end
+              cfg.vtotal
+              hsync
+              vsync
+            ];
+
         bind =
           name: cfg:
           let
@@ -3596,7 +3766,20 @@
               (flag' "focus-at-startup" cfg.focus-at-startup)
               (map' leaf transform "transform" cfg.transform)
               (nullable leaf "position" cfg.position)
-              (nullable (map' leaf mode) "mode" cfg.mode)
+              (nullable (map' leaf (
+                cfg:
+                let
+                  modeStr = mode cfg;
+                in
+                if cfg.custom or false then
+                  [
+                    { custom = true; }
+                    modeStr
+                  ]
+                else
+                  modeStr
+              )) "mode" cfg.mode)
+              (nullable (map' leaf modeline) "modeline" cfg.modeline)
               (optional-node (cfg.variable-refresh-rate != false) (
                 leaf "variable-refresh-rate" { on-demand = cfg.variable-refresh-rate == "on-demand"; }
               ))
