@@ -232,6 +232,16 @@ By default, when this is null, no config file is generated.
 Beware that setting [`programs.niri.config`](#programsniriconfig) completely overrides everything under this option.
 
 
+## `programs.niri.settings.includes`
+- type: `list of string`
+
+List of kdl files to include in your configuration.
+
+Settings from included files will be merged with the settings from the main config file.
+
+Included files will be added to the end of the file sequentially, being able to override the settings defined here.
+
+
 ## `programs.niri.settings.binds`
 - type: `attribute set of (niri keybind)`
 
