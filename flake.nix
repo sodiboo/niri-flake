@@ -396,6 +396,44 @@
         };
       });
 
+      hjemModules.config =
+        {
+          config,
+          pkgs,
+          ...
+        }:
+        let
+          cfg = config.programs.niri;
+        in
+        {
+          imports = [
+            settings.module
+          ];
+
+          options.programs.niri = {
+            package = nixpkgs.lib.mkOption {
+              type = nixpkgs.lib.types.package;
+              default = (make-package-set pkgs).niri-stable;
+              description = "The niri package to use.";
+            };
+          };
+
+          config = {
+            # Since hjem doesn't have lib option, we'll use _module.args instead.
+            _module.args.niriLib = nixpkgs.lib.mergeAttrsList (
+              map (name: {
+                ${name} = kdl.magic-leaf name;
+              }) (import ./memo-binds.nix)
+            );
+
+            xdg.config.files."niri/config.kdl" = {
+              enable = cfg.finalConfig != null;
+              source = validated-config-for pkgs cfg.package cfg.finalConfig;
+            };
+          };
+
+        };
+
       homeModules.stylix = stylix-module;
       homeModules.config =
         {
@@ -513,6 +551,12 @@
               security.pam.services.swaylock = { };
               programs.dconf.enable = nixpkgs.lib.mkDefault true;
               fonts.enableDefaultPackages = nixpkgs.lib.mkDefault true;
+            })
+            (nixpkgs.lib.optionalAttrs (options ? hjem) {
+              hjem.extraModules = [
+                self.hjemModules.config
+                { programs.niri.package = nixpkgs.lib.mkForce cfg.package; }
+              ];
             })
             (nixpkgs.lib.optionalAttrs (options ? home-manager) {
               home-manager.sharedModules = [
