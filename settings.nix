@@ -1900,6 +1900,90 @@
                   When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
                 '';
               };
+
+              layout = ordered-section [
+                {
+                  preset-column-widths = list preset-width // {
+                    description = ''
+                      The widths that ${fmt.code "switch-preset-column-width"} will cycle through.
+
+                      Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+
+                      Example:
+
+                      ${fmt.nix-code-block ''
+                        {
+                          ${(subopts options.layout).preset-column-widths} = [
+                            { proportion = 1. / 3.; }
+                            { proportion = 1. / 2.; }
+                            { proportion = 2. / 3.; }
+
+                            # { fixed = 1920; }
+                          ];
+                        }
+                      ''}
+                    '';
+                  };
+                  preset-window-heights = list preset-height // {
+                    description = ''
+                      The heights that ${fmt.code "switch-preset-window-height"} will cycle through.
+
+                      Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+                      Example:
+
+                      ${fmt.nix-code-block ''
+                        {
+                          ${(subopts options.layout).preset-window-heights} = [
+                            { proportion = 1. / 3.; }
+                            { proportion = 1. / 2.; }
+                            { proportion = 2. / 3.; }
+
+                            # { fixed = 1080; }
+                          ];
+                        }
+                      ''}
+                    '';
+                  };
+                }
+                {
+                  default-column-width = optional default-width { } // {
+                    description = ''
+                      The default width for new columns.
+
+                      When this is set to an empty attrset ${fmt.code "{}"}, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+
+                      See ${link-opt (subopts options.layout).preset-column-widths} for more information.
+
+                      You can override this for specific windows using ${link-opt (subopts options.window-rules).default-column-width}
+                    '';
+                  };
+                  always-center-single-column = optional types.bool false // {
+                    description = ''
+                      This is like ${fmt.code ''center-focused-column = "always";''}, but only for workspaces with a single column. Changes nothing if ${fmt.code "center-focused-column"} is set to ${fmt.code ''"always"''}. Has no effect if more than one column is present.
+                    '';
+                  };
+                  default-column-display =
+                    optional (enum [
+                      "normal"
+                      "tabbed"
+                    ]) "normal"
+                    // {
+                      description = ''
+                        How windows in columns should be displayed by default.
+
+                        ${fmt.list [
+                          "${fmt.code ''"normal"''}: Windows are arranged vertically, spread across the working area height."
+                          "${fmt.code ''"tabbed"''}: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area."
+                        ]}
+
+                        Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is ${fmt.em "created"}.
+
+                        Also, since a newly created column always contains a single window, you can override this default value with ${link-opt (subopts options.window-rules).default-column-display}.
+                      '';
+                    };
+                }
+              ];
             });
           }
 
@@ -3600,6 +3684,11 @@
               (optional-node (cfg.variable-refresh-rate != false) (
                 leaf "variable-refresh-rate" { on-demand = cfg.variable-refresh-rate == "on-demand"; }
               ))
+              (nullable plain "layout" [
+                (preset-sizes "default-column-width" cfg.layout.default-column-width)
+                (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
+                (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
+              ])
             ])
           ])
         ]))

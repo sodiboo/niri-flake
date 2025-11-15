@@ -1549,6 +1549,124 @@ If multiple outputs with `focus-at-startup` are connected, then the one with the
 When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
 
 
+<!-- programs.niri.settings.outputs.<name>.layout -->
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths`
+- type: `list of attribute-tagged union`
+
+The widths that `switch-preset-column-width` will cycle through.
+
+Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.layout.preset-column-widths = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    # { fixed = 1920; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights`
+- type: `list of attribute-tagged union`
+
+The heights that `switch-preset-window-height` will cycle through.
+
+Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.layout.preset-window-heights = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    # { fixed = 1080; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.outputs.<name>.layout.always-center-single-column`
+- type: `boolean`
+- default: `false`
+
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-display`
+- type: `one of "normal", "tabbed"`
+- default: `"normal"`
+
+How windows in columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-width`
+- type: `{} or attribute-tagged union`
+
+The default width for new columns.
+
+When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+
+You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
 ## `programs.niri.settings.outputs.<name>.mode`
 - type: `null or (submodule)`
 - default: `null`
