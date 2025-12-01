@@ -1047,132 +1047,146 @@
                     {
                       ${options.binds} = {
                         "Mod+Shift+E".action.quit.skip-confirmation = true;
+                        "Mod+Print".action.screenshot-screen = { show-pointer = false; };
                       };
                     }
                   ''}
 
-                  There is also a set of functions available under ${fmt.code "config.lib.niri.actions"}.
-
-                  Usage is like so:
+                  If an action takes properties and positional arguments, you can write it like this:
 
                   ${fmt.nix-code-block ''
                     {
-                      ${options.binds} = with config.lib.niri.actions; {
-                        "XF86AudioRaiseVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
-                        "XF86AudioLowerVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
-
-                        "Mod+D".action = spawn "fuzzel";
-                        "Mod+1".action = focus-workspace 1;
-
-                        "Mod+Shift+E".action = quit;
-                        "Mod+Ctrl+Shift+E".action = quit { skip-confirmation=true; };
-
-                        "Mod+Plus".action = set-column-width "+10%";
-                      }
+                      ${options.binds} = {
+                        "Mod+Ctrl+1".action.move-window-to-workspace = [ { focus = false; } "chat-apps" ];
+                      };
                     }
                   ''}
+                ''
 
-                  Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the ${fmt.em "real"} acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
+                #   + ''
+                #   There is also a set of functions available under ${fmt.code "config.lib.niri.actions"}.
 
-                  For actions that don't take any arguments, just use the corresponding attribute from ${fmt.code "config.lib.niri.actions"}. They are listed as ${fmt.code "action-name"}. For actions that ${fmt.em "do"} take arguments, they are notated like so: ${fmt.code "λ action-name :: <args>"}, to clarify that they "should" be used as functions. Hopefully, ${fmt.code "<args>"} will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
+                #   Usage is like so:
 
-                  ${fmt.list [
-                    ''
-                      ${fmt.code "size-change"}: This is a special argument type used for some actions by niri. It's a string. \
-                      It can take either a fixed size as an integer number of logical pixels (${fmt.code ''"480"''}, ${fmt.code ''"1200"''}) or a proportion of your screen as a percentage (${fmt.code ''"30%"''}, ${fmt.code ''"70%"''}) \
-                      Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
-                      Relative size changes are written with a ${fmt.code "+"}/${fmt.code "-"} prefix, and absolute size changes have no prefix.
-                    ''
-                    ''
-                      ${fmt.code "{ field :: type }"}: This means that the action takes a named argument (in kdl, we call it a property). \
-                      To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
-                      Required fields are marked with ${fmt.code "*"} before their name, and if no fields are required, you can use the action without any arguments too (see ${fmt.code "quit"} in the example above). \
-                      If a field is marked with ${fmt.code "?"}, then omitting it is meaningful. (without ${fmt.code "?"}, it will have a default value)
-                    ''
-                    ''
-                      ${fmt.code "[type]"}: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
-                      ${fmt.code ''spawn ["foo" "bar" "baz"]''} is equivalent to ${fmt.code ''spawn "foo" "bar" "baz"''}.
-                    ''
-                  ]}
+                #   ${fmt.nix-code-block ''
+                #     {
+                #       ${options.binds} = with config.lib.niri.actions; {
+                #         "XF86AudioRaiseVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
+                #         "XF86AudioLowerVolume".action = spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
 
-                  ${fmt.admonition.tip ''
-                    You can use partial application to create a spawn command with full support for shell syntax:
-                    ${fmt.nix-code-block ''
-                      {
-                        ${options.binds} = with config.lib.niri.actions; let
-                          sh = spawn "sh" "-c";
-                        in {
-                          "Print".action = sh '''grim -g "$(slurp)" - | wl-copy''';
-                        };
-                      }
-                    ''}
-                  ''}
+                #         "Mod+D".action = spawn "fuzzel";
+                #         "Mod+1".action = focus-workspace 1;
 
-                  ${
-                    let
-                      show-bind =
-                        {
-                          name,
-                          params,
-                          ...
-                        }:
-                        let
-                          is-stable = builtins.any (a: a.name == name) binds-stable;
-                          is-unstable = builtins.any (a: a.name == name) binds-unstable;
-                          exclusive =
-                            if is-stable && is-unstable then
-                              ""
-                            else if is-stable then
-                              " (only on niri-stable)"
-                            else
-                              " (only on niri-unstable)";
-                          type-names = {
-                            LayoutSwitchTarget = ''"next" | "prev"'';
-                            WorkspaceReference = "u8 | string";
-                            SizeChange = "size-change";
-                            bool = "bool";
-                            u8 = "u8";
-                            u16 = "u16";
-                            String = "string";
-                          };
+                #         "Mod+Shift+E".action = quit;
+                #         "Mod+Ctrl+Shift+E".action = quit { skip-confirmation=true; };
 
-                          type-or =
-                            rust-name: fallback: type-names.${rust-name} or (lib.warn "unhandled type `${rust-name}`" fallback);
+                #         "Mod+Plus".action = set-column-width "+10%";
+                #       }
+                #     }
+                #   ''}
 
-                          base = content: "${fmt.code content}${exclusive}";
-                          lambda = args: base "λ ${name} :: ${args}";
-                        in
-                        {
-                          empty = base "${name}";
-                          arg = lambda (type-or params.type (if params.as-str then "string" else params.type));
-                          list = lambda "[${type-or params.type params.type}]";
-                          prop = lambda "{ ${
-                            lib.optionalString (!params.use-default) "*"
-                          }${params.field}${lib.optionalString params.none-important "?"} :: ${
-                            type-names.${params.type} or (lib.warn "unhandled type `${params.type}`" params.type)
-                          } }";
-                          unknown = ''
-                            ${lambda "unknown"}
+                #   Keep in mind that each one of these attributes (i.e. the nix bindings) are actually identical functions with different node names, and they can take arbitrarily many arguments. The documentation here is based on the ${fmt.em "real"} acceptable arguments for these actions, but the nix bindings do not enforce this. If you pass the wrong arguments, niri will reject the config file, but evaluation will proceed without problems.
 
-                              The code that generates this documentation does not know how to parse the definition:
-                              ```rs
-                              ${params.raw-name}(${params.raw})
-                              ```
-                          '';
-                        }
-                        .${params.kind}
-                          or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
-                    in
-                    fmt.list (
-                      (map show-bind (
-                        builtins.filter (
-                          stable: builtins.all (unstable: stable.name != unstable.name) binds-unstable
-                        ) binds-stable
-                      ))
-                      ++ (map show-bind binds-unstable)
-                    )
-                  }
-                '';
+                #   For actions that don't take any arguments, just use the corresponding attribute from ${fmt.code "config.lib.niri.actions"}. They are listed as ${fmt.code "action-name"}. For actions that ${fmt.em "do"} take arguments, they are notated like so: ${fmt.code "λ action-name :: <args>"}, to clarify that they "should" be used as functions. Hopefully, ${fmt.code "<args>"} will be clear enough in most cases, but it's worth noting some nontrivial kinds of arguments:
+
+                #   ${fmt.list [
+                #     ''
+                #       ${fmt.code "size-change"}: This is a special argument type used for some actions by niri. It's a string. \
+                #       It can take either a fixed size as an integer number of logical pixels (${fmt.code ''"480"''}, ${fmt.code ''"1200"''}) or a proportion of your screen as a percentage (${fmt.code ''"30%"''}, ${fmt.code ''"70%"''}) \
+                #       Additionally, it can either be an absolute change (setting the new size of the window), or a relative change (adding or subtracting from its size). \
+                #       Relative size changes are written with a ${fmt.code "+"}/${fmt.code "-"} prefix, and absolute size changes have no prefix.
+                #     ''
+                #     ''
+                #       ${fmt.code "{ field :: type }"}: This means that the action takes a named argument (in kdl, we call it a property). \
+                #       To pass such an argument, you should pass an attrset with the key and value. You can pass many properties in one attrset, or you can pass several attrsets with different properties. \
+                #       Required fields are marked with ${fmt.code "*"} before their name, and if no fields are required, you can use the action without any arguments too (see ${fmt.code "quit"} in the example above). \
+                #       If a field is marked with ${fmt.code "?"}, then omitting it is meaningful. (without ${fmt.code "?"}, it will have a default value)
+                #     ''
+                #     ''
+                #       ${fmt.code "[type]"}: This means that the action takes several arguments as a list. Although you can pass a list directly, it's more common to pass them as separate arguments. \
+                #       ${fmt.code ''spawn ["foo" "bar" "baz"]''} is equivalent to ${fmt.code ''spawn "foo" "bar" "baz"''}.
+                #     ''
+                #   ]}
+
+                #   ${fmt.admonition.tip ''
+                #     You can use partial application to create a spawn command with full support for shell syntax:
+                #     ${fmt.nix-code-block ''
+                #       {
+                #         ${options.binds} = with config.lib.niri.actions; let
+                #           sh = spawn "sh" "-c";
+                #         in {
+                #           "Print".action = sh '''grim -g "$(slurp)" - | wl-copy''';
+                #         };
+                #       }
+                #     ''}
+                #   ''}
+
+                #   ${
+                #     let
+                #       show-bind =
+                #         {
+                #           name,
+                #           params,
+                #           ...
+                #         }:
+                #         let
+                #           is-stable = builtins.any (a: a.name == name) binds-stable;
+                #           is-unstable = builtins.any (a: a.name == name) binds-unstable;
+                #           exclusive =
+                #             if is-stable && is-unstable then
+                #               ""
+                #             else if is-stable then
+                #               " (only on niri-stable)"
+                #             else
+                #               " (only on niri-unstable)";
+                #           type-names = {
+                #             LayoutSwitchTarget = ''"next" | "prev"'';
+                #             WorkspaceReference = "u8 | string";
+                #             SizeChange = "size-change";
+                #             bool = "bool";
+                #             u8 = "u8";
+                #             u16 = "u16";
+                #             String = "string";
+                #           };
+
+                #           type-or =
+                #             rust-name: fallback: type-names.${rust-name} or (lib.warn "unhandled type `${rust-name}`" fallback);
+
+                #           base = content: "${fmt.code content}${exclusive}";
+                #           lambda = args: base "λ ${name} :: ${args}";
+                #         in
+                #         {
+                #           empty = base "${name}";
+                #           arg = lambda (type-or params.type (if params.as-str then "string" else params.type));
+                #           list = lambda "[${type-or params.type params.type}]";
+                #           prop = lambda "{ ${
+                #             lib.optionalString (!params.use-default) "*"
+                #           }${params.field}${lib.optionalString params.none-important "?"} :: ${
+                #             type-names.${params.type} or (lib.warn "unhandled type `${params.type}`" params.type)
+                #           } }";
+                #           unknown = ''
+                #             ${lambda "unknown"}
+
+                #               The code that generates this documentation does not know how to parse the definition:
+                #               ```rs
+                #               ${params.raw-name}(${params.raw})
+                #               ```
+                #           '';
+                #         }
+                #         .${params.kind}
+                #           or (abort "action `${name}` with unhandled kind `${params.kind}` for settings docs");
+                #     in
+                #     fmt.list (
+                #       (map show-bind (
+                #         builtins.filter (
+                #           stable: builtins.all (unstable: stable.name != unstable.name) binds-unstable
+                #         ) binds-stable
+                #       ))
+                #       ++ (map show-bind binds-unstable)
+                #     )
+                #   }
+                # ''
+                ;
               };
             };
           }
