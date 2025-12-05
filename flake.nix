@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     niri-stable.url = "github:YaLTeR/niri/v25.08";
     niri-unstable.url = "github:YaLTeR/niri";
@@ -194,12 +194,12 @@
             + nixpkgs.lib.optionalString withDinit ''
               install -Dm0644 resources/dinit/niri{,-shutdown} -t $out/lib/dinit.d/user
             ''
-            # TODO: add nushell after nixos-25.11
             + ''
               installShellCompletion --cmd niri \
                 --bash <($out/bin/niri completions bash) \
                 --zsh <($out/bin/niri completions zsh) \
-                --fish <($out/bin/niri completions fish)
+                --fish <($out/bin/niri completions fish) \
+                --nushell <($out/bin/niri completions nushell)
 
               install -Dm0644 README.md resources/default-config.kdl -t $doc/share/doc/niri
               mv docs/wiki $doc/share/doc/niri/wiki
@@ -335,7 +335,7 @@
               '')
               {
                 nixos-unstable = nixpkgs;
-                "nixos-25.05" = nixpkgs-stable;
+                "nixos-25.11" = nixpkgs-stable;
               }
           )
         );
