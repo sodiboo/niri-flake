@@ -200,7 +200,7 @@ The `niri` package that the config is validated against. This cannot be modified
 
 
 ## `programs.niri.config`
-- type: `null or string or kdl document`
+- type: `null or string or KDL document`
 
 The niri config file.
 
@@ -2188,7 +2188,7 @@ The curve to use for the easing function.
 
 
 ## `<animation-kind>.easing.curve-args`
-- type: `list of (null or string or signed integer or floating point number or boolean)`
+- type: `list of KDL value without type annotation`
 
 Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
 

@@ -3006,7 +3006,11 @@
     );
 
   module =
-    { config, ... }:
+    {
+      config,
+      pkgs,
+      ...
+    }:
     let
       cfg = config.programs.niri;
 
@@ -3048,7 +3052,16 @@
             if builtins.isString cfg.config then
               cfg.config
             else if cfg.config != null then
-              kdl.serialize.nodes cfg.config
+              if config._module.args ? pkgs then
+                builtins.readFile (
+                  pkgs.callPackage kdl.generator {
+                    document = cfg.config;
+                  }
+                )
+              else
+                ''
+                  invalid // mock instantiation of this module. unable to generate configuration.
+                ''
             else
               null;
           readOnly = true;

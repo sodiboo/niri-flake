@@ -581,6 +581,7 @@
                 modules = [
                   settings.module
                   {
+                    config._module.args.pkgs = inputs.nixpkgs.legacyPackages.${system};
                     config.programs.niri.settings = { };
                   }
                 ];
