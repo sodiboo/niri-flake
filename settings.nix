@@ -92,24 +92,6 @@
 
       rename-warning = from: to: obsolete-warning (showOption from) (showOption to);
 
-      libinput-anchor-for-header = lib.flip lib.pipe [
-        (lib.replaceStrings (lib.upperChars ++ [ " " ]) (lib.lowerChars ++ [ "-" ]))
-        (lib.splitString "")
-        (lib.filter (str: lib.strings.match "[a-z0-9-]" str != null))
-        lib.concatStrings
-      ];
-      libinput-link-href =
-        page: header:
-        "https://wayland.freedesktop.org/libinput/doc/latest/${page}.html#${libinput-anchor-for-header header}";
-      libinput-link = page: header: fmt.bare-link (libinput-link-href page header);
-
-      libinput-doc =
-        page: header:
-        fmt.masked-link {
-          href = libinput-link-href page header;
-          content = header;
-        };
-
       link-niri-release =
         version:
         fmt.masked-link {
@@ -140,114 +122,6 @@
 
         Otherwise, your system might fail to build.
       '';
-
-      basic-pointer = default-natural-scroll: {
-        natural-scroll = optional types.bool default-natural-scroll // {
-          description = ''
-            Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
-
-            Further reading:
-            ${fmt.list [
-              (libinput-link "configuration" "Scrolling")
-              (libinput-link "scrolling" "Natural scrolling vs. traditional scrolling")
-            ]}
-          '';
-        };
-        middle-emulation = optional types.bool false // {
-          description = ''
-            Whether a middle mouse button press should be sent when you press the left and right mouse buttons
-
-            Further reading:
-            ${fmt.list [
-              (libinput-link "configuration" "Middle Button Emulation")
-              (libinput-link "middle-button-emulation" "Middle button emulation")
-            ]}
-          '';
-        };
-        accel-speed = nullable float-or-int // {
-          description = ''
-            Further reading:
-            ${fmt.list [
-              (libinput-link "configuration" "Pointer acceleration")
-            ]}
-          '';
-        };
-        accel-profile =
-          nullable (enum [
-            "adaptive"
-            "flat"
-          ])
-          // {
-            description = ''
-              Further reading:
-              ${fmt.list [
-                (libinput-link "pointer-acceleration" "Pointer acceleration profiles")
-              ]}
-            '';
-          };
-        scroll-button = nullable types.int // {
-          description =
-            let
-              input-event-codes-h = fmt.masked-link {
-                href = "https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363";
-                content = fmt.code "input-event-codes.h";
-              };
-            in
-            ''
-              When ${fmt.code ''scroll-method = "on-button-down"''}, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in ${input-event-codes-h}. Most commonly, this will be set to ${fmt.code "BTN_LEFT"}, ${fmt.code "BTN_MIDDLE"}, or ${fmt.code "BTN_RIGHT"}, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
-
-              Further reading:
-              ${fmt.list [
-                (libinput-link "scrolling" "On-Button scrolling")
-              ]}
-            '';
-        };
-        scroll-button-lock = optional types.bool false // {
-          description = ''
-            When this is false, ${fmt.code "scroll-button"} needs to be held down for pointer motion to be converted to scrolling. When this is true, ${fmt.code "scroll-button"} can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
-
-            Further reading:
-            ${fmt.list [
-              (libinput-link "scrolling" "On-Button scrolling")
-            ]}
-          '';
-        };
-        scroll-method =
-          nullable (
-            types.enum [
-              "no-scroll"
-              "two-finger"
-              "edge"
-              "on-button-down"
-            ]
-          )
-          // {
-            description = ''
-              When to convert motion events to scrolling events.
-              The default and supported values vary based on the device type.
-
-              Further reading:
-              ${fmt.list [
-                (libinput-link "scrolling" "Scrolling")
-              ]}
-            '';
-          };
-      };
-
-      pointer-tablet-common = {
-        enable = optional types.bool true;
-        left-handed = optional types.bool false // {
-          description = ''
-            Whether to accomodate left-handed usage for this device.
-            This varies based on the exact device, but will for example swap left/right mouse buttons.
-
-            Further reading:
-            ${fmt.list [
-              (libinput-link "configuration" "Left-handed Mode")
-            ]}
-          '';
-        };
-      };
 
       preset-size =
         dimension: object:
@@ -907,10 +781,6 @@
             attrs-record
             attrs-record'
             optional
-            pointer-tablet-common
-            basic-pointer
-            libinput-link
-            libinput-doc
             rename-warning
             obsolete-warning
             borderish
