@@ -2296,6 +2296,259 @@ Examples:
 
 
 
+## `programs.niri.settings.layer-rules`
+- type: `list of (layer rule)`
+
+Layer rules.
+
+A layer rule will match based on [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) and [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). Both of these are lists of "match rules".
+
+A given match rule can match based on one of several fields. For a given match rule to "match" a layer surface, it must match on all fields.
+
+- The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
+- The `at-startup` field, when non-null, will match a layer surface based on whether it was opened within the first 60 seconds of niri starting up.
+- If a field is null, it will always match.
+
+
+For a given layer rule to match a layer surface, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the layer rule as a whole will match. For a given layer rule:
+
+- A given layer surface is "considered" if any of the match rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) successfully match this layer surface. If all of the match rules do not match this layer surface, then that layer surface will never match this layer rule.
+- If [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) contains no match rules, it will match any layer surface and "consider" it for this layer rule.
+- If a given layer surface is "considered" for this layer rule according to the above rules, the selection can be further refined with [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). If any of the match rules in `excludes` match this layer surface, it will be rejected and this layer rule will not match the given layer surface.
+
+
+That is, a given layer rule will apply to a given layer surface if any of the entries in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) match that layer surface (or there are none), AND none of the entries in [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes) match that layer surface.
+
+All fields of a layer rule can be set to null, which represents that the field shall have no effect on the layer surface (and in general, the client is allowed to choose the initial value).
+
+To compute the final set of layer rules that apply to a given layer surface, each layer rule in this list is consdered in order.
+
+At first, every field is set to null.
+
+Then, for each applicable layer rule:
+
+- If a given field is null on this layer rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
+- If the given field is not null, it will overwrite the value from any previous rule.
+
+
+The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* layer rule that matches the given layer rule (not considering null entries, unless there are no non-null entries)
+
+If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
+
+
+## `programs.niri.settings.layer-rules.*.matches`
+- type: `list of (match rule)`
+
+A list of rules to match layer surfaces.
+
+If any of these rules match a layer surface (or there are none), that layer rule will be considered for this layer surface. It can still be rejected by [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes)
+
+If all of the rules do not match a layer surface, then this layer rule will not apply to that layer surface.
+
+
+## `programs.niri.settings.layer-rules.*.matches.*.namespace`
+- type: `null or regular expression` (where `regular expression` is a `string`)
+- default: `null`
+
+A regular expression to match against the namespace of the layer surface.
+
+All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
+
+
+## `programs.niri.settings.layer-rules.*.matches.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
+
+
+## `programs.niri.settings.layer-rules.*.excludes`
+- type: `list of (match rule)`
+
+A list of rules to exclude layer surfaces.
+
+If any of these rules match a layer surface, then this layer rule will not apply to that layer surface, even if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
+
+If none of these rules match a layer surface, then this layer rule will not be rejected. It will apply to that layer surface if and only if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
+
+
+## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
+- type: `null or regular expression` (where `regular expression` is a `string`)
+- default: `null`
+
+A regular expression to match against the namespace of the layer surface.
+
+All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
+
+
+## `programs.niri.settings.layer-rules.*.excludes.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
+
+
+## `programs.niri.settings.layer-rules.*.block-out-from`
+- type: `null or one of "screencast", "screen-capture"`
+- default: `null`
+
+Whether to block out this layer surface from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
+
+This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+
+Some of this may be obvious, but in general, these invariants *should* hold true:
+- a layer surface is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+- a `block-out-from` layer surface *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+- a `block-out-from` layer surface is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+
+
+There are three methods of screencapture in niri:
+
+1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this layer surface is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the layer surface just fine. This is because you may still want to take a screenshot of such layer surfaces. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the layer surface contents to an active screencast. When `block-out-from = "screen-capture";`, this layer surface is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of layer surface contents. Its frozen overlay will never leak layer surface contents to an active screencast, because information of blocked layer surfaces and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any layer surface.
+
+
+| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
+| --- | :---: | :---: | :---: |
+| `null` | yes | yes | yes |
+| `"screencast"` | no | yes | yes |
+| `"screen-capture"` | no | no | yes |
+
+
+> [!caution]
+> **Streamers: Do not accidentally leak layer surface contents via screenshots.**
+> 
+> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface may still be visible in a screencast, if the layer surface is indirectly displayed by a tool using `wlr-screencopy`.
+> 
+> If you are a streamer, either:
+> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
+> - **set `block-out-from = "screen-capture";` to ensure that the layer surface is never visible in a screencast.**
+
+
+> [!caution]
+> **Do not let malicious `wlr-screencopy` clients capture your top secret layer surfaces.**
+> 
+> (and don't let malicious software run on your system in the first place, you silly goose)
+> 
+> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+> 
+> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
+> 
+> **If a layer surface's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
+
+Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the layer surface is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the layer surface without its contents normally being visible in a screencast. (at the risk of some tools still leaking the layer surface contents, see above)
+
+
+## `programs.niri.settings.layer-rules.*.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+The opacity of the layer surface, ranging from 0 to 1.
+
+If the final value of this field is null, niri will fall back to a value of 1.
+
+Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a layer surface that is already semitransparent will make it even more transparent.
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+The corner radii of the surface decorations (shadow) in logical pixels.
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+<!-- programs.niri.settings.layer-rules.*.shadow -->
+
+## `programs.niri.settings.layer-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layer-rules.*.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layer-rules.*.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layer-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Make your layer surfaces FLOAT up and down.
+
+This is a natural extension of the April Fools' 2025 feature.
+
+
+## `programs.niri.settings.layer-rules.*.place-within-backdrop`
+- type: `null or boolean`
+- default: `null`
+
+Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
+This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+
+
 ## `programs.niri.settings.window-rules`
 - type: `list of (window rule)`
 
@@ -2913,27 +3166,6 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 
 <!-- programs.niri.settings.window-rules.*.tab-indicator -->
 
-## `programs.niri.settings.window-rules.*.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
-
-
 ## `programs.niri.settings.window-rules.*.max-height`
 - type: `null or signed integer`
 - default: `null`
@@ -3026,259 +3258,6 @@ Takes effect only when the window is on an output with [`outputs.<name>.variable
 ## `programs.niri.settings.window-rules.*.tiled-state`
 - type: `null or boolean`
 - default: `null`
-
-
-## `programs.niri.settings.layer-rules`
-- type: `list of (layer rule)`
-
-Layer rules.
-
-A layer rule will match based on [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) and [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). Both of these are lists of "match rules".
-
-A given match rule can match based on one of several fields. For a given match rule to "match" a layer surface, it must match on all fields.
-
-- The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
-- The `at-startup` field, when non-null, will match a layer surface based on whether it was opened within the first 60 seconds of niri starting up.
-- If a field is null, it will always match.
-
-
-For a given layer rule to match a layer surface, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the layer rule as a whole will match. For a given layer rule:
-
-- A given layer surface is "considered" if any of the match rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) successfully match this layer surface. If all of the match rules do not match this layer surface, then that layer surface will never match this layer rule.
-- If [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) contains no match rules, it will match any layer surface and "consider" it for this layer rule.
-- If a given layer surface is "considered" for this layer rule according to the above rules, the selection can be further refined with [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). If any of the match rules in `excludes` match this layer surface, it will be rejected and this layer rule will not match the given layer surface.
-
-
-That is, a given layer rule will apply to a given layer surface if any of the entries in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) match that layer surface (or there are none), AND none of the entries in [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes) match that layer surface.
-
-All fields of a layer rule can be set to null, which represents that the field shall have no effect on the layer surface (and in general, the client is allowed to choose the initial value).
-
-To compute the final set of layer rules that apply to a given layer surface, each layer rule in this list is consdered in order.
-
-At first, every field is set to null.
-
-Then, for each applicable layer rule:
-
-- If a given field is null on this layer rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
-- If the given field is not null, it will overwrite the value from any previous rule.
-
-
-The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* layer rule that matches the given layer rule (not considering null entries, unless there are no non-null entries)
-
-If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
-
-
-## `programs.niri.settings.layer-rules.*.matches`
-- type: `list of (match rule)`
-
-A list of rules to match layer surfaces.
-
-If any of these rules match a layer surface (or there are none), that layer rule will be considered for this layer surface. It can still be rejected by [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes)
-
-If all of the rules do not match a layer surface, then this layer rule will not apply to that layer surface.
-
-
-## `programs.niri.settings.layer-rules.*.matches.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
-- default: `null`
-
-A regular expression to match against the namespace of the layer surface.
-
-All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
-
-
-## `programs.niri.settings.layer-rules.*.matches.*.at-startup`
-- type: `null or boolean`
-- default: `null`
-
-When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
-
-
-## `programs.niri.settings.layer-rules.*.excludes`
-- type: `list of (match rule)`
-
-A list of rules to exclude layer surfaces.
-
-If any of these rules match a layer surface, then this layer rule will not apply to that layer surface, even if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
-
-If none of these rules match a layer surface, then this layer rule will not be rejected. It will apply to that layer surface if and only if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
-
-
-## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
-- default: `null`
-
-A regular expression to match against the namespace of the layer surface.
-
-All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
-
-
-## `programs.niri.settings.layer-rules.*.excludes.*.at-startup`
-- type: `null or boolean`
-- default: `null`
-
-When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
-
-
-## `programs.niri.settings.layer-rules.*.block-out-from`
-- type: `null or one of "screencast", "screen-capture"`
-- default: `null`
-
-Whether to block out this layer surface from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
-
-This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
-
-Some of this may be obvious, but in general, these invariants *should* hold true:
-- a layer surface is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
-- a `block-out-from` layer surface *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
-- a `block-out-from` layer surface is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
-
-
-There are three methods of screencapture in niri:
-
-1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this layer surface is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
-1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the layer surface just fine. This is because you may still want to take a screenshot of such layer surfaces. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the layer surface contents to an active screencast. When `block-out-from = "screen-capture";`, this layer surface is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
-1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of layer surface contents. Its frozen overlay will never leak layer surface contents to an active screencast, because information of blocked layer surfaces and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any layer surface.
-
-
-| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
-| --- | :---: | :---: | :---: |
-| `null` | yes | yes | yes |
-| `"screencast"` | no | yes | yes |
-| `"screen-capture"` | no | no | yes |
-
-
-> [!caution]
-> **Streamers: Do not accidentally leak layer surface contents via screenshots.**
-> 
-> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface may still be visible in a screencast, if the layer surface is indirectly displayed by a tool using `wlr-screencopy`.
-> 
-> If you are a streamer, either:
-> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
-> - **set `block-out-from = "screen-capture";` to ensure that the layer surface is never visible in a screencast.**
-
-
-> [!caution]
-> **Do not let malicious `wlr-screencopy` clients capture your top secret layer surfaces.**
-> 
-> (and don't let malicious software run on your system in the first place, you silly goose)
-> 
-> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
-> 
-> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
-> 
-> **If a layer surface's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
-
-
-Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the layer surface is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the layer surface without its contents normally being visible in a screencast. (at the risk of some tools still leaking the layer surface contents, see above)
-
-
-## `programs.niri.settings.layer-rules.*.opacity`
-- type: `null or floating point number`
-- default: `null`
-
-The opacity of the layer surface, ranging from 0 to 1.
-
-If the final value of this field is null, niri will fall back to a value of 1.
-
-Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a layer surface that is already semitransparent will make it even more transparent.
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius`
-- type: `null or (submodule)`
-- default: `null`
-
-The corner radii of the surface decorations (shadow) in logical pixels.
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-right`
-- type: `floating point number`
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-right`
-- type: `floating point number`
-
-
-<!-- programs.niri.settings.layer-rules.*.shadow -->
-
-## `programs.niri.settings.layer-rules.*.shadow.color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.enable`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.offset`
-- type: `null or (submodule)`
-- default: `null`
-
-The offset of the shadow from the window, measured in logical pixels.
-
-This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layer-rules.*.shadow.offset.x`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.offset.y`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.softness`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The softness/size of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layer-rules.*.shadow.spread`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The spread of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layer-rules.*.baba-is-float`
-- type: `null or boolean`
-- default: `null`
-
-Make your layer surfaces FLOAT up and down.
-
-This is a natural extension of the April Fools' 2025 feature.
-
-
-## `programs.niri.settings.layer-rules.*.place-within-backdrop`
-- type: `null or boolean`
-- default: `null`
-
-Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
-This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
 
 
 ## `programs.niri.settings.xwayland-satellite`
