@@ -403,113 +403,6 @@ See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more 
 
 
 
-## `programs.niri.settings.screenshot-path`
-- type: `null or string`
-- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
-
-The path to save screenshots to.
-
-If this is null, then no screenshots will be saved.
-
-If the path starts with a `~`, then it will be expanded to the user's home directory.
-
-The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
-
-
-## `programs.niri.settings.hotkey-overlay.hide-not-bound`
-- type: `boolean`
-- default: `false`
-
-By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
-In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
-
-You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
-
-
-## `programs.niri.settings.hotkey-overlay.skip-at-startup`
-- type: `boolean`
-- default: `false`
-
-Whether to skip the hotkey overlay shown when niri starts.
-
-
-## `programs.niri.settings.config-notification.disable-failed`
-- type: `boolean`
-- default: `false`
-
-Disable the notification that the config file failed to load.
-
-
-## `programs.niri.settings.clipboard.disable-primary`
-- type: `boolean`
-- default: `false`
-
-The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
-
-This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
-
-This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
-
-If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
-
-Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
-
-
-## `programs.niri.settings.prefer-no-csd`
-- type: `boolean`
-- default: `false`
-
-Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
-
-
-## `programs.niri.settings.spawn-at-startup`
-- type: `list of attribute-tagged union with choices: argv, command, sh`
-
-A list of commands to run when niri starts.
-
-Each command can be represented as its raw arguments, or as a shell invocation.
-
-When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
-
-
-## `programs.niri.settings.spawn-at-startup.*.argv`
-- type: `list of string`
-
-Almost raw process arguments to spawn, without shell syntax.
-
-A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
-
-Usage is like so:
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { argv = ["waybar"]; }
-    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
-    { argv = ["~/.config/niri/scripts/startup.sh"]; }
-  ];
-}
-```
-
-
-
-## `programs.niri.settings.spawn-at-startup.*.sh`
-- type: `string`
-
-A shell command to spawn. Run wild with POSIX syntax.
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
-  ];
-}
-```
-
-
-Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
-
-
 ## `programs.niri.settings.workspaces`
 - type: `attribute set of (submodule)`
 
@@ -1463,40 +1356,6 @@ VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
 Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
 
 
-<!-- programs.niri.settings.cursor -->
-
-## `programs.niri.settings.cursor.hide-after-inactive-ms`
-- type: `null or signed integer`
-- default: `null`
-
-If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
-
-
-## `programs.niri.settings.cursor.hide-when-typing`
-- type: `boolean`
-- default: `false`
-
-Whether to hide the cursor when typing.
-
-
-## `programs.niri.settings.cursor.size`
-- type: `signed integer`
-- default: `24`
-
-The size of the cursor in logical pixels.
-
-This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-
-
-## `programs.niri.settings.cursor.theme`
-- type: `string`
-- default: `"default"`
-
-The name of the xcursor theme to use.
-
-This will also set the XCURSOR_THEME environment variable for all spawned processes.
-
-
 <!-- programs.niri.settings.layout -->
 
 ## `programs.niri.settings.layout.border`
@@ -2272,28 +2131,6 @@ The height of the edge of the screen where dragging a window will scroll the vie
 - default: `true`
 
 Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
-
-
-## `programs.niri.settings.environment`
-- type: `attribute set of (null or string)`
-
-Environment variables to set for processes spawned by niri.
-
-If an environment variable is already set in the environment, then it will be overridden by the value set here.
-
-If a value is null, then the environment variable will be unset, even if it already existed.
-
-Examples:
-
-```nix
-{
-  programs.niri.settings.environment = {
-    QT_QPA_PLATFORM = "wayland";
-    DISPLAY = null;
-  };
-}
-```
-
 
 
 ## `programs.niri.settings.layer-rules`
@@ -3260,26 +3097,6 @@ Takes effect only when the window is on an output with [`outputs.<name>.variable
 - default: `null`
 
 
-## `programs.niri.settings.xwayland-satellite`
-
-
-Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
-
-
-## `programs.niri.settings.xwayland-satellite.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.xwayland-satellite.path`
-- type: `null or string`
-- default: `null`
-
-Path to the xwayland-satellite binary.
-
-Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
-
-
 ## `programs.niri.settings.debug`
 - type: `attribute set of kdl arguments`
 
@@ -3304,3 +3121,186 @@ Here's an example of how to use this:
 This option is, just like [`binds.<name>.action`](#programsnirisettingsbindsnameaction), not verified by the nix module. But, it will be validated by niri before committing the config.
 
 Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
+
+
+## `programs.niri.settings.spawn-at-startup`
+- type: `list of attribute-tagged union with choices: argv, command, sh`
+
+A list of commands to run when niri starts.
+
+Each command can be represented as its raw arguments, or as a shell invocation.
+
+When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+
+
+## `programs.niri.settings.spawn-at-startup.*.argv`
+- type: `list of string`
+
+Almost raw process arguments to spawn, without shell syntax.
+
+A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { argv = ["waybar"]; }
+    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
+    { argv = ["~/.config/niri/scripts/startup.sh"]; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.spawn-at-startup.*.sh`
+- type: `string`
+
+A shell command to spawn. Run wild with POSIX syntax.
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
+  ];
+}
+```
+
+
+Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
+
+
+<!-- programs.niri.settings.cursor -->
+
+## `programs.niri.settings.cursor.hide-after-inactive-ms`
+- type: `null or signed integer`
+- default: `null`
+
+If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+
+
+## `programs.niri.settings.cursor.hide-when-typing`
+- type: `boolean`
+- default: `false`
+
+Whether to hide the cursor when typing.
+
+
+## `programs.niri.settings.cursor.size`
+- type: `signed integer`
+- default: `24`
+
+The size of the cursor in logical pixels.
+
+This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+
+
+## `programs.niri.settings.cursor.theme`
+- type: `string`
+- default: `"default"`
+
+The name of the xcursor theme to use.
+
+This will also set the XCURSOR_THEME environment variable for all spawned processes.
+
+
+## `programs.niri.settings.screenshot-path`
+- type: `null or string`
+- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
+
+The path to save screenshots to.
+
+If this is null, then no screenshots will be saved.
+
+If the path starts with a `~`, then it will be expanded to the user's home directory.
+
+The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+
+
+## `programs.niri.settings.hotkey-overlay.hide-not-bound`
+- type: `boolean`
+- default: `false`
+
+By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
+In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
+
+You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
+
+
+## `programs.niri.settings.hotkey-overlay.skip-at-startup`
+- type: `boolean`
+- default: `false`
+
+Whether to skip the hotkey overlay shown when niri starts.
+
+
+## `programs.niri.settings.config-notification.disable-failed`
+- type: `boolean`
+- default: `false`
+
+Disable the notification that the config file failed to load.
+
+
+## `programs.niri.settings.clipboard.disable-primary`
+- type: `boolean`
+- default: `false`
+
+The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
+
+This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
+
+This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
+
+If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
+
+Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
+
+
+## `programs.niri.settings.prefer-no-csd`
+- type: `boolean`
+- default: `false`
+
+Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
+
+
+## `programs.niri.settings.environment`
+- type: `attribute set of (null or string)`
+
+Environment variables to set for processes spawned by niri.
+
+If an environment variable is already set in the environment, then it will be overridden by the value set here.
+
+If a value is null, then the environment variable will be unset, even if it already existed.
+
+Examples:
+
+```nix
+{
+  programs.niri.settings.environment = {
+    QT_QPA_PLATFORM = "wayland";
+    DISPLAY = null;
+  };
+}
+```
+
+
+
+## `programs.niri.settings.xwayland-satellite`
+
+
+Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
+
+
+## `programs.niri.settings.xwayland-satellite.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.xwayland-satellite.path`
+- type: `null or string`
+- default: `null`
+
+Path to the xwayland-satellite binary.
+
+Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
