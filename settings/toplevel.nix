@@ -92,94 +92,7 @@ let
       contents
     ];
 
-    pointer = cfg: [
-      (flag' "natural-scroll" cfg.natural-scroll)
-      (flag' "middle-emulation" cfg.middle-emulation)
-      (nullable leaf "accel-speed" cfg.accel-speed)
-      (nullable leaf "accel-profile" cfg.accel-profile)
-      (nullable leaf "scroll-button" cfg.scroll-button)
-      (flag' "scroll-button-lock" cfg.scroll-button-lock)
-      (nullable leaf "scroll-method" cfg.scroll-method)
-    ];
-
-    pointer-tablet =
-      cfg: inner:
-      (toggle "off" cfg [
-        (flag' "left-handed" cfg.left-handed)
-        inner
-      ]);
-
-    touchy = cfg: [
-      (nullable leaf "map-to-output" cfg.map-to-output)
-    ];
-
-    tablet =
-      cfg:
-      touchy cfg
-      ++ [
-        (nullable leaf "calibration-matrix" cfg.calibration-matrix)
-      ];
-
-    touch =
-      cfg:
-      (toggle "off" cfg [
-        (touchy cfg)
-      ]);
-
-    gradient' =
-      name: cfg:
-      leaf name (
-        lib.concatMapAttrs (
-          name: value:
-          lib.optionalAttrs (value != null) {
-            ${lib.removeSuffix "'" name} = value;
-          }
-        ) cfg
-      );
-
-    preset-sizes = map' (nullable plain) (
-      cfg: if cfg == [ ] then null else map (lib.mapAttrsToList leaf) (lib.toList cfg)
-    );
-
     opt-props = lib.filterAttrs (lib.const (value: value != null));
-    border-rule = map' plain' (cfg: [
-      (flag' "on" (cfg.enable == true))
-      (flag' "off" (cfg.enable == false))
-      (nullable leaf "width" cfg.width)
-      (nullable leaf "urgent-color" cfg.urgent.color or null)
-      (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
-      (nullable leaf "active-color" cfg.active.color or null)
-      (nullable gradient' "active-gradient" cfg.active.gradient or null)
-      (nullable leaf "inactive-color" cfg.inactive.color or null)
-      (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
-    ]);
-
-    shadow-rule = map' plain' (cfg: [
-      (flag' "on" (cfg.enable == true))
-      (flag' "off" (cfg.enable == false))
-      (nullable leaf "offset" cfg.offset)
-      (nullable leaf "softness" cfg.softness)
-      (nullable leaf "spread" cfg.spread)
-      (nullable leaf "draw-behind-window" cfg.draw-behind-window)
-      (nullable leaf "color" cfg.color)
-      (nullable leaf "inactive-color" cfg.inactive-color)
-    ]);
-
-    tab-indicator-rule = map' plain' (cfg: [
-      (nullable leaf "urgent-color" cfg.urgent.color or null)
-      (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
-      (nullable leaf "active-color" cfg.active.color or null)
-      (nullable gradient' "active-gradient" cfg.active.gradient or null)
-      (nullable leaf "inactive-color" cfg.inactive.color or null)
-      (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
-    ]);
-
-    corner-radius = cfg: [
-      cfg.top-left
-      cfg.top-right
-      cfg.bottom-right
-      cfg.bottom-left
-    ];
 
     bind =
       name: cfg:
@@ -212,12 +125,6 @@ let
         [
           (lib.mapAttrsToList leaf cfg.action)
         ];
-
-    pointer-tablet' =
-      ext: name: cfg:
-      plain' name (pointer-tablet cfg (ext cfg));
-    pointer' = pointer-tablet' pointer;
-    tablet' = pointer-tablet' tablet;
   };
 in
 {
@@ -234,86 +141,13 @@ in
         plain
         nullable
         leaf
-        flag'
         plain'
-        pointer-tablet
-        pointer
-        pointer'
-        tablet'
-        touch
-        optional-node
         toggle
         map'
-        preset-sizes
         bind
-        each
-        opt-props
-        corner-radius
-        border-rule
-        shadow-rule
-        tab-indicator-rule
         ;
     in
     normalize-nodes [
-      (plain "input" [
-        (plain "keyboard" [
-          (plain "xkb" [
-            (nullable leaf "file" cfg.input.keyboard.xkb.file)
-            (leaf "layout" cfg.input.keyboard.xkb.layout)
-            (leaf "model" cfg.input.keyboard.xkb.model)
-            (leaf "rules" cfg.input.keyboard.xkb.rules)
-            (leaf "variant" cfg.input.keyboard.xkb.variant)
-            (nullable leaf "options" cfg.input.keyboard.xkb.options)
-          ])
-          (leaf "repeat-delay" cfg.input.keyboard.repeat-delay)
-          (leaf "repeat-rate" cfg.input.keyboard.repeat-rate)
-          (leaf "track-layout" cfg.input.keyboard.track-layout)
-          (flag' "numlock" cfg.input.keyboard.numlock)
-        ])
-        (plain' "touchpad" (
-          pointer-tablet cfg.input.touchpad [
-            (flag' "tap" cfg.input.touchpad.tap)
-            (flag' "dwt" cfg.input.touchpad.dwt)
-            (flag' "dwtp" cfg.input.touchpad.dwtp)
-            (nullable leaf "drag" cfg.input.touchpad.drag)
-            (flag' "drag-lock" cfg.input.touchpad.drag-lock)
-            (flag' "disabled-on-external-mouse" cfg.input.touchpad.disabled-on-external-mouse)
-            (pointer cfg.input.touchpad)
-            (nullable leaf "click-method" cfg.input.touchpad.click-method)
-            (nullable leaf "tap-button-map" cfg.input.touchpad.tap-button-map)
-            (nullable leaf "scroll-factor" cfg.input.touchpad.scroll-factor)
-          ]
-        ))
-        (plain' "mouse" (
-          pointer-tablet cfg.input.mouse [
-            (pointer cfg.input.mouse)
-            (nullable leaf "scroll-factor" cfg.input.mouse.scroll-factor)
-          ]
-        ))
-        (pointer' "trackpoint" cfg.input.trackpoint)
-        (pointer' "trackball" cfg.input.trackball)
-        (tablet' "tablet" cfg.input.tablet)
-        (plain' "touch" (touch cfg.input.touch))
-        (optional-node cfg.input.warp-mouse-to-focus.enable (
-          leaf "warp-mouse-to-focus" (
-            lib.optionalAttrs (cfg.input.warp-mouse-to-focus.mode != null) {
-              inherit (cfg.input.warp-mouse-to-focus) mode;
-            }
-          )
-        ))
-        (optional-node cfg.input.focus-follows-mouse.enable (
-          leaf "focus-follows-mouse" (
-            lib.optionalAttrs (cfg.input.focus-follows-mouse.max-scroll-amount != null) {
-              inherit (cfg.input.focus-follows-mouse) max-scroll-amount;
-            }
-          )
-        ))
-        (flag' "workspace-auto-back-and-forth" cfg.input.workspace-auto-back-and-forth)
-        (toggle "disable-power-key-handling" cfg.input.power-key-handling [ ])
-        (nullable leaf "mod-key" cfg.input.mod-key)
-        (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
-      ])
-
       (plain' "overview" [
         (nullable leaf "zoom" cfg.overview.zoom)
         (nullable leaf "backdrop-color" cfg.overview.backdrop-color)

@@ -232,18 +232,87 @@ By default, when this is null, no config file is generated.
 Beware that setting [`programs.niri.config`](#programsniriconfig) completely overrides everything under this option.
 
 
-## `programs.niri.settings.input.focus-follows-mouse.enable`
-- type: `boolean`
-- default: `false`
+<!-- programs.niri.settings.input -->
 
-Whether to focus the window under the mouse when the mouse moves.
+<!-- programs.niri.settings.input.keyboard -->
+
+## `programs.niri.settings.input.keyboard.xkb`
 
 
-## `programs.niri.settings.input.focus-follows-mouse.max-scroll-amount`
+Parameters passed to libxkbcommon, which handles the keyboard in niri.
+
+Further reading:
+- [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.file`
 - type: `null or string`
 - default: `null`
 
-The maximum proportion of the screen to scroll at a time
+Path to a `.xkb` keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
+
+
+## `programs.niri.settings.input.keyboard.xkb.rules`
+- type: `string`
+- default: `""`
+
+The rules file to use.
+
+The rules file describes how to interpret the values of the model, layout, variant and options fields.
+
+If this is set to an empty string, the rules will be read from the `XKB_DEFAULT_RULES` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.model`
+- type: `string`
+- default: `""`
+
+The keyboard model by which to interpret keycodes and LEDs
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#MODELS) for a list of available models.
+
+If this is set to an empty string, the model will be read from the `XKB_DEFAULT_MODEL` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.layout`
+- type: `string`
+- default: `""`
+
+A comma-separated list of layouts (languages) to include in the keymap.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available layouts and their variants.
+
+If this is set to an empty string, the layout will be read from the `XKB_DEFAULT_LAYOUT` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.variant`
+- type: `string`
+- default: `""`
+
+A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available variants for each layout.
+
+If this is set to an empty string, the variant will be read from the `XKB_DEFAULT_VARIANT` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.options`
+- type: `null or string`
+- default: `null`
+
+A comma separated list of options, through which the user specifies non-layout related preferences, like which key combinations are used for switching layouts, or which key is the Compose key.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#OPTIONS) for a list of available options.
+
+If this is set to an empty string, no options will be used.
+
+If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` environment variable.
+
 
 
 ## `programs.niri.settings.input.keyboard.numlock`
@@ -276,112 +345,7 @@ The keyboard layout can be remembered per `"window"`, such that when you switch 
 By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
 
 
-## `programs.niri.settings.input.keyboard.xkb`
-
-
-Parameters passed to libxkbcommon, which handles the keyboard in niri.
-
-Further reading:
-- [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.file`
-- type: `null or string`
-- default: `null`
-
-Path to a `.xkb` keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
-
-
-## `programs.niri.settings.input.keyboard.xkb.layout`
-- type: `string`
-- default: `""`
-
-A comma-separated list of layouts (languages) to include in the keymap.
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available layouts and their variants.
-
-If this is set to an empty string, the layout will be read from the `XKB_DEFAULT_LAYOUT` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.model`
-- type: `string`
-- default: `""`
-
-The keyboard model by which to interpret keycodes and LEDs
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#MODELS) for a list of available models.
-
-If this is set to an empty string, the model will be read from the `XKB_DEFAULT_MODEL` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.options`
-- type: `null or string`
-- default: `null`
-
-A comma separated list of options, through which the user specifies non-layout related preferences, like which key combinations are used for switching layouts, or which key is the Compose key.
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#OPTIONS) for a list of available options.
-
-If this is set to an empty string, no options will be used.
-
-If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.rules`
-- type: `string`
-- default: `""`
-
-The rules file to use.
-
-The rules file describes how to interpret the values of the model, layout, variant and options fields.
-
-If this is set to an empty string, the rules will be read from the `XKB_DEFAULT_RULES` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.variant`
-- type: `string`
-- default: `""`
-
-A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available variants for each layout.
-
-If this is set to an empty string, the variant will be read from the `XKB_DEFAULT_VARIANT` environment variable.
-
-
-
-## `programs.niri.settings.input.mod-key`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.input.mod-key-nested`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.input.mouse.accel-profile`
-- type: `null or one of "adaptive", "flat"`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
-
-
-
-## `programs.niri.settings.input.mouse.accel-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
-
-
+<!-- programs.niri.settings.input.mouse -->
 
 ## `programs.niri.settings.input.mouse.enable`
 - type: `boolean`
@@ -400,6 +364,18 @@ Further reading:
 
 
 
+## `programs.niri.settings.input.mouse.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
 ## `programs.niri.settings.input.mouse.middle-emulation`
 - type: `boolean`
 - default: `false`
@@ -412,15 +388,21 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.mouse.natural-scroll`
-- type: `boolean`
-- default: `false`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+## `programs.niri.settings.input.mouse.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
 
 Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+
+## `programs.niri.settings.input.mouse.accel-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
 
@@ -446,15 +428,6 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.mouse.scroll-factor`
-- type: `null or floating point number or signed integer or (submodule)`
-- default: `null`
-
-For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
-
-This is not a libinput property, but rather a niri-specific one.
-
-
 ## `programs.niri.settings.input.mouse.scroll-method`
 - type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
 - default: `null`
@@ -467,13 +440,37 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.power-key-handling.enable`
+## `programs.niri.settings.input.mouse.scroll-factor`
+- type: `null or floating point number or signed integer or (submodule)`
+- default: `null`
+
+For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
+
+This is not a libinput property, but rather a niri-specific one.
+
+
+<!-- programs.niri.settings.input.tablet -->
+
+## `programs.niri.settings.input.tablet.enable`
 - type: `boolean`
 - default: `true`
 
-By default, niri will take over the power button to make it sleep instead of power off.
 
-You can disable this behaviour if you prefer to configure the power button elsewhere.
+## `programs.niri.settings.input.tablet.left-handed`
+- type: `boolean`
+- default: `false`
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+
+## `programs.niri.settings.input.tablet.map-to-output`
+- type: `null or string`
+- default: `null`
 
 
 ## `programs.niri.settings.input.tablet.calibration-matrix`
@@ -503,12 +500,26 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.tablet.enable`
+<!-- programs.niri.settings.input.touch -->
+
+## `programs.niri.settings.input.touch.enable`
 - type: `boolean`
 - default: `true`
 
 
-## `programs.niri.settings.input.tablet.left-handed`
+## `programs.niri.settings.input.touch.map-to-output`
+- type: `null or string`
+- default: `null`
+
+
+<!-- programs.niri.settings.input.touchpad -->
+
+## `programs.niri.settings.input.touchpad.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.input.touchpad.left-handed`
 - type: `boolean`
 - default: `false`
 
@@ -520,19 +531,28 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.tablet.map-to-output`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.input.touch.enable`
+## `programs.niri.settings.input.touchpad.natural-scroll`
 - type: `boolean`
 - default: `true`
 
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
 
-## `programs.niri.settings.input.touch.map-to-output`
-- type: `null or string`
-- default: `null`
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
+## `programs.niri.settings.input.touchpad.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
 
 
 ## `programs.niri.settings.input.touchpad.accel-profile`
@@ -553,32 +573,73 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.touchpad.click-method`
-- type: `null or one of "button-areas", "clickfinger"`
+## `programs.niri.settings.input.touchpad.scroll-button`
+- type: `null or signed integer`
 - default: `null`
 
-Method to determine which mouse button is pressed when you click the touchpad.
-
-- `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#software-button-areas) \
-  The button is determined by which part of the touchpad was clicked.
-- `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickfinger-behavior) \
-  The button is determined by how many fingers clicked.
-
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
 
 Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#click-method
-- https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
 
 
 
-## `programs.niri.settings.input.touchpad.disabled-on-external-mouse`
+## `programs.niri.settings.input.touchpad.scroll-button-lock`
 - type: `boolean`
 - default: `false`
 
-Whether to disable the touchpad when an external mouse is plugged in.
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
 
 Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#send-events-mode
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.touchpad.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
+
+
+## `programs.niri.settings.input.touchpad.tap`
+- type: `boolean`
+- default: `true`
+
+Whether to enable tap-to-click.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
+- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-to-click-behaviour
+
+
+
+## `programs.niri.settings.input.touchpad.dwt`
+- type: `boolean`
+- default: `false`
+
+Whether to disable the touchpad while typing.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-typing
+- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-typing
+
+
+
+## `programs.niri.settings.input.touchpad.dwtp`
+- type: `boolean`
+- default: `false`
+
+Whether to disable the touchpad while the trackpoint is in use.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-trackpointing
+- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
 
 
 
@@ -610,123 +671,14 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.touchpad.dwt`
+## `programs.niri.settings.input.touchpad.disabled-on-external-mouse`
 - type: `boolean`
 - default: `false`
 
-Whether to disable the touchpad while typing.
+Whether to disable the touchpad when an external mouse is plugged in.
 
 Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-typing
-- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-typing
-
-
-
-## `programs.niri.settings.input.touchpad.dwtp`
-- type: `boolean`
-- default: `false`
-
-Whether to disable the touchpad while the trackpoint is in use.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-trackpointing
-- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
-
-
-
-## `programs.niri.settings.input.touchpad.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.input.touchpad.left-handed`
-- type: `boolean`
-- default: `false`
-
-Whether to accomodate left-handed usage for this device.
-This varies based on the exact device, but will for example swap left/right mouse buttons.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
-
-
-
-## `programs.niri.settings.input.touchpad.middle-emulation`
-- type: `boolean`
-- default: `false`
-
-Whether a middle mouse button press should be sent when you press the left and right mouse buttons
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
-- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
-
-
-
-## `programs.niri.settings.input.touchpad.natural-scroll`
-- type: `boolean`
-- default: `true`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.scroll-button`
-- type: `null or signed integer`
-- default: `null`
-
-When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.scroll-button-lock`
-- type: `boolean`
-- default: `false`
-
-When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.scroll-factor`
-- type: `null or floating point number or signed integer or (submodule)`
-- default: `null`
-
-For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
-
-This is not a libinput property, but rather a niri-specific one.
-
-
-## `programs.niri.settings.input.touchpad.scroll-method`
-- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
-- default: `null`
-
-When to convert motion events to scrolling events.
-The default and supported values vary based on the device type.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.tap`
-- type: `boolean`
-- default: `true`
-
-Whether to enable tap-to-click.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
-- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-to-click-behaviour
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#send-events-mode
 
 
 
@@ -741,23 +693,34 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.trackball.accel-profile`
-- type: `null or one of "adaptive", "flat"`
+## `programs.niri.settings.input.touchpad.click-method`
+- type: `null or one of "button-areas", "clickfinger"`
 - default: `null`
 
+Method to determine which mouse button is pressed when you click the touchpad.
+
+- `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#software-button-areas) \
+  The button is determined by which part of the touchpad was clicked.
+- `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickfinger-behavior) \
+  The button is determined by how many fingers clicked.
+
+
 Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#click-method
+- https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
 
 
 
-## `programs.niri.settings.input.trackball.accel-speed`
-- type: `null or floating point number or signed integer`
+## `programs.niri.settings.input.touchpad.scroll-factor`
+- type: `null or floating point number or signed integer or (submodule)`
 - default: `null`
 
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
+
+This is not a libinput property, but rather a niri-specific one.
 
 
+<!-- programs.niri.settings.input.trackball -->
 
 ## `programs.niri.settings.input.trackball.enable`
 - type: `boolean`
@@ -776,6 +739,18 @@ Further reading:
 
 
 
+## `programs.niri.settings.input.trackball.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
 ## `programs.niri.settings.input.trackball.middle-emulation`
 - type: `boolean`
 - default: `false`
@@ -788,15 +763,21 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.trackball.natural-scroll`
-- type: `boolean`
-- default: `false`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+## `programs.niri.settings.input.trackball.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
 
 Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+
+## `programs.niri.settings.input.trackball.accel-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
 
@@ -834,23 +815,7 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.trackpoint.accel-profile`
-- type: `null or one of "adaptive", "flat"`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
-
-
-
-## `programs.niri.settings.input.trackpoint.accel-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
-
-
+<!-- programs.niri.settings.input.trackpoint -->
 
 ## `programs.niri.settings.input.trackpoint.enable`
 - type: `boolean`
@@ -869,6 +834,18 @@ Further reading:
 
 
 
+## `programs.niri.settings.input.trackpoint.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
 ## `programs.niri.settings.input.trackpoint.middle-emulation`
 - type: `boolean`
 - default: `false`
@@ -881,15 +858,21 @@ Further reading:
 
 
 
-## `programs.niri.settings.input.trackpoint.natural-scroll`
-- type: `boolean`
-- default: `false`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+## `programs.niri.settings.input.trackpoint.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
 
 Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+
+## `programs.niri.settings.input.trackpoint.accel-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
 
 
 
@@ -943,6 +926,20 @@ Whether to warp the mouse to the focused window when switching focus.
 - default: `null`
 
 
+## `programs.niri.settings.input.focus-follows-mouse.enable`
+- type: `boolean`
+- default: `false`
+
+Whether to focus the window under the mouse when the mouse moves.
+
+
+## `programs.niri.settings.input.focus-follows-mouse.max-scroll-amount`
+- type: `null or string`
+- default: `null`
+
+The maximum proportion of the screen to scroll at a time
+
+
 ## `programs.niri.settings.input.workspace-auto-back-and-forth`
 - type: `boolean`
 - default: `false`
@@ -950,6 +947,25 @@ Whether to warp the mouse to the focused window when switching focus.
 When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
 
 Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
+
+
+## `programs.niri.settings.input.power-key-handling.enable`
+- type: `boolean`
+- default: `true`
+
+By default, niri will take over the power button to make it sleep instead of power off.
+
+You can disable this behaviour if you prefer to configure the power button elsewhere.
+
+
+## `programs.niri.settings.input.mod-key`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.input.mod-key-nested`
+- type: `null or string`
+- default: `null`
 
 
 ## `programs.niri.settings.outputs`
