@@ -314,9 +314,6 @@ in
         (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
       ])
 
-      (leaf "screenshot-path" cfg.screenshot-path)
-      (flag' "prefer-no-csd" cfg.prefer-no-csd)
-
       (plain' "overview" [
         (nullable leaf "zoom" cfg.overview.zoom)
         (nullable leaf "backdrop-color" cfg.overview.backdrop-color)
@@ -330,27 +327,6 @@ in
         ])
       ])
 
-      (plain "cursor" [
-        (leaf "xcursor-theme" cfg.cursor.theme)
-        (leaf "xcursor-size" cfg.cursor.size)
-        (flag' "hide-when-typing" cfg.cursor.hide-when-typing)
-        (nullable leaf "hide-after-inactive-ms" cfg.cursor.hide-after-inactive-ms)
-      ])
-
-      (plain' "hotkey-overlay" [
-        (flag' "skip-at-startup" cfg.hotkey-overlay.skip-at-startup)
-        (flag' "hide-not-bound" cfg.hotkey-overlay.hide-not-bound)
-      ])
-
-      (plain' "config-notification" [
-        (flag' "disable-failed" cfg.config-notification.disable-failed)
-      ])
-
-      (plain' "clipboard" [
-        (flag' "disable-primary" cfg.clipboard.disable-primary)
-      ])
-
-      (plain' "environment" (lib.mapAttrsToList leaf cfg.environment))
       (plain' "binds" (lib.mapAttrsToList bind cfg.binds))
 
       (plain' "switch-events" (
@@ -360,12 +336,6 @@ in
           ])
         )) cfg.switch-events
       ))
-
-      (each cfg.spawn-at-startup (cfg: [
-        (nullable leaf "spawn-at-startup" cfg.argv or null)
-        (nullable leaf "spawn-sh-at-startup" cfg.sh or null)
-        (nullable leaf "spawn-at-startup" cfg.command or null)
-      ]))
 
       (each cfg.window-rules (cfg: [
         (plain "window-rule" [
@@ -425,12 +395,6 @@ in
           (nullable leaf "max-speed" cfg.gestures.dnd-edge-workspace-switch.max-speed)
         ])
         (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners [ ]))
-      ])
-
-      (plain' "xwayland-satellite" [
-        (toggle "off" cfg.xwayland-satellite [
-          (nullable leaf "path" cfg.xwayland-satellite.path)
-        ])
       ])
 
       (map' plain' (lib.mapAttrsToList leaf) "debug" cfg.debug)

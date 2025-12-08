@@ -1964,6 +1964,8 @@ If the path starts with a `~`, then it will be expanded to the user's home direc
 The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
 
 
+<!-- programs.niri.settings.hotkey-overlay -->
+
 ## `programs.niri.settings.hotkey-overlay.hide-not-bound`
 - type: `boolean`
 - default: `false`
@@ -1981,12 +1983,16 @@ You can disable this behaviour by setting this option to `true`. Then, niri will
 Whether to skip the hotkey overlay shown when niri starts.
 
 
+<!-- programs.niri.settings.config-notification -->
+
 ## `programs.niri.settings.config-notification.disable-failed`
 - type: `boolean`
 - default: `false`
 
 Disable the notification that the config file failed to load.
 
+
+<!-- programs.niri.settings.clipboard -->
 
 ## `programs.niri.settings.clipboard.disable-primary`
 - type: `boolean`
