@@ -2669,6 +2669,27 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 
 <!-- programs.niri.settings.window-rules.*.tab-indicator -->
 
+## `programs.niri.settings.window-rules.*.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
+
+
 ## `programs.niri.settings.window-rules.*.max-height`
 - type: `null or signed integer`
 - default: `null`

@@ -18,7 +18,7 @@ let
   inherit (niri-flake-internal)
     fmt
     list
-    ordered-section
+    make-ordered-options
     record
     shorthand-for
     obsolete-warning
@@ -79,54 +79,107 @@ in
 {
   sections = [
     {
-      options.animations = ordered-section [
-        {
-          enable = optional types.bool true;
-          slowdown = nullable float-or-int;
-        }
-        {
-          all-anims = mkOption {
-            type = types.raw;
-            internal = true;
-            visible = false;
+      options.animations = lib.mkOption {
+        default = { };
+        type = types.submodule [
+          {
+            imports = make-ordered-options [
 
-            default = builtins.attrNames anims;
-          };
-        }
-        (builtins.mapAttrs (
-          name:
+              {
+                enable = optional types.bool true;
+                slowdown = nullable float-or-int;
+              }
+              (builtins.mapAttrs (
+                animation-name:
+                (
+                  { has-shader }:
+                  lib.mkOption {
+                    default = { };
+                    type = types.submodule (
+                      { config, ... }:
+                      {
+                        options = {
+                          enable = optional types.bool true;
+                          kind = nullable (shorthand-for "animation-kind" animation-kind) // {
+                            visible = "shallow";
+                          };
+                        }
+                        // lib.optionalAttrs has-shader {
+                          custom-shader = nullable types.str // {
+                            description = ''
+                              Source code for a GLSL shader to use for this animation.
+
+                              For example, set it to ${fmt.code "builtins.readFile ./${animation-name}.glsl"} to use a shader from the same directory as your configuration file.
+
+                              See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
+                            '';
+                          };
+                        }
+                        // {
+                          rendered = lib.mkOption {
+                            type = kdl.types.kdl-node;
+                            readOnly = true;
+                            internal = true;
+                            visible = false;
+                            apply = node: lib.mkIf (node.children != [ ]) node;
+                          };
+                        };
+
+                        config.rendered = kdl.plain animation-name [
+                          (lib.mkIf (!config.enable) (kdl.flag "off"))
+                          (lib.mkIf (config.enable) [
+                            (lib.mkIf (config.kind ? easing) [
+                              (kdl.leaf "duration-ms" config.kind.easing.duration-ms)
+                              (kdl.leaf "curve" ([ config.kind.easing.curve ] ++ config.kind.easing.curve-args))
+                            ])
+                            (lib.mkIf (config.kind ? spring) [
+                              (kdl.leaf "spring" config.kind.spring)
+                            ])
+                            (lib.optional has-shader [
+                              (lib.mkIf (config.custom-shader != null) [
+                                (kdl.leaf "custom-shader" config.custom-shader)
+                              ])
+                            ])
+                          ])
+                        ];
+                      }
+                    );
+                  }
+                )
+              ) anims)
+              {
+                "<animation-kind>" = docs-only animation-kind // {
+                  override-loc = lib.const [ "<animation-kind>" ];
+                };
+              }
+            ];
+          }
           (
-            { has-shader }:
-            let
-              type = record (
-                {
-                  enable = optional types.bool true;
-                  kind = nullable (shorthand-for "animation-kind" animation-kind) // {
-                    visible = "shallow";
-                  };
-                }
-                // lib.optionalAttrs has-shader {
-                  custom-shader = nullable types.str // {
-                    description = ''
-                      Source code for a GLSL shader to use for this animation.
+            { config, ... }:
+            {
+              options.rendered = lib.mkOption {
+                type = kdl.types.kdl-node;
+                readOnly = true;
+                internal = true;
+                visible = false;
+                apply = node: lib.mkIf (node.children != [ ]) node;
+              };
 
-                      For example, set it to ${fmt.code "builtins.readFile ./${name}.glsl"} to use a shader from the same directory as your configuration file.
-
-                      See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
-                    '';
-                  };
-                }
-              );
-            in
-            optional type { }
+              config.rendered = kdl.plain "animations" [
+                (lib.mkIf (!config.enable) (kdl.flag "off"))
+                (lib.mkIf (config.enable) [
+                  (lib.mkIf (config.slowdown != null) [
+                    (kdl.leaf "slowdown" config.slowdown)
+                  ])
+                  (map (name: config.${name}.rendered) (builtins.attrNames anims))
+                ])
+              ];
+            }
           )
-        ) anims)
-        {
-          "<animation-kind>" = docs-only animation-kind // {
-            override-loc = lib.const [ "<animation-kind>" ];
-          };
-        }
-      ];
+        ];
+      };
+
+      render = config: config.animations.rendered;
     }
   ];
 }

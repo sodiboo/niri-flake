@@ -188,18 +188,6 @@ let
       cfg: if cfg == [ ] then null else map (lib.mapAttrsToList leaf) (lib.toList cfg)
     );
 
-    animation = map' plain' (
-      cfg:
-      toggle "off" cfg [
-        (optional-node (cfg.kind ? easing) [
-          (leaf "duration-ms" cfg.kind.easing.duration-ms)
-          (leaf "curve" ([ cfg.kind.easing.curve ] ++ cfg.kind.easing.curve-args))
-        ])
-        (nullable leaf "spring" cfg.kind.spring or null)
-        (nullable leaf "custom-shader" cfg.custom-shader or null)
-      ]
-    );
-
     opt-props = lib.filterAttrs (lib.const (value: value != null));
     border-rule = map' plain' (cfg: [
       (flag' "on" (cfg.enable == true))
@@ -340,7 +328,6 @@ in
         border-rule
         shadow-rule
         tab-indicator-rule
-        animation
         ;
     in
     normalize-nodes [
@@ -567,13 +554,6 @@ in
           (nullable leaf "max-speed" cfg.gestures.dnd-edge-workspace-switch.max-speed)
         ])
         (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners [ ]))
-      ])
-
-      (plain' "animations" [
-        (toggle "off" cfg.animations [
-          (nullable leaf "slowdown" cfg.animations.slowdown)
-          (map (name: animation name cfg.animations.${name}) cfg.animations.all-anims)
-        ])
       ])
 
       (plain' "xwayland-satellite" [
