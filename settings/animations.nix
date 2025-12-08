@@ -75,115 +75,121 @@ let
     overview-open-close.has-shader = false;
   };
 in
-ordered-section [
-  {
-    enable = optional types.bool true;
-    slowdown = nullable float-or-int;
-  }
-  {
-    all-anims = mkOption {
-      type = types.raw;
-      internal = true;
-      visible = false;
-
-      default = builtins.attrNames anims;
-    };
-  }
-  (builtins.mapAttrs (
-    name:
-    (
-      { has-shader }:
-      let
-        inner = record (
-          {
-            enable = optional types.bool true;
-            kind = nullable (shorthand-for "animation-kind" animation-kind) // {
-              visible = "shallow";
-            };
-          }
-          // lib.optionalAttrs has-shader {
-            custom-shader = nullable types.str // {
-              description = ''
-                Source code for a GLSL shader to use for this animation.
-
-                For example, set it to ${fmt.code "builtins.readFile ./${name}.glsl"} to use a shader from the same directory as your configuration file.
-
-                See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
-              '';
-            };
-          }
-        );
-
-        actual-type = mkOptionType {
-          inherit (inner)
-            name
-            description
-            getSubOptions
-            nestedTypes
-            ;
-
-          check = value: builtins.isNull value || animation-kind.check value || inner.check value;
-          merge =
-            loc: defs:
-            inner.merge loc (
-              map (
-                def:
-                if builtins.isNull def.value then
-                  lib.warn (obsolete-warning "${showOption loc} = null;" "${
-                    showOption (loc ++ [ "enable" ])
-                  } = false;" [ def ]) def
-                  // {
-                    value.enable = false;
-                  }
-                else if animation-kind.check def.value then
-                  lib.warn (rename-warning loc (loc ++ [ "kind" ]) [ def ]) def // { value.kind = def.value; }
-                else
-                  def
-              ) defs
-            );
-        };
-      in
-      optional actual-type { }
-    )
-  ) anims)
-  {
-    "<animation-kind>" = docs-only animation-kind // {
-      override-loc = lib.const [ "<animation-kind>" ];
-    };
-  }
-  (
-    let
-      deprecated-shaders = [
-        "window-open"
-        "window-close"
-        "window-resize"
-      ];
-    in
+{
+  sections = [
     {
-      __module =
+      options.animations = ordered-section [
         {
-          options,
-          config,
-          ...
-        }:
+          enable = optional types.bool true;
+          slowdown = nullable float-or-int;
+        }
         {
-          options.shaders = lib.genAttrs deprecated-shaders (
-            _: required (nullOr types.str) // { visible = false; }
-          );
-          config = lib.genAttrs deprecated-shaders (
-            name:
+          all-anims = mkOption {
+            type = types.raw;
+            internal = true;
+            visible = false;
+
+            default = builtins.attrNames anims;
+          };
+        }
+        (builtins.mapAttrs (
+          name:
+          (
+            { has-shader }:
             let
-              old = options.shaders.${name};
-            in
-            lib.mkIf (old.isDefined) (
-              lib.warn
-                (rename-warning (old.loc) (options.${name}.loc ++ [ "custom-shader" ]) old.definitionsWithLocations)
+              inner = record (
                 {
-                  custom-shader = config.shaders.${name};
+                  enable = optional types.bool true;
+                  kind = nullable (shorthand-for "animation-kind" animation-kind) // {
+                    visible = "shallow";
+                  };
                 }
-            )
-          );
-        };
+                // lib.optionalAttrs has-shader {
+                  custom-shader = nullable types.str // {
+                    description = ''
+                      Source code for a GLSL shader to use for this animation.
+
+                      For example, set it to ${fmt.code "builtins.readFile ./${name}.glsl"} to use a shader from the same directory as your configuration file.
+
+                      See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
+                    '';
+                  };
+                }
+              );
+
+              actual-type = mkOptionType {
+                inherit (inner)
+                  name
+                  description
+                  getSubOptions
+                  nestedTypes
+                  ;
+
+                check = value: builtins.isNull value || animation-kind.check value || inner.check value;
+                merge =
+                  loc: defs:
+                  inner.merge loc (
+                    map (
+                      def:
+                      if builtins.isNull def.value then
+                        lib.warn (obsolete-warning "${showOption loc} = null;" "${
+                          showOption (loc ++ [ "enable" ])
+                        } = false;" [ def ]) def
+                        // {
+                          value.enable = false;
+                        }
+                      else if animation-kind.check def.value then
+                        lib.warn (rename-warning loc (loc ++ [ "kind" ]) [ def ]) def // { value.kind = def.value; }
+                      else
+                        def
+                    ) defs
+                  );
+              };
+            in
+            optional actual-type { }
+          )
+        ) anims)
+        {
+          "<animation-kind>" = docs-only animation-kind // {
+            override-loc = lib.const [ "<animation-kind>" ];
+          };
+        }
+        (
+          let
+            deprecated-shaders = [
+              "window-open"
+              "window-close"
+              "window-resize"
+            ];
+          in
+          {
+            __module =
+              {
+                options,
+                config,
+                ...
+              }:
+              {
+                options.shaders = lib.genAttrs deprecated-shaders (
+                  _: required (nullOr types.str) // { visible = false; }
+                );
+                config = lib.genAttrs deprecated-shaders (
+                  name:
+                  let
+                    old = options.shaders.${name};
+                  in
+                  lib.mkIf (old.isDefined) (
+                    lib.warn
+                      (rename-warning (old.loc) (options.${name}.loc ++ [ "custom-shader" ]) old.definitionsWithLocations)
+                      {
+                        custom-shader = config.shaders.${name};
+                      }
+                  )
+                );
+              };
+          }
+        )
+      ];
     }
-  )
-]
+  ];
+}

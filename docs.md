@@ -232,284 +232,6 @@ By default, when this is null, no config file is generated.
 Beware that setting [`programs.niri.config`](#programsniriconfig) completely overrides everything under this option.
 
 
-## `programs.niri.settings.binds`
-- type: `attribute set of (niri keybind)`
-
-
-## `programs.niri.settings.binds.<name>.action`
-- type: `niri action`, which is a `kdl leaf`
-
-An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
-    "XF86AudioLowerVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
-  };
-}
-```
-
-
-If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+D".action.spawn = "fuzzel";
-    "Mod+1".action.focus-workspace = 1;
-  };
-}
-```
-
-
-For actions taking properties (named arguments), you can pass an attrset.
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+Shift+E".action.quit.skip-confirmation = true;
-    "Mod+Print".action.screenshot-screen = { show-pointer = false; };
-  };
-}
-```
-
-
-If an action takes properties and positional arguments, you can write it like this:
-
-```nix
-{
-  programs.niri.settings.binds = {
-    "Mod+Ctrl+1".action.move-window-to-workspace = [ { focus = false; } "chat-apps" ];
-  };
-}
-```
-
-
-
-## `programs.niri.settings.binds.<name>.allow-inhibiting`
-- type: `boolean`
-- default: `true`
-
-When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
-
-By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
-
-When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
-
-Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
-
-
-## `programs.niri.settings.binds.<name>.allow-when-locked`
-- type: `boolean`
-- default: `false`
-
-Whether this keybind should be allowed when the screen is locked.
-
-This is only applicable for `spawn` keybinds.
-
-
-## `programs.niri.settings.binds.<name>.cooldown-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The minimum cooldown before a keybind can be triggered again, in milliseconds.
-
-This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay`
-- type: `attribute-tagged union with choices: hidden, title`
-- default:
-  ```nix
-  {
-    hidden = false;
-  }
-  ```
-
-
-How this keybind should be displayed in the hotkey overlay.
-
-- By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
-- `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
-- `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
-
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
-- type: `boolean`
-
-When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay.title`
-- type: `string`
-
-The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
-
-
-## `programs.niri.settings.binds.<name>.repeat`
-- type: `boolean`
-- default: `true`
-
-Whether this keybind should trigger repeatedly when held down.
-
-
-<!-- programs.niri.settings.switch-events -->
-
-## `programs.niri.settings.switch-events.lid-close`
-- type: `null or`[`<switch-bind>`](#switch-bind)
-- default: `null`
-
-
-## `programs.niri.settings.switch-events.lid-open`
-- type: `null or`[`<switch-bind>`](#switch-bind)
-- default: `null`
-
-
-## `programs.niri.settings.switch-events.tablet-mode-off`
-- type: `null or`[`<switch-bind>`](#switch-bind)
-- default: `null`
-
-
-## `programs.niri.settings.switch-events.tablet-mode-on`
-- type: `null or`[`<switch-bind>`](#switch-bind)
-- default: `null`
-
-
-## `<switch-bind>`
-- type: `niri switch bind`
-
-<!--
-This description doesn't matter to the docs, but is necessary to make this header actually render so the above types can link to it.
--->
-
-
-## `<switch-bind>.action`
-- type: `niri switch action`, which is a `kdl leaf`
-
-A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
-
-See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more information on how this works, it has the exact same option type. Beware that switch binds are not the same as regular binds, and the actions they take are different. Currently, they can only accept spawn binds. Correct usage is like so:
-
-```nix
-{
-  programs.niri.settings.switch-events = {
-    tablet-mode-on.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "true"];
-    tablet-mode-off.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "false"];
-  };
-}
-```
-
-
-
-## `programs.niri.settings.workspaces`
-- type: `attribute set of (submodule)`
-
-Declare named workspaces.
-
-Named workspaces are similar to regular, dynamic workspaces, except they can be
-referred to by name, and they are persistent, they do not close when there are
-no more windows left on them.
-
-Usage is like so:
-
-```nix
-{
-  programs.niri.settings.workspaces."name" = {};
-  programs.niri.settings.workspaces."01-another-one" = {
-    open-on-output = "DP-1";
-    name = "another-one";
-  };
-}
-```
-
-
-Unless a `name` is declared, the workspace will use the attribute key as the name.
-
-Workspaces will be created in a specific order: sorted by key. If you do not care
-about the order of named workspaces, you can skip using the `name` attribute, and
-use the key instead. If you do care about it, you can use the key to order them,
-and a `name` attribute to have a friendlier name.
-
-
-## `programs.niri.settings.workspaces.<name>.name`
-- type: `string`
-- default: `the key of the workspace`
-
-The name of the workspace. You set this manually if you want the keys to be ordered in a specific way.
-
-
-## `programs.niri.settings.workspaces.<name>.open-on-output`
-- type: `null or string`
-- default: `null`
-
-The name of the output the workspace should be assigned to.
-
-
-## `programs.niri.settings.overview.backdrop-color`
-- type: `null or string`
-- default: `null`
-
-Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
-
-The alpha channel for this color will be ignored.
-
-
-## `programs.niri.settings.overview.workspace-shadow.color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.overview.workspace-shadow.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.overview.workspace-shadow.offset`
-- type: `null or (submodule)`
-- default: `null`
-
-The offset of the shadow from the window, measured in logical pixels.
-
-This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.overview.workspace-shadow.offset.x`
-- type: `floating point number or signed integer`
-- default: `0.000000`
-
-
-## `programs.niri.settings.overview.workspace-shadow.offset.y`
-- type: `floating point number or signed integer`
-- default: `5.000000`
-
-
-## `programs.niri.settings.overview.workspace-shadow.softness`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The softness/size of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.overview.workspace-shadow.spread`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The spread of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.overview.zoom`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
-
-
 ## `programs.niri.settings.input.focus-follows-mouse.enable`
 - type: `boolean`
 - default: `false`
@@ -1356,6 +1078,177 @@ VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
 Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
 
 
+## `programs.niri.settings.binds`
+- type: `attribute set of (niri keybind)`
+
+
+## `programs.niri.settings.binds.<name>.action`
+- type: `niri action`, which is a `kdl leaf`
+
+An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
+    "XF86AudioLowerVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
+  };
+}
+```
+
+
+If there is only a single argument, you can pass it directly. It will be implicitly converted to a list in that case.
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+D".action.spawn = "fuzzel";
+    "Mod+1".action.focus-workspace = 1;
+  };
+}
+```
+
+
+For actions taking properties (named arguments), you can pass an attrset.
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Shift+E".action.quit.skip-confirmation = true;
+    "Mod+Print".action.screenshot-screen = { show-pointer = false; };
+  };
+}
+```
+
+
+If an action takes properties and positional arguments, you can write it like this:
+
+```nix
+{
+  programs.niri.settings.binds = {
+    "Mod+Ctrl+1".action.move-window-to-workspace = [ { focus = false; } "chat-apps" ];
+  };
+}
+```
+
+
+
+## `programs.niri.settings.binds.<name>.allow-inhibiting`
+- type: `boolean`
+- default: `true`
+
+When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
+
+By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
+
+When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
+
+Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
+
+
+## `programs.niri.settings.binds.<name>.allow-when-locked`
+- type: `boolean`
+- default: `false`
+
+Whether this keybind should be allowed when the screen is locked.
+
+This is only applicable for `spawn` keybinds.
+
+
+## `programs.niri.settings.binds.<name>.cooldown-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The minimum cooldown before a keybind can be triggered again, in milliseconds.
+
+This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay`
+- type: `attribute-tagged union with choices: hidden, title`
+- default:
+  ```nix
+  {
+    hidden = false;
+  }
+  ```
+
+
+How this keybind should be displayed in the hotkey overlay.
+
+- By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
+- `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
+- `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
+- type: `boolean`
+
+When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay.title`
+- type: `string`
+
+The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
+
+
+## `programs.niri.settings.binds.<name>.repeat`
+- type: `boolean`
+- default: `true`
+
+Whether this keybind should trigger repeatedly when held down.
+
+
+<!-- programs.niri.settings.switch-events -->
+
+## `programs.niri.settings.switch-events.lid-close`
+- type: `null or`[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+
+## `programs.niri.settings.switch-events.lid-open`
+- type: `null or`[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+
+## `programs.niri.settings.switch-events.tablet-mode-off`
+- type: `null or`[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+
+## `programs.niri.settings.switch-events.tablet-mode-on`
+- type: `null or`[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+
+## `<switch-bind>`
+- type: `niri switch bind`
+
+<!--
+This description doesn't matter to the docs, but is necessary to make this header actually render so the above types can link to it.
+-->
+
+
+## `<switch-bind>.action`
+- type: `niri switch action`, which is a `kdl leaf`
+
+A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
+
+See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more information on how this works, it has the exact same option type. Beware that switch binds are not the same as regular binds, and the actions they take are different. Currently, they can only accept spawn binds. Correct usage is like so:
+
+```nix
+{
+  programs.niri.settings.switch-events = {
+    tablet-mode-on.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "true"];
+    tablet-mode-off.action.spawn = ["gsettings" "set" "org.gnome.desktop.a11y.applications" "screen-keyboard-enabled" "false"];
+  };
+}
+```
+
+
+
 <!-- programs.niri.settings.layout -->
 
 ## `programs.niri.settings.layout.border`
@@ -1869,472 +1762,26 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `0`
 
 
-<!-- programs.niri.settings.animations -->
-
-## `programs.niri.settings.animations.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.slowdown`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.config-notification-open-close -->
-
-## `programs.niri.settings.animations.config-notification-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.config-notification-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.exit-confirmation-open-close -->
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.horizontal-view-movement -->
-
-## `programs.niri.settings.animations.horizontal-view-movement.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.overview-open-close -->
-
-## `programs.niri.settings.animations.overview-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.overview-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.screenshot-ui-open -->
-
-## `programs.niri.settings.animations.screenshot-ui-open.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.screenshot-ui-open.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-close -->
-
-## `programs.niri.settings.animations.window-close.custom-shader`
+## `programs.niri.settings.overview.backdrop-color`
 - type: `null or string`
 - default: `null`
 
-Source code for a GLSL shader to use for this animation.
+Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
 
-For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
+The alpha channel for this color will be ignored.
 
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 
-
-## `programs.niri.settings.animations.window-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-movement -->
-
-## `programs.niri.settings.animations.window-movement.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-movement.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-open -->
-
-## `programs.niri.settings.animations.window-open.custom-shader`
-- type: `null or string`
-- default: `null`
-
-Source code for a GLSL shader to use for this animation.
-
-For example, set it to `builtins.readFile ./window-open.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-open.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-open.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-resize -->
-
-## `programs.niri.settings.animations.window-resize.custom-shader`
-- type: `null or string`
-- default: `null`
-
-Source code for a GLSL shader to use for this animation.
-
-For example, set it to `builtins.readFile ./window-resize.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-resize.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-resize.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.workspace-switch -->
-
-## `programs.niri.settings.animations.workspace-switch.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.workspace-switch.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `<animation-kind>`
-- type: `attribute-tagged union with choices: easing, spring`
-
-
-<!-- <animation-kind>.easing -->
-
-## `<animation-kind>.easing.curve`
-- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo", "cubic-bezier"`
-
-The curve to use for the easing function.
-
-
-## `<animation-kind>.easing.curve-args`
-- type: `list of KDL value without type annotation`
-
-Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
-
-
-## `<animation-kind>.easing.duration-ms`
-- type: `signed integer`
-
-
-<!-- <animation-kind>.spring -->
-
-## `<animation-kind>.spring.damping-ratio`
-- type: `floating point number`
-
-
-## `<animation-kind>.spring.epsilon`
-- type: `floating point number`
-
-
-## `<animation-kind>.spring.stiffness`
-- type: `signed integer`
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll`
-
-
-When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The delay in milliseconds before the view starts scrolling.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.max-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the edge of the screen where dragging a window will scroll the view.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
-
-
-In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
-
-This does not happen when the overview is not open.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The delay in milliseconds before the view starts scrolling.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.max-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The height of the edge of the screen where dragging a window will scroll the view.
-
-
-## `programs.niri.settings.gestures.hot-corners.enable`
-- type: `boolean`
-- default: `true`
-
-Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
-
-
-## `programs.niri.settings.layer-rules`
-- type: `list of (layer rule)`
-
-Layer rules.
-
-A layer rule will match based on [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) and [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). Both of these are lists of "match rules".
-
-A given match rule can match based on one of several fields. For a given match rule to "match" a layer surface, it must match on all fields.
-
-- The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
-- The `at-startup` field, when non-null, will match a layer surface based on whether it was opened within the first 60 seconds of niri starting up.
-- If a field is null, it will always match.
-
-
-For a given layer rule to match a layer surface, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the layer rule as a whole will match. For a given layer rule:
-
-- A given layer surface is "considered" if any of the match rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) successfully match this layer surface. If all of the match rules do not match this layer surface, then that layer surface will never match this layer rule.
-- If [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) contains no match rules, it will match any layer surface and "consider" it for this layer rule.
-- If a given layer surface is "considered" for this layer rule according to the above rules, the selection can be further refined with [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). If any of the match rules in `excludes` match this layer surface, it will be rejected and this layer rule will not match the given layer surface.
-
-
-That is, a given layer rule will apply to a given layer surface if any of the entries in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) match that layer surface (or there are none), AND none of the entries in [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes) match that layer surface.
-
-All fields of a layer rule can be set to null, which represents that the field shall have no effect on the layer surface (and in general, the client is allowed to choose the initial value).
-
-To compute the final set of layer rules that apply to a given layer surface, each layer rule in this list is consdered in order.
-
-At first, every field is set to null.
-
-Then, for each applicable layer rule:
-
-- If a given field is null on this layer rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
-- If the given field is not null, it will overwrite the value from any previous rule.
-
-
-The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* layer rule that matches the given layer rule (not considering null entries, unless there are no non-null entries)
-
-If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
-
-
-## `programs.niri.settings.layer-rules.*.matches`
-- type: `list of (match rule)`
-
-A list of rules to match layer surfaces.
-
-If any of these rules match a layer surface (or there are none), that layer rule will be considered for this layer surface. It can still be rejected by [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes)
-
-If all of the rules do not match a layer surface, then this layer rule will not apply to that layer surface.
-
-
-## `programs.niri.settings.layer-rules.*.matches.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
-- default: `null`
-
-A regular expression to match against the namespace of the layer surface.
-
-All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
-
-
-## `programs.niri.settings.layer-rules.*.matches.*.at-startup`
-- type: `null or boolean`
-- default: `null`
-
-When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
-
-
-## `programs.niri.settings.layer-rules.*.excludes`
-- type: `list of (match rule)`
-
-A list of rules to exclude layer surfaces.
-
-If any of these rules match a layer surface, then this layer rule will not apply to that layer surface, even if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
-
-If none of these rules match a layer surface, then this layer rule will not be rejected. It will apply to that layer surface if and only if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
-
-
-## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
-- default: `null`
-
-A regular expression to match against the namespace of the layer surface.
-
-All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
-
-
-## `programs.niri.settings.layer-rules.*.excludes.*.at-startup`
-- type: `null or boolean`
-- default: `null`
-
-When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
-
-
-## `programs.niri.settings.layer-rules.*.block-out-from`
-- type: `null or one of "screencast", "screen-capture"`
-- default: `null`
-
-Whether to block out this layer surface from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
-
-This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
-
-Some of this may be obvious, but in general, these invariants *should* hold true:
-- a layer surface is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
-- a `block-out-from` layer surface *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
-- a `block-out-from` layer surface is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
-
-
-There are three methods of screencapture in niri:
-
-1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this layer surface is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
-1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the layer surface just fine. This is because you may still want to take a screenshot of such layer surfaces. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the layer surface contents to an active screencast. When `block-out-from = "screen-capture";`, this layer surface is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
-1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of layer surface contents. Its frozen overlay will never leak layer surface contents to an active screencast, because information of blocked layer surfaces and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any layer surface.
-
-
-| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
-| --- | :---: | :---: | :---: |
-| `null` | yes | yes | yes |
-| `"screencast"` | no | yes | yes |
-| `"screen-capture"` | no | no | yes |
-
-
-> [!caution]
-> **Streamers: Do not accidentally leak layer surface contents via screenshots.**
-> 
-> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface may still be visible in a screencast, if the layer surface is indirectly displayed by a tool using `wlr-screencopy`.
-> 
-> If you are a streamer, either:
-> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
-> - **set `block-out-from = "screen-capture";` to ensure that the layer surface is never visible in a screencast.**
-
-
-> [!caution]
-> **Do not let malicious `wlr-screencopy` clients capture your top secret layer surfaces.**
-> 
-> (and don't let malicious software run on your system in the first place, you silly goose)
-> 
-> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
-> 
-> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
-> 
-> **If a layer surface's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
-
-
-Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the layer surface is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the layer surface without its contents normally being visible in a screencast. (at the risk of some tools still leaking the layer surface contents, see above)
-
-
-## `programs.niri.settings.layer-rules.*.opacity`
-- type: `null or floating point number`
-- default: `null`
-
-The opacity of the layer surface, ranging from 0 to 1.
-
-If the final value of this field is null, niri will fall back to a value of 1.
-
-Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a layer surface that is already semitransparent will make it even more transparent.
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius`
-- type: `null or (submodule)`
-- default: `null`
-
-The corner radii of the surface decorations (shadow) in logical pixels.
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-right`
-- type: `floating point number`
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-right`
-- type: `floating point number`
-
-
-<!-- programs.niri.settings.layer-rules.*.shadow -->
-
-## `programs.niri.settings.layer-rules.*.shadow.color`
+## `programs.niri.settings.overview.workspace-shadow.color`
 - type: `null or string`
 - default: `null`
 
 
-## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
-- type: `null or boolean`
-- default: `null`
+## `programs.niri.settings.overview.workspace-shadow.enable`
+- type: `boolean`
+- default: `true`
 
 
-## `programs.niri.settings.layer-rules.*.shadow.enable`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.offset`
+## `programs.niri.settings.overview.workspace-shadow.offset`
 - type: `null or (submodule)`
 - default: `null`
 
@@ -2343,15 +1790,17 @@ The offset of the shadow from the window, measured in logical pixels.
 This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.layer-rules.*.shadow.offset.x`
+## `programs.niri.settings.overview.workspace-shadow.offset.x`
 - type: `floating point number or signed integer`
+- default: `0.000000`
 
 
-## `programs.niri.settings.layer-rules.*.shadow.offset.y`
+## `programs.niri.settings.overview.workspace-shadow.offset.y`
 - type: `floating point number or signed integer`
+- default: `5.000000`
 
 
-## `programs.niri.settings.layer-rules.*.shadow.softness`
+## `programs.niri.settings.overview.workspace-shadow.softness`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
@@ -2360,7 +1809,7 @@ The softness/size of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.layer-rules.*.shadow.spread`
+## `programs.niri.settings.overview.workspace-shadow.spread`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
@@ -2369,21 +1818,238 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.layer-rules.*.baba-is-float`
-- type: `null or boolean`
+## `programs.niri.settings.overview.zoom`
+- type: `null or floating point number or signed integer`
 - default: `null`
 
-Make your layer surfaces FLOAT up and down.
-
-This is a natural extension of the April Fools' 2025 feature.
+Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
 
 
-## `programs.niri.settings.layer-rules.*.place-within-backdrop`
-- type: `null or boolean`
+## `programs.niri.settings.workspaces`
+- type: `attribute set of (submodule)`
+
+Declare named workspaces.
+
+Named workspaces are similar to regular, dynamic workspaces, except they can be
+referred to by name, and they are persistent, they do not close when there are
+no more windows left on them.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.workspaces."name" = {};
+  programs.niri.settings.workspaces."01-another-one" = {
+    open-on-output = "DP-1";
+    name = "another-one";
+  };
+}
+```
+
+
+Unless a `name` is declared, the workspace will use the attribute key as the name.
+
+Workspaces will be created in a specific order: sorted by key. If you do not care
+about the order of named workspaces, you can skip using the `name` attribute, and
+use the key instead. If you do care about it, you can use the key to order them,
+and a `name` attribute to have a friendlier name.
+
+
+## `programs.niri.settings.workspaces.<name>.name`
+- type: `string`
+- default: `the key of the workspace`
+
+The name of the workspace. You set this manually if you want the keys to be ordered in a specific way.
+
+
+## `programs.niri.settings.workspaces.<name>.open-on-output`
+- type: `null or string`
 - default: `null`
 
-Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
-This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+The name of the output the workspace should be assigned to.
+
+
+## `programs.niri.settings.spawn-at-startup`
+- type: `list of attribute-tagged union with choices: argv, command, sh`
+
+A list of commands to run when niri starts.
+
+Each command can be represented as its raw arguments, or as a shell invocation.
+
+When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+
+
+## `programs.niri.settings.spawn-at-startup.*.argv`
+- type: `list of string`
+
+Almost raw process arguments to spawn, without shell syntax.
+
+A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { argv = ["waybar"]; }
+    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
+    { argv = ["~/.config/niri/scripts/startup.sh"]; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.spawn-at-startup.*.sh`
+- type: `string`
+
+A shell command to spawn. Run wild with POSIX syntax.
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
+  ];
+}
+```
+
+
+Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
+
+
+<!-- programs.niri.settings.cursor -->
+
+## `programs.niri.settings.cursor.hide-after-inactive-ms`
+- type: `null or signed integer`
+- default: `null`
+
+If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+
+
+## `programs.niri.settings.cursor.hide-when-typing`
+- type: `boolean`
+- default: `false`
+
+Whether to hide the cursor when typing.
+
+
+## `programs.niri.settings.cursor.size`
+- type: `signed integer`
+- default: `24`
+
+The size of the cursor in logical pixels.
+
+This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+
+
+## `programs.niri.settings.cursor.theme`
+- type: `string`
+- default: `"default"`
+
+The name of the xcursor theme to use.
+
+This will also set the XCURSOR_THEME environment variable for all spawned processes.
+
+
+## `programs.niri.settings.screenshot-path`
+- type: `null or string`
+- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
+
+The path to save screenshots to.
+
+If this is null, then no screenshots will be saved.
+
+If the path starts with a `~`, then it will be expanded to the user's home directory.
+
+The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+
+
+## `programs.niri.settings.hotkey-overlay.hide-not-bound`
+- type: `boolean`
+- default: `false`
+
+By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
+In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
+
+You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
+
+
+## `programs.niri.settings.hotkey-overlay.skip-at-startup`
+- type: `boolean`
+- default: `false`
+
+Whether to skip the hotkey overlay shown when niri starts.
+
+
+## `programs.niri.settings.config-notification.disable-failed`
+- type: `boolean`
+- default: `false`
+
+Disable the notification that the config file failed to load.
+
+
+## `programs.niri.settings.clipboard.disable-primary`
+- type: `boolean`
+- default: `false`
+
+The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
+
+This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
+
+This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
+
+If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
+
+Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
+
+
+## `programs.niri.settings.prefer-no-csd`
+- type: `boolean`
+- default: `false`
+
+Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
+
+
+## `programs.niri.settings.environment`
+- type: `attribute set of (null or string)`
+
+Environment variables to set for processes spawned by niri.
+
+If an environment variable is already set in the environment, then it will be overridden by the value set here.
+
+If a value is null, then the environment variable will be unset, even if it already existed.
+
+Examples:
+
+```nix
+{
+  programs.niri.settings.environment = {
+    QT_QPA_PLATFORM = "wayland";
+    DISPLAY = null;
+  };
+}
+```
+
+
+
+## `programs.niri.settings.xwayland-satellite`
+
+
+Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
+
+
+## `programs.niri.settings.xwayland-satellite.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.xwayland-satellite.path`
+- type: `null or string`
+- default: `null`
+
+Path to the xwayland-satellite binary.
+
+Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
 
 
 ## `programs.niri.settings.window-rules`
@@ -3097,6 +2763,523 @@ Takes effect only when the window is on an output with [`outputs.<name>.variable
 - default: `null`
 
 
+## `programs.niri.settings.layer-rules`
+- type: `list of (layer rule)`
+
+Layer rules.
+
+A layer rule will match based on [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) and [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). Both of these are lists of "match rules".
+
+A given match rule can match based on one of several fields. For a given match rule to "match" a layer surface, it must match on all fields.
+
+- The `namespace` field, when non-null, is a regular expression. It will match a layer surface for which the client has set a namespace that matches the regular expression.
+- The `at-startup` field, when non-null, will match a layer surface based on whether it was opened within the first 60 seconds of niri starting up.
+- If a field is null, it will always match.
+
+
+For a given layer rule to match a layer surface, the above logic is employed to determine whether any given match rule matches, and the interactions between the match rules decide whether the layer rule as a whole will match. For a given layer rule:
+
+- A given layer surface is "considered" if any of the match rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) successfully match this layer surface. If all of the match rules do not match this layer surface, then that layer surface will never match this layer rule.
+- If [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) contains no match rules, it will match any layer surface and "consider" it for this layer rule.
+- If a given layer surface is "considered" for this layer rule according to the above rules, the selection can be further refined with [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes). If any of the match rules in `excludes` match this layer surface, it will be rejected and this layer rule will not match the given layer surface.
+
+
+That is, a given layer rule will apply to a given layer surface if any of the entries in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches) match that layer surface (or there are none), AND none of the entries in [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes) match that layer surface.
+
+All fields of a layer rule can be set to null, which represents that the field shall have no effect on the layer surface (and in general, the client is allowed to choose the initial value).
+
+To compute the final set of layer rules that apply to a given layer surface, each layer rule in this list is consdered in order.
+
+At first, every field is set to null.
+
+Then, for each applicable layer rule:
+
+- If a given field is null on this layer rule, it has no effect. It does nothing and "inherits" the value from the previous rule.
+- If the given field is not null, it will overwrite the value from any previous rule.
+
+
+The "final value" of a field is simply its value at the end of this process. That is, the final value of a field is the one from the *last* layer rule that matches the given layer rule (not considering null entries, unless there are no non-null entries)
+
+If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
+
+
+## `programs.niri.settings.layer-rules.*.matches`
+- type: `list of (match rule)`
+
+A list of rules to match layer surfaces.
+
+If any of these rules match a layer surface (or there are none), that layer rule will be considered for this layer surface. It can still be rejected by [`layer-rules.*.excludes`](#programsnirisettingslayer-rulesexcludes)
+
+If all of the rules do not match a layer surface, then this layer rule will not apply to that layer surface.
+
+
+## `programs.niri.settings.layer-rules.*.matches.*.namespace`
+- type: `null or regular expression` (where `regular expression` is a `string`)
+- default: `null`
+
+A regular expression to match against the namespace of the layer surface.
+
+All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
+
+
+## `programs.niri.settings.layer-rules.*.matches.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
+
+
+## `programs.niri.settings.layer-rules.*.excludes`
+- type: `list of (match rule)`
+
+A list of rules to exclude layer surfaces.
+
+If any of these rules match a layer surface, then this layer rule will not apply to that layer surface, even if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
+
+If none of these rules match a layer surface, then this layer rule will not be rejected. It will apply to that layer surface if and only if it matches one of the rules in [`layer-rules.*.matches`](#programsnirisettingslayer-rulesmatches)
+
+
+## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
+- type: `null or regular expression` (where `regular expression` is a `string`)
+- default: `null`
+
+A regular expression to match against the namespace of the layer surface.
+
+All layer surfaces have a namespace set once at creation. When this rule is non-null, the regex must match the namespace of the layer surface for this rule to match.
+
+
+## `programs.niri.settings.layer-rules.*.excludes.*.at-startup`
+- type: `null or boolean`
+- default: `null`
+
+When true, this rule will match layer surfaces opened within the first 60 seconds of niri starting up. When false, this rule will match layer surfaces opened *more than* 60 seconds after niri started up. This is useful for applying different rules to layer surfaces opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
+
+
+## `programs.niri.settings.layer-rules.*.block-out-from`
+- type: `null or one of "screencast", "screen-capture"`
+- default: `null`
+
+Whether to block out this layer surface from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
+
+This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+
+Some of this may be obvious, but in general, these invariants *should* hold true:
+- a layer surface is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+- a `block-out-from` layer surface *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+- a `block-out-from` layer surface is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+
+
+There are three methods of screencapture in niri:
+
+1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this layer surface is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the layer surface just fine. This is because you may still want to take a screenshot of such layer surfaces. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the layer surface contents to an active screencast. When `block-out-from = "screen-capture";`, this layer surface is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of layer surface contents. Its frozen overlay will never leak layer surface contents to an active screencast, because information of blocked layer surfaces and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any layer surface.
+
+
+| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
+| --- | :---: | :---: | :---: |
+| `null` | yes | yes | yes |
+| `"screencast"` | no | yes | yes |
+| `"screen-capture"` | no | no | yes |
+
+
+> [!caution]
+> **Streamers: Do not accidentally leak layer surface contents via screenshots.**
+> 
+> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface may still be visible in a screencast, if the layer surface is indirectly displayed by a tool using `wlr-screencopy`.
+> 
+> If you are a streamer, either:
+> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
+> - **set `block-out-from = "screen-capture";` to ensure that the layer surface is never visible in a screencast.**
+
+
+> [!caution]
+> **Do not let malicious `wlr-screencopy` clients capture your top secret layer surfaces.**
+> 
+> (and don't let malicious software run on your system in the first place, you silly goose)
+> 
+> For layer surfaces where `block-out-from = "screencast";`, contents of a layer surface will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+> 
+> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
+> 
+> **If a layer surface's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
+
+Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the layer surface is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the layer surface without its contents normally being visible in a screencast. (at the risk of some tools still leaking the layer surface contents, see above)
+
+
+## `programs.niri.settings.layer-rules.*.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+The opacity of the layer surface, ranging from 0 to 1.
+
+If the final value of this field is null, niri will fall back to a value of 1.
+
+Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a layer surface that is already semitransparent will make it even more transparent.
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+The corner radii of the surface decorations (shadow) in logical pixels.
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+<!-- programs.niri.settings.layer-rules.*.shadow -->
+
+## `programs.niri.settings.layer-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layer-rules.*.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layer-rules.*.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layer-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Make your layer surfaces FLOAT up and down.
+
+This is a natural extension of the April Fools' 2025 feature.
+
+
+## `programs.niri.settings.layer-rules.*.place-within-backdrop`
+- type: `null or boolean`
+- default: `null`
+
+Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
+This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+
+
+<!-- programs.niri.settings.animations -->
+
+## `programs.niri.settings.animations.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.slowdown`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.config-notification-open-close -->
+
+## `programs.niri.settings.animations.config-notification-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.config-notification-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.exit-confirmation-open-close -->
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.horizontal-view-movement -->
+
+## `programs.niri.settings.animations.horizontal-view-movement.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.horizontal-view-movement.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.overview-open-close -->
+
+## `programs.niri.settings.animations.overview-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.overview-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.screenshot-ui-open -->
+
+## `programs.niri.settings.animations.screenshot-ui-open.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.screenshot-ui-open.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.window-close -->
+
+## `programs.niri.settings.animations.window-close.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.window-movement -->
+
+## `programs.niri.settings.animations.window-movement.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-movement.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.window-open -->
+
+## `programs.niri.settings.animations.window-open.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-open.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-open.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-open.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.window-resize -->
+
+## `programs.niri.settings.animations.window-resize.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-resize.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-resize.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-resize.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+<!-- programs.niri.settings.animations.workspace-switch -->
+
+## `programs.niri.settings.animations.workspace-switch.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.workspace-switch.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `<animation-kind>`
+- type: `attribute-tagged union with choices: easing, spring`
+
+
+<!-- <animation-kind>.easing -->
+
+## `<animation-kind>.easing.curve`
+- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo", "cubic-bezier"`
+
+The curve to use for the easing function.
+
+
+## `<animation-kind>.easing.curve-args`
+- type: `list of KDL value without type annotation`
+
+Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
+
+
+## `<animation-kind>.easing.duration-ms`
+- type: `signed integer`
+
+
+<!-- <animation-kind>.spring -->
+
+## `<animation-kind>.spring.damping-ratio`
+- type: `floating point number`
+
+
+## `<animation-kind>.spring.epsilon`
+- type: `floating point number`
+
+
+## `<animation-kind>.spring.stiffness`
+- type: `signed integer`
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll`
+
+
+When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.max-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the edge of the screen where dragging a window will scroll the view.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
+
+
+In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
+
+This does not happen when the overview is not open.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.max-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The height of the edge of the screen where dragging a window will scroll the view.
+
+
+## `programs.niri.settings.gestures.hot-corners.enable`
+- type: `boolean`
+- default: `true`
+
+Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+
+
 ## `programs.niri.settings.debug`
 - type: `attribute set of kdl arguments`
 
@@ -3121,186 +3304,3 @@ Here's an example of how to use this:
 This option is, just like [`binds.<name>.action`](#programsnirisettingsbindsnameaction), not verified by the nix module. But, it will be validated by niri before committing the config.
 
 Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
-
-
-## `programs.niri.settings.spawn-at-startup`
-- type: `list of attribute-tagged union with choices: argv, command, sh`
-
-A list of commands to run when niri starts.
-
-Each command can be represented as its raw arguments, or as a shell invocation.
-
-When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
-
-
-## `programs.niri.settings.spawn-at-startup.*.argv`
-- type: `list of string`
-
-Almost raw process arguments to spawn, without shell syntax.
-
-A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
-
-Usage is like so:
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { argv = ["waybar"]; }
-    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
-    { argv = ["~/.config/niri/scripts/startup.sh"]; }
-  ];
-}
-```
-
-
-
-## `programs.niri.settings.spawn-at-startup.*.sh`
-- type: `string`
-
-A shell command to spawn. Run wild with POSIX syntax.
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
-  ];
-}
-```
-
-
-Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
-
-
-<!-- programs.niri.settings.cursor -->
-
-## `programs.niri.settings.cursor.hide-after-inactive-ms`
-- type: `null or signed integer`
-- default: `null`
-
-If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
-
-
-## `programs.niri.settings.cursor.hide-when-typing`
-- type: `boolean`
-- default: `false`
-
-Whether to hide the cursor when typing.
-
-
-## `programs.niri.settings.cursor.size`
-- type: `signed integer`
-- default: `24`
-
-The size of the cursor in logical pixels.
-
-This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-
-
-## `programs.niri.settings.cursor.theme`
-- type: `string`
-- default: `"default"`
-
-The name of the xcursor theme to use.
-
-This will also set the XCURSOR_THEME environment variable for all spawned processes.
-
-
-## `programs.niri.settings.screenshot-path`
-- type: `null or string`
-- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
-
-The path to save screenshots to.
-
-If this is null, then no screenshots will be saved.
-
-If the path starts with a `~`, then it will be expanded to the user's home directory.
-
-The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
-
-
-## `programs.niri.settings.hotkey-overlay.hide-not-bound`
-- type: `boolean`
-- default: `false`
-
-By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
-In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
-
-You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
-
-
-## `programs.niri.settings.hotkey-overlay.skip-at-startup`
-- type: `boolean`
-- default: `false`
-
-Whether to skip the hotkey overlay shown when niri starts.
-
-
-## `programs.niri.settings.config-notification.disable-failed`
-- type: `boolean`
-- default: `false`
-
-Disable the notification that the config file failed to load.
-
-
-## `programs.niri.settings.clipboard.disable-primary`
-- type: `boolean`
-- default: `false`
-
-The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
-
-This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
-
-This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
-
-If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
-
-Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
-
-
-## `programs.niri.settings.prefer-no-csd`
-- type: `boolean`
-- default: `false`
-
-Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
-
-
-## `programs.niri.settings.environment`
-- type: `attribute set of (null or string)`
-
-Environment variables to set for processes spawned by niri.
-
-If an environment variable is already set in the environment, then it will be overridden by the value set here.
-
-If a value is null, then the environment variable will be unset, even if it already existed.
-
-Examples:
-
-```nix
-{
-  programs.niri.settings.environment = {
-    QT_QPA_PLATFORM = "wayland";
-    DISPLAY = null;
-  };
-}
-```
-
-
-
-## `programs.niri.settings.xwayland-satellite`
-
-
-Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
-
-
-## `programs.niri.settings.xwayland-satellite.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.xwayland-satellite.path`
-- type: `null or string`
-- default: `null`
-
-Path to the xwayland-satellite binary.
-
-Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.

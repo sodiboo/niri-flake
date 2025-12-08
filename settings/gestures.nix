@@ -27,45 +27,51 @@ let
   '';
 in
 {
-  dnd-edge-view-scroll =
-    section {
-      trigger-width = nullable float-or-int // {
-        description = scroll-description.trigger "width";
-      };
-      delay-ms = nullable types.int // {
-        description = scroll-description.delay-ms;
-      };
-      max-speed = nullable float-or-int // {
-        description = scroll-description.max-speed-for "width";
-      };
-    }
-    // {
-      description = ''
-        When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
-      '';
-    };
-  dnd-edge-workspace-switch =
-    section {
-      trigger-height = nullable float-or-int // {
-        description = scroll-description.trigger "height";
-      };
-      delay-ms = nullable types.int // {
-        description = scroll-description.delay-ms;
-      };
-      max-speed = nullable float-or-int // {
-        description = scroll-description.max-speed-for "height";
-      };
-    }
-    // {
-      description = ''
-        In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
+  sections = [
+    {
+      options.gestures = {
+        dnd-edge-view-scroll =
+          section {
+            trigger-width = nullable float-or-int // {
+              description = scroll-description.trigger "width";
+            };
+            delay-ms = nullable types.int // {
+              description = scroll-description.delay-ms;
+            };
+            max-speed = nullable float-or-int // {
+              description = scroll-description.max-speed-for "width";
+            };
+          }
+          // {
+            description = ''
+              When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+            '';
+          };
+        dnd-edge-workspace-switch =
+          section {
+            trigger-height = nullable float-or-int // {
+              description = scroll-description.trigger "height";
+            };
+            delay-ms = nullable types.int // {
+              description = scroll-description.delay-ms;
+            };
+            max-speed = nullable float-or-int // {
+              description = scroll-description.max-speed-for "height";
+            };
+          }
+          // {
+            description = ''
+              In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
 
-        This does not happen when the overview is not open.
-      '';
-    };
-  hot-corners.enable = optional types.bool true // {
-    description = ''
-      Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
-    '';
-  };
+              This does not happen when the overview is not open.
+            '';
+          };
+        hot-corners.enable = optional types.bool true // {
+          description = ''
+            Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+          '';
+        };
+      };
+    }
+  ];
 }

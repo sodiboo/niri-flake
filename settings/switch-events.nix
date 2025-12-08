@@ -41,21 +41,27 @@ let
     visible = "shallow";
   };
 in
-ordered-section [
-  {
-    tablet-mode-on = switch-bind';
-    tablet-mode-off = switch-bind';
-    lid-open = switch-bind';
-    lid-close = switch-bind';
-  }
-  {
-    "<switch-bind>" = docs-only switch-bind // {
-      override-loc = lib.const [ "<switch-bind>" ];
-      description = ''
-        <!--
-        This description doesn't matter to the docs, but is necessary to make this header actually render so the above types can link to it.
-        -->
-      '';
-    };
-  }
-]
+{
+  sections = [
+    {
+      options.switch-events = ordered-section [
+        {
+          tablet-mode-on = switch-bind';
+          tablet-mode-off = switch-bind';
+          lid-open = switch-bind';
+          lid-close = switch-bind';
+        }
+        {
+          "<switch-bind>" = docs-only switch-bind // {
+            override-loc = lib.const [ "<switch-bind>" ];
+            description = ''
+              <!--
+              This description doesn't matter to the docs, but is necessary to make this header actually render so the above types can link to it.
+              -->
+            '';
+          };
+        }
+      ];
+    }
+  ];
+}
