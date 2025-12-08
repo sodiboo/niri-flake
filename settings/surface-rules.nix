@@ -396,24 +396,12 @@ in
           ordered-record' "window rule" [
             {
               matches = list window-match // {
-                description = ''
-                  A list of rules to match windows.
-
-                  If any of these rules match a window (or there are none), that window rule will be considered for this window. It can still be rejected by ${link-opt (subopts toplevel-options.window-rules).excludes}
-
-                  If all of the rules do not match a window, then this window rule will not apply to that window.
-                '';
+                description = window-rule-descriptions.match;
               };
             }
             {
               excludes = list window-match // {
-                description = ''
-                  A list of rules to exclude windows.
-
-                  If any of these rules match a window, then this window rule will not apply to that window, even if it matches one of the rules in ${link-opt (subopts toplevel-options.window-rules).matches}
-
-                  If none of these rules match a window, then this window rule will not be rejected. It will apply to that window if and only if it matches one of the rules in ${link-opt (subopts toplevel-options.window-rules).matches}
-                '';
+                description = window-rule-descriptions.exclude;
               };
             }
             {
