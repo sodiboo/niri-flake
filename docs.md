@@ -3304,3 +3304,7 @@ Here's an example of how to use this:
 This option is, just like [`binds.<name>.action`](#programsnirisettingsbindsnameaction), not verified by the nix module. But, it will be validated by niri before committing the config.
 
 Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
+
+
+## `programs.niri.settings.rendered`
+- type: `KDL document`
