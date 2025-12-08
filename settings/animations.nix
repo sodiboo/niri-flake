@@ -98,7 +98,7 @@ in
           (
             { has-shader }:
             let
-              inner = record (
+              type = record (
                 {
                   enable = optional types.bool true;
                   kind = nullable (shorthand-for "animation-kind" animation-kind) // {
@@ -117,37 +117,8 @@ in
                   };
                 }
               );
-
-              actual-type = mkOptionType {
-                inherit (inner)
-                  name
-                  description
-                  getSubOptions
-                  nestedTypes
-                  ;
-
-                check = value: builtins.isNull value || animation-kind.check value || inner.check value;
-                merge =
-                  loc: defs:
-                  inner.merge loc (
-                    map (
-                      def:
-                      if builtins.isNull def.value then
-                        lib.warn (obsolete-warning "${showOption loc} = null;" "${
-                          showOption (loc ++ [ "enable" ])
-                        } = false;" [ def ]) def
-                        // {
-                          value.enable = false;
-                        }
-                      else if animation-kind.check def.value then
-                        lib.warn (rename-warning loc (loc ++ [ "kind" ]) [ def ]) def // { value.kind = def.value; }
-                      else
-                        def
-                    ) defs
-                  );
-              };
             in
-            optional actual-type { }
+            optional type { }
           )
         ) anims)
         {
@@ -155,41 +126,6 @@ in
             override-loc = lib.const [ "<animation-kind>" ];
           };
         }
-        (
-          let
-            deprecated-shaders = [
-              "window-open"
-              "window-close"
-              "window-resize"
-            ];
-          in
-          {
-            __module =
-              {
-                options,
-                config,
-                ...
-              }:
-              {
-                options.shaders = lib.genAttrs deprecated-shaders (
-                  _: required (nullOr types.str) // { visible = false; }
-                );
-                config = lib.genAttrs deprecated-shaders (
-                  name:
-                  let
-                    old = options.shaders.${name};
-                  in
-                  lib.mkIf (old.isDefined) (
-                    lib.warn
-                      (rename-warning (old.loc) (options.${name}.loc ++ [ "custom-shader" ]) old.definitionsWithLocations)
-                      {
-                        custom-shader = config.shaders.${name};
-                      }
-                  )
-                );
-              };
-          }
-        )
       ];
     }
   ];
