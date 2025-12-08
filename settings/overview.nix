@@ -1,6 +1,7 @@
 {
   lib,
   kdl,
+  fragments,
   niri-flake-internal,
   toplevel-options,
 }:
@@ -13,8 +14,9 @@ let
     float-or-int
     optional
     record
-    shadow-descriptions
     ;
+
+  inherit (fragments) shadow-descriptions;
 in
 {
   sections = [

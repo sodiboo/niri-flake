@@ -1,6 +1,7 @@
 {
   lib,
   kdl,
+  fragments,
   niri-flake-internal,
   toplevel-options,
 }:
@@ -14,18 +15,21 @@ let
     subopts
     section
     section'
-    make-decoration-options
     make-ordered-options
     nullable
     float-or-int
     record
     required
     ordered-record'
-    shadow-descriptions
     regex
     list
+    ;
+
+  inherit (fragments)
+    shadow-descriptions
     default-width
     default-height
+    make-decoration-options
     ;
 
   rule-descriptions =

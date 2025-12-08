@@ -123,52 +123,6 @@
         Otherwise, your system might fail to build.
       '';
 
-      preset-size =
-        dimension: object:
-        types.attrTag {
-          fixed = lib.mkOption {
-            type = types.int;
-            description = ''
-              The ${dimension} of the ${object} in logical pixels
-            '';
-          };
-          proportion = lib.mkOption {
-            type = types.float;
-            description = ''
-              The ${dimension} of the ${object} as a proportion of the screen's ${dimension}
-            '';
-          };
-        };
-
-      preset-width = preset-size "width" "column";
-      preset-height = preset-size "height" "window";
-
-      emptyOr =
-        elemType:
-        mkOptionType {
-          name = "emptyOr";
-          description =
-            if
-              builtins.elem elemType.descriptionClass [
-                "noun"
-                "conjunction"
-              ]
-            then
-              "{} or ${elemType.description}"
-            else
-              "{} or (${elemType.description})";
-          descriptionClass = "conjunction";
-          check = v: v == { } || elemType.check v;
-          nestedTypes.elemType = elemType;
-          merge =
-            loc: defs: if builtins.all (def: def.value == { }) defs then { } else elemType.merge loc defs;
-
-          inherit (elemType) getSubOptions;
-        };
-
-      default-width = emptyOr preset-width;
-      default-height = emptyOr preset-height;
-
       shorthand-for =
         type-name: real:
         mkOptionType {
@@ -187,221 +141,6 @@
           descriptionClass = "noun";
           inherit (real) check merge getSubOptions;
           nestedTypes = { inherit real; };
-        };
-
-      # niri seems to have deprecated this way of defining colors; so we won't support it
-      # color-array = mkOptionType {
-      #   name = "color";
-      #   description = "[red green blue alpha]";
-      #   descriptionClass = "noun";
-      #   check = v: isList v && length v == 4 && all isInt v;
-      # };
-
-      decoration =
-        self:
-
-        let
-          css-color = fmt.masked-link {
-            href = "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value";
-            content = fmt.code "<color>";
-          };
-
-          css-linear-gradient = fmt.masked-link {
-            href = "https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient";
-            content = fmt.code "linear-gradient()";
-          };
-
-          css-color-interpolation-method = fmt.masked-link {
-            href = "https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-method";
-            content = fmt.code "<color-interpolation-method>";
-          };
-
-          csscolorparser-crate = fmt.masked-link {
-            href = "https://crates.io/crates/csscolorparser";
-            content = fmt.code "csscolorparser";
-          };
-        in
-        types.attrTag {
-          color = lib.mkOption {
-            type = types.str;
-            description = ''
-              A solid color to use for the decoration.
-
-              This is a CSS ${css-color} value, like ${fmt.code ''"rgb(255 0 0)"''}, ${fmt.code ''"#C0FFEE"''}, or ${fmt.code ''"sandybrown"''}.
-
-              The specific crate that niri uses to parse this also supports some nonstandard color functions, like ${fmt.code "hwba()"}, ${fmt.code "hsv()"}, ${fmt.code "hsva()"}. See ${csscolorparser-crate} for details.
-            '';
-          };
-          gradient = lib.mkOption {
-            description = ''
-              A linear gradient to use for the decoration.
-
-              This is meant to approximate the CSS ${css-linear-gradient} function, but niri does not fully support all the same parameters. Only an angle in degrees is supported.
-            '';
-            type = record' "gradient" {
-              from = required types.str // {
-                description = ''
-                  The starting ${css-color} of the gradient.
-
-                  For more details, see ${link-opt (subopts self).color}.
-                '';
-              };
-              to = required types.str // {
-                description = ''
-                  The ending ${css-color} of the gradient.
-
-                  For more details, see ${link-opt (subopts self).color}.
-                '';
-              };
-              angle = optional types.int 180 // {
-                description = ''
-                  The angle of the gradient, in degrees, measured clockwise from a gradient that starts at the bottom and ends at the top.
-
-                  This is the same as the angle parameter in the CSS ${css-linear-gradient} function, except you can only express it in degrees.
-                '';
-              };
-              in' =
-                nullable (enum [
-                  "srgb"
-                  "srgb-linear"
-                  "oklab"
-                  "oklch shorter hue"
-                  "oklch longer hue"
-                  "oklch increasing hue"
-                  "oklch decreasing hue"
-                ])
-                // {
-                  description = ''
-                    The colorspace to interpolate the gradient in. This option is named ${fmt.code "in'"} because ${fmt.code "in"} is a reserved keyword in Nix.
-
-                    This is a subset of the ${css-color-interpolation-method} values in CSS.
-                  '';
-                };
-              relative-to =
-                optional (enum [
-                  "window"
-                  "workspace-view"
-                ]) "window"
-                // {
-                  description = ''
-                    The rectangle that this gradient is contained within.
-
-                    If a gradient is ${fmt.code "relative-to"} the ${fmt.code ''"window"''}, then the gradient will start and stop at the window bounds. If you have many windows, then the gradients will have many starts and stops.
-
-                    ${fmt.img {
-                      src = "/assets/relative-to-window.png";
-                      alt = ''
-                        four windows arranged in two columns; a big window to the left of three stacked windows.
-                        a gradient is drawn from the bottom left corner of each window, which is yellow, transitioning to red at the top right corner of each window.
-                        the three vertical windows look identical, with a yellow and red corner, and the other two corners are slightly different shades of orange.
-                        the big window has a yellow and red corner, with the top left corner being a very red orange orange, and the bottom right corner being a very yellow orange.
-                        the top edge of the top stacked window has a noticeable transition from a yellowish orange to completely red.
-                      '';
-                      title = ''behaviour of relative-to="window"'';
-                    }}
-
-                    If the gradient is instead ${fmt.code "relative-to"} the ${fmt.code ''"workspace-view"''}, then the gradient will start and stop at the bounds of your view. Windows decorations will take on the color values from just the part of the screen that they occupy
-
-                    ${fmt.img {
-                      src = "/assets/relative-to-workspace-view.png";
-                      alt = ''
-                        four windows arranged in two columns; a big window to the left of three stacked windows.
-                        a gradient is drawn from the bottom left corner of the workspace view, which is yellow, transitioning to red at the top right corner of the workspace view.
-                        it looks like the gradient starts in the bottom left of the big window, and ends in the top right of the upper stacked window.
-                        the bottom left corner of the top stacked window is a red orange color, and the bottom left corner of the middle stacked window is a more neutral orange color.
-                        the bottom edge of the big window is almost entirely yellow, and the top edge of the top stacked window is almost entirely red.
-                      '';
-                      title = ''behaviour of relative-to="workspace-view"'';
-                    }}
-
-                    these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
-                  '';
-                };
-            };
-          };
-        };
-
-      make-decoration-options =
-        options:
-        builtins.mapAttrs (
-          name:
-          { description }:
-          nullable (shorthand-for "decoration" (decoration (options.${name})))
-          // {
-            visible = "shallow";
-            inherit description;
-          }
-        );
-
-      borderish =
-        {
-          enable-by-default,
-          name,
-          window,
-          description,
-        }:
-        section' (
-          { options, ... }:
-          {
-            imports = make-ordered-options [
-              {
-                enable = optional types.bool enable-by-default // {
-                  description = ''
-                    Whether to enable the ${name}.
-                  '';
-                };
-                width = optional float-or-int 4 // {
-                  description = ''
-                    The width of the ${name} drawn around each ${window}.
-                  '';
-                };
-              }
-
-              (make-decoration-options options {
-                urgent.description = ''
-                  The color of the ${name} for windows that are requesting attention.
-                '';
-                active.description = ''
-                  The color of the ${name} for the window that has keyboard focus.
-                '';
-                inactive.description = ''
-                  The color of the ${name} for windows that do not have keyboard focus.
-                '';
-              })
-            ];
-          }
-        )
-        // {
-          inherit description;
-        };
-
-      shadow-descriptions =
-        let
-          css-box-shadow =
-            prop:
-            fmt.masked-link {
-              href = "https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax";
-              content = "CSS box-shadow ${prop}";
-            };
-        in
-        {
-          offset = ''
-            The offset of the shadow from the window, measured in logical pixels.
-
-            This behaves like a ${css-box-shadow "offset"}
-          '';
-
-          softness = ''
-            The softness/size of the shadow, measured in logical pixels.
-
-            This behaves like a ${css-box-shadow "blur radius"}
-          '';
-
-          spread = ''
-            The spread of the shadow, measured in logical pixels.
-
-            This behaves like a ${css-box-shadow "spread radius"}
-          '';
         };
 
       regex = rename "regular expression" types.str;
@@ -489,7 +228,6 @@
             subopts
             section'
             make-ordered-options
-            make-decoration-options
             nullable
             float-or-int
             section
@@ -497,12 +235,9 @@
             record'
             ordered-record'
             required
-            shadow-descriptions
             regex
             list
             attrs
-            default-width
-            default-height
             rename
             shorthand-for
             ordered-section
@@ -512,10 +247,7 @@
             optional
             rename-warning
             obsolete-warning
-            borderish
-            decoration
-            preset-width
-            preset-height
+            link-niri-release
             ;
         };
       };
