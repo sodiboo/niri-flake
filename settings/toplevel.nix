@@ -228,26 +228,6 @@ let
       cfg.bottom-left
     ];
 
-    transform =
-      cfg:
-      let
-        rotation = toString cfg.rotation;
-        basic = if cfg.flipped then "flipped-${rotation}" else "${rotation}";
-        replacement."0" = "normal";
-        replacement."flipped-0" = "flipped";
-      in
-      replacement.${basic} or basic;
-
-    mode =
-      cfg:
-      let
-        cfg' = builtins.mapAttrs (lib.const toString) cfg;
-      in
-      if cfg.refresh == null then
-        "${cfg'.width}x${cfg'.height}"
-      else
-        "${cfg'.width}x${cfg'.height}@${cfg'.refresh}";
-
     bind =
       name: cfg:
       let
@@ -312,10 +292,7 @@ in
         toggle
         each'
         node
-        toggle'
         map'
-        transform
-        mode
         borderish
         shadow
         tab-indicator
@@ -389,23 +366,6 @@ in
         (nullable leaf "mod-key" cfg.input.mod-key)
         (nullable leaf "mod-key-nested" cfg.input.mod-key-nested)
       ])
-
-      (each' cfg.outputs (cfg: [
-        (node "output" cfg.name [
-          (toggle' "off" cfg [
-            (nullable leaf "backdrop-color" cfg.backdrop-color)
-            (nullable leaf "background-color" cfg.background-color)
-            (nullable leaf "scale" cfg.scale)
-            (flag' "focus-at-startup" cfg.focus-at-startup)
-            (map' leaf transform "transform" cfg.transform)
-            (nullable leaf "position" cfg.position)
-            (nullable (map' leaf mode) "mode" cfg.mode)
-            (optional-node (cfg.variable-refresh-rate != false) (
-              leaf "variable-refresh-rate" { on-demand = cfg.variable-refresh-rate == "on-demand"; }
-            ))
-          ])
-        ])
-      ]))
 
       (leaf "screenshot-path" cfg.screenshot-path)
       (flag' "prefer-no-csd" cfg.prefer-no-csd)
