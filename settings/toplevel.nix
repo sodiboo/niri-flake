@@ -444,12 +444,6 @@ in
         )) cfg.switch-events
       ))
 
-      (each' cfg.workspaces (cfg: [
-        (node "workspace" cfg.name [
-          (nullable leaf "open-on-output" cfg.open-on-output)
-        ])
-      ]))
-
       (each cfg.spawn-at-startup (cfg: [
         (nullable leaf "spawn-at-startup" cfg.argv or null)
         (nullable leaf "spawn-sh-at-startup" cfg.sh or null)
