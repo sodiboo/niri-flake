@@ -137,53 +137,6 @@ let
         ) cfg
       );
 
-    borderish = map' plain (
-      cfg:
-      toggle "off" cfg [
-        (leaf "width" cfg.width)
-        (nullable leaf "urgent-color" cfg.urgent.color or null)
-        (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
-        (nullable leaf "active-color" cfg.active.color or null)
-        (nullable gradient' "active-gradient" cfg.active.gradient or null)
-        (nullable leaf "inactive-color" cfg.inactive.color or null)
-        (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
-      ]
-    );
-
-    shadow = map' (nullable plain) (
-      cfg:
-      optional-node (cfg.enable) [
-        (flag "on")
-        (leaf "offset" cfg.offset)
-        (leaf "softness" cfg.softness)
-        (leaf "spread" cfg.spread)
-
-        (leaf "draw-behind-window" cfg.draw-behind-window)
-        (leaf "color" cfg.color)
-        (nullable leaf "inactive-color" cfg.inactive-color)
-      ]
-    );
-
-    tab-indicator = map' plain (
-      cfg:
-      toggle "off" cfg [
-        (flag' "hide-when-single-tab" cfg.hide-when-single-tab)
-        (flag' "place-within-column" cfg.place-within-column)
-        (leaf "gap" cfg.gap)
-        (leaf "width" cfg.width)
-        (leaf "length" cfg.length)
-        (leaf "position" cfg.position)
-        (leaf "gaps-between-tabs" cfg.gaps-between-tabs)
-        (leaf "corner-radius" cfg.corner-radius)
-        (nullable leaf "urgent-color" cfg.urgent.color or null)
-        (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
-        (nullable leaf "active-color" cfg.active.color or null)
-        (nullable gradient' "active-gradient" cfg.active.gradient or null)
-        (nullable leaf "inactive-color" cfg.inactive.color or null)
-        (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
-      ]
-    );
-
     preset-sizes = map' (nullable plain) (
       cfg: if cfg == [ ] then null else map (lib.mapAttrsToList leaf) (lib.toList cfg)
     );
@@ -290,13 +243,7 @@ in
         touch
         optional-node
         toggle
-        each'
-        node
         map'
-        borderish
-        shadow
-        tab-indicator
-        gradient'
         preset-sizes
         bind
         each
@@ -381,36 +328,6 @@ in
             (nullable leaf "color" cfg.overview.workspace-shadow.color)
           ])
         ])
-      ])
-
-      (plain "layout" [
-        (leaf "gaps" cfg.layout.gaps)
-        (plain "struts" [
-          (leaf "left" cfg.layout.struts.left)
-          (leaf "right" cfg.layout.struts.right)
-          (leaf "top" cfg.layout.struts.top)
-          (leaf "bottom" cfg.layout.struts.bottom)
-        ])
-        (borderish "focus-ring" cfg.layout.focus-ring)
-        (borderish "border" cfg.layout.border)
-        (nullable leaf "background-color" cfg.layout.background-color)
-        (shadow "shadow" cfg.layout.shadow)
-        (nullable tab-indicator "tab-indicator" cfg.layout.tab-indicator)
-        (plain' "insert-hint" [
-          (toggle "off" cfg.layout.insert-hint [
-            (nullable leaf "color" cfg.layout.insert-hint.display.color or null)
-            (nullable gradient' "gradient" cfg.layout.insert-hint.display.gradient or null)
-          ])
-        ])
-        (preset-sizes "default-column-width" cfg.layout.default-column-width)
-        (preset-sizes "preset-column-widths" cfg.layout.preset-column-widths)
-        (preset-sizes "preset-window-heights" cfg.layout.preset-window-heights)
-        (leaf "center-focused-column" cfg.layout.center-focused-column)
-        (optional-node (cfg.layout.default-column-display != "normal") (
-          leaf "default-column-display" cfg.layout.default-column-display
-        ))
-        (flag' "always-center-single-column" cfg.layout.always-center-single-column)
-        (flag' "empty-workspace-above-first" cfg.layout.empty-workspace-above-first)
       ])
 
       (plain "cursor" [

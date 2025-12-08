@@ -258,7 +258,7 @@ let
             inactive.description = ''
               The color of the ${name} for windows that do not have keyboard focus.
             '';
-          })
+          }).options
         ];
       }
     )
@@ -575,17 +575,18 @@ in
                 section' (
                   { options, ... }:
                   {
-                    options = make-decoration-options options {
-                      urgent.description = ''
-                        See ${link-opt layout-tab-indicator.urgent}.
-                      '';
-                      active.description = ''
-                        See ${link-opt layout-tab-indicator.active}.
-                      '';
-                      inactive.description = ''
-                        See ${link-opt layout-tab-indicator.inactive}.
-                      '';
-                    };
+                    options =
+                      (make-decoration-options options {
+                        urgent.description = ''
+                          See ${link-opt layout-tab-indicator.urgent}.
+                        '';
+                        active.description = ''
+                          See ${link-opt layout-tab-indicator.active}.
+                        '';
+                        inactive.description = ''
+                          See ${link-opt layout-tab-indicator.inactive}.
+                        '';
+                      }).options;
                   }
                 );
 
