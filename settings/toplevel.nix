@@ -337,52 +337,6 @@ in
         )) cfg.switch-events
       ))
 
-      (each cfg.window-rules (cfg: [
-        (plain "window-rule" [
-          (map (leaf "match") (map opt-props cfg.matches))
-          (map (leaf "exclude") (map opt-props cfg.excludes))
-          (nullable preset-sizes "default-column-width" cfg.default-column-width)
-          (nullable preset-sizes "default-window-height" cfg.default-window-height)
-          (nullable leaf "default-column-display" cfg.default-column-display)
-          (nullable leaf "open-on-output" cfg.open-on-output)
-          (nullable leaf "open-on-workspace" cfg.open-on-workspace)
-          (nullable leaf "open-maximized" cfg.open-maximized)
-          (nullable leaf "open-fullscreen" cfg.open-fullscreen)
-          (nullable leaf "open-floating" cfg.open-floating)
-          (nullable leaf "open-focused" cfg.open-focused)
-          (nullable leaf "draw-border-with-background" cfg.draw-border-with-background)
-          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
-          (nullable leaf "clip-to-geometry" cfg.clip-to-geometry)
-          (border-rule "border" cfg.border)
-          (border-rule "focus-ring" cfg.focus-ring)
-          (shadow-rule "shadow" cfg.shadow)
-          (tab-indicator-rule "tab-indicator" cfg.tab-indicator)
-          (nullable leaf "opacity" cfg.opacity)
-          (nullable leaf "min-width" cfg.min-width)
-          (nullable leaf "max-width" cfg.max-width)
-          (nullable leaf "min-height" cfg.min-height)
-          (nullable leaf "max-height" cfg.max-height)
-          (nullable leaf "block-out-from" cfg.block-out-from)
-          (nullable leaf "baba-is-float" cfg.baba-is-float)
-          (nullable leaf "default-floating-position" cfg.default-floating-position)
-          (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
-          (nullable leaf "scroll-factor" cfg.scroll-factor)
-          (nullable leaf "tiled-state" cfg.tiled-state)
-        ])
-      ]))
-      (each cfg.layer-rules (cfg: [
-        (plain "layer-rule" [
-          (map (leaf "match") (map opt-props cfg.matches))
-          (map (leaf "exclude") (map opt-props cfg.excludes))
-          (nullable leaf "opacity" cfg.opacity)
-          (nullable leaf "block-out-from" cfg.block-out-from)
-          (shadow-rule "shadow" cfg.shadow)
-          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
-          (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
-          (nullable leaf "baba-is-float" cfg.baba-is-float)
-        ])
-      ]))
-
       (plain' "gestures" [
         (plain' "dnd-edge-view-scroll" [
           (nullable leaf "trigger-width" cfg.gestures.dnd-edge-view-scroll.trigger-width)

@@ -2277,13 +2277,257 @@ When non-null, matches based on whether the window is being targeted by a window
 When true, this rule will match windows opened within the first 60 seconds of niri starting up. When false, this rule will match windows opened *more than* 60 seconds after niri started up. This is useful for applying different rules to windows opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
 
 
-## `programs.niri.settings.window-rules.*.default-column-display`
-- type: `null or one of "normal", "tabbed"`
+## `programs.niri.settings.window-rules.*.block-out-from`
+- type: `null or one of "screencast", "screen-capture"`
 - default: `null`
 
-When this window is inserted into the tiling layout such that a new column is created (e.g. when it is first opened, when it is expelled from an existing column, when it's moved to a new workspace, etc), this setting controls the default display mode of the column.
+Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
 
-If the final value of this field is null, then the default display mode is taken from [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display).
+This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+
+Some of this may be obvious, but in general, these invariants *should* hold true:
+- a window is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+- a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+- a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+
+
+There are three methods of screencapture in niri:
+
+1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
+
+
+| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
+| --- | :---: | :---: | :---: |
+| `null` | yes | yes | yes |
+| `"screencast"` | no | yes | yes |
+| `"screen-capture"` | no | no | yes |
+
+
+> [!caution]
+> **Streamers: Do not accidentally leak window contents via screenshots.**
+> 
+> For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
+> 
+> If you are a streamer, either:
+> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
+> - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
+
+
+> [!caution]
+> **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
+> 
+> (and don't let malicious software run on your system in the first place, you silly goose)
+> 
+> For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+> 
+> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
+> 
+> **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
+
+Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
+
+
+## `programs.niri.settings.window-rules.*.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+The opacity of the window, ranging from 0 to 1.
+
+If the final value of this field is null, niri will fall back to a value of 1.
+
+Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+The corner radii of the window decorations (border, focus ring, and shadow) in logical pixels.
+
+By default, the actual window surface will be unaffected by this.
+
+Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to-geometry) to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+<!-- programs.niri.settings.window-rules.*.shadow -->
+
+## `programs.niri.settings.window-rules.*.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.window-rules.*.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.window-rules.*.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.border`
+
+
+See [`layout.border`](#programsnirisettingslayoutborder).
+
+
+## `programs.niri.settings.window-rules.*.border.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the border.
+
+
+## `programs.niri.settings.window-rules.*.border.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the border drawn around each matched window.
+
+
+## `programs.niri.settings.window-rules.*.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for the window that has keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring`
+
+
+See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the focus ring.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the focus ring drawn around each matched window with focus.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
+
+
+<!-- programs.niri.settings.window-rules.*.tab-indicator -->
+
+## `programs.niri.settings.window-rules.*.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
 
 
 ## `programs.niri.settings.window-rules.*.default-column-width`
@@ -2339,6 +2583,37 @@ The height of the window in logical pixels
 - type: `floating point number`
 
 The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.window-rules.*.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+When this window is inserted into the tiling layout such that a new column is created (e.g. when it is first opened, when it is expelled from an existing column, when it's moved to a new workspace, etc), this setting controls the default display mode of the column.
+
+If the final value of this field is null, then the default display mode is taken from [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display).
+
+
+## `programs.niri.settings.window-rules.*.open-on-output`
+- type: `null or string`
+- default: `null`
+
+The output to open this window on.
+
+If final value of this field is an output that exists, the new window will open on that output.
+
+If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
+
+
+## `programs.niri.settings.window-rules.*.open-on-workspace`
+- type: `null or string`
+- default: `null`
+
+The workspace to open this window on.
+
+If the final value of this field is a named workspace that exists, the window will open on that workspace.
+
+If the final value of this is a named workspace that does not exist, or it is null, the window opens on the currently focused workspace.
 
 
 ## `programs.niri.settings.window-rules.*.open-floating`
@@ -2397,129 +2672,6 @@ If the final value of this field is null or false, then the window will not open
 If the final value of this field is true, then the window will open in a maximized column.
 
 
-## `programs.niri.settings.window-rules.*.open-on-output`
-- type: `null or string`
-- default: `null`
-
-The output to open this window on.
-
-If final value of this field is an output that exists, the new window will open on that output.
-
-If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
-
-
-## `programs.niri.settings.window-rules.*.open-on-workspace`
-- type: `null or string`
-- default: `null`
-
-The workspace to open this window on.
-
-If the final value of this field is a named workspace that exists, the window will open on that workspace.
-
-If the final value of this is a named workspace that does not exist, or it is null, the window opens on the currently focused workspace.
-
-
-## `programs.niri.settings.window-rules.*.block-out-from`
-- type: `null or one of "screencast", "screen-capture"`
-- default: `null`
-
-Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
-
-This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
-
-Some of this may be obvious, but in general, these invariants *should* hold true:
-- a window is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
-- a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
-- a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
-
-
-There are three methods of screencapture in niri:
-
-1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
-1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
-1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
-
-
-| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
-| --- | :---: | :---: | :---: |
-| `null` | yes | yes | yes |
-| `"screencast"` | no | yes | yes |
-| `"screen-capture"` | no | no | yes |
-
-
-> [!caution]
-> **Streamers: Do not accidentally leak window contents via screenshots.**
-> 
-> For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
-> 
-> If you are a streamer, either:
-> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
-> - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
-
-
-> [!caution]
-> **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
-> 
-> (and don't let malicious software run on your system in the first place, you silly goose)
-> 
-> For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
-> 
-> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
-> 
-> **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
-
-
-Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
-
-
-## `programs.niri.settings.window-rules.*.border`
-
-
-See [`layout.border`](#programsnirisettingslayoutborder).
-
-
-## `programs.niri.settings.window-rules.*.border.enable`
-- type: `null or boolean`
-- default: `null`
-
-Whether to enable the border.
-
-
-## `programs.niri.settings.window-rules.*.border.width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the border drawn around each matched window.
-
-
-## `programs.niri.settings.window-rules.*.border.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for the window that has keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.border.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that do not have keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.border.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that are requesting attention.
-
-
-## `programs.niri.settings.window-rules.*.clip-to-geometry`
-- type: `null or boolean`
-- default: `null`
-
-Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
-
-
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
 - default: `null`
@@ -2537,163 +2689,11 @@ If you wish to make windows sucha s your terminal transparent, and they use CSD,
 You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
 
 
-## `programs.niri.settings.window-rules.*.focus-ring`
-
-
-See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.enable`
+## `programs.niri.settings.window-rules.*.clip-to-geometry`
 - type: `null or boolean`
 - default: `null`
 
-Whether to enable the focus ring.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the focus ring drawn around each matched window with focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for the window that has keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that do not have keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that are requesting attention.
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius`
-- type: `null or (submodule)`
-- default: `null`
-
-The corner radii of the window decorations (border, focus ring, and shadow) in logical pixels.
-
-By default, the actual window surface will be unaffected by this.
-
-Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to-geometry) to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-right`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-right`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.opacity`
-- type: `null or floating point number`
-- default: `null`
-
-The opacity of the window, ranging from 0 to 1.
-
-If the final value of this field is null, niri will fall back to a value of 1.
-
-Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
-
-
-<!-- programs.niri.settings.window-rules.*.shadow -->
-
-## `programs.niri.settings.window-rules.*.shadow.color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.enable`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset`
-- type: `null or (submodule)`
-- default: `null`
-
-The offset of the shadow from the window, measured in logical pixels.
-
-This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset.x`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset.y`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.window-rules.*.shadow.softness`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The softness/size of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.window-rules.*.shadow.spread`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The spread of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-<!-- programs.niri.settings.window-rules.*.tab-indicator -->
-
-## `programs.niri.settings.window-rules.*.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
+Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
 
 
 ## `programs.niri.settings.window-rules.*.max-height`
@@ -2735,15 +2735,6 @@ Keep in mind that the window itself always has a final say in its size, and may 
 Sets the minimum width (in logical pixels) that niri will ever ask this window for.
 
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
-
-
-## `programs.niri.settings.window-rules.*.baba-is-float`
-- type: `null or boolean`
-- default: `null`
-
-Makes your window FLOAT up and down, like in the game Baba Is You.
-
-Made for April Fools 2025.
 
 
 ## `programs.niri.settings.window-rules.*.default-floating-position`
@@ -2788,6 +2779,15 @@ Takes effect only when the window is on an output with [`outputs.<name>.variable
 ## `programs.niri.settings.window-rules.*.tiled-state`
 - type: `null or boolean`
 - default: `null`
+
+
+## `programs.niri.settings.window-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Makes your window FLOAT up and down, like in the game Baba Is You.
+
+Made for April Fools 2025.
 
 
 ## `programs.niri.settings.layer-rules`
@@ -2950,7 +2950,7 @@ Note that this is applied in addition to the opacity set by the client. Setting 
 - type: `null or (submodule)`
 - default: `null`
 
-The corner radii of the surface decorations (shadow) in logical pixels.
+The corner radii of the surface layer decorations (shadow) in logical pixels.
 
 
 ## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-left`
@@ -2971,23 +2971,8 @@ The corner radii of the surface decorations (shadow) in logical pixels.
 
 <!-- programs.niri.settings.layer-rules.*.shadow -->
 
-## `programs.niri.settings.layer-rules.*.shadow.color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
-- type: `null or boolean`
-- default: `null`
-
-
 ## `programs.niri.settings.layer-rules.*.shadow.enable`
 - type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
-- type: `null or string`
 - default: `null`
 
 
@@ -3026,13 +3011,19 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.layer-rules.*.baba-is-float`
+## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
 - type: `null or boolean`
 - default: `null`
 
-Make your layer surfaces FLOAT up and down.
 
-This is a natural extension of the April Fools' 2025 feature.
+## `programs.niri.settings.layer-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
 
 
 ## `programs.niri.settings.layer-rules.*.place-within-backdrop`
@@ -3041,6 +3032,15 @@ This is a natural extension of the April Fools' 2025 feature.
 
 Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
 This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+
+
+## `programs.niri.settings.layer-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Makes your layer surface FLOAT up and down, like in the game Baba Is You.
+
+Made for April Fools 2025.
 
 
 <!-- programs.niri.settings.animations -->
