@@ -10,7 +10,7 @@
   withSystemd ? true,
 }:
 let
-  stable-revs = import ./refs.nix;
+  stable-revs = import ../refs.nix;
 
   date = {
     year = builtins.substring 0 4;

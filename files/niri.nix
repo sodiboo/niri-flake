@@ -24,7 +24,7 @@
 }:
 assert libdisplay-info_0_2.version == "0.2.0";
 let
-  stable-revs = import ./refs.nix;
+  stable-revs = import ../refs.nix;
 
   date = {
     year = builtins.substring 0 4;
