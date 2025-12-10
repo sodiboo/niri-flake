@@ -28,7 +28,7 @@ let
     make-ordered-options
     nullable
     float-or-int
-    section
+    record
     optional
     ;
 
@@ -54,39 +54,43 @@ in
             appearance.layout
             ++ [
               {
-                options = {
-                  center-focused-column =
-                    optional (enum [
-                      "never"
-                      "always"
-                      "on-overflow"
-                    ]) "never"
-                    // {
-                      description = ''
-                        When changing focus, niri can automatically center the focused column.
-
-                        ${fmt.list [
-                          "${fmt.code ''"never"''}: If the focused column doesn't fit, it will be aligned to the edges of the screen."
-                          "${fmt.code ''"on-overflow"''}: if the focused column doesn't fit, it will be centered on the screen."
-                          "${fmt.code ''"always"''}: the focused column will always be centered, even if it was already fully visible."
-                        ]}
-                      '';
-                    };
-                  always-center-single-column = optional types.bool false // {
+                options.center-focused-column =
+                  nullable (enum [
+                    "never"
+                    "always"
+                    "on-overflow"
+                  ])
+                  // {
                     description = ''
-                      This is like ${fmt.code ''center-focused-column = "always";''}, but only for workspaces with a single column. Changes nothing if ${fmt.code "center-focused-column"} is set to ${fmt.code ''"always"''}. Has no effect if more than one column is present.
+                      When changing focus, niri can automatically center the focused column.
+
+                      ${fmt.list [
+                        "${fmt.code ''"never"''}: If the focused column doesn't fit, it will be aligned to the edges of the screen."
+                        "${fmt.code ''"on-overflow"''}: if the focused column doesn't fit, it will be centered on the screen."
+                        "${fmt.code ''"always"''}: the focused column will always be centered, even if it was already fully visible."
+                      ]}
                     '';
                   };
-                };
                 render = config: [
-                  (kdl.leaf "center-focused-column" config.center-focused-column)
-                  (lib.mkIf (config.always-center-single-column) [
-                    (kdl.flag "always-center-single-column")
+                  (lib.mkIf (config.center-focused-column != null) [
+                    (kdl.leaf "center-focused-column" config.center-focused-column)
                   ])
                 ];
               }
               {
-                options.empty-workspace-above-first = optional types.bool false // {
+                options.always-center-single-column = nullable types.bool // {
+                  description = ''
+                    This is like ${fmt.code ''center-focused-column = "always";''}, but only for workspaces with a single column. Changes nothing if ${fmt.code "center-focused-column"} is set to ${fmt.code ''"always"''}. Has no effect if more than one column is present.
+                  '';
+                };
+                render = config: [
+                  (lib.mkIf (config.always-center-single-column != null) [
+                    (kdl.leaf "always-center-single-column" config.always-center-single-column)
+                  ])
+                ];
+              }
+              {
+                options.empty-workspace-above-first = nullable types.bool // {
                   description = ''
                     Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
 
@@ -94,26 +98,32 @@ in
                   '';
                 };
                 render = config: [
-                  (lib.mkIf (config.empty-workspace-above-first) [
-                    (kdl.flag "empty-workspace-above-first")
+                  (lib.mkIf (config.empty-workspace-above-first != null) [
+                    (kdl.leaf "empty-workspace-above-first" config.empty-workspace-above-first)
                   ])
                 ];
-
+              }
+              {
+                options.gaps = nullable float-or-int // {
+                  description = ''
+                    The gap between windows in the layout, measured in logical pixels.
+                  '';
+                };
+                render = config: [
+                  (lib.mkIf (config.gaps != null) [
+                    (kdl.leaf "gaps" config.gaps)
+                  ])
+                ];
               }
               {
                 options = {
-                  gaps = optional float-or-int 16 // {
-                    description = ''
-                      The gap between windows in the layout, measured in logical pixels.
-                    '';
-                  };
                   struts =
-                    section {
+                    nullable (record {
                       left = optional float-or-int 0;
                       right = optional float-or-int 0;
                       top = optional float-or-int 0;
                       bottom = optional float-or-int 0;
-                    }
+                    })
                     // {
                       description = ''
                         The distances from the edges of the screen to the eges of the working area.
@@ -127,12 +137,13 @@ in
                     };
                 };
                 render = config: [
-                  (kdl.leaf "gaps" config.gaps)
-                  (kdl.plain "struts" [
-                    (kdl.leaf "left" config.struts.left)
-                    (kdl.leaf "right" config.struts.right)
-                    (kdl.leaf "top" config.struts.top)
-                    (kdl.leaf "bottom" config.struts.bottom)
+                  (lib.mkIf (config.struts != null) [
+                    (kdl.plain "struts" [
+                      (kdl.leaf "left" config.struts.left)
+                      (kdl.leaf "right" config.struts.right)
+                      (kdl.leaf "top" config.struts.top)
+                      (kdl.leaf "bottom" config.struts.bottom)
+                    ])
                   ])
                 ];
               }
@@ -150,6 +161,7 @@ in
                 readOnly = true;
                 internal = true;
                 visible = false;
+                apply = node: lib.mkIf (node.children != [ ]) node;
               };
               config.rendered = kdl.plain "layout" [ content ];
             }

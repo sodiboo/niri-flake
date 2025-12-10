@@ -1606,7 +1606,8 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 
 
 ## `programs.niri.settings.layout.preset-column-widths`
-- type: `list of attribute-tagged union with choices: fixed, proportion`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
 
 The widths that `switch-preset-column-width` will cycle through.
 
@@ -1641,7 +1642,8 @@ The width of the column as a proportion of the screen's width
 
 
 ## `programs.niri.settings.layout.preset-window-heights`
-- type: `list of attribute-tagged union with choices: fixed, proportion`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
 
 The heights that `switch-preset-window-height` will cycle through.
 
@@ -1676,11 +1678,12 @@ The height of the window as a proportion of the screen's height
 
 
 ## `programs.niri.settings.layout.default-column-width`
-- type: `{} or attribute-tagged union with choices: fixed, proportion`
+- type: `null or {} or attribute-tagged union with choices: fixed, proportion`
+- default: `null`
 
 The default width for new columns.
 
-When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is distinct from null, which represents that this particular layout block has no effect on the default width.
 
 See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
 
@@ -1700,8 +1703,8 @@ The width of the column as a proportion of the screen's width
 
 
 ## `programs.niri.settings.layout.default-column-display`
-- type: `one of "normal", "tabbed"`
-- default: `"normal"`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
 
 How windows in columns should be displayed by default.
 
@@ -1714,16 +1717,9 @@ Note that you can override this for a given column at any time. Every column rem
 Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
 
 
-## `programs.niri.settings.layout.always-center-single-column`
-- type: `boolean`
-- default: `false`
-
-This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
-
-
 ## `programs.niri.settings.layout.center-focused-column`
-- type: `one of "never", "always", "on-overflow"`
-- default: `"never"`
+- type: `null or one of "never", "always", "on-overflow"`
+- default: `null`
 
 When changing focus, niri can automatically center the focused column.
 
@@ -1733,9 +1729,16 @@ When changing focus, niri can automatically center the focused column.
 
 
 
+## `programs.niri.settings.layout.always-center-single-column`
+- type: `null or boolean`
+- default: `null`
+
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+
+
 ## `programs.niri.settings.layout.empty-workspace-above-first`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
 
@@ -1743,14 +1746,15 @@ When this is enabled, there will be an empty workspace above the first workspace
 
 
 ## `programs.niri.settings.layout.gaps`
-- type: `floating point number or signed integer`
-- default: `16`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The gap between windows in the layout, measured in logical pixels.
 
 
 ## `programs.niri.settings.layout.struts`
-
+- type: `null or (submodule)`
+- default: `null`
 
 The distances from the edges of the screen to the eges of the working area.
 

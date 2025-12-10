@@ -67,7 +67,7 @@ in
 [
   {
     layout = {
-      options.preset-column-widths = list preset-width // {
+      options.preset-column-widths = nullable (lib.types.nonEmptyListOf preset-width) // {
         description = ''
           The widths that ${fmt.code "switch-preset-column-width"} will cycle through.
 
@@ -90,7 +90,7 @@ in
       };
 
       render = config: [
-        (lib.mkIf (config.preset-column-widths != [ ]) [
+        (lib.mkIf (config.preset-column-widths != null) [
           (kdl.plain "preset-column-widths" [
             (map (lib.mapAttrsToList kdl.leaf) config.preset-column-widths)
           ])
@@ -100,7 +100,7 @@ in
   }
   {
     layout = {
-      options.preset-window-heights = list preset-height // {
+      options.preset-window-heights = nullable (lib.types.nonEmptyListOf preset-height) // {
         description = ''
           The heights that ${fmt.code "switch-preset-window-height"} will cycle through.
 
@@ -122,7 +122,7 @@ in
         '';
       };
       render = config: [
-        (lib.mkIf (config.preset-window-heights != [ ]) [
+        (lib.mkIf (config.preset-window-heights != null) [
           (kdl.plain "preset-window-heights" [
             (map (lib.mapAttrsToList kdl.leaf) config.preset-window-heights)
           ])
@@ -132,11 +132,11 @@ in
   }
   {
     layout = {
-      options.default-column-width = optional default-width { } // {
+      options.default-column-width = nullable default-width // {
         description = ''
           The default width for new columns.
 
-          When this is set to an empty attrset ${fmt.code "{}"}, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
+          When this is set to an empty attrset ${fmt.code "{}"}, windows will get to decide their initial width. This is distinct from null, which represents that this particular layout block has no effect on the default width.
 
           See ${link-opt (subopts toplevel-options.layout).preset-column-widths} for more information.
 
@@ -144,8 +144,10 @@ in
         '';
       };
       render = config: [
-        (kdl.plain "default-column-width" [
-          (lib.mapAttrsToList kdl.leaf config.default-column-width)
+        (lib.mkIf (config.default-column-width != null) [
+          (kdl.plain "default-column-width" [
+            (lib.mapAttrsToList kdl.leaf config.default-column-width)
+          ])
         ])
       ];
     };
@@ -247,10 +249,12 @@ in
   {
     layout = {
       options.default-column-display =
-        optional (lib.types.enum [
-          "normal"
-          "tabbed"
-        ]) "normal"
+        nullable (
+          lib.types.enum [
+            "normal"
+            "tabbed"
+          ]
+        )
         // {
           description = ''
             How windows in columns should be displayed by default.
@@ -266,8 +270,7 @@ in
           '';
         };
       render = config: [
-
-        (lib.mkIf (config.default-column-display != "normal") [
+        (lib.mkIf (config.default-column-display != null) [
           (kdl.leaf "default-column-display" config.default-column-display)
         ])
       ];
