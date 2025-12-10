@@ -29,6 +29,7 @@ let
     required
     optional
     section
+    section'
     ;
 
   animation-kind = types.attrTag {
@@ -63,98 +64,126 @@ let
     };
   };
 
-  anims = {
-    workspace-switch.has-shader = false;
-    horizontal-view-movement.has-shader = false;
-    config-notification-open-close.has-shader = false;
-    exit-confirmation-open-close.has-shader = false;
-    window-movement.has-shader = false;
-    window-open.has-shader = true;
-    window-close.has-shader = true;
-    window-resize.has-shader = true;
-    screenshot-ui-open.has-shader = false;
-    overview-open-close.has-shader = false;
-  };
+  make-animation-option =
+    animation-name:
+    {
+      has-shader ? false,
+    }:
+    {
+      options.${animation-name} = nullable (
+        types.submodule (
+          { config, ... }:
+          {
+            options = {
+              enable = optional types.bool true;
+              kind = nullable (shorthand-for "animation-kind" animation-kind) // {
+                visible = "shallow";
+              };
+            }
+            // lib.optionalAttrs has-shader {
+              custom-shader = nullable types.str // {
+                description = ''
+                  Source code for a GLSL shader to use for this animation.
+
+                  For example, set it to ${fmt.code "builtins.readFile ./${animation-name}.glsl"} to use a shader from the same directory as your configuration file.
+
+                  See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
+                '';
+              };
+            }
+            // {
+              rendered = lib.mkOption {
+                type = kdl.types.kdl-node;
+                readOnly = true;
+                internal = true;
+                visible = false;
+              };
+            };
+
+            config.rendered = kdl.plain animation-name [
+              (lib.mkIf (!config.enable) (kdl.flag "off"))
+              (lib.mkIf (config.enable) [
+                (lib.mkIf (config.kind ? easing) [
+                  (kdl.leaf "duration-ms" config.kind.easing.duration-ms)
+                  (kdl.leaf "curve" ([ config.kind.easing.curve ] ++ config.kind.easing.curve-args))
+                ])
+                (lib.mkIf (config.kind ? spring) [
+                  (kdl.leaf "spring" config.kind.spring)
+                ])
+                (lib.optional has-shader [
+                  (lib.mkIf (config.custom-shader != null) [
+                    (kdl.leaf "custom-shader" config.custom-shader)
+                  ])
+                ])
+              ])
+            ];
+          }
+        )
+      );
+      render = config: [
+        (lib.mkIf (config.${animation-name} != null) [
+          config.${animation-name}.rendered
+        ])
+      ];
+    };
+
+  make-rendered-ordered-options = sections: final: [
+    (
+      { config, ... }:
+      {
+        imports = make-ordered-options (map (s: s.options) sections) ++ [
+          (final (map (s: s.render config) sections))
+        ];
+      }
+    )
+  ];
+
+  rendered-ordered-section = sections: final: section' (make-rendered-ordered-options sections final);
 in
 {
   sections = [
     {
-      options.animations = lib.mkOption {
-        default = { };
-        type = types.submodule [
-          {
-            imports = make-ordered-options [
-
-              {
-                enable = optional types.bool true;
-                slowdown = nullable float-or-int;
-              }
-              (builtins.mapAttrs (
-                animation-name:
-                (
-                  { has-shader }:
-                  lib.mkOption {
-                    default = { };
-                    type = types.submodule (
-                      { config, ... }:
-                      {
-                        options = {
-                          enable = optional types.bool true;
-                          kind = nullable (shorthand-for "animation-kind" animation-kind) // {
-                            visible = "shallow";
-                          };
-                        }
-                        // lib.optionalAttrs has-shader {
-                          custom-shader = nullable types.str // {
-                            description = ''
-                              Source code for a GLSL shader to use for this animation.
-
-                              For example, set it to ${fmt.code "builtins.readFile ./${animation-name}.glsl"} to use a shader from the same directory as your configuration file.
-
-                              See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
-                            '';
-                          };
-                        }
-                        // {
-                          rendered = lib.mkOption {
-                            type = kdl.types.kdl-node;
-                            readOnly = true;
-                            internal = true;
-                            visible = false;
-                            apply = node: lib.mkIf (node.children != [ ]) node;
-                          };
-                        };
-
-                        config.rendered = kdl.plain animation-name [
-                          (lib.mkIf (!config.enable) (kdl.flag "off"))
-                          (lib.mkIf (config.enable) [
-                            (lib.mkIf (config.kind ? easing) [
-                              (kdl.leaf "duration-ms" config.kind.easing.duration-ms)
-                              (kdl.leaf "curve" ([ config.kind.easing.curve ] ++ config.kind.easing.curve-args))
-                            ])
-                            (lib.mkIf (config.kind ? spring) [
-                              (kdl.leaf "spring" config.kind.spring)
-                            ])
-                            (lib.optional has-shader [
-                              (lib.mkIf (config.custom-shader != null) [
-                                (kdl.leaf "custom-shader" config.custom-shader)
-                              ])
-                            ])
-                          ])
-                        ];
-                      }
-                    );
-                  }
-                )
-              ) anims)
-              {
-                "<animation-kind>" = docs-only animation-kind // {
-                  override-loc = lib.const [ "<animation-kind>" ];
-                };
-              }
-            ];
-          }
+      options.animations =
+        rendered-ordered-section
+          [
+            {
+              options.enable = nullable types.bool;
+              render = config: [
+                (lib.mkIf (config.enable == true) [
+                  (kdl.flag "on")
+                ])
+                (lib.mkIf (config.enable == false) [
+                  (kdl.flag "off")
+                ])
+              ];
+            }
+            {
+              options.slowdown = nullable float-or-int;
+              render = config: [
+                (lib.mkIf (config.slowdown != null) [
+                  (kdl.leaf "slowdown" config.slowdown)
+                ])
+              ];
+            }
+            (make-animation-option "workspace-switch" { })
+            (make-animation-option "horizontal-view-movement" { })
+            (make-animation-option "config-notification-open-close" { })
+            (make-animation-option "exit-confirmation-open-close" { })
+            (make-animation-option "window-movement" { })
+            (make-animation-option "window-open" { has-shader = true; })
+            (make-animation-option "window-close" { has-shader = true; })
+            (make-animation-option "window-resize" { has-shader = true; })
+            (make-animation-option "screenshot-ui-open" { })
+            (make-animation-option "overview-open-close" { })
+            {
+              options."<animation-kind>" = docs-only animation-kind // {
+                override-loc = lib.const [ "<animation-kind>" ];
+              };
+              render = _: [ ];
+            }
+          ]
           (
+            content:
             { config, ... }:
             {
               options.rendered = lib.mkOption {
@@ -165,19 +194,9 @@ in
                 apply = node: lib.mkIf (node.children != [ ]) node;
               };
 
-              config.rendered = kdl.plain "animations" [
-                (lib.mkIf (!config.enable) (kdl.flag "off"))
-                (lib.mkIf (config.enable) [
-                  (lib.mkIf (config.slowdown != null) [
-                    (kdl.leaf "slowdown" config.slowdown)
-                  ])
-                  (map (name: config.${name}.rendered) (builtins.attrNames anims))
-                ])
-              ];
+              config.rendered = kdl.plain "animations" [ content ];
             }
-          )
-        ];
-      };
+          );
 
       render = config: config.animations.rendered;
     }

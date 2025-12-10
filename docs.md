@@ -3076,8 +3076,8 @@ Made for April Fools 2025.
 <!-- programs.niri.settings.animations -->
 
 ## `programs.niri.settings.animations.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.animations.slowdown`
@@ -3085,31 +3085,25 @@ Made for April Fools 2025.
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.config-notification-open-close -->
+## `programs.niri.settings.animations.workspace-switch`
+- type: `null or (submodule)`
+- default: `null`
 
-## `programs.niri.settings.animations.config-notification-open-close.enable`
+
+## `programs.niri.settings.animations.workspace-switch.enable`
 - type: `boolean`
 - default: `true`
 
 
-## `programs.niri.settings.animations.config-notification-open-close.kind`
+## `programs.niri.settings.animations.workspace-switch.kind`
 - type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.exit-confirmation-open-close -->
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
+## `programs.niri.settings.animations.horizontal-view-movement`
+- type: `null or (submodule)`
 - default: `null`
 
-
-<!-- programs.niri.settings.animations.horizontal-view-movement -->
 
 ## `programs.niri.settings.animations.horizontal-view-movement.enable`
 - type: `boolean`
@@ -3121,54 +3115,40 @@ Made for April Fools 2025.
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.overview-open-close -->
+## `programs.niri.settings.animations.config-notification-open-close`
+- type: `null or (submodule)`
+- default: `null`
 
-## `programs.niri.settings.animations.overview-open-close.enable`
+
+## `programs.niri.settings.animations.config-notification-open-close.enable`
 - type: `boolean`
 - default: `true`
 
 
-## `programs.niri.settings.animations.overview-open-close.kind`
+## `programs.niri.settings.animations.config-notification-open-close.kind`
 - type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.screenshot-ui-open -->
+## `programs.niri.settings.animations.exit-confirmation-open-close`
+- type: `null or (submodule)`
+- default: `null`
 
-## `programs.niri.settings.animations.screenshot-ui-open.enable`
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
 - type: `boolean`
 - default: `true`
 
 
-## `programs.niri.settings.animations.screenshot-ui-open.kind`
+## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
 - type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.window-close -->
-
-## `programs.niri.settings.animations.window-close.custom-shader`
-- type: `null or string`
+## `programs.niri.settings.animations.window-movement`
+- type: `null or (submodule)`
 - default: `null`
 
-Source code for a GLSL shader to use for this animation.
-
-For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-movement -->
 
 ## `programs.niri.settings.animations.window-movement.enable`
 - type: `boolean`
@@ -3180,7 +3160,10 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.window-open -->
+## `programs.niri.settings.animations.window-open`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.animations.window-open.custom-shader`
 - type: `null or string`
@@ -3203,7 +3186,36 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.window-resize -->
+## `programs.niri.settings.animations.window-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-close.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-resize`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.animations.window-resize.custom-shader`
 - type: `null or string`
@@ -3226,14 +3238,32 @@ See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.workspace-switch -->
+## `programs.niri.settings.animations.screenshot-ui-open`
+- type: `null or (submodule)`
+- default: `null`
 
-## `programs.niri.settings.animations.workspace-switch.enable`
+
+## `programs.niri.settings.animations.screenshot-ui-open.enable`
 - type: `boolean`
 - default: `true`
 
 
-## `programs.niri.settings.animations.workspace-switch.kind`
+## `programs.niri.settings.animations.screenshot-ui-open.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.overview-open-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.overview-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.overview-open-close.kind`
 - type: `null or`[`<animation-kind>`](#animation-kind)
 - default: `null`
 
