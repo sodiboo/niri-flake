@@ -17,6 +17,7 @@ let
     link-opt
     subopts
     nullable
+    section'
     ;
 
   inherit (fragments) make-decoration-options;
@@ -208,4 +209,140 @@ in
       If you have ${link-opt (subopts toplevel-options.layout).border} enabled, the focus ring will be drawn around (and under) the border.
     '';
   })
+  {
+    layout = {
+      options.tab-indicator = nullable (
+        lib.types.submodule (
+          { options, ... }:
+          {
+            imports =
+              make-rendered-ordered-options
+                [
+                  {
+                    options.enable = optional types.bool true;
+                    render = _: [ ];
+                  }
+                  {
+                    options.hide-when-single-tab = optional types.bool false;
+                    render = config: [
+                      (lib.mkIf (config.hide-when-single-tab) [
+                        (kdl.flag "hide-when-single-tab")
+                      ])
+                    ];
+                  }
+                  {
+                    options.place-within-column = optional types.bool false;
+                    render = config: [
+                      (lib.mkIf (config.place-within-column) [
+                        (kdl.flag "place-within-column")
+                      ])
+                    ];
+                  }
+                  {
+                    options = {
+                      gap = optional float-or-int 5.0;
+                      width = optional float-or-int 4.0;
+                      length.total-proportion = optional types.float 0.5;
+
+                      position = optional (lib.types.enum [
+                        "left"
+                        "right"
+                        "top"
+                        "bottom"
+                      ]) "left";
+                      gaps-between-tabs = optional float-or-int 0.0;
+                      corner-radius = optional float-or-int 0.0;
+                    };
+
+                    render = config: [
+                      (kdl.leaf "gap" config.gap)
+                      (kdl.leaf "width" config.width)
+                      (kdl.leaf "length" config.length)
+                      (kdl.leaf "position" config.position)
+                      (kdl.leaf "gaps-between-tabs" config.gaps-between-tabs)
+                      (kdl.leaf "corner-radius" config.corner-radius)
+                    ];
+                  }
+                  (make-decoration-options options {
+                    urgent.description = ''
+                      The color of the tab indicator for windows that are requesting attention.
+                    '';
+                    active.description = ''
+                      The color of the tab indicator for the window that has keyboard focus.
+                    '';
+                    inactive.description = ''
+                      The color of the tab indicator for windows that do not have keyboard focus.
+                    '';
+                  })
+                ]
+                (
+                  content:
+                  { config, ... }:
+                  {
+
+                    options.rendered = lib.mkOption {
+                      type = kdl.types.kdl-node;
+                      readOnly = true;
+                      internal = true;
+                      visible = false;
+                    };
+                    config.rendered = kdl.plain "tab-indicator" [
+                      (lib.mkIf (!config.enable) (kdl.flag "off"))
+                      (lib.mkIf (config.enable) [ content ])
+                    ];
+                  }
+                );
+          }
+        )
+      );
+      render = config: [
+        (lib.mkIf (config.tab-indicator != null) [
+          config.tab-indicator.rendered
+        ])
+      ];
+    };
+    window-rule = {
+      options.tab-indicator =
+        let
+          layout-tab-indicator = subopts (subopts toplevel-options.layout).tab-indicator;
+        in
+        section' (
+          { options, ... }:
+          {
+            imports =
+              make-rendered-ordered-options
+                [
+                  (make-decoration-options options {
+                    urgent.description = ''
+                      See ${link-opt layout-tab-indicator.urgent}.
+                    '';
+                    active.description = ''
+                      See ${link-opt layout-tab-indicator.active}.
+                    '';
+                    inactive.description = ''
+                      See ${link-opt layout-tab-indicator.inactive}.
+                    '';
+                  })
+                ]
+                (
+                  content:
+                  { config, ... }:
+                  {
+                    options.rendered = lib.mkOption {
+                      type = kdl.types.kdl-node;
+                      readOnly = true;
+                      internal = true;
+                      visible = false;
+                      apply = node: lib.mkIf (node.children != [ ]) node;
+                    };
+                    config.rendered = kdl.plain "tab-indicator" [ content ];
+                  }
+                );
+          }
+        );
+      render = config: [
+        config.tab-indicator.rendered
+      ];
+    };
+  }
 ]

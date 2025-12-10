@@ -1357,6 +1357,77 @@ The color of the focus ring for windows that do not have keyboard focus.
 The color of the focus ring for windows that are requesting attention.
 
 
+## `programs.niri.settings.layout.tab-indicator`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
+- type: `boolean`
+- default: `false`
+
+
+## `programs.niri.settings.layout.tab-indicator.place-within-column`
+- type: `boolean`
+- default: `false`
+
+
+## `programs.niri.settings.layout.tab-indicator.corner-radius`
+- type: `floating point number or signed integer`
+- default: `0.000000`
+
+
+## `programs.niri.settings.layout.tab-indicator.gap`
+- type: `floating point number or signed integer`
+- default: `5.000000`
+
+
+## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
+- type: `floating point number or signed integer`
+- default: `0.000000`
+
+
+## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
+- type: `floating point number`
+- default: `0.500000`
+
+
+## `programs.niri.settings.layout.tab-indicator.position`
+- type: `one of "left", "right", "top", "bottom"`
+- default: `"left"`
+
+
+## `programs.niri.settings.layout.tab-indicator.width`
+- type: `floating point number or signed integer`
+- default: `4.000000`
+
+
+## `programs.niri.settings.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+## `programs.niri.settings.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.layout.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that are requesting attention.
+
+
 <!-- programs.niri.settings.layout.shadow -->
 
 ## `programs.niri.settings.layout.shadow.color`
@@ -1433,77 +1504,6 @@ Whether to enable the insert hint.
 - default: `null`
 
 The color of the insert hint.
-
-
-## `programs.niri.settings.layout.tab-indicator`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.layout.tab-indicator.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.tab-indicator.place-within-column`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.tab-indicator.corner-radius`
-- type: `floating point number or signed integer`
-- default: `0.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.gap`
-- type: `floating point number or signed integer`
-- default: `5.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
-- type: `floating point number or signed integer`
-- default: `0.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
-- type: `floating point number`
-- default: `0.500000`
-
-
-## `programs.niri.settings.layout.tab-indicator.position`
-- type: `one of "left", "right", "top", "bottom"`
-- default: `"left"`
-
-
-## `programs.niri.settings.layout.tab-indicator.width`
-- type: `floating point number or signed integer`
-- default: `4.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the tab indicator for the window that has keyboard focus.
-
-
-## `programs.niri.settings.layout.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the tab indicator for windows that do not have keyboard focus.
-
-
-## `programs.niri.settings.layout.tab-indicator.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the tab indicator for windows that are requesting attention.
 
 
 ## `<decoration>`
@@ -2470,6 +2470,29 @@ The color of the focus ring for windows that do not have keyboard focus.
 The color of the focus ring for windows that are requesting attention.
 
 
+<!-- programs.niri.settings.window-rules.*.tab-indicator -->
+
+## `programs.niri.settings.window-rules.*.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
+
+
 <!-- programs.niri.settings.window-rules.*.shadow -->
 
 ## `programs.niri.settings.window-rules.*.shadow.enable`
@@ -2525,29 +2548,6 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 ## `programs.niri.settings.window-rules.*.shadow.inactive-color`
 - type: `null or string`
 - default: `null`
-
-
-<!-- programs.niri.settings.window-rules.*.tab-indicator -->
-
-## `programs.niri.settings.window-rules.*.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
 
 
 ## `programs.niri.settings.window-rules.*.default-column-width`

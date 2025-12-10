@@ -37,7 +37,6 @@ let
   inherit (fragments)
     default-width
     default-height
-    make-decoration-options
     ;
 
   make-rendered-ordered-options = sections: final: [
@@ -458,49 +457,6 @@ in
         ];
 
         properties = appearance.window-rules ++ [
-          {
-            options.tab-indicator =
-              let
-                layout-tab-indicator = subopts (subopts toplevel-options.layout).tab-indicator;
-              in
-              section' (
-                { options, ... }:
-                {
-                  imports =
-                    make-rendered-ordered-options
-                      [
-                        (make-decoration-options options {
-                          urgent.description = ''
-                            See ${link-opt layout-tab-indicator.urgent}.
-                          '';
-                          active.description = ''
-                            See ${link-opt layout-tab-indicator.active}.
-                          '';
-                          inactive.description = ''
-                            See ${link-opt layout-tab-indicator.inactive}.
-                          '';
-                        })
-                      ]
-                      (
-                        content:
-                        { config, ... }:
-                        {
-                          options.rendered = lib.mkOption {
-                            type = kdl.types.kdl-node;
-                            readOnly = true;
-                            internal = true;
-                            visible = false;
-                            apply = node: lib.mkIf (node.children != [ ]) node;
-                          };
-                          config.rendered = kdl.plain "tab-indicator" [ content ];
-                        }
-                      );
-                }
-              );
-            render = config: [
-              config.tab-indicator.rendered
-            ];
-          }
           {
             options = {
               default-column-width = nullable default-width // {
