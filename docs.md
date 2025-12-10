@@ -1371,8 +1371,8 @@ The insert hint is a decoration drawn *between* windows during an interactive mo
 
 
 ## `programs.niri.settings.layout.insert-hint.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 Whether to enable the insert hint.
 

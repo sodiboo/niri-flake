@@ -355,12 +355,19 @@ in
               make-rendered-ordered-options
                 [
                   {
-                    options.enable = optional types.bool true // {
+                    options.enable = nullable types.bool // {
                       description = ''
                         Whether to enable the insert hint.
                       '';
                     };
-                    render = _: [ ];
+                    render = config: [
+                      (lib.mkIf (config.enable == true) [
+                        (kdl.flag "on")
+                      ])
+                      (lib.mkIf (config.enable == false) [
+                        (kdl.flag "off")
+                      ])
+                    ];
                   }
                   (make-decoration-options options {
                     display = {
@@ -383,10 +390,7 @@ in
                       visible = false;
                       apply = node: lib.mkIf (node.children != [ ]) node;
                     };
-                    config.rendered = kdl.plain "insert-hint" [
-                      (lib.mkIf (!config.enable) (kdl.flag "off"))
-                      (lib.mkIf (config.enable) [ content ])
-                    ];
+                    config.rendered = kdl.plain "insert-hint" [ content ];
                   }
                 );
           }
