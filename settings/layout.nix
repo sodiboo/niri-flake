@@ -84,35 +84,6 @@ let
   default-width = emptyOr preset-width;
   default-height = emptyOr preset-height;
 
-  shadow-descriptions =
-    let
-      css-box-shadow =
-        prop:
-        fmt.masked-link {
-          href = "https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax";
-          content = "CSS box-shadow ${prop}";
-        };
-    in
-    {
-      offset = ''
-        The offset of the shadow from the window, measured in logical pixels.
-
-        This behaves like a ${css-box-shadow "offset"}
-      '';
-
-      softness = ''
-        The softness/size of the shadow, measured in logical pixels.
-
-        This behaves like a ${css-box-shadow "blur radius"}
-      '';
-
-      spread = ''
-        The spread of the shadow, measured in logical pixels.
-
-        This behaves like a ${css-box-shadow "spread radius"}
-      '';
-    };
-
   # niri seems to have deprecated this way of defining colors; so we won't support it
   # color-array = mkOptionType {
   #   name = "color";
@@ -294,7 +265,6 @@ in
 {
   fragments = {
     inherit
-      shadow-descriptions
       default-height
       default-width
       make-decoration-options
@@ -308,52 +278,6 @@ in
           (
             appearance.layout
             ++ [
-              {
-                options.shadow = section {
-                  enable = optional types.bool false;
-                  offset =
-                    section {
-                      x = optional float-or-int 0.0;
-                      y = optional float-or-int 5.0;
-                    }
-                    // {
-                      description = shadow-descriptions.offset;
-                    };
-
-                  softness = optional float-or-int 30.0 // {
-                    description = shadow-descriptions.softness;
-                  };
-
-                  spread = optional float-or-int 5.0 // {
-                    description = shadow-descriptions.spread;
-                  };
-
-                  draw-behind-window = optional types.bool false;
-
-                  # 0x70 is 43.75% so let's use hex notation lol
-                  color = optional types.str "#00000070";
-
-                  inactive-color = nullable types.str;
-                };
-
-                render = config: [
-                  (lib.mkIf (config.shadow.enable) [
-                    (kdl.plain "shadow" [
-                      (kdl.flag "on")
-
-                      (kdl.leaf "offset" config.shadow.offset)
-                      (kdl.leaf "softness" config.shadow.softness)
-                      (kdl.leaf "spread" config.shadow.spread)
-
-                      (kdl.leaf "draw-behind-window" config.shadow.draw-behind-window)
-                      (kdl.leaf "color" config.shadow.color)
-                      (lib.mkIf (config.shadow.inactive-color != null) [
-                        (kdl.leaf "inactive-color" config.shadow.inactive-color)
-                      ])
-                    ])
-                  ])
-                ];
-              }
               {
                 options.insert-hint =
                   section' (

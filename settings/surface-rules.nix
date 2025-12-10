@@ -35,7 +35,6 @@ let
     ;
 
   inherit (fragments)
-    shadow-descriptions
     default-width
     default-height
     make-decoration-options
@@ -327,92 +326,6 @@ let
                         ])
                       ])
                     ];
-                  }
-                  {
-                    options.shadow =
-                      rendered-ordered-section
-                        [
-                          {
-                            options.enable = nullable types.bool;
-                            render = config: [
-                              (lib.mkIf (config.enable == true) [
-                                (kdl.flag "on")
-                              ])
-                              (lib.mkIf (config.enable == false) [
-                                (kdl.flag "off")
-                              ])
-                            ];
-                          }
-                          {
-                            options = {
-                              offset =
-                                nullable (record {
-                                  x = required float-or-int;
-                                  y = required float-or-int;
-                                })
-                                // {
-                                  description = shadow-descriptions.offset;
-                                };
-
-                              softness = nullable float-or-int // {
-                                description = shadow-descriptions.softness;
-                              };
-
-                              spread = nullable float-or-int // {
-                                description = shadow-descriptions.spread;
-                              };
-                            };
-
-                            render = config: [
-                              (lib.mkIf (config.offset != null) [
-                                (kdl.leaf "offset" config.offset)
-                              ])
-                              (lib.mkIf (config.softness != null) [
-                                (kdl.leaf "softness" config.softness)
-                              ])
-                              (lib.mkIf (config.spread != null) [
-                                (kdl.leaf "spread" config.spread)
-                              ])
-                            ];
-                          }
-                          {
-                            options.draw-behind-window = nullable types.bool;
-                            render = config: [
-                              (lib.mkIf (config.draw-behind-window != null) [
-                                (kdl.leaf "draw-behind-window" config.draw-behind-window)
-                              ])
-                            ];
-                          }
-                          {
-                            options = {
-                              color = nullable types.str;
-                              inactive-color = nullable types.str;
-                            };
-                            render = config: [
-                              (lib.mkIf (config.color != null) [
-                                (kdl.leaf "color" config.color)
-                              ])
-                              (lib.mkIf (config.inactive-color != null) [
-                                (kdl.leaf "inactive-color" config.inactive-color)
-                              ])
-                            ];
-                          }
-                        ]
-                        (
-                          content:
-                          { config, ... }:
-                          {
-                            options.rendered = lib.mkOption {
-                              type = kdl.types.kdl-node;
-                              readOnly = true;
-                              internal = true;
-                              visible = false;
-                              apply = node: lib.mkIf (node.children != [ ]) node;
-                            };
-                            config.rendered = kdl.plain "shadow" [ content ];
-                          }
-                        );
-                    render = config: config.shadow.rendered;
                   }
                 ]
                 ++ properties
