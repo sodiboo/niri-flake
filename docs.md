@@ -2043,9 +2043,13 @@ The name of the xcursor theme to use.
 This will also set the XCURSOR_THEME environment variable for all spawned processes.
 
 
-## `programs.niri.settings.screenshot-path`
+## `programs.niri.settings.screenshot`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.screenshot.path`
 - type: `null or string`
-- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
 
 The path to save screenshots to.
 

@@ -19,6 +19,7 @@ let
     list
     attrs
     optional
+    record
     ;
 
   rendered-options =
@@ -180,9 +181,11 @@ in
       render = config: config.cursor.rendered;
     }
     {
-      options.screenshot-path =
-        optional (nullOr types.str) "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
-        // {
+      # not loving the way i did this?  i mean, actually, no, this is beautiful.
+      # but if niri wants to add more screenshot opts, then this isn't extensible.
+      options.screenshot = nullable (record {
+        path = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
           description = ''
             The path to save screenshots to.
 
@@ -198,8 +201,11 @@ in
             } with the current time, and the result is used as the final path.
           '';
         };
+      });
       render = config: [
-        (kdl.leaf "screenshot-path" config.screenshot-path)
+        (lib.mkIf (config.screenshot != null) [
+          (kdl.leaf "screenshot-path" config.screenshot.path)
+        ])
       ];
     }
     {

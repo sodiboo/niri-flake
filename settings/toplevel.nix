@@ -283,7 +283,10 @@ let
   sections = builtins.concatMap (f: f.sections or [ ]) files;
 in
 {
-  imports = (make-ordered-options (map (s: s.options) sections));
+  imports = [
+    (lib.mkRenamedOptionModule [ "screenshot-path" ] [ "screenshot" "path" ])
+  ]
+  ++ (make-ordered-options (map (s: s.options) sections));
   options.rendered = lib.mkOption {
     type = kdl.types.kdl-document;
     readOnly = true;
