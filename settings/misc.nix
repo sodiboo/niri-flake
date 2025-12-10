@@ -109,46 +109,52 @@ in
         (rendered-options
           [
             {
-              options = {
-                theme = optional types.str "default" // {
-                  description = ''
-                    The name of the xcursor theme to use.
+              options.theme = nullable types.str // {
+                description = ''
+                  The name of the xcursor theme to use.
 
-                    This will also set the XCURSOR_THEME environment variable for all spawned processes.
-                  '';
-                };
-                size = optional types.int 24 // {
-                  description = ''
-                    The size of the cursor in logical pixels.
-
-                    This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-                  '';
-                };
+                  This will also set the XCURSOR_THEME environment variable for all spawned processes.
+                '';
               };
               render = config: [
-                (kdl.leaf "xcursor-theme" config.theme)
-                (kdl.leaf "xcursor-size" config.size)
+                (lib.mkIf (config.theme != null) [
+                  (kdl.leaf "xcursor-theme" config.theme)
+                ])
               ];
             }
             {
-              options = {
+              options.size = nullable types.int // {
+                description = ''
+                  The size of the cursor in logical pixels.
 
-                hide-when-typing = optional types.bool false // {
-                  description = ''
-                    Whether to hide the cursor when typing.
-                  '';
-                };
-                hide-after-inactive-ms = nullable types.int // {
-                  description = ''
-                    If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
-                  '';
-                };
-
+                  This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+                '';
               };
               render = config: [
-                (lib.mkIf (config.hide-when-typing) [
-                  (kdl.flag "hide-when-typing")
+                (lib.mkIf (config.size != null) [
+                  (kdl.leaf "xcursor-size" config.size)
                 ])
+              ];
+            }
+            {
+              options.hide-when-typing = nullable types.bool // {
+                description = ''
+                  Whether to hide the cursor when typing.
+                '';
+              };
+              render = config: [
+                (lib.mkIf (config.hide-when-typing != null) [
+                  (kdl.leaf "hide-when-typing" config.hide-when-typing)
+                ])
+              ];
+            }
+            {
+              options.hide-after-inactive-ms = nullable types.int // {
+                description = ''
+                  If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+                '';
+              };
+              render = config: [
                 (lib.mkIf (config.hide-after-inactive-ms != null) [
                   (kdl.leaf "hide-after-inactive-ms" config.hide-after-inactive-ms)
                 ])
@@ -164,6 +170,7 @@ in
                 readOnly = true;
                 internal = true;
                 visible = false;
+                apply = node: lib.mkIf (node.children != [ ]) node;
               };
               config.rendered = kdl.plain "cursor" [ content ];
             }
@@ -200,19 +207,19 @@ in
         rendered-options
           [
             {
-              options.skip-at-startup = optional types.bool false // {
+              options.skip-at-startup = nullable types.bool // {
                 description = ''
                   Whether to skip the hotkey overlay shown when niri starts.
                 '';
               };
               render = config: [
-                (lib.mkIf (config.skip-at-startup) [
-                  (kdl.flag "skip-at-startup")
+                (lib.mkIf (config.skip-at-startup != null) [
+                  (kdl.leaf "skip-at-startup" config.skip-at-startup)
                 ])
               ];
             }
             {
-              options.hide-not-bound = optional types.bool false // {
+              options.hide-not-bound = nullable types.bool // {
                 description = ''
                   By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
                   In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
@@ -221,8 +228,8 @@ in
                 '';
               };
               render = config: [
-                (lib.mkIf (config.hide-not-bound) [
-                  (kdl.flag "hide-not-bound")
+                (lib.mkIf (config.hide-not-bound != null) [
+                  (kdl.leaf "hide-not-bound" config.hide-not-bound)
                 ])
               ];
             }
@@ -249,14 +256,14 @@ in
         rendered-options
           [
             {
-              options.disable-failed = optional types.bool false // {
+              options.disable-failed = nullable types.bool // {
                 description = ''
                   Disable the notification that the config file failed to load.
                 '';
               };
               render = config: [
-                (lib.mkIf (config.disable-failed) [
-                  (kdl.flag "disable-failed")
+                (lib.mkIf (config.disable-failed != null) [
+                  (kdl.leaf "disable-failed" config.disable-failed)
                 ])
               ];
             }
@@ -283,7 +290,7 @@ in
         rendered-options
           [
             {
-              options.disable-primary = optional types.bool false // {
+              options.disable-primary = nullable types.bool // {
                 description = ''
                   The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
 
@@ -302,8 +309,8 @@ in
                 '';
               };
               render = config: [
-                (lib.mkIf (config.disable-primary) [
-                  (kdl.flag "disable-primary")
+                (lib.mkIf (config.disable-primary != null) [
+                  (kdl.leaf "disable-primary" config.disable-primary)
                 ])
               ];
             }
@@ -326,14 +333,14 @@ in
       render = config: config.clipboard.rendered;
     }
     {
-      options.prefer-no-csd = optional types.bool false // {
+      options.prefer-no-csd = nullable types.bool // {
         description = ''
           Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
         '';
       };
       render = config: [
-        (lib.mkIf (config.prefer-no-csd) [
-          (kdl.flag "prefer-no-csd")
+        (lib.mkIf (config.prefer-no-csd != null) [
+          (kdl.leaf "prefer-no-csd" config.prefer-no-csd)
         ])
       ];
     }
@@ -372,15 +379,23 @@ in
           rendered-options
             [
               {
-                options = {
-                  enable = optional types.bool true;
-                  path = nullable types.str // {
-                    description = ''
-                      Path to the xwayland-satellite binary.
+                options.enable = nullable types.bool;
+                render = config: [
+                  (lib.mkIf (config.enable == true) [
+                    (kdl.flag "on")
+                  ])
+                  (lib.mkIf (config.enable == false) [
+                    (kdl.flag "off")
+                  ])
+                ];
+              }
+              {
+                options.path = nullable types.str // {
+                  description = ''
+                    Path to the xwayland-satellite binary.
 
-                      Set it to something like ${fmt.code "lib.getExe pkgs.xwayland-satellite-unstable"}.
-                    '';
-                  };
+                    Set it to something like ${fmt.code "lib.getExe pkgs.xwayland-satellite-unstable"}.
+                  '';
                 };
                 render = config: [
                   (lib.mkIf (config.path != null) [
@@ -400,10 +415,7 @@ in
                   visible = false;
                   apply = node: lib.mkIf (node.children != [ ]) node;
                 };
-                config.rendered = kdl.plain "xwayland-satellite" [
-                  (lib.mkIf (!config.enable) "off")
-                  (lib.mkIf (config.enable) [ content ])
-                ];
+                config.rendered = kdl.plain "xwayland-satellite" [ content ];
               }
             )
         )

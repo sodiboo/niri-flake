@@ -1957,15 +1957,15 @@ If set, the cursor will automatically hide once this number of milliseconds pass
 
 
 ## `programs.niri.settings.cursor.hide-when-typing`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 Whether to hide the cursor when typing.
 
 
 ## `programs.niri.settings.cursor.size`
-- type: `signed integer`
-- default: `24`
+- type: `null or signed integer`
+- default: `null`
 
 The size of the cursor in logical pixels.
 
@@ -1973,8 +1973,8 @@ This will also set the XCURSOR_SIZE environment variable for all spawned process
 
 
 ## `programs.niri.settings.cursor.theme`
-- type: `string`
-- default: `"default"`
+- type: `null or string`
+- default: `null`
 
 The name of the xcursor theme to use.
 
@@ -1997,8 +1997,8 @@ The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3
 <!-- programs.niri.settings.hotkey-overlay -->
 
 ## `programs.niri.settings.hotkey-overlay.hide-not-bound`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
 In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
@@ -2007,8 +2007,8 @@ You can disable this behaviour by setting this option to `true`. Then, niri will
 
 
 ## `programs.niri.settings.hotkey-overlay.skip-at-startup`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 Whether to skip the hotkey overlay shown when niri starts.
 
@@ -2016,8 +2016,8 @@ Whether to skip the hotkey overlay shown when niri starts.
 <!-- programs.niri.settings.config-notification -->
 
 ## `programs.niri.settings.config-notification.disable-failed`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 Disable the notification that the config file failed to load.
 
@@ -2025,8 +2025,8 @@ Disable the notification that the config file failed to load.
 <!-- programs.niri.settings.clipboard -->
 
 ## `programs.niri.settings.clipboard.disable-primary`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
 
@@ -2040,8 +2040,8 @@ Note that this option has nothing to do with the "clipboard" that is commonly in
 
 
 ## `programs.niri.settings.prefer-no-csd`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
 
@@ -2075,8 +2075,8 @@ Xwayland-satellite integration. Requires unstable niri and unstable xwayland-sat
 
 
 ## `programs.niri.settings.xwayland-satellite.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.xwayland-satellite.path`
