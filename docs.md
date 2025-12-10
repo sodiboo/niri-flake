@@ -484,7 +484,7 @@ Further reading:
 - type: `null or (2x3 matrix)`
 - default: `null`
 
-An augmented calibration matrix for the tablet.
+An augmented calibration matrix for the tablet or touch screen.
 
 This is represented in Nix as a 2-list of 3-lists of floats.
 
@@ -520,6 +520,33 @@ Further reading:
 ## `programs.niri.settings.input.touch.map-to-output`
 - type: `null or string`
 - default: `null`
+
+
+## `programs.niri.settings.input.touch.calibration-matrix`
+- type: `null or (2x3 matrix)`
+- default: `null`
+
+An augmented calibration matrix for the tablet or touch screen.
+
+This is represented in Nix as a 2-list of 3-lists of floats.
+
+For example:
+```nix
+{
+  # 90 degree rotation clockwise
+  calibration-matrix = [
+    [ 0.0 -1.0 1.0 ]
+    [ 1.0  0.0 0.0 ]
+  ];
+}
+```
+
+
+Further reading:
+- [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
+- [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
+- [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+
 
 
 ## `programs.niri.settings.input.touchpad`
