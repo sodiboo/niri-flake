@@ -203,9 +203,82 @@ let
     )
   ];
 
+  make-borderish-option =
+    {
+      name,
+      node-name,
+      description,
+      window,
+    }:
+    lib.mkOption {
+      inherit description;
+      default = { };
+      type = lib.types.submodule (
+        { options, ... }:
+        {
+          imports =
+            make-rendered-ordered-options
+              [
+                {
+                  options.enable = nullable types.bool // {
+                    description = ''
+                      Whether to enable the ${name}.
+                    '';
+                  };
+                  render = config: [
+                    (lib.mkIf (config.enable == true) [
+                      (kdl.flag "on")
+                    ])
+                    (lib.mkIf (config.enable == false) [
+                      (kdl.flag "off")
+                    ])
+                  ];
+                }
+                {
+                  options.width = nullable float-or-int // {
+                    description = ''
+                      The width of the ${name} drawn around each ${window}.
+                    '';
+                  };
+                  render = config: [
+                    (lib.mkIf (config.width != null) [
+                      (kdl.leaf "width" config.width)
+                    ])
+                  ];
+                }
+
+                (make-decoration-options options {
+                  urgent.description = ''
+                    The color of the ${name} for windows that are requesting attention.
+                  '';
+                  active.description = ''
+                    The color of the ${name} for the window that has keyboard focus.
+                  '';
+                  inactive.description = ''
+                    The color of the ${name} for windows that do not have keyboard focus.
+                  '';
+                })
+              ]
+              (
+                content:
+                { config, ... }:
+                {
+                  options.rendered = lib.mkOption {
+                    type = kdl.types.kdl-node;
+                    readOnly = true;
+                    internal = true;
+                    visible = false;
+                    apply = node: lib.mkIf (node.children != [ ]) node;
+                  };
+                  config.rendered = kdl.plain node-name [ content ];
+                }
+              );
+        }
+      );
+    };
+
   borderish =
     {
-      enable-by-default,
       node-name,
       name,
       window,
@@ -214,136 +287,24 @@ let
     }:
     {
       layout = {
-        options.${node-name} = lib.mkOption {
-          inherit description;
-          default = { };
-          type = lib.types.submodule (
-            { options, ... }:
-            {
-              imports =
-                make-rendered-ordered-options
-                  [
-                    {
-                      options.enable = optional types.bool enable-by-default // {
-                        description = ''
-                          Whether to enable the ${name}.
-                        '';
-                      };
-                      render = _: [ ];
-                    }
-                    {
-                      options.width = optional float-or-int 4 // {
-                        description = ''
-                          The width of the ${name} drawn around each ${window}.
-                        '';
-                      };
-                      render = config: (kdl.leaf "width" config.width);
-                    }
-
-                    (make-decoration-options options {
-                      urgent.description = ''
-                        The color of the ${name} for windows that are requesting attention.
-                      '';
-                      active.description = ''
-                        The color of the ${name} for the window that has keyboard focus.
-                      '';
-                      inactive.description = ''
-                        The color of the ${name} for windows that do not have keyboard focus.
-                      '';
-                    })
-                  ]
-                  (
-                    content:
-                    { config, ... }:
-                    {
-                      options.rendered = lib.mkOption {
-                        type = kdl.types.kdl-node;
-                        readOnly = true;
-                        internal = true;
-                        visible = false;
-                      };
-                      config.rendered = kdl.plain node-name [
-                        (lib.mkIf (!config.enable) (kdl.flag "off"))
-                        (lib.mkIf (config.enable) [
-                          content
-                        ])
-                      ];
-                    }
-                  );
-            }
-          );
+        options.${node-name} = make-borderish-option {
+          inherit
+            name
+            node-name
+            description
+            window
+            ;
         };
         render = config: config.${node-name}.rendered;
       };
 
       window-rule = {
-        options.${node-name} = lib.mkOption {
+        options.${node-name} = make-borderish-option {
+          inherit name node-name;
           description = ''
             See ${link-opt (subopts toplevel-options.layout).${node-name}}.
           '';
-          default = { };
-          type = lib.types.submodule (
-            { options, ... }:
-            {
-              imports =
-                make-rendered-ordered-options
-                  [
-                    {
-                      options.enable = nullable types.bool // {
-                        description = ''
-                          Whether to enable the ${name}.
-                        '';
-                      };
-                      render = config: [
-                        (lib.mkIf (config.enable == true) [
-                          (kdl.flag "on")
-                        ])
-                        (lib.mkIf (config.enable == false) [
-                          (kdl.flag "off")
-                        ])
-                      ];
-                    }
-                    {
-                      options.width = nullable float-or-int // {
-                        description = ''
-                          The width of the ${name} drawn around each ${matched-window}.
-                        '';
-                      };
-                      render = config: [
-                        (lib.mkIf (config.width != null) [
-                          (kdl.leaf "width" config.width)
-                        ])
-                      ];
-                    }
-
-                    (make-decoration-options options {
-                      urgent.description = ''
-                        The color of the ${name} for windows that are requesting attention.
-                      '';
-                      active.description = ''
-                        The color of the ${name} for the window that has keyboard focus.
-                      '';
-                      inactive.description = ''
-                        The color of the ${name} for windows that do not have keyboard focus.
-                      '';
-                    })
-                  ]
-                  (
-                    content:
-                    { config, ... }:
-                    {
-                      options.rendered = lib.mkOption {
-                        type = kdl.types.kdl-node;
-                        readOnly = true;
-                        internal = true;
-                        visible = false;
-                        apply = node: lib.mkIf (node.children != [ ]) node;
-                      };
-                      config.rendered = kdl.plain node-name [ content ];
-                    }
-                  );
-            }
-          );
+          window = matched-window;
         };
         render = config: config.${node-name}.rendered;
       };
@@ -352,7 +313,6 @@ let
 in
 [
   (borderish {
-    enable-by-default = false;
     node-name = "border";
     name = "border";
     window = "window";
@@ -366,7 +326,6 @@ in
     '';
   })
   (borderish {
-    enable-by-default = true;
     node-name = "focus-ring";
     name = "focus ring";
     window = "focused window";

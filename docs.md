@@ -1285,15 +1285,15 @@ If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled
 
 
 ## `programs.niri.settings.layout.border.enable`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 Whether to enable the border.
 
 
 ## `programs.niri.settings.layout.border.width`
-- type: `floating point number or signed integer`
-- default: `4`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The width of the border drawn around each window.
 
@@ -1330,15 +1330,15 @@ If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the fo
 
 
 ## `programs.niri.settings.layout.focus-ring.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 Whether to enable the focus ring.
 
 
 ## `programs.niri.settings.layout.focus-ring.width`
-- type: `floating point number or signed integer`
-- default: `4`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The width of the focus ring drawn around each focused window.
 
