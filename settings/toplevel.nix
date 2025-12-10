@@ -91,40 +91,6 @@ let
       (flag' disabled (cfg.enable == false))
       contents
     ];
-
-    opt-props = lib.filterAttrs (lib.const (value: value != null));
-
-    bind =
-      name: cfg:
-      let
-        bool-props-with-defaults =
-          cfg: defaults:
-          opt-props (
-            builtins.mapAttrs (
-              name: value: (if (defaults ? ${name}) && (value != defaults.${name}) then value else null)
-            ) cfg
-          );
-      in
-      node name
-        (
-          opt-props {
-            inherit (cfg) cooldown-ms;
-          }
-          // bool-props-with-defaults cfg {
-            repeat = true;
-            allow-when-locked = false;
-            allow-inhibiting = true;
-          }
-          // lib.optionalAttrs (cfg.hotkey-overlay.hidden or false) {
-            hotkey-overlay-title = null;
-          }
-          // opt-props {
-            hotkey-overlay-title = cfg.hotkey-overlay.title or null;
-          }
-        )
-        [
-          (lib.mapAttrsToList leaf cfg.action)
-        ];
   };
 in
 {
@@ -144,7 +110,6 @@ in
         plain'
         toggle
         map'
-        bind
         ;
     in
     normalize-nodes [
@@ -160,8 +125,6 @@ in
           ])
         ])
       ])
-
-      (plain' "binds" (lib.mapAttrsToList bind cfg.binds))
 
       (plain' "switch-events" (
         lib.mapAttrsToList (nullable (
