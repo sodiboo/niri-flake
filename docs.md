@@ -1357,6 +1357,26 @@ The color of the focus ring for windows that do not have keyboard focus.
 The color of the focus ring for windows that are requesting attention.
 
 
+## `programs.niri.settings.layout.insert-hint`
+
+
+The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+
+
+## `programs.niri.settings.layout.insert-hint.enable`
+- type: `boolean`
+- default: `true`
+
+Whether to enable the insert hint.
+
+
+## `programs.niri.settings.layout.insert-hint.display`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the insert hint.
+
+
 ## `programs.niri.settings.layout.tab-indicator`
 - type: `null or (submodule)`
 - default: `null`
@@ -1426,84 +1446,6 @@ The color of the tab indicator for windows that do not have keyboard focus.
 - default: `null`
 
 The color of the tab indicator for windows that are requesting attention.
-
-
-<!-- programs.niri.settings.layout.shadow -->
-
-## `programs.niri.settings.layout.shadow.color`
-- type: `string`
-- default: `"#00000070"`
-
-
-## `programs.niri.settings.layout.shadow.draw-behind-window`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.shadow.enable`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.layout.shadow.offset`
-
-
-The offset of the shadow from the window, measured in logical pixels.
-
-This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layout.shadow.offset.x`
-- type: `floating point number or signed integer`
-- default: `0.000000`
-
-
-## `programs.niri.settings.layout.shadow.offset.y`
-- type: `floating point number or signed integer`
-- default: `5.000000`
-
-
-## `programs.niri.settings.layout.shadow.softness`
-- type: `floating point number or signed integer`
-- default: `30.000000`
-
-The softness/size of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layout.shadow.spread`
-- type: `floating point number or signed integer`
-- default: `5.000000`
-
-The spread of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layout.insert-hint`
-
-
-The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
-
-
-## `programs.niri.settings.layout.insert-hint.enable`
-- type: `boolean`
-- default: `true`
-
-Whether to enable the insert hint.
-
-
-## `programs.niri.settings.layout.insert-hint.display`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the insert hint.
 
 
 ## `<decoration>`
@@ -1593,6 +1535,64 @@ these beautiful images are sourced from the release notes for [`v0.1.3`](https:/
 The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) of the gradient.
 
 For more details, see [`<decoration>.color`](#decorationcolor).
+
+
+<!-- programs.niri.settings.layout.shadow -->
+
+## `programs.niri.settings.layout.shadow.color`
+- type: `string`
+- default: `"#00000070"`
+
+
+## `programs.niri.settings.layout.shadow.draw-behind-window`
+- type: `boolean`
+- default: `false`
+
+
+## `programs.niri.settings.layout.shadow.enable`
+- type: `boolean`
+- default: `false`
+
+
+## `programs.niri.settings.layout.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layout.shadow.offset`
+
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layout.shadow.offset.x`
+- type: `floating point number or signed integer`
+- default: `0.000000`
+
+
+## `programs.niri.settings.layout.shadow.offset.y`
+- type: `floating point number or signed integer`
+- default: `5.000000`
+
+
+## `programs.niri.settings.layout.shadow.softness`
+- type: `floating point number or signed integer`
+- default: `30.000000`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layout.shadow.spread`
+- type: `floating point number or signed integer`
+- default: `5.000000`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
 ## `programs.niri.settings.layout.background-color`
