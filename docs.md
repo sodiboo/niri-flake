@@ -1267,6 +1267,13 @@ See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more 
 
 <!-- programs.niri.settings.layout -->
 
+## `programs.niri.settings.layout.background-color`
+- type: `null or string`
+- default: `null`
+
+The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
+
+
 ## `programs.niri.settings.layout.border`
 
 
@@ -1704,13 +1711,6 @@ Note that you can override this for a given column at any time. Every column rem
 Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
 
 
-## `programs.niri.settings.layout.background-color`
-- type: `null or string`
-- default: `null`
-
-The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
-
-
 ## `programs.niri.settings.layout.always-center-single-column`
 - type: `boolean`
 - default: `false`
@@ -1780,6 +1780,15 @@ The left and right structs work in a similar way, except the padded space is not
 
 <!-- programs.niri.settings.overview -->
 
+## `programs.niri.settings.overview.backdrop-color`
+- type: `null or string`
+- default: `null`
+
+Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
+
+The alpha channel for this color will be ignored.
+
+
 <!-- programs.niri.settings.overview.workspace-shadow -->
 
 ## `programs.niri.settings.overview.workspace-shadow.enable`
@@ -1834,15 +1843,6 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 - default: `null`
 
 Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
-
-
-## `programs.niri.settings.overview.backdrop-color`
-- type: `null or string`
-- default: `null`
-
-Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
-
-The alpha channel for this color will be ignored.
 
 
 ## `programs.niri.settings.workspaces`

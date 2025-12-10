@@ -59,20 +59,6 @@ in
                   ])
                 ];
               }
-              {
-                options.backdrop-color = nullable types.str // {
-                  description = ''
-                    Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
-
-                    The alpha channel for this color will be ignored.
-                  '';
-                };
-                render = config: [
-                  (lib.mkIf (config.backdrop-color != null) [
-                    (kdl.leaf "backdrop-color" config.backdrop-color)
-                  ])
-                ];
-              }
             ]
           )
           (

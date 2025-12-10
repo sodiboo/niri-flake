@@ -2,6 +2,7 @@
 let
   elements = lib.zipAttrs (
     builtins.concatMap (f: import f args) [
+      ./background.nix
       ./decorations.nix
       ./shadows.nix
       ./basic-layout.nix
@@ -13,4 +14,5 @@ in
   window-rules = elements.window-rule or [ ];
   layer-rules = elements.layer-rule or [ ];
   overview = elements.overview or [ ];
+  output = elements.output or [ ];
 }

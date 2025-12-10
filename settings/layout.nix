@@ -54,18 +54,6 @@ in
             appearance.layout
             ++ [
               {
-                options.background-color = nullable types.str // {
-                  description = ''
-                    The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
-                  '';
-                };
-                render = config: [
-                  (lib.mkIf (config.background-color != null) [
-                    (kdl.leaf "background-color" config.background-color)
-                  ])
-                ];
-              }
-              {
                 options = {
                   center-focused-column =
                     optional (enum [
