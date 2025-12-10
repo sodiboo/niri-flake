@@ -14,65 +14,162 @@ let
     float-or-int
     nullable
     optional
-    section
+    make-ordered-options
+    section'
     ;
 
-  scroll-description.trigger = measure: ''
-    The ${measure} of the edge of the screen where dragging a window will scroll the view.
-  '';
-  scroll-description.delay-ms = ''
-    The delay in milliseconds before the view starts scrolling.
-  '';
-  scroll-description.max-speed-for = measure: ''
-    When the cursor is at boundary of the trigger ${measure}, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
-  '';
+  make-rendered-ordered-options = sections: final: [
+    (
+      { config, ... }:
+      {
+        imports = make-ordered-options (map (s: s.options) sections) ++ [
+          (final (map (s: s.render config) sections))
+        ];
+      }
+    )
+  ];
+
+  rendered-ordered-section = sections: final: section' (make-rendered-ordered-options sections final);
+
+  make-dnd-gesture =
+    name:
+    {
+      description,
+      measure,
+    }:
+    {
+      options.${name} = lib.mkOption {
+        inherit description;
+        default = { };
+        type = types.submodule (
+          make-rendered-ordered-options
+            [
+              {
+                options."trigger-${measure}" = nullable float-or-int // {
+                  description = ''
+                    The ${measure} of the edge of the screen where dragging a window will scroll the view.
+                  '';
+                };
+                render = config: [
+                  (lib.mkIf (config."trigger-${measure}" != null) [
+                    (kdl.leaf "trigger-${measure}" config."trigger-${measure}")
+                  ])
+                ];
+              }
+              {
+                options.delay-ms = nullable types.int // {
+                  description = ''
+                    The delay in milliseconds before the view starts scrolling.
+                  '';
+                };
+                render = config: [
+                  (lib.mkIf (config.delay-ms != null) [
+                    (kdl.leaf "delay-ms" config.delay-ms)
+                  ])
+                ];
+              }
+              {
+                options.max-speed = nullable float-or-int // {
+                  description = ''
+                    When the cursor is at boundary of the trigger ${measure}, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+                  '';
+                };
+
+                render = config: [
+                  (lib.mkIf (config.max-speed != null) [
+                    (kdl.leaf "max-speed" config.max-speed)
+                  ])
+                ];
+              }
+            ]
+            (
+              content:
+              { config, ... }:
+              {
+                options.rendered = lib.mkOption {
+                  type = kdl.types.kdl-node;
+                  readOnly = true;
+                  internal = true;
+                  visible = false;
+                  apply = node: lib.mkIf (node.children != [ ]) node;
+                };
+                config.rendered = kdl.plain "${name}" [ content ];
+              }
+            )
+        );
+      };
+      render = config: config.${name}.rendered;
+    };
 in
 {
   sections = [
     {
-      options.gestures = {
-        dnd-edge-view-scroll =
-          section {
-            trigger-width = nullable float-or-int // {
-              description = scroll-description.trigger "width";
-            };
-            delay-ms = nullable types.int // {
-              description = scroll-description.delay-ms;
-            };
-            max-speed = nullable float-or-int // {
-              description = scroll-description.max-speed-for "width";
-            };
-          }
-          // {
-            description = ''
-              When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
-            '';
-          };
-        dnd-edge-workspace-switch =
-          section {
-            trigger-height = nullable float-or-int // {
-              description = scroll-description.trigger "height";
-            };
-            delay-ms = nullable types.int // {
-              description = scroll-description.delay-ms;
-            };
-            max-speed = nullable float-or-int // {
-              description = scroll-description.max-speed-for "height";
-            };
-          }
-          // {
-            description = ''
-              In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
+      options.gestures =
+        rendered-ordered-section
+          [
+            (make-dnd-gesture "dnd-edge-view-scroll" {
+              description = ''
+                When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+              '';
+              measure = "width";
+            })
+            (make-dnd-gesture "dnd-edge-workspace-switch" {
+              description = ''
+                In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
 
-              This does not happen when the overview is not open.
-            '';
-          };
-        hot-corners.enable = optional types.bool true // {
-          description = ''
-            Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
-          '';
-        };
-      };
+                This does not happen when the overview is not open.
+              '';
+              measure = "height";
+            })
+            {
+              options.hot-corners =
+                rendered-ordered-section
+                  ([
+                    {
+                      options.enable = optional types.bool true // {
+                        description = ''
+                          Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+                        '';
+                      };
+                      render = _: [ ];
+                    }
+                  ])
+                  (
+                    content:
+                    { config, ... }:
+                    {
+
+                      options.rendered = lib.mkOption {
+                        type = kdl.types.kdl-node;
+                        readOnly = true;
+                        internal = true;
+                        visible = false;
+                        apply = node: lib.mkIf (node.children != [ ]) node;
+                      };
+                      config.rendered = kdl.plain "hot-corners" [
+                        (lib.mkIf (!config.enable) (kdl.flag "off"))
+                        (lib.mkIf (config.enable) [ content ])
+                      ];
+                    }
+                  );
+              render = config: config.hot-corners.rendered;
+            }
+          ]
+          (
+            content:
+            { config, ... }:
+            {
+              options.rendered = lib.mkOption {
+                type = kdl.types.kdl-node;
+                readOnly = true;
+                internal = true;
+                visible = false;
+                apply = node: lib.mkIf (node.children != [ ]) node;
+              };
+              config.rendered = kdl.plain "gestures" [ content ];
+            }
+          );
+      render = config: config.gestures.rendered;
     }
   ];
 }

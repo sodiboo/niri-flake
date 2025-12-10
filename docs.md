@@ -3264,10 +3264,19 @@ Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others d
 - type: `signed integer`
 
 
+<!-- programs.niri.settings.gestures -->
+
 ## `programs.niri.settings.gestures.dnd-edge-view-scroll`
 
 
 When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the edge of the screen where dragging a window will scroll the view.
 
 
 ## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
@@ -3284,19 +3293,19 @@ The delay in milliseconds before the view starts scrolling.
 When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
 
 
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the edge of the screen where dragging a window will scroll the view.
-
-
 ## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
 
 
 In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
 
 This does not happen when the overview is not open.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The height of the edge of the screen where dragging a window will scroll the view.
 
 
 ## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
@@ -3313,12 +3322,7 @@ The delay in milliseconds before the view starts scrolling.
 When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
 
 
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The height of the edge of the screen where dragging a window will scroll the view.
-
+<!-- programs.niri.settings.gestures.hot-corners -->
 
 ## `programs.niri.settings.gestures.hot-corners.enable`
 - type: `boolean`
