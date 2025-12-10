@@ -1219,12 +1219,7 @@ Whether this keybind should trigger repeatedly when held down.
 
 <!-- programs.niri.settings.switch-events -->
 
-## `programs.niri.settings.switch-events.lid-close`
-- type: `null or`[`<switch-bind>`](#switch-bind)
-- default: `null`
-
-
-## `programs.niri.settings.switch-events.lid-open`
+## `programs.niri.settings.switch-events.tablet-mode-on`
 - type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 
@@ -1234,7 +1229,12 @@ Whether this keybind should trigger repeatedly when held down.
 - default: `null`
 
 
-## `programs.niri.settings.switch-events.tablet-mode-on`
+## `programs.niri.settings.switch-events.lid-open`
+- type: `null or`[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+
+## `programs.niri.settings.switch-events.lid-close`
 - type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 

@@ -104,7 +104,6 @@ in
       cfg = config;
       inherit (render-utils)
         normalize-nodes
-        plain
         nullable
         leaf
         plain'
@@ -125,14 +124,6 @@ in
           ])
         ])
       ])
-
-      (plain' "switch-events" (
-        lib.mapAttrsToList (nullable (
-          map' plain (cfg: [
-            (lib.mapAttrsToList leaf cfg.action)
-          ])
-        )) cfg.switch-events
-      ))
 
       (plain' "gestures" [
         (plain' "dnd-edge-view-scroll" [
