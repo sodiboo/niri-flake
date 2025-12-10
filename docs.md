@@ -911,33 +911,49 @@ Further reading:
 
 
 ## `programs.niri.settings.input.warp-mouse-to-focus`
+- type: `null or (submodule)`
+- default: `null`
 
+Warp the mouse to the focused window when switching focus.
 
-Whether to warp the mouse to the focused window when switching focus.
+Note that there is no way to set `enable = false;`. If any config file enables this, it cannot be disabled by a later file.
 
 
 ## `programs.niri.settings.input.warp-mouse-to-focus.enable`
-- type: `boolean`
-- default: `false`
+- type: `value true (singular enum)`
+- default: `true`
 
 
 ## `programs.niri.settings.input.warp-mouse-to-focus.mode`
-- type: `null or string`
+- type: `null or one of "center-xy", "center-xy-always"`
 - default: `null`
+
+By default, when `mode = null;`, if the mouse is outside of the focused window on the X axis, it will warp to the middle vertical line of the window. Likewise if it is outside the focused window on the Y axis, it will warp to the middle horizontal line. And, if it is outside the window's bounds on both axes, it will warp to the center of the window.
+
+When `mode = "center-xy";`, if the mouse is outside the window *at all*, it will warp on both axes to the very center of the window.
+
+When `mode = "center-xy-always";`, the mouse will always warp to the center of the focused window upon any focus change, even if the mouse was *already* inside the bounds of that window
+
+
+## `programs.niri.settings.input.focus-follows-mouse`
+- type: `null or (submodule)`
+- default: `null`
+
+Focus the window under the mouse when the mouse moves.
+
+Note that there is no way to set `enable = false;`. If any config file enables this, it cannot be disabled by a later file.
 
 
 ## `programs.niri.settings.input.focus-follows-mouse.enable`
-- type: `boolean`
-- default: `false`
-
-Whether to focus the window under the mouse when the mouse moves.
+- type: `value true (singular enum)`
+- default: `true`
 
 
 ## `programs.niri.settings.input.focus-follows-mouse.max-scroll-amount`
 - type: `null or string`
 - default: `null`
 
-The maximum proportion of the screen to scroll at a time
+The maximum proportion of the screen to scroll at a time (expressed in percent)
 
 
 ## `programs.niri.settings.input.workspace-auto-back-and-forth`

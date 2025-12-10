@@ -759,39 +759,38 @@ in
               ];
             }
             {
-              options.warp-mouse-to-focus =
-                let
-                  inner = record {
-                    enable = optional types.bool false;
-                    mode = nullable types.str;
-                  };
+              options.warp-mouse-to-focus = lib.mkOption {
+                description = ''
+                  Warp the mouse to the focused window when switching focus.
 
-                  actual-type = mkOptionType {
-                    inherit (inner)
-                      name
-                      description
-                      getSubOptions
-                      nestedTypes
-                      ;
-
-                    check = value: builtins.isBool value || inner.check value;
-                    merge =
-                      loc: defs:
-                      lib.warnIf (builtins.any (def: builtins.isBool def.value) defs)
-                        (rename-warning loc (loc ++ [ "enable" ]) (builtins.filter (def: builtins.isBool def.value) defs))
-                        inner.merge
-                        loc
-                        (map (def: if builtins.isBool def.value then def // { value.enable = def.value; } else def) defs);
+                  Note that there is no way to set ${fmt.code ''enable = false;''}. If any config file enables this, it cannot be disabled by a later file.
+                '';
+                default = null;
+                type = lib.types.nullOr (record {
+                  enable = lib.mkOption {
+                    default = true;
+                    type = lib.types.enum [ true ];
                   };
-                in
-                optional actual-type { }
-                // {
-                  description = ''
-                    Whether to warp the mouse to the focused window when switching focus.
-                  '';
-                };
+                  mode = lib.mkOption {
+                    default = null;
+                    type = lib.types.nullOr (
+                      lib.types.enum [
+                        "center-xy"
+                        "center-xy-always"
+                      ]
+                    );
+                    description = ''
+                      By default, when ${fmt.code ''mode = null;''}, if the mouse is outside of the focused window on the X axis, it will warp to the middle vertical line of the window. Likewise if it is outside the focused window on the Y axis, it will warp to the middle horizontal line. And, if it is outside the window's bounds on both axes, it will warp to the center of the window.
+
+                      When ${fmt.code ''mode = "center-xy";''}, if the mouse is outside the window ${fmt.em "at all"}, it will warp on both axes to the very center of the window.
+
+                      When ${fmt.code ''mode = "center-xy-always";''}, the mouse will always warp to the center of the focused window upon any focus change, even if the mouse was ${fmt.em "already"} inside the bounds of that window
+                    '';
+                  };
+                });
+              };
               render = config: [
-                (lib.mkIf (config.warp-mouse-to-focus.enable) [
+                (lib.mkIf (config.warp-mouse-to-focus != null) [
                   (kdl.leaf "warp-mouse-to-focus" (
                     lib.optionalAttrs (config.warp-mouse-to-focus.mode != null) {
                       inherit (config.warp-mouse-to-focus) mode;
@@ -801,20 +800,30 @@ in
               ];
             }
             {
-              options.focus-follows-mouse = {
-                enable = optional types.bool false // {
-                  description = ''
-                    Whether to focus the window under the mouse when the mouse moves.
-                  '';
-                };
-                max-scroll-amount = nullable types.str // {
-                  description = ''
-                    The maximum proportion of the screen to scroll at a time
-                  '';
-                };
+              options.focus-follows-mouse = lib.mkOption {
+                description = ''
+                  Focus the window under the mouse when the mouse moves.
+
+                  Note that there is no way to set ${fmt.code ''enable = false;''}. If any config file enables this, it cannot be disabled by a later file.
+                '';
+
+                default = null;
+                type = lib.types.nullOr (record {
+                  enable = lib.mkOption {
+                    default = true;
+                    type = lib.types.enum [ true ];
+                  };
+                  max-scroll-amount = lib.mkOption {
+                    default = null;
+                    type = lib.types.nullOr types.str;
+                    description = ''
+                      The maximum proportion of the screen to scroll at a time (expressed in percent)
+                    '';
+                  };
+                });
               };
               render = config: [
-                (lib.mkIf (config.focus-follows-mouse.enable) [
+                (lib.mkIf (config.focus-follows-mouse != null) [
                   (kdl.leaf "focus-follows-mouse" (
                     lib.optionalAttrs (config.focus-follows-mouse.max-scroll-amount != null) {
                       inherit (config.focus-follows-mouse) max-scroll-amount;
