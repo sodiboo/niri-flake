@@ -1546,28 +1546,14 @@ For more details, see [`<decoration>.color`](#decorationcolor).
 
 <!-- programs.niri.settings.layout.shadow -->
 
-## `programs.niri.settings.layout.shadow.color`
-- type: `string`
-- default: `"#00000070"`
-
-
-## `programs.niri.settings.layout.shadow.draw-behind-window`
-- type: `boolean`
-- default: `false`
-
-
 ## `programs.niri.settings.layout.shadow.enable`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.shadow.inactive-color`
-- type: `null or string`
+- type: `null or boolean`
 - default: `null`
 
 
 ## `programs.niri.settings.layout.shadow.offset`
-
+- type: `null or (submodule)`
+- default: `null`
 
 The offset of the shadow from the window, measured in logical pixels.
 
@@ -1576,17 +1562,15 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 
 ## `programs.niri.settings.layout.shadow.offset.x`
 - type: `floating point number or signed integer`
-- default: `0.000000`
 
 
 ## `programs.niri.settings.layout.shadow.offset.y`
 - type: `floating point number or signed integer`
-- default: `5.000000`
 
 
 ## `programs.niri.settings.layout.shadow.softness`
-- type: `floating point number or signed integer`
-- default: `30.000000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The softness/size of the shadow, measured in logical pixels.
 
@@ -1594,12 +1578,27 @@ This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/e
 
 
 ## `programs.niri.settings.layout.shadow.spread`
-- type: `floating point number or signed integer`
-- default: `5.000000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The spread of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layout.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layout.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layout.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
 
 
 ## `programs.niri.settings.layout.preset-column-widths`
@@ -1792,8 +1791,8 @@ The alpha channel for this color will be ignored.
 <!-- programs.niri.settings.overview.workspace-shadow -->
 
 ## `programs.niri.settings.overview.workspace-shadow.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.overview.workspace-shadow.offset`
@@ -1807,12 +1806,10 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 
 ## `programs.niri.settings.overview.workspace-shadow.offset.x`
 - type: `floating point number or signed integer`
-- default: `0.000000`
 
 
 ## `programs.niri.settings.overview.workspace-shadow.offset.y`
 - type: `floating point number or signed integer`
-- default: `5.000000`
 
 
 ## `programs.niri.settings.overview.workspace-shadow.softness`
@@ -1831,6 +1828,11 @@ This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/e
 The spread of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.overview.workspace-shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.overview.workspace-shadow.color`
