@@ -7,6 +7,16 @@
 }:
 
 let
+  appearance = import ./appearance {
+    inherit
+      lib
+      kdl
+      fragments
+      niri-flake-internal
+      toplevel-options
+      ;
+  };
+
   inherit (lib) types;
   inherit (lib.types) enum;
   inherit (niri-flake-internal)
@@ -534,106 +544,7 @@ in
           }
         ];
 
-        properties = [
-          {
-            options =
-              let
-                border-rule =
-                  {
-                    name,
-                    node,
-                    description,
-                    window,
-                  }:
-                  section' (
-                    { options, ... }:
-                    {
-                      imports =
-                        make-rendered-ordered-options
-                          [
-                            {
-                              options.enable = nullable types.bool // {
-                                description = ''
-                                  Whether to enable the ${name}.
-                                '';
-                              };
-                              render = config: [
-                                (lib.mkIf (config.enable == true) [
-                                  (kdl.flag "on")
-                                ])
-                                (lib.mkIf (config.enable == false) [
-                                  (kdl.flag "off")
-                                ])
-                              ];
-                            }
-                            {
-                              options.width = nullable float-or-int // {
-                                description = ''
-                                  The width of the ${name} drawn around each ${window}.
-                                '';
-                              };
-                              render = config: [
-                                (lib.mkIf (config.width != null) [
-                                  (kdl.leaf "width" config.width)
-                                ])
-                              ];
-                            }
-
-                            (make-decoration-options options {
-                              urgent.description = ''
-                                The color of the ${name} for windows that are requesting attention.
-                              '';
-                              active.description = ''
-                                The color of the ${name} for the window that has keyboard focus.
-                              '';
-                              inactive.description = ''
-                                The color of the ${name} for windows that do not have keyboard focus.
-                              '';
-                            })
-                          ]
-                          (
-                            content:
-                            { config, ... }:
-                            {
-                              options.rendered = lib.mkOption {
-                                type = kdl.types.kdl-node;
-                                readOnly = true;
-                                internal = true;
-                                visible = false;
-                                apply = node: lib.mkIf (node.children != [ ]) node;
-                              };
-                              config.rendered = kdl.plain node [ content ];
-                            }
-                          );
-                    }
-                  )
-                  // {
-                    inherit description;
-                  };
-              in
-              {
-                border = border-rule {
-                  name = "border";
-                  node = "border";
-                  window = "matched window";
-                  description = ''
-                    See ${link-opt (subopts toplevel-options.layout).border}.
-                  '';
-                };
-                focus-ring = border-rule {
-                  name = "focus ring";
-                  node = "focus-ring";
-                  window = "matched window with focus";
-                  description = ''
-                    See ${link-opt (subopts toplevel-options.layout).focus-ring}.
-                  '';
-                };
-              };
-            render = config: [
-              config.border.rendered
-              config.focus-ring.rendered
-            ];
-          }
+        properties = appearance.window-rules ++ [
           {
             options.tab-indicator =
               let
@@ -1017,7 +928,7 @@ in
             };
           }
         ];
-        properties = [
+        properties = appearance.layer-rules ++ [
           {
             options.place-within-backdrop = nullable types.bool // {
               description = ''
