@@ -162,7 +162,7 @@ let
   make-decoration-options = options: variants: {
     options = builtins.mapAttrs (
       name:
-      { description }:
+      { description, ... }:
       nullable (shorthand-for "decoration" (decoration (options.${name})))
       // {
         visible = "shallow";
@@ -171,14 +171,21 @@ let
     ) variants;
     render =
       config:
-      builtins.map (name: [
-        (lib.mkIf (config ? ${name}.color) [
-          (kdl.leaf "${name}-color" config.${name}.color)
-        ])
-        (lib.mkIf (config ? ${name}.gradient) [
-          (render-gradient "${name}-gradient" config.${name}.gradient)
-        ])
-      ]) (builtins.attrNames (variants));
+      builtins.map (
+        name:
+        let
+          color-node = variants.${name}.color-node or "${name}-color";
+          gradient-node = variants.${name}.color-node or "${name}-gradient";
+        in
+        [
+          (lib.mkIf (config ? ${name}.color) [
+            (kdl.leaf color-node config.${name}.color)
+          ])
+          (lib.mkIf (config ? ${name}.gradient) [
+            (render-gradient gradient-node config.${name}.gradient)
+          ])
+        ]
+      ) (builtins.attrNames (variants));
   };
 
   render-gradient =
@@ -344,39 +351,44 @@ in
         section' (
           { config, options, ... }:
           {
-            imports = make-ordered-options [
-              {
-                enable = optional types.bool true // {
-                  description = ''
-                    Whether to enable the insert hint.
-                  '';
-                };
-              }
-              (make-decoration-options options {
-                display.description = ''
-                  The color of the insert hint.
-                '';
-              }).options
-            ];
-
-            options.rendered = lib.mkOption {
-              type = kdl.types.kdl-node;
-              readOnly = true;
-              internal = true;
-              visible = false;
-              apply = node: lib.mkIf (node.children != [ ]) node;
-            };
-            config.rendered = kdl.plain "insert-hint" [
-              (lib.mkIf (!config.enable) (kdl.flag "off"))
-              (lib.mkIf (config.enable) [
-                (lib.mkIf (config ? display.color) [
-                  (kdl.leaf "color" config.display.color)
-                ])
-                (lib.mkIf (config ? display.gradient) [
-                  (render-gradient "gradient" config.display.gradient)
-                ])
-              ])
-            ];
+            imports =
+              make-rendered-ordered-options
+                [
+                  {
+                    options.enable = optional types.bool true // {
+                      description = ''
+                        Whether to enable the insert hint.
+                      '';
+                    };
+                    render = _: [ ];
+                  }
+                  (make-decoration-options options {
+                    display = {
+                      description = ''
+                        The color of the insert hint.
+                      '';
+                      color-node = "color";
+                      gradient-node = "gradient";
+                    };
+                  })
+                ]
+                (
+                  content:
+                  { config, ... }:
+                  {
+                    options.rendered = lib.mkOption {
+                      type = kdl.types.kdl-node;
+                      readOnly = true;
+                      internal = true;
+                      visible = false;
+                      apply = node: lib.mkIf (node.children != [ ]) node;
+                    };
+                    config.rendered = kdl.plain "insert-hint" [
+                      (lib.mkIf (!config.enable) (kdl.flag "off"))
+                      (lib.mkIf (config.enable) [ content ])
+                    ];
+                  }
+                );
           }
         )
         // {
