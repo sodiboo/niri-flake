@@ -6,6 +6,16 @@
   toplevel-options,
 }:
 let
+  interactions = import ./interactions {
+    inherit
+      lib
+      kdl
+      fragments
+      niri-flake-internal
+      toplevel-options
+      ;
+  };
+
   inherit (lib)
     types
     ;
@@ -106,55 +116,25 @@ in
     {
       options.gestures =
         rendered-ordered-section
-          [
-            (make-dnd-gesture "dnd-edge-view-scroll" {
-              description = ''
-                When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
-              '';
-              measure = "width";
-            })
-            (make-dnd-gesture "dnd-edge-workspace-switch" {
-              description = ''
-                In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
+          (
+            [
+              (make-dnd-gesture "dnd-edge-view-scroll" {
+                description = ''
+                  When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+                '';
+                measure = "width";
+              })
+              (make-dnd-gesture "dnd-edge-workspace-switch" {
+                description = ''
+                  In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
 
-                This does not happen when the overview is not open.
-              '';
-              measure = "height";
-            })
-            {
-              options.hot-corners =
-                rendered-ordered-section
-                  ([
-                    {
-                      options.enable = optional types.bool true // {
-                        description = ''
-                          Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
-                        '';
-                      };
-                      render = _: [ ];
-                    }
-                  ])
-                  (
-                    content:
-                    { config, ... }:
-                    {
-
-                      options.rendered = lib.mkOption {
-                        type = kdl.types.kdl-node;
-                        readOnly = true;
-                        internal = true;
-                        visible = false;
-                        apply = node: lib.mkIf (node.children != [ ]) node;
-                      };
-                      config.rendered = kdl.plain "hot-corners" [
-                        (lib.mkIf (!config.enable) (kdl.flag "off"))
-                        (lib.mkIf (config.enable) [ content ])
-                      ];
-                    }
-                  );
-              render = config: config.hot-corners.rendered;
-            }
-          ]
+                  This does not happen when the overview is not open.
+                '';
+                measure = "height";
+              })
+            ]
+            ++ interactions.gestures
+          )
           (
             content:
             { config, ... }:
