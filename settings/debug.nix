@@ -40,6 +40,14 @@ in
           Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
         '';
       };
+
+      render = config: [
+        (lib.mkIf (config.debug != { }) [
+          (kdl.plain "debug" [
+            (lib.mapAttrsToList kdl.leaf config.debug)
+          ])
+        ])
+      ];
     }
   ];
 }
