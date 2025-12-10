@@ -237,7 +237,8 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 <!-- programs.niri.settings.input.keyboard -->
 
 ## `programs.niri.settings.input.keyboard.xkb`
-
+- type: `null or (submodule)`
+- default: `null`
 
 Parameters passed to libxkbcommon, which handles the keyboard in niri.
 
@@ -315,37 +316,40 @@ If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` 
 
 
 
-## `programs.niri.settings.input.keyboard.numlock`
-- type: `boolean`
-- default: `false`
-
-Enable numlock by default
-
-
 ## `programs.niri.settings.input.keyboard.repeat-delay`
-- type: `signed integer`
-- default: `600`
+- type: `null or signed integer`
+- default: `null`
 
 The delay in milliseconds before a key starts repeating.
 
 
 ## `programs.niri.settings.input.keyboard.repeat-rate`
-- type: `signed integer`
-- default: `25`
+- type: `null or signed integer`
+- default: `null`
 
 The rate in characters per second at which a key repeats.
 
 
 ## `programs.niri.settings.input.keyboard.track-layout`
-- type: `one of "global", "window"`
-- default: `"global"`
+- type: `null or one of "global", "window"`
+- default: `null`
 
 The keyboard layout can be remembered per `"window"`, such that when you switch to a window, the keyboard layout is set to the one that was last used in that window.
 
 By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
 
 
-<!-- programs.niri.settings.input.mouse -->
+## `programs.niri.settings.input.keyboard.numlock`
+- type: `null or boolean`
+- default: `null`
+
+Enable numlock by default
+
+
+## `programs.niri.settings.input.mouse`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.input.mouse.enable`
 - type: `boolean`
@@ -449,7 +453,10 @@ For all scroll events triggered by a wheel source, the scroll distance is multip
 This is not a libinput property, but rather a niri-specific one.
 
 
-<!-- programs.niri.settings.input.tablet -->
+## `programs.niri.settings.input.tablet`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.input.tablet.enable`
 - type: `boolean`
@@ -500,7 +507,10 @@ Further reading:
 
 
 
-<!-- programs.niri.settings.input.touch -->
+## `programs.niri.settings.input.touch`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.input.touch.enable`
 - type: `boolean`
@@ -512,7 +522,10 @@ Further reading:
 - default: `null`
 
 
-<!-- programs.niri.settings.input.touchpad -->
+## `programs.niri.settings.input.touchpad`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.input.touchpad.enable`
 - type: `boolean`
@@ -720,7 +733,10 @@ For all scroll events triggered by a finger source, the scroll distance is multi
 This is not a libinput property, but rather a niri-specific one.
 
 
-<!-- programs.niri.settings.input.trackball -->
+## `programs.niri.settings.input.trackball`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.input.trackball.enable`
 - type: `boolean`
@@ -815,7 +831,10 @@ Further reading:
 
 
 
-<!-- programs.niri.settings.input.trackpoint -->
+## `programs.niri.settings.input.trackpoint`
+- type: `null or (submodule)`
+- default: `null`
+
 
 ## `programs.niri.settings.input.trackpoint.enable`
 - type: `boolean`
@@ -957,8 +976,8 @@ The maximum proportion of the screen to scroll at a time (expressed in percent)
 
 
 ## `programs.niri.settings.input.workspace-auto-back-and-forth`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
 
@@ -966,8 +985,8 @@ Of note is that it does not switch to the previous *index*, but the previous *wo
 
 
 ## `programs.niri.settings.input.power-key-handling.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 By default, niri will take over the power button to make it sleep instead of power off.
 
