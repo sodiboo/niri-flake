@@ -869,6 +869,9 @@ in
                 (lib.mkIf (config.mod-key != null) [
                   (kdl.leaf "mod-key" config.mod-key)
                 ])
+                (lib.mkIf (config.mod-key-nested != null) [
+                  (kdl.leaf "mod-key-nested" config.mod-key-nested)
+                ])
               ];
             }
           ]
