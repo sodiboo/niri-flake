@@ -19,6 +19,7 @@ let
     nullable
     section'
     required
+    record
     record'
     docs-only
     shorthand-for
@@ -413,48 +414,87 @@ in
               make-rendered-ordered-options
                 [
                   {
-                    options.enable = optional types.bool true;
-                    render = _: [ ];
-                  }
-                  {
-                    options.hide-when-single-tab = optional types.bool false;
+                    options.enable = nullable types.bool;
                     render = config: [
-                      (lib.mkIf (config.hide-when-single-tab) [
-                        (kdl.flag "hide-when-single-tab")
+                      (lib.mkIf (config.enable == true) [
+                        (kdl.flag "on")
+                      ])
+                      (lib.mkIf (config.enable == false) [
+                        (kdl.flag "off")
                       ])
                     ];
                   }
                   {
-                    options.place-within-column = optional types.bool false;
+                    options.hide-when-single-tab = nullable types.bool;
                     render = config: [
-                      (lib.mkIf (config.place-within-column) [
-                        (kdl.flag "place-within-column")
+                      (lib.mkIf (config.hide-when-single-tab != null) [
+                        (kdl.leaf "hide-when-single-tab" config.hide-when-single-tab)
                       ])
                     ];
                   }
                   {
-                    options = {
-                      gap = optional float-or-int 5.0;
-                      width = optional float-or-int 4.0;
-                      length.total-proportion = optional types.float 0.5;
-
-                      position = optional (lib.types.enum [
+                    options.place-within-column = nullable types.bool;
+                    render = config: [
+                      (lib.mkIf (config.place-within-column != null) [
+                        (kdl.leaf "place-within-column" config.place-within-column)
+                      ])
+                    ];
+                  }
+                  {
+                    options.gap = nullable float-or-int;
+                    render = config: [
+                      (lib.mkIf (config.gap != null) [
+                        (kdl.leaf "gap" config.gap)
+                      ])
+                    ];
+                  }
+                  {
+                    options.width = nullable float-or-int;
+                    render = config: [
+                      (lib.mkIf (config.width != null) [
+                        (kdl.leaf "width" config.width)
+                      ])
+                    ];
+                  }
+                  {
+                    options.length = nullable (record {
+                      total-proportion = required types.float;
+                    });
+                    render = config: [
+                      (lib.mkIf (config.length != null) [
+                        (kdl.leaf "length" config.length)
+                      ])
+                    ];
+                  }
+                  {
+                    options.position = nullable (
+                      lib.types.enum [
                         "left"
                         "right"
                         "top"
                         "bottom"
-                      ]) "left";
-                      gaps-between-tabs = optional float-or-int 0.0;
-                      corner-radius = optional float-or-int 0.0;
-                    };
-
+                      ]
+                    );
                     render = config: [
-                      (kdl.leaf "gap" config.gap)
-                      (kdl.leaf "width" config.width)
-                      (kdl.leaf "length" config.length)
-                      (kdl.leaf "position" config.position)
-                      (kdl.leaf "gaps-between-tabs" config.gaps-between-tabs)
-                      (kdl.leaf "corner-radius" config.corner-radius)
+                      (lib.mkIf (config.position != null) [
+                        (kdl.leaf "position" config.position)
+                      ])
+                    ];
+                  }
+                  {
+                    options.gaps-between-tabs = nullable float-or-int;
+                    render = config: [
+                      (lib.mkIf (config.gaps-between-tabs != null) [
+                        (kdl.leaf "gaps-between-tabs" config.gaps-between-tabs)
+                      ])
+                    ];
+                  }
+                  {
+                    options.corner-radius = nullable float-or-int;
+                    render = config: [
+                      (lib.mkIf (config.corner-radius != null) [
+                        (kdl.leaf "corner-radius" config.corner-radius)
+                      ])
                     ];
                   }
                   (make-decoration-options options {
@@ -473,17 +513,14 @@ in
                   content:
                   { config, ... }:
                   {
-
                     options.rendered = lib.mkOption {
                       type = kdl.types.kdl-node;
                       readOnly = true;
                       internal = true;
                       visible = false;
+                      apply = node: lib.mkIf (node.children != [ ]) node;
                     };
-                    config.rendered = kdl.plain "tab-indicator" [
-                      (lib.mkIf (!config.enable) (kdl.flag "off"))
-                      (lib.mkIf (config.enable) [ content ])
-                    ];
+                    config.rendered = kdl.plain "tab-indicator" [ content ];
                   }
                 );
           }

@@ -1390,48 +1390,52 @@ The color of the insert hint.
 
 
 ## `programs.niri.settings.layout.tab-indicator.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.layout.tab-indicator.place-within-column`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.tab-indicator.corner-radius`
-- type: `floating point number or signed integer`
-- default: `0.000000`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.layout.tab-indicator.gap`
-- type: `floating point number or signed integer`
-- default: `5.000000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 
-## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
-- type: `floating point number or signed integer`
-- default: `0.000000`
+## `programs.niri.settings.layout.tab-indicator.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.length`
+- type: `null or (submodule)`
+- default: `null`
 
 
 ## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
 - type: `floating point number`
-- default: `0.500000`
 
 
 ## `programs.niri.settings.layout.tab-indicator.position`
-- type: `one of "left", "right", "top", "bottom"`
-- default: `"left"`
+- type: `null or one of "left", "right", "top", "bottom"`
+- default: `null`
 
 
-## `programs.niri.settings.layout.tab-indicator.width`
-- type: `floating point number or signed integer`
-- default: `4.000000`
+## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.corner-radius`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 
 ## `programs.niri.settings.layout.tab-indicator.active`
