@@ -29,55 +29,8 @@ let
     nullable
     float-or-int
     section
-    list
     optional
     ;
-
-  preset-size =
-    dimension: object:
-    types.attrTag {
-      fixed = lib.mkOption {
-        type = types.int;
-        description = ''
-          The ${dimension} of the ${object} in logical pixels
-        '';
-      };
-      proportion = lib.mkOption {
-        type = types.float;
-        description = ''
-          The ${dimension} of the ${object} as a proportion of the screen's ${dimension}
-        '';
-      };
-    };
-
-  preset-width = preset-size "width" "column";
-  preset-height = preset-size "height" "window";
-
-  emptyOr =
-    elemType:
-    lib.mkOptionType {
-      name = "emptyOr";
-      description =
-        if
-          builtins.elem elemType.descriptionClass [
-            "noun"
-            "conjunction"
-          ]
-        then
-          "{} or ${elemType.description}"
-        else
-          "{} or (${elemType.description})";
-      descriptionClass = "conjunction";
-      check = v: v == { } || elemType.check v;
-      nestedTypes.elemType = elemType;
-      merge =
-        loc: defs: if builtins.all (def: def.value == { }) defs then { } else elemType.merge loc defs;
-
-      inherit (elemType) getSubOptions;
-    };
-
-  default-width = emptyOr preset-width;
-  default-height = emptyOr preset-height;
 
   make-rendered-ordered-options = sections: final: [
     (
@@ -93,13 +46,6 @@ let
   rendered-ordered-section = sections: final: section' (make-rendered-ordered-options sections final);
 in
 {
-  fragments = {
-    inherit
-      default-height
-      default-width
-      ;
-  };
-
   sections = [
     {
       options.layout =
@@ -116,83 +62,6 @@ in
                 render = config: [
                   (lib.mkIf (config.background-color != null) [
                     (kdl.leaf "background-color" config.background-color)
-                  ])
-                ];
-              }
-              {
-                options = {
-                  preset-column-widths = list preset-width // {
-                    description = ''
-                      The widths that ${fmt.code "switch-preset-column-width"} will cycle through.
-
-                      Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
-
-                      Example:
-
-                      ${fmt.nix-code-block ''
-                        {
-                          ${(subopts toplevel-options.layout).preset-column-widths} = [
-                            { proportion = 1. / 3.; }
-                            { proportion = 1. / 2.; }
-                            { proportion = 2. / 3.; }
-
-                            # { fixed = 1920; }
-                          ];
-                        }
-                      ''}
-                    '';
-                  };
-                  preset-window-heights = list preset-height // {
-                    description = ''
-                      The heights that ${fmt.code "switch-preset-window-height"} will cycle through.
-
-                      Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
-
-                      Example:
-
-                      ${fmt.nix-code-block ''
-                        {
-                          ${(subopts toplevel-options.layout).preset-window-heights} = [
-                            { proportion = 1. / 3.; }
-                            { proportion = 1. / 2.; }
-                            { proportion = 2. / 3.; }
-
-                            # { fixed = 1080; }
-                          ];
-                        }
-                      ''}
-                    '';
-                  };
-                };
-
-                render = config: [
-                  (lib.mkIf (config.preset-column-widths != [ ]) [
-                    (kdl.plain "preset-column-widths" [
-                      (map (lib.mapAttrsToList kdl.leaf) config.preset-column-widths)
-                    ])
-                  ])
-                  (lib.mkIf (config.preset-window-heights != [ ]) [
-                    (kdl.plain "preset-window-heights" [
-                      (map (lib.mapAttrsToList kdl.leaf) config.preset-window-heights)
-                    ])
-                  ])
-                ];
-              }
-              {
-                options.default-column-width = optional default-width { } // {
-                  description = ''
-                    The default width for new columns.
-
-                    When this is set to an empty attrset ${fmt.code "{}"}, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
-
-                    See ${link-opt (subopts toplevel-options.layout).preset-column-widths} for more information.
-
-                    You can override this for specific windows using ${link-opt (subopts toplevel-options.window-rules).default-column-width}
-                  '';
-                };
-                render = config: [
-                  (kdl.plain "default-column-width" [
-                    (lib.mapAttrsToList kdl.leaf config.default-column-width)
                   ])
                 ];
               }
@@ -220,33 +89,11 @@ in
                       This is like ${fmt.code ''center-focused-column = "always";''}, but only for workspaces with a single column. Changes nothing if ${fmt.code "center-focused-column"} is set to ${fmt.code ''"always"''}. Has no effect if more than one column is present.
                     '';
                   };
-                  default-column-display =
-                    optional (enum [
-                      "normal"
-                      "tabbed"
-                    ]) "normal"
-                    // {
-                      description = ''
-                        How windows in columns should be displayed by default.
-
-                        ${fmt.list [
-                          "${fmt.code ''"normal"''}: Windows are arranged vertically, spread across the working area height."
-                          "${fmt.code ''"tabbed"''}: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area."
-                        ]}
-
-                        Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is ${fmt.em "created"}.
-
-                        Also, since a newly created column always contains a single window, you can override this default value with ${link-opt (subopts toplevel-options.window-rules).default-column-display}.
-                      '';
-                    };
                 };
                 render = config: [
                   (kdl.leaf "center-focused-column" config.center-focused-column)
                   (lib.mkIf (config.always-center-single-column) [
                     (kdl.flag "always-center-single-column")
-                  ])
-                  (lib.mkIf (config.default-column-display != "normal") [
-                    (kdl.leaf "default-column-display" config.default-column-display)
                   ])
                 ];
               }

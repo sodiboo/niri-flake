@@ -1595,13 +1595,6 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.layout.background-color`
-- type: `null or string`
-- default: `null`
-
-The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
-
-
 ## `programs.niri.settings.layout.preset-column-widths`
 - type: `list of attribute-tagged union with choices: fixed, proportion`
 
@@ -1696,6 +1689,28 @@ The width of the column in logical pixels
 The width of the column as a proportion of the screen's width
 
 
+## `programs.niri.settings.layout.default-column-display`
+- type: `one of "normal", "tabbed"`
+- default: `"normal"`
+
+How windows in columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
+
+
+## `programs.niri.settings.layout.background-color`
+- type: `null or string`
+- default: `null`
+
+The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
+
+
 ## `programs.niri.settings.layout.always-center-single-column`
 - type: `boolean`
 - default: `false`
@@ -1713,21 +1728,6 @@ When changing focus, niri can automatically center the focused column.
 - `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
 - `"always"`: the focused column will always be centered, even if it was already fully visible.
 
-
-
-## `programs.niri.settings.layout.default-column-display`
-- type: `one of "normal", "tabbed"`
-- default: `"normal"`
-
-How windows in columns should be displayed by default.
-
-- `"normal"`: Windows are arranged vertically, spread across the working area height.
-- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
-
-
-Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
-
-Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
 
 
 ## `programs.niri.settings.layout.empty-workspace-above-first`
@@ -2605,6 +2605,47 @@ The height of the window in logical pixels
 The height of the window as a proportion of the screen's height
 
 
+## `programs.niri.settings.window-rules.*.max-height`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the maximum height (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the maximum height set by this option.
+
+
+Also, note that the maximum height is not taken into account when automatically sizing columns. That is, when a column is created normally, windows in it will be "automatically sized" to fill the vertical space. This algorithm will respect a minimum height, and not make windows any smaller than that, but the max height is only taken into account if it is equal to the min height. In other words, it will only accept a "fixed height" or a "minimum height". In practice, most windows do not set a max size unless it is equal to their min size, so this is usually not a problem without window rules.
+
+If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
+
+
+## `programs.niri.settings.window-rules.*.max-width`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the maximum width (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
+
+
+## `programs.niri.settings.window-rules.*.min-height`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the minimum height (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
+
+
+## `programs.niri.settings.window-rules.*.min-width`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the minimum width (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
+
+
 ## `programs.niri.settings.window-rules.*.default-column-display`
 - type: `null or one of "normal", "tabbed"`
 - default: `null`
@@ -2714,47 +2755,6 @@ You can set this option per window to override niri's default behaviour, and ins
 - default: `null`
 
 Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
-
-
-## `programs.niri.settings.window-rules.*.max-height`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the maximum height (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the maximum height set by this option.
-
-
-Also, note that the maximum height is not taken into account when automatically sizing columns. That is, when a column is created normally, windows in it will be "automatically sized" to fill the vertical space. This algorithm will respect a minimum height, and not make windows any smaller than that, but the max height is only taken into account if it is equal to the min height. In other words, it will only accept a "fixed height" or a "minimum height". In practice, most windows do not set a max size unless it is equal to their min size, so this is usually not a problem without window rules.
-
-If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
-
-
-## `programs.niri.settings.window-rules.*.max-width`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the maximum width (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
-
-
-## `programs.niri.settings.window-rules.*.min-height`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the minimum height (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
-
-
-## `programs.niri.settings.window-rules.*.min-width`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the minimum width (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
 
 
 ## `programs.niri.settings.window-rules.*.default-floating-position`

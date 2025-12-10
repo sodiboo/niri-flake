@@ -34,11 +34,6 @@ let
     list
     ;
 
-  inherit (fragments)
-    default-width
-    default-height
-    ;
-
   make-rendered-ordered-options = sections: final: [
     (
       { config, ... }:
@@ -459,68 +454,6 @@ in
         properties = appearance.window-rules ++ [
           {
             options = {
-              default-column-width = nullable default-width // {
-                description = ''
-                  The default width for new columns.
-
-                  If the final value of this option is null, it default to ${link-opt (subopts toplevel-options.layout).default-column-width}
-
-                  If the final value option is not null, then its value will take priority over ${link-opt (subopts toplevel-options.layout).default-column-width} for windows matching this rule.
-
-                  An empty attrset ${fmt.code "{}"} is not the same as null. When this is set to an empty attrset ${fmt.code "{}"}, windows will get to decide their initial width. When set to null, it represents that this particular window rule has no effect on the default width (and it should instead be taken from an earlier rule or the global default).
-
-                '';
-              };
-              default-window-height = nullable default-height // {
-                description = ''
-                  The default height for new floating windows.
-
-                  This does nothing if the window is not floating when it is created.
-
-                  There is no global default option for this in the layout section like for the column width. If the final value of this option is null, then it defaults to the empty attrset ${fmt.code "{}"}.
-
-                  If this is set to an empty attrset ${fmt.code "{}"}, then it effectively "unsets" the default height for this window rule evaluation, as opposed to ${fmt.code "null"} which doesn't change the value at all. Future rules may still set it to a value and unset it again as they wish.
-
-                  If the final value of this option is an empty attrset ${fmt.code "{}"}, then the client gets to decide the height of the window.
-
-                  If the final value of this option is not an empty attrset ${fmt.code "{}"}, and the window spawns as floating, then the window will be created with the specified height.
-                '';
-              };
-            };
-            render = config: [
-              (lib.mkIf (config.default-column-width != null) [
-                (kdl.plain "default-column-width" [
-                  (lib.mapAttrsToList kdl.leaf config.default-column-width)
-                ])
-              ])
-              (lib.mkIf (config.default-window-height != null) [
-                (kdl.plain "default-window-height" [
-                  (lib.mapAttrsToList kdl.leaf config.default-window-height)
-                ])
-              ])
-            ];
-          }
-          {
-            options.default-column-display =
-              nullable (enum [
-                "normal"
-                "tabbed"
-              ])
-              // {
-                description = ''
-                  When this window is inserted into the tiling layout such that a new column is created (e.g. when it is first opened, when it is expelled from an existing column, when it's moved to a new workspace, etc), this setting controls the default display mode of the column.
-
-                  If the final value of this field is null, then the default display mode is taken from ${link-opt (subopts toplevel-options.layout).default-column-display}.
-                '';
-              };
-            render = config: [
-              (lib.mkIf (config.default-column-display != null) [
-                (kdl.leaf "default-column-display" config.default-column-display)
-              ])
-            ];
-          }
-          {
-            options = {
               open-on-output = nullable types.str // {
                 description = ''
                   The output to open this window on.
@@ -648,52 +581,6 @@ in
             render = config: [
               (lib.mkIf (config.clip-to-geometry != null) [
                 (kdl.leaf "clip-to-geometry" config.clip-to-geometry)
-              ])
-            ];
-          }
-          {
-
-            options =
-              let
-                sizing-info = bound: ''
-                  Sets the ${bound} (in logical pixels) that niri will ever ask this window for.
-
-                  Keep in mind that the window itself always has a final say in its size, and may not respect the ${bound} set by this option.
-                '';
-
-                sizing-opt =
-                  bound:
-                  nullable types.int
-                  // {
-                    description = sizing-info bound;
-                  };
-              in
-              {
-                min-width = sizing-opt "minimum width";
-                max-width = sizing-opt "maximum width";
-                min-height = sizing-opt "minimum height";
-                max-height = nullable types.int // {
-                  description = ''
-                    ${sizing-info "maximum height"}
-
-                    Also, note that the maximum height is not taken into account when automatically sizing columns. That is, when a column is created normally, windows in it will be "automatically sized" to fill the vertical space. This algorithm will respect a minimum height, and not make windows any smaller than that, but the max height is only taken into account if it is equal to the min height. In other words, it will only accept a "fixed height" or a "minimum height". In practice, most windows do not set a max size unless it is equal to their min size, so this is usually not a problem without window rules.
-
-                    If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
-                  '';
-                };
-              };
-            render = config: [
-              (lib.mkIf (config.min-width != null) [
-                (kdl.leaf "min-width" config.min-width)
-              ])
-              (lib.mkIf (config.max-width != null) [
-                (kdl.leaf "max-width" config.max-width)
-              ])
-              (lib.mkIf (config.min-height != null) [
-                (kdl.leaf "min-height" config.min-height)
-              ])
-              (lib.mkIf (config.max-height != null) [
-                (kdl.leaf "max-height" config.max-height)
               ])
             ];
           }

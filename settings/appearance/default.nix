@@ -4,6 +4,7 @@ let
     builtins.concatMap (f: import f args) [
       ./decorations.nix
       ./shadows.nix
+      ./basic-layout.nix
     ]
   );
 in
