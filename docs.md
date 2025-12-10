@@ -1778,6 +1778,15 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `0`
 
 
+<!-- programs.niri.settings.overview -->
+
+## `programs.niri.settings.overview.zoom`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
+
+
 ## `programs.niri.settings.overview.backdrop-color`
 - type: `null or string`
 - default: `null`
@@ -1787,10 +1796,7 @@ Set the backdrop color behind workspaces in the overview. The backdrop is also v
 The alpha channel for this color will be ignored.
 
 
-## `programs.niri.settings.overview.workspace-shadow.color`
-- type: `null or string`
-- default: `null`
-
+<!-- programs.niri.settings.overview.workspace-shadow -->
 
 ## `programs.niri.settings.overview.workspace-shadow.enable`
 - type: `boolean`
@@ -1834,11 +1840,9 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.overview.zoom`
-- type: `null or floating point number or signed integer`
+## `programs.niri.settings.overview.workspace-shadow.color`
+- type: `null or string`
 - default: `null`
-
-Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
 
 
 ## `programs.niri.settings.workspaces`

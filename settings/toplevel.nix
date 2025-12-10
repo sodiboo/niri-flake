@@ -112,19 +112,6 @@ in
         ;
     in
     normalize-nodes [
-      (plain' "overview" [
-        (nullable leaf "zoom" cfg.overview.zoom)
-        (nullable leaf "backdrop-color" cfg.overview.backdrop-color)
-        (plain' "workspace-shadow" [
-          (toggle "off" cfg.overview.workspace-shadow [
-            (nullable leaf "offset" cfg.overview.workspace-shadow.offset)
-            (nullable leaf "softness" cfg.overview.workspace-shadow.softness)
-            (nullable leaf "spread" cfg.overview.workspace-shadow.spread)
-            (nullable leaf "color" cfg.overview.workspace-shadow.color)
-          ])
-        ])
-      ])
-
       (plain' "gestures" [
         (plain' "dnd-edge-view-scroll" [
           (nullable leaf "trigger-width" cfg.gestures.dnd-edge-view-scroll.trigger-width)
