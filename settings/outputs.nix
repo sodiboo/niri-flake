@@ -65,8 +65,7 @@ in
             )
             (rendered-options
               (
-                appearance.output
-                ++ [
+                [
                   {
                     options.scale = nullable float-or-int // {
                       description = ''
@@ -214,6 +213,7 @@ in
                     ];
                   }
                 ]
+                ++ appearance.output
               )
               (
                 contents:
