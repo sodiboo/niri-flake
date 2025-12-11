@@ -118,6 +118,23 @@ let
     a {
       --pico-code-color: var(--pico-color-primary);
     }
+
+    .options {
+      padding-left: 1em;
+    }
+
+    .option {
+      scroll-margin-top: 1em;
+    }
+
+    .option-anchor {
+      scroll-margin-top: 3.5em;
+    }
+
+    .option-link:not(:hover) > .ancestor-path {
+      opacity: 50%;
+    }
+
     ${base-colors}
     ${builtins.concatStringsSep "\n" admonitions-css}
   '';
@@ -238,58 +255,93 @@ let
     else
       code type.description;
 
+  option-component =
+    loc:
+    {
+      open ? false,
+      content ? null,
+      children,
+    }:
+    ''
+      <details class="option"${lib.optionalString open " open"}>
+      <summary>
+      <a class="option-link" href="#${showOption loc}">${
+        let
+          has-ancestor = builtins.length loc > 1;
+
+          nested =
+            let
+              ancestor-path = escape-html (showOption (lib.lists.dropEnd 1 loc));
+              this = escape-html (showOption ([ (lib.lists.last loc) ]));
+            in
+            ''<span class="ancestor-path">${ancestor-path}.</span>${this}'';
+
+          toplevel = escape-html (showOption loc);
+        in
+        if has-ancestor then nested else toplevel
+      }</a>
+      </summary>
+      <a id="${showOption loc}" class="option-anchor"></a>
+      ${lib.optionalString (content != null) ''
+        <div class="option-content">${content}</div>
+      ''}
+      ${children}
+      </details>
+    '';
+
   render-option =
     opt:
     assert opt._type or null == "option";
     lib.optional (opt.visible or true != false) ''
-      <details${lib.optionalString (opt.visible or true == true) " open"}>
-      <summary>
-      <a id="${showOption opt.loc}" href="#${showOption opt.loc}">${escape-html (showOption opt.loc)}</a>
+      ${
+        option-component opt.loc {
+          # open = opt.visible or true == true;
+          content = ''
+            ${lib.concatStringsSep "\n" [
+              (
+                let
+                  described = describe-type opt.type;
+                in
+                lib.optionalString (described != "<code>submodule</code>") ''
+                  <p>
+                  type: ${described}
+                  </p>
+                ''
+              )
+              (lib.optionalString (opt.defaultText != null) (''
+                <p>
+                default: <code>${escape-html opt.defaultText}</code>
+                </p>
+              ''))
+              (lib.optionalString (opt.description or null != null) (''
+                ${break-paragraphs opt.description}
+              ''))
+            ]}
+          '';
+          children = lib.optionalString (opt.visible or true != false) (
+            render-suboptions (expand-suboptions opt.loc (opt.type.getSubOptions opt.loc))
+          );
+        }
 
-      </summary>
-
-      ${lib.concatStringsSep "\n" [
-        (
-          let
-            described = describe-type opt.type;
-          in
-          lib.optionalString (described != "<code>submodule</code>") ''
-            <p>
-            type: ${described}
-            </p>
-          ''
-        )
-        (lib.optionalString (opt.defaultText != null) (''
-          <p>
-          default: <code>${escape-html opt.defaultText}</code>
-          </p>
-        ''))
-        (lib.optionalString (opt.description or null != null) (''
-          ${break-paragraphs opt.description}
-        ''))
-        (lib.optionalString (opt.visible or true != false) (
-          render-suboptions (expand-suboptions opt.loc (opt.type.getSubOptions opt.loc))
-        ))
-      ]}
+      }
     '';
 
   render-options-node =
     loc: options:
     assert !(options ? _type);
+    expand-suboptions loc options;
 
-    let
-      suboptions = expand-suboptions loc options;
-
-    in
-    lib.optional (suboptions != [ ]) ''
-      <details open>
-      <summary>
-      <a id="${showOption loc}" href="#${showOption loc}">${escape-html (showOption loc)}</a>
-      </summary>
-
-      ${render-suboptions suboptions}
-      </details>
-    '';
+  # render-options-node =
+  #   loc: options:
+  #   assert !(options ? _type);
+  # let
+  #   suboptions = expand-suboptions loc options;
+  # in
+  # lib.optional (suboptions != [ ]) ''
+  #   ${option-component loc {
+  #     children = render-suboptions suboptions;
+  #   }}
+  # '';
 
   # (lib.remove "")
 
