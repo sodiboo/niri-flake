@@ -3,32 +3,26 @@
   kdl,
   niri-flake-internal,
   toplevel-options,
+  ...
 }:
 let
   inherit (lib)
     types
-    mkOption
-    mkOptionType
-    showOption
     ;
 
-  inherit (lib.types) enum nullOr;
+  inherit (lib.types) enum;
 
   inherit (niri-flake-internal)
     fmt
     list
-    make-ordered-options
-    record
+    make-rendered-section
     shorthand-for
-    obsolete-warning
-    rename-warning
     docs-only
     float-or-int
     nullable
     required
     optional
     section
-    section'
     ;
 
   animation-kind = types.attrTag {
@@ -125,79 +119,46 @@ let
         ])
       ];
     };
-
-  make-rendered-ordered-options = sections: final: [
-    (
-      { config, ... }:
+in
+[
+  {
+    options.animations = make-rendered-section "animations" { partial = true; } [
       {
-        imports = make-ordered-options (map (s: s.options) sections) ++ [
-          (final (map (s: s.render config) sections))
+        options.enable = nullable types.bool;
+        render = config: [
+          (lib.mkIf (config.enable == true) [
+            (kdl.flag "on")
+          ])
+          (lib.mkIf (config.enable == false) [
+            (kdl.flag "off")
+          ])
         ];
       }
-    )
-  ];
-
-  rendered-ordered-section = sections: final: section' (make-rendered-ordered-options sections final);
-in
-{
-  sections = [
-    {
-      options.animations =
-        rendered-ordered-section
-          [
-            {
-              options.enable = nullable types.bool;
-              render = config: [
-                (lib.mkIf (config.enable == true) [
-                  (kdl.flag "on")
-                ])
-                (lib.mkIf (config.enable == false) [
-                  (kdl.flag "off")
-                ])
-              ];
-            }
-            {
-              options.slowdown = nullable float-or-int;
-              render = config: [
-                (lib.mkIf (config.slowdown != null) [
-                  (kdl.leaf "slowdown" config.slowdown)
-                ])
-              ];
-            }
-            (make-animation-option "workspace-switch" { })
-            (make-animation-option "horizontal-view-movement" { })
-            (make-animation-option "config-notification-open-close" { })
-            (make-animation-option "exit-confirmation-open-close" { })
-            (make-animation-option "window-movement" { })
-            (make-animation-option "window-open" { has-shader = true; })
-            (make-animation-option "window-close" { has-shader = true; })
-            (make-animation-option "window-resize" { has-shader = true; })
-            (make-animation-option "screenshot-ui-open" { })
-            (make-animation-option "overview-open-close" { })
-            {
-              options."<animation-kind>" = docs-only animation-kind // {
-                override-loc = lib.const [ "<animation-kind>" ];
-              };
-              render = _: [ ];
-            }
-          ]
-          (
-            content:
-            { config, ... }:
-            {
-              options.rendered = lib.mkOption {
-                type = kdl.types.kdl-node;
-                readOnly = true;
-                internal = true;
-                visible = false;
-                apply = node: lib.mkIf (node.children != [ ]) node;
-              };
-
-              config.rendered = kdl.plain "animations" [ content ];
-            }
-          );
-
-      render = config: config.animations.rendered;
-    }
-  ];
-}
+      {
+        options.slowdown = nullable float-or-int;
+        render = config: [
+          (lib.mkIf (config.slowdown != null) [
+            (kdl.leaf "slowdown" config.slowdown)
+          ])
+        ];
+      }
+      (make-animation-option "workspace-switch" { })
+      (make-animation-option "horizontal-view-movement" { })
+      (make-animation-option "config-notification-open-close" { })
+      (make-animation-option "exit-confirmation-open-close" { })
+      (make-animation-option "window-movement" { })
+      (make-animation-option "window-open" { has-shader = true; })
+      (make-animation-option "window-close" { has-shader = true; })
+      (make-animation-option "window-resize" { has-shader = true; })
+      (make-animation-option "screenshot-ui-open" { })
+      (make-animation-option "overview-open-close" { })
+      {
+        options."<animation-kind>" = docs-only animation-kind // {
+          override-loc = lib.const [ "<animation-kind>" ];
+        };
+        render = _: [ ];
+      }
+    ];
+    render = config: config.animations.rendered;
+  }
+]

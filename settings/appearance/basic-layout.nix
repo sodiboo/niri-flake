@@ -3,6 +3,7 @@
   kdl,
   niri-flake-internal,
   toplevel-options,
+  ...
 }:
 
 let
@@ -10,11 +11,9 @@ let
 
   inherit (niri-flake-internal)
     fmt
-    optional
     link-opt
     subopts
     nullable
-    list
     ;
 
   preset-size =

@@ -1,6 +1,5 @@
 {
   lib,
-  config,
   options,
 
   kdl,
@@ -143,62 +142,127 @@ let
 
   regex = rename "regular expression" types.str;
 
-  alphabetize =
+  make-ordered-options =
+    {
+      finalize ? _: { },
+    }:
     sections:
-    lib.mergeAttrsList (
-      lib.imap0 (i: section: {
-        ${builtins.elemAt lib.strings.lowerChars i} = section;
-      }) sections
-    );
 
-  ordered-record = ordered-record' null;
+    { options, ... }:
+    let
+      sections' =
+        let
+          expand-imports =
+            { file, mod }:
+            if lib.isList mod then
+              builtins.concatMap (mod: expand-imports { inherit file mod; }) mod
+            else if lib.isFunction mod then
+              expand-imports {
+                inherit file;
+                mod = mod { inherit options; };
+              }
+            else if mod ? _file then
+              builtins.concatMap (
+                mod':
+                expand-imports {
+                  file = mod._file;
+                  mod = mod';
+                }
+              ) mod.imports
+            else
+              [ { inherit file mod; } ];
+        in
+        builtins.concatMap (
+          mod:
+          expand-imports {
+            file = null;
+            inherit mod;
+          }
+        ) sections;
+    in
+    {
+      options._module.niri-flake-ordered-record = {
+        ordering = lib.mkOption {
+          internal = true;
+          # readOnly = true;
+          visible = false;
+          description = ''
+            Used to influence the order of options in the documentation, such that they are not always sorted alphabetically.
 
-  ordered-record' =
-    description: sections:
-    types.submoduleWith {
-      inherit description;
-      shorthandOnlyDefinesConfig = true;
-      modules = make-ordered-options sections;
+            Does not affect any other functionality.
+          '';
+          default = builtins.concatMap (s: builtins.attrNames s.mod.options) sections';
+        };
+      };
+
+      imports =
+        map (
+          s:
+          let
+            annotate-location = if s.file != null then lib.setDefaultModuleLocation s.file else lib.id;
+          in
+          annotate-location {
+            imports = [
+              {
+                imports = s.mod.extra-modules or [ ];
+                options = lib.filterAttrs (_: opt: !(opt ? niri-flake-document-internal)) s.mod.options;
+              }
+              {
+                options._module.niri-flake-ordered-record.extra-docs-options = lib.filterAttrs (
+                  _: opt: opt ? niri-flake-document-internal
+                ) s.mod.options;
+              }
+            ];
+          }
+        ) sections'
+        ++ [
+          (
+            { config, ... }:
+            {
+              imports = [ (finalize (map (s: s.mod.render config) sections')) ];
+            }
+          )
+        ];
     };
 
-  make-ordered-options =
-    sections:
-    let
-      grouped = lib.groupBy (s: if s ? __module then "module" else "options") sections;
+  make-rendered-options =
+    node-name:
+    {
+      partial,
+    }:
+    make-ordered-options {
+      finalize =
+        rendered:
+        { config, ... }:
+        {
+          options.rendered = lib.mkOption (
+            {
+              type = kdl.types.kdl-node;
+              readOnly = true;
+              internal = true;
+              visible = false;
+            }
+            // lib.optionalAttrs partial {
+              apply = node: lib.mkIf (node.children != [ ]) node;
+            }
+          );
 
-      options' = grouped.options or [ ];
-      module' = map (builtins.getAttr "__module") grouped.module or [ ];
-
-      flat-options = lib.mergeAttrsList options';
-
-      real-options = lib.filterAttrs (_: opt: !(opt ? niri-flake-document-internal)) flat-options;
-
-      extra-docs-options = lib.filterAttrs (_: opt: opt ? niri-flake-document-internal) flat-options;
-    in
-    module'
-    ++ [
-      {
-        options = real-options;
-      }
-      {
-        options._module.niri-flake-ordered-record = {
-          ordering = lib.mkOption {
-            internal = true;
-            # readOnly = true;
-            visible = false;
-            description = ''
-              Used to influence the order of options in the documentation, such that they are not always sorted alphabetically.
-
-              Does not affect any other functionality.
-            '';
-            default = builtins.concatMap builtins.attrNames options';
-          };
-
-          inherit extra-docs-options;
+          config.rendered = kdl.plain node-name [ rendered ];
         };
-      }
+    };
 
-    ];
+  make-rendered-section =
+    section-name:
+    {
+      description ? null,
+      partial,
+    }:
+    sections:
+    lib.mkOption {
+      inherit description;
+      default = { };
+      type = lib.types.submodule (make-rendered-options section-name { inherit partial; } sections);
+    };
 
   make-section = type: optional type { };
 
@@ -210,83 +274,78 @@ let
     record
     make-section
   ];
-  ordered-section = flip pipe [
-    ordered-record
-    make-section
-  ];
-in
 
-let
-  files =
-    map
-      (
-        f:
-        import f {
-          inherit
-            lib
-            kdl
-            toplevel-options
-            ;
-          niri-flake-internal = {
-            inherit
-              fmt
-              link-opt
-              subopts
-              section'
-              make-ordered-options
-              nullable
-              float-or-int
-              section
-              record
-              record'
-              ordered-record'
-              required
-              regex
-              list
-              attrs
-              rename
-              shorthand-for
-              ordered-section
-              docs-only
-              attrs-record
-              attrs-record'
-              optional
-              rename-warning
-              obsolete-warning
-              link-niri-release
-              ;
-          };
-        }
-      )
-      [
-        ./input.nix
-        ./outputs.nix
-        ./binds.nix
-        ./switch-events.nix
-        ./layout.nix
-        ./overview.nix
-
-        ./workspaces.nix
-
-        ./misc.nix
-
-        ./surface-rules.nix
-        ./animations.nix
-        ./gestures.nix
-
-        ./debug.nix
-      ];
-
-  sections = builtins.concatMap (f: f.sections or [ ]) files;
+  args = {
+    inherit
+      lib
+      kdl
+      toplevel-options
+      ;
+    niri-flake-internal = {
+      inherit
+        fmt
+        link-opt
+        subopts
+        make-ordered-options
+        make-rendered-options
+        make-rendered-section
+        nullable
+        float-or-int
+        record
+        section
+        record'
+        section'
+        required
+        regex
+        list
+        attrs
+        rename
+        shorthand-for
+        docs-only
+        attrs-record
+        attrs-record'
+        optional
+        rename-warning
+        obsolete-warning
+        link-niri-release
+        ;
+    };
+    appearance = import ./appearance args;
+    interactions = import ./interactions args;
+  };
 in
 {
   imports = [
-    (lib.mkRenamedOptionModule [ "screenshot-path" ] [ "screenshot" "path" ])
-  ]
-  ++ (make-ordered-options (map (s: s.options) sections));
-  options.rendered = lib.mkOption {
-    type = kdl.types.kdl-document;
-    readOnly = true;
-  };
-  config.rendered = map (s: (s.render or (_: [ ])) config) sections;
+    (make-ordered-options
+      {
+        finalize = rendered: {
+          options.rendered = lib.mkOption {
+            type = kdl.types.kdl-document;
+            readOnly = true;
+          };
+          config.rendered = rendered;
+        };
+      }
+      (
+        map (f: lib.setDefaultModuleLocation f (import f args)) [
+          ./input.nix
+          ./outputs.nix
+          ./binds.nix
+          ./switch-events.nix
+          ./layout.nix
+          ./overview.nix
+
+          ./workspaces.nix
+
+          ./misc.nix
+
+          ./surface-rules.nix
+          ./animations.nix
+          ./gestures.nix
+
+          ./debug.nix
+        ]
+      )
+    )
+  ];
 }

@@ -1,9 +1,10 @@
 { lib, ... }@args:
 let
   elements = lib.zipAttrs (
-    builtins.concatMap (f: import f args) [
-      ./hot-corners.nix
-    ]
+    builtins.concatMap (f: map (builtins.mapAttrs (_: lib.setDefaultModuleLocation f)) (import f args))
+      [
+        ./hot-corners.nix
+      ]
   );
 in
 {

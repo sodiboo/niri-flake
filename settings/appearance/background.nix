@@ -3,6 +3,7 @@
   kdl,
   niri-flake-internal,
   toplevel-options,
+  ...
 }:
 
 let

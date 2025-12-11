@@ -3,6 +3,7 @@
   kdl,
   niri-flake-internal,
   toplevel-options,
+  ...
 }:
 
 let
@@ -10,13 +11,13 @@ let
 
   inherit (niri-flake-internal)
     fmt
-    make-ordered-options
+    make-rendered-options
+    make-rendered-section
     optional
     float-or-int
     link-opt
     subopts
     nullable
-    section'
     required
     record
     record'
@@ -159,34 +160,37 @@ let
       };
     };
 
-  make-decoration-options = options: variants: {
-    options = builtins.mapAttrs (
-      name:
-      { description, ... }:
-      nullable (shorthand-for "decoration" (decoration (options.${name})))
-      // {
-        visible = "shallow";
-        inherit description;
-      }
-    ) variants;
-    render =
-      config:
-      builtins.map (
+  make-decoration-options =
+    variants:
+    { options, ... }:
+    {
+      options = builtins.mapAttrs (
         name:
-        let
-          color-node = variants.${name}.color-node or "${name}-color";
-          gradient-node = variants.${name}.color-node or "${name}-gradient";
-        in
-        [
-          (lib.mkIf (config ? ${name}.color) [
-            (kdl.leaf color-node config.${name}.color)
-          ])
-          (lib.mkIf (config ? ${name}.gradient) [
-            (render-gradient gradient-node config.${name}.gradient)
-          ])
-        ]
-      ) (builtins.attrNames (variants));
-  };
+        { description, ... }:
+        nullable (shorthand-for "decoration" (decoration (options.${name})))
+        // {
+          visible = "shallow";
+          inherit description;
+        }
+      ) variants;
+      render =
+        config:
+        builtins.map (
+          name:
+          let
+            color-node = variants.${name}.color-node or "${name}-color";
+            gradient-node = variants.${name}.color-node or "${name}-gradient";
+          in
+          [
+            (lib.mkIf (config ? ${name}.color) [
+              (kdl.leaf color-node config.${name}.color)
+            ])
+            (lib.mkIf (config ? ${name}.gradient) [
+              (render-gradient gradient-node config.${name}.gradient)
+            ])
+          ]
+        ) (builtins.attrNames (variants));
+    };
 
   render-gradient =
     name: cfg:
@@ -199,17 +203,6 @@ let
       ) cfg
     );
 
-  make-rendered-ordered-options = sections: final: [
-    (
-      { config, ... }:
-      {
-        imports = make-ordered-options (map (s: s.options) sections) ++ [
-          (final (map (s: s.render config) sections))
-        ];
-      }
-    )
-  ];
-
   make-borderish-option =
     {
       name,
@@ -217,72 +210,51 @@ let
       description,
       window,
     }:
-    lib.mkOption {
-      inherit description;
-      default = { };
-      type = lib.types.submodule (
-        { options, ... }:
+    make-rendered-section node-name
+      {
+        inherit description;
+        partial = true;
+      }
+      [
         {
-          imports =
-            make-rendered-ordered-options
-              [
-                {
-                  options.enable = nullable types.bool // {
-                    description = ''
-                      Whether to enable the ${name}.
-                    '';
-                  };
-                  render = config: [
-                    (lib.mkIf (config.enable == true) [
-                      (kdl.flag "on")
-                    ])
-                    (lib.mkIf (config.enable == false) [
-                      (kdl.flag "off")
-                    ])
-                  ];
-                }
-                {
-                  options.width = nullable float-or-int // {
-                    description = ''
-                      The width of the ${name} drawn around each ${window}.
-                    '';
-                  };
-                  render = config: [
-                    (lib.mkIf (config.width != null) [
-                      (kdl.leaf "width" config.width)
-                    ])
-                  ];
-                }
-
-                (make-decoration-options options {
-                  urgent.description = ''
-                    The color of the ${name} for windows that are requesting attention.
-                  '';
-                  active.description = ''
-                    The color of the ${name} for the window that has keyboard focus.
-                  '';
-                  inactive.description = ''
-                    The color of the ${name} for windows that do not have keyboard focus.
-                  '';
-                })
-              ]
-              (
-                content:
-                { config, ... }:
-                {
-                  options.rendered = lib.mkOption {
-                    type = kdl.types.kdl-node;
-                    readOnly = true;
-                    internal = true;
-                    visible = false;
-                    apply = node: lib.mkIf (node.children != [ ]) node;
-                  };
-                  config.rendered = kdl.plain node-name [ content ];
-                }
-              );
+          options.enable = nullable types.bool // {
+            description = ''
+              Whether to enable the ${name}.
+            '';
+          };
+          render = config: [
+            (lib.mkIf (config.enable == true) [
+              (kdl.flag "on")
+            ])
+            (lib.mkIf (config.enable == false) [
+              (kdl.flag "off")
+            ])
+          ];
         }
-      );
-    };
+        {
+          options.width = nullable float-or-int // {
+            description = ''
+              The width of the ${name} drawn around each ${window}.
+            '';
+          };
+          render = config: [
+            (lib.mkIf (config.width != null) [
+              (kdl.leaf "width" config.width)
+            ])
+          ];
+        }
+        (make-decoration-options {
+          urgent.description = ''
+            The color of the ${name} for windows that are requesting attention.
+          '';
+          active.description = ''
+            The color of the ${name} for the window that has keyboard focus.
+          '';
+          inactive.description = ''
+            The color of the ${name} for windows that do not have keyboard focus.
+          '';
+        })
+      ];
 
   borderish =
     {
@@ -348,58 +320,39 @@ in
   {
     layout = {
       options.insert-hint =
-        section' (
-          { config, options, ... }:
+        make-rendered-section "insert-hint"
           {
-            imports =
-              make-rendered-ordered-options
-                [
-                  {
-                    options.enable = nullable types.bool // {
-                      description = ''
-                        Whether to enable the insert hint.
-                      '';
-                    };
-                    render = config: [
-                      (lib.mkIf (config.enable == true) [
-                        (kdl.flag "on")
-                      ])
-                      (lib.mkIf (config.enable == false) [
-                        (kdl.flag "off")
-                      ])
-                    ];
-                  }
-                  (make-decoration-options options {
-                    display = {
-                      description = ''
-                        The color of the insert hint.
-                      '';
-                      color-node = "color";
-                      gradient-node = "gradient";
-                    };
-                  })
-                ]
-                (
-                  content:
-                  { config, ... }:
-                  {
-                    options.rendered = lib.mkOption {
-                      type = kdl.types.kdl-node;
-                      readOnly = true;
-                      internal = true;
-                      visible = false;
-                      apply = node: lib.mkIf (node.children != [ ]) node;
-                    };
-                    config.rendered = kdl.plain "insert-hint" [ content ];
-                  }
-                );
+            partial = true;
+            description = ''
+              The insert hint is a decoration drawn ${fmt.em "between"} windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+            '';
           }
-        )
-        // {
-          description = ''
-            The insert hint is a decoration drawn ${fmt.em "between"} windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
-          '';
-        };
+          [
+            {
+              options.enable = nullable types.bool // {
+                description = ''
+                  Whether to enable the insert hint.
+                '';
+              };
+              render = config: [
+                (lib.mkIf (config.enable == true) [
+                  (kdl.flag "on")
+                ])
+                (lib.mkIf (config.enable == false) [
+                  (kdl.flag "off")
+                ])
+              ];
+            }
+            (make-decoration-options {
+              display = {
+                description = ''
+                  The color of the insert hint.
+                '';
+                color-node = "color";
+                gradient-node = "gradient";
+              };
+            })
+          ];
       render = config: config.insert-hint.rendered;
     };
   }
@@ -407,122 +360,103 @@ in
     layout = {
       options.tab-indicator = nullable (
         lib.types.submodule (
-          { options, ... }:
-          {
-            imports =
-              make-rendered-ordered-options
-                [
-                  {
-                    options.enable = nullable types.bool;
-                    render = config: [
-                      (lib.mkIf (config.enable == true) [
-                        (kdl.flag "on")
-                      ])
-                      (lib.mkIf (config.enable == false) [
-                        (kdl.flag "off")
-                      ])
-                    ];
-                  }
-                  {
-                    options.hide-when-single-tab = nullable types.bool;
-                    render = config: [
-                      (lib.mkIf (config.hide-when-single-tab != null) [
-                        (kdl.leaf "hide-when-single-tab" config.hide-when-single-tab)
-                      ])
-                    ];
-                  }
-                  {
-                    options.place-within-column = nullable types.bool;
-                    render = config: [
-                      (lib.mkIf (config.place-within-column != null) [
-                        (kdl.leaf "place-within-column" config.place-within-column)
-                      ])
-                    ];
-                  }
-                  {
-                    options.gap = nullable float-or-int;
-                    render = config: [
-                      (lib.mkIf (config.gap != null) [
-                        (kdl.leaf "gap" config.gap)
-                      ])
-                    ];
-                  }
-                  {
-                    options.width = nullable float-or-int;
-                    render = config: [
-                      (lib.mkIf (config.width != null) [
-                        (kdl.leaf "width" config.width)
-                      ])
-                    ];
-                  }
-                  {
-                    options.length = nullable (record {
-                      total-proportion = required types.float;
-                    });
-                    render = config: [
-                      (lib.mkIf (config.length != null) [
-                        (kdl.leaf "length" config.length)
-                      ])
-                    ];
-                  }
-                  {
-                    options.position = nullable (
-                      lib.types.enum [
-                        "left"
-                        "right"
-                        "top"
-                        "bottom"
-                      ]
-                    );
-                    render = config: [
-                      (lib.mkIf (config.position != null) [
-                        (kdl.leaf "position" config.position)
-                      ])
-                    ];
-                  }
-                  {
-                    options.gaps-between-tabs = nullable float-or-int;
-                    render = config: [
-                      (lib.mkIf (config.gaps-between-tabs != null) [
-                        (kdl.leaf "gaps-between-tabs" config.gaps-between-tabs)
-                      ])
-                    ];
-                  }
-                  {
-                    options.corner-radius = nullable float-or-int;
-                    render = config: [
-                      (lib.mkIf (config.corner-radius != null) [
-                        (kdl.leaf "corner-radius" config.corner-radius)
-                      ])
-                    ];
-                  }
-                  (make-decoration-options options {
-                    urgent.description = ''
-                      The color of the tab indicator for windows that are requesting attention.
-                    '';
-                    active.description = ''
-                      The color of the tab indicator for the window that has keyboard focus.
-                    '';
-                    inactive.description = ''
-                      The color of the tab indicator for windows that do not have keyboard focus.
-                    '';
-                  })
+          make-rendered-options "tab-indicator" { partial = true; } [
+            {
+              options.enable = nullable types.bool;
+              render = config: [
+                (lib.mkIf (config.enable == true) [
+                  (kdl.flag "on")
+                ])
+                (lib.mkIf (config.enable == false) [
+                  (kdl.flag "off")
+                ])
+              ];
+            }
+            {
+              options.hide-when-single-tab = nullable types.bool;
+              render = config: [
+                (lib.mkIf (config.hide-when-single-tab != null) [
+                  (kdl.leaf "hide-when-single-tab" config.hide-when-single-tab)
+                ])
+              ];
+            }
+            {
+              options.place-within-column = nullable types.bool;
+              render = config: [
+                (lib.mkIf (config.place-within-column != null) [
+                  (kdl.leaf "place-within-column" config.place-within-column)
+                ])
+              ];
+            }
+            {
+              options.gap = nullable float-or-int;
+              render = config: [
+                (lib.mkIf (config.gap != null) [
+                  (kdl.leaf "gap" config.gap)
+                ])
+              ];
+            }
+            {
+              options.width = nullable float-or-int;
+              render = config: [
+                (lib.mkIf (config.width != null) [
+                  (kdl.leaf "width" config.width)
+                ])
+              ];
+            }
+            {
+              options.length = nullable (record {
+                total-proportion = required types.float;
+              });
+              render = config: [
+                (lib.mkIf (config.length != null) [
+                  (kdl.leaf "length" config.length)
+                ])
+              ];
+            }
+            {
+              options.position = nullable (
+                lib.types.enum [
+                  "left"
+                  "right"
+                  "top"
+                  "bottom"
                 ]
-                (
-                  content:
-                  { config, ... }:
-                  {
-                    options.rendered = lib.mkOption {
-                      type = kdl.types.kdl-node;
-                      readOnly = true;
-                      internal = true;
-                      visible = false;
-                      apply = node: lib.mkIf (node.children != [ ]) node;
-                    };
-                    config.rendered = kdl.plain "tab-indicator" [ content ];
-                  }
-                );
-          }
+              );
+              render = config: [
+                (lib.mkIf (config.position != null) [
+                  (kdl.leaf "position" config.position)
+                ])
+              ];
+            }
+            {
+              options.gaps-between-tabs = nullable float-or-int;
+              render = config: [
+                (lib.mkIf (config.gaps-between-tabs != null) [
+                  (kdl.leaf "gaps-between-tabs" config.gaps-between-tabs)
+                ])
+              ];
+            }
+            {
+              options.corner-radius = nullable float-or-int;
+              render = config: [
+                (lib.mkIf (config.corner-radius != null) [
+                  (kdl.leaf "corner-radius" config.corner-radius)
+                ])
+              ];
+            }
+            (make-decoration-options {
+              urgent.description = ''
+                The color of the tab indicator for windows that are requesting attention.
+              '';
+              active.description = ''
+                The color of the tab indicator for the window that has keyboard focus.
+              '';
+              inactive.description = ''
+                The color of the tab indicator for windows that do not have keyboard focus.
+              '';
+            })
+          ]
         )
       );
       render = config: [
@@ -536,40 +470,19 @@ in
         let
           layout-tab-indicator = subopts (subopts toplevel-options.layout).tab-indicator;
         in
-        section' (
-          { options, ... }:
-          {
-            imports =
-              make-rendered-ordered-options
-                [
-                  (make-decoration-options options {
-                    urgent.description = ''
-                      See ${link-opt layout-tab-indicator.urgent}.
-                    '';
-                    active.description = ''
-                      See ${link-opt layout-tab-indicator.active}.
-                    '';
-                    inactive.description = ''
-                      See ${link-opt layout-tab-indicator.inactive}.
-                    '';
-                  })
-                ]
-                (
-                  content:
-                  { config, ... }:
-                  {
-                    options.rendered = lib.mkOption {
-                      type = kdl.types.kdl-node;
-                      readOnly = true;
-                      internal = true;
-                      visible = false;
-                      apply = node: lib.mkIf (node.children != [ ]) node;
-                    };
-                    config.rendered = kdl.plain "tab-indicator" [ content ];
-                  }
-                );
-          }
-        );
+        make-rendered-section "tab-indicator" { partial = true; } [
+          (make-decoration-options {
+            urgent.description = ''
+              See ${link-opt layout-tab-indicator.urgent}.
+            '';
+            active.description = ''
+              See ${link-opt layout-tab-indicator.active}.
+            '';
+            inactive.description = ''
+              See ${link-opt layout-tab-indicator.inactive}.
+            '';
+          })
+        ];
       render = config: [
         config.tab-indicator.rendered
       ];

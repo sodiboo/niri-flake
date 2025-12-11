@@ -3,21 +3,12 @@
   kdl,
   niri-flake-internal,
   toplevel-options,
+  ...
 }:
 
 let
-  inherit (lib) types;
-
   inherit (niri-flake-internal)
     fmt
-    make-ordered-options
-    optional
-    float-or-int
-    nullable
-    section'
-    section
-    record
-    required
     link-opt
     subopts
     ;

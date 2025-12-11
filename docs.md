@@ -1034,6 +1034,114 @@ You can disable this behaviour if you prefer to configure the power button elsew
 - type: `attribute set of (submodule)`
 
 
+## `programs.niri.settings.outputs.<name>.name`
+- type: `string`
+- default: `the key of the output`
+
+The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
+
+
+## `programs.niri.settings.outputs.<name>.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.outputs.<name>.scale`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The scale of this output, which represents how many physical pixels fit in one logical pixel.
+
+If this is null, niri will automatically pick a scale for you.
+
+
+## `programs.niri.settings.outputs.<name>.transform.flipped`
+- type: `boolean`
+- default: `false`
+
+Whether to flip this output vertically.
+
+
+## `programs.niri.settings.outputs.<name>.transform.rotation`
+- type: `one of 0, 90, 180, 270`
+- default: `0`
+
+Counter-clockwise rotation of this output in degrees.
+
+
+## `programs.niri.settings.outputs.<name>.position`
+- type: `null or (submodule)`
+- default: `null`
+
+Position of the output in the global coordinate space.
+
+This affects directional monitor actions like "focus-monitor-left", and cursor movement.
+
+The cursor can only move between directly adjacent outputs.
+
+Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
+
+For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
+
+If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
+
+
+## `programs.niri.settings.outputs.<name>.position.x`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.position.y`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.mode`
+- type: `null or (submodule)`
+- default: `null`
+
+The resolution and refresh rate of this display.
+
+By default, when this is null, niri will automatically pick a mode for you.
+
+If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
+
+
+## `programs.niri.settings.outputs.<name>.mode.height`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.mode.refresh`
+- type: `null or floating point number`
+- default: `null`
+
+The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
+
+
+## `programs.niri.settings.outputs.<name>.mode.width`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
+- type: `one of false, "on-demand", true`
+- default: `false`
+
+Whether to enable variable refresh rate (VRR) on this output.
+
+VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
+
+Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
+
+
+## `programs.niri.settings.outputs.<name>.focus-at-startup`
+- type: `boolean`
+- default: `false`
+
+Focus this output by default when niri starts.
+
+If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set [`outputs.<name>.name`](#programsnirisettingsoutputsnamename) to be the actual name of the output.
+
+When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
+
+
 ## `programs.niri.settings.outputs.<name>.backdrop-color`
 - type: `null or string`
 - default: `null`
@@ -1046,22 +1154,6 @@ The backdrop color that niri draws for this output. This is visible between work
 - default: `null`
 
 The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
-
-
-## `programs.niri.settings.outputs.<name>.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.outputs.<name>.focus-at-startup`
-- type: `boolean`
-- default: `false`
-
-Focus this output by default when niri starts.
-
-If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set [`outputs.<name>.name`](#programsnirisettingsoutputsnamename) to be the actual name of the output.
-
-When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
 
 
 ## `programs.niri.settings.outputs.<name>.hot-corners`
@@ -1091,100 +1183,76 @@ Individual hot corners cannot be enabled/disabled separately. This option config
 - type: `boolean`
 
 
-## `programs.niri.settings.outputs.<name>.mode`
-- type: `null or (submodule)`
-- default: `null`
-
-The resolution and refresh rate of this display.
-
-By default, when this is null, niri will automatically pick a mode for you.
-
-If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
+## `programs.niri.settings.binds`
+- type: `attribute set of (niri keybind)`
 
 
-## `programs.niri.settings.outputs.<name>.mode.height`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.mode.refresh`
-- type: `null or floating point number`
-- default: `null`
-
-The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
-
-
-## `programs.niri.settings.outputs.<name>.mode.width`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.name`
-- type: `string`
-- default: `the key of the output`
-
-The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
-
-
-## `programs.niri.settings.outputs.<name>.position`
-- type: `null or (submodule)`
-- default: `null`
-
-Position of the output in the global coordinate space.
-
-This affects directional monitor actions like "focus-monitor-left", and cursor movement.
-
-The cursor can only move between directly adjacent outputs.
-
-Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
-
-For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
-
-If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
-
-
-## `programs.niri.settings.outputs.<name>.position.x`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.position.y`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.scale`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The scale of this output, which represents how many physical pixels fit in one logical pixel.
-
-If this is null, niri will automatically pick a scale for you.
-
-
-## `programs.niri.settings.outputs.<name>.transform.flipped`
+## `programs.niri.settings.binds.<name>.allow-when-locked`
 - type: `boolean`
 - default: `false`
 
-Whether to flip this output vertically.
+Whether this keybind should be allowed when the screen is locked.
+
+This is only applicable for `spawn` keybinds.
 
 
-## `programs.niri.settings.outputs.<name>.transform.rotation`
-- type: `one of 0, 90, 180, 270`
-- default: `0`
+## `programs.niri.settings.binds.<name>.allow-inhibiting`
+- type: `boolean`
+- default: `true`
 
-Counter-clockwise rotation of this output in degrees.
+When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
 
+By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
 
-## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
-- type: `one of false, "on-demand", true`
-- default: `false`
+When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
 
-Whether to enable variable refresh rate (VRR) on this output.
-
-VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
-
-Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
+Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
 
 
-## `programs.niri.settings.binds`
-- type: `attribute set of (niri keybind)`
+## `programs.niri.settings.binds.<name>.cooldown-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The minimum cooldown before a keybind can be triggered again, in milliseconds.
+
+This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
+
+
+## `programs.niri.settings.binds.<name>.repeat`
+- type: `boolean`
+- default: `true`
+
+Whether this keybind should trigger repeatedly when held down.
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay`
+- type: `attribute-tagged union with choices: hidden, title`
+- default:
+  ```nix
+  {
+    hidden = false;
+  }
+  ```
+
+
+How this keybind should be displayed in the hotkey overlay.
+
+- By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
+- `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
+- `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
+- type: `boolean`
+
+When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay.title`
+- type: `string`
+
+The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
 
 
 ## `programs.niri.settings.binds.<name>.action`
@@ -1236,74 +1304,6 @@ If an action takes properties and positional arguments, you can write it like th
 }
 ```
 
-
-
-## `programs.niri.settings.binds.<name>.allow-inhibiting`
-- type: `boolean`
-- default: `true`
-
-When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
-
-By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
-
-When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
-
-Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
-
-
-## `programs.niri.settings.binds.<name>.allow-when-locked`
-- type: `boolean`
-- default: `false`
-
-Whether this keybind should be allowed when the screen is locked.
-
-This is only applicable for `spawn` keybinds.
-
-
-## `programs.niri.settings.binds.<name>.cooldown-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The minimum cooldown before a keybind can be triggered again, in milliseconds.
-
-This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay`
-- type: `attribute-tagged union with choices: hidden, title`
-- default:
-  ```nix
-  {
-    hidden = false;
-  }
-  ```
-
-
-How this keybind should be displayed in the hotkey overlay.
-
-- By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
-- `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
-- `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
-
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
-- type: `boolean`
-
-When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay.title`
-- type: `string`
-
-The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
-
-
-## `programs.niri.settings.binds.<name>.repeat`
-- type: `boolean`
-- default: `true`
-
-Whether this keybind should trigger repeatedly when held down.
 
 
 <!-- programs.niri.settings.switch-events -->
@@ -2038,18 +2038,13 @@ Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo"
 
 <!-- programs.niri.settings.cursor -->
 
-## `programs.niri.settings.cursor.hide-after-inactive-ms`
-- type: `null or signed integer`
+## `programs.niri.settings.cursor.theme`
+- type: `null or string`
 - default: `null`
 
-If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+The name of the xcursor theme to use.
 
-
-## `programs.niri.settings.cursor.hide-when-typing`
-- type: `null or boolean`
-- default: `null`
-
-Whether to hide the cursor when typing.
+This will also set the XCURSOR_THEME environment variable for all spawned processes.
 
 
 ## `programs.niri.settings.cursor.size`
@@ -2061,13 +2056,18 @@ The size of the cursor in logical pixels.
 This will also set the XCURSOR_SIZE environment variable for all spawned processes.
 
 
-## `programs.niri.settings.cursor.theme`
-- type: `null or string`
+## `programs.niri.settings.cursor.hide-when-typing`
+- type: `null or boolean`
 - default: `null`
 
-The name of the xcursor theme to use.
+Whether to hide the cursor when typing.
 
-This will also set the XCURSOR_THEME environment variable for all spawned processes.
+
+## `programs.niri.settings.cursor.hide-after-inactive-ms`
+- type: `null or signed integer`
+- default: `null`
+
+If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
 
 
 ## `programs.niri.settings.screenshot`
@@ -2089,6 +2089,13 @@ The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3
 
 <!-- programs.niri.settings.hotkey-overlay -->
 
+## `programs.niri.settings.hotkey-overlay.skip-at-startup`
+- type: `null or boolean`
+- default: `null`
+
+Whether to skip the hotkey overlay shown when niri starts.
+
+
 ## `programs.niri.settings.hotkey-overlay.hide-not-bound`
 - type: `null or boolean`
 - default: `null`
@@ -2097,13 +2104,6 @@ By default, niri has a set of important keybinds that are always shown in the ho
 In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
 
 You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
-
-
-## `programs.niri.settings.hotkey-overlay.skip-at-startup`
-- type: `null or boolean`
-- default: `null`
-
-Whether to skip the hotkey overlay shown when niri starts.
 
 
 <!-- programs.niri.settings.config-notification -->
