@@ -1146,14 +1146,28 @@ When none of the connected outputs are explicitly focus-at-startup, niri will fo
 - type: `null or string`
 - default: `null`
 
-The backdrop color that niri draws for this output. This is visible between workspaces or in the overview.
+The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
+
+The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
+
+To set the backdrop color for all outputs, see [`overview.backdrop-color`](#programsnirisettingsoverviewbackdrop-color)
+
+See also [`layout.background-color`](#programsnirisettingslayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
+
 
 
 ## `programs.niri.settings.outputs.<name>.background-color`
 - type: `null or string`
 - default: `null`
 
-The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
+The background is a solid-colored layer drawn behind each workspace.
+
+It's visible through transparent windows, between [gaps](#programsnirisettingslayoutgaps), and inside any [struts](#programsnirisettingslayoutstruts)
+
+To set the default background color for all outputs, see [`overview.backdrop-color`](#programsnirisettingsoverviewbackdrop-color)
+
+See also [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
+
 
 
 ## `programs.niri.settings.outputs.<name>.hot-corners`
@@ -1360,7 +1374,14 @@ See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more 
 - type: `null or string`
 - default: `null`
 
-The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
+The background is a solid-colored layer drawn behind each workspace.
+
+It's visible through transparent windows, between [gaps](#programsnirisettingslayoutgaps), and inside any [struts](#programsnirisettingslayoutstruts)
+
+You can override the background color for an output with [`outputs.<name>.background-color`](#programsnirisettingsoutputsnamebackground-color)
+
+See also [`overview.backdrop-color`](#programsnirisettingsoverviewbackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
+
 
 
 ## `programs.niri.settings.layout.border`
@@ -1880,9 +1901,14 @@ The left and right structs work in a similar way, except the padded space is not
 - type: `null or string`
 - default: `null`
 
-Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
+The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
 
-The alpha channel for this color will be ignored.
+The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
+
+You can override the backdrop color for an output with [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color)
+
+See also [`layout.background-color`](#programsnirisettingslayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
+
 
 
 <!-- programs.niri.settings.overview.workspace-shadow -->

@@ -112,6 +112,14 @@ let
     assert opt._type == "option";
     link' opt.loc;
 
+  link-opt-masked =
+    opt: content:
+    assert opt._type == "option";
+    fmt.masked-link {
+      href = fmt.link-to-setting opt.loc;
+      inherit content;
+    };
+
   unstable-note = fmt.admonition.important ''
     This option is not yet available in stable niri.
 
@@ -285,6 +293,7 @@ let
       inherit
         fmt
         link-opt
+        link-opt-masked
         subopts
         make-ordered-options
         make-rendered-options
