@@ -293,6 +293,14 @@ let
       inherit (lib.types.uniq args) check merge;
     };
 
+  prune-empty-children = map (
+    node:
+    let
+      children = prune-empty-children node.children;
+    in
+    if children == [ ] then builtins.removeAttrs node [ "children" ] else node // { inherit children; }
+  );
+
   generator =
     {
       runCommand,
@@ -305,7 +313,7 @@ let
     runCommand name
       {
         nativeBuildInputs = [ jsonkdl ];
-        document = builtins.toJSON document;
+        document = builtins.toJSON (prune-empty-children document);
         passAsFile = [ "document" ];
       }
       ''
