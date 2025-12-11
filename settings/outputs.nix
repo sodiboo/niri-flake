@@ -1,7 +1,6 @@
 {
   lib,
   kdl,
-  fragments,
   niri-flake-internal,
   toplevel-options,
 }:
@@ -10,7 +9,6 @@ let
     inherit
       lib
       kdl
-      fragments
       niri-flake-internal
       toplevel-options
       ;
@@ -20,7 +18,6 @@ let
     inherit
       lib
       kdl
-      fragments
       niri-flake-internal
       toplevel-options
       ;

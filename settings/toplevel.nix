@@ -225,7 +225,6 @@ let
           inherit
             lib
             kdl
-            fragments
             toplevel-options
             ;
           niri-flake-internal = {
@@ -277,8 +276,6 @@ let
 
         ./debug.nix
       ];
-
-  fragments = lib.mergeAttrsList (builtins.map (f: f.fragments or { }) files);
 
   sections = builtins.concatMap (f: f.sections or [ ]) files;
 in
