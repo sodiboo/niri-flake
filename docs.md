@@ -255,50 +255,50 @@ Path to a `.xkb` keymap file. If set, this file will be used to configure libxkb
 
 
 ## `programs.niri.settings.input.keyboard.xkb.rules`
-- type: `string`
-- default: `""`
+- type: `null or non-empty string`
+- default: `null`
 
 The rules file to use.
 
 The rules file describes how to interpret the values of the model, layout, variant and options fields.
 
-If this is set to an empty string, the rules will be read from the `XKB_DEFAULT_RULES` environment variable.
+If this is set to null, the rules will be read from the `XKB_DEFAULT_RULES` environment variable.
 
 
 
 ## `programs.niri.settings.input.keyboard.xkb.model`
-- type: `string`
-- default: `""`
+- type: `null or non-empty string`
+- default: `null`
 
 The keyboard model by which to interpret keycodes and LEDs
 
 See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#MODELS) for a list of available models.
 
-If this is set to an empty string, the model will be read from the `XKB_DEFAULT_MODEL` environment variable.
+If this is set to null, the model will be read from the `XKB_DEFAULT_MODEL` environment variable.
 
 
 
 ## `programs.niri.settings.input.keyboard.xkb.layout`
-- type: `string`
-- default: `""`
+- type: `null or non-empty string`
+- default: `null`
 
 A comma-separated list of layouts (languages) to include in the keymap.
 
 See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available layouts and their variants.
 
-If this is set to an empty string, the layout will be read from the `XKB_DEFAULT_LAYOUT` environment variable.
+If this is set to null, the layout will be read from the `XKB_DEFAULT_LAYOUT` environment variable.
 
 
 
 ## `programs.niri.settings.input.keyboard.xkb.variant`
-- type: `string`
-- default: `""`
+- type: `null or non-empty string`
+- default: `null`
 
 A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
 
 See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available variants for each layout.
 
-If this is set to an empty string, the variant will be read from the `XKB_DEFAULT_VARIANT` environment variable.
+If this is set to null, the variant will be read from the `XKB_DEFAULT_VARIANT` environment variable.
 
 
 

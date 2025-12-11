@@ -57,12 +57,17 @@ in
                     content = fmt.code "xkeyboard-config(7)";
                   };
 
-                default-env = default: field: ''
-                  If this is set to ${default}, the ${field} will be read from the ${fmt.code "XKB_DEFAULT_${lib.toUpper field}"} environment variable.
+                default-env = field: ''
+                  If this is set to null, the ${field} will be read from the ${fmt.code "XKB_DEFAULT_${lib.toUpper field}"} environment variable.
                 '';
 
-                str-fallback = default-env "an empty string";
-                nullable-fallback = default-env "null";
+                nonempty-str = lib.mkOptionType {
+                  name = "nonempty-str";
+                  description = "non-empty string";
+                  descriptionClass = "noun";
+                  check = v: builtins.isString v && v != "";
+                  merge = lib.options.mergeEqualOption;
+                };
               in
               lib.mkOption {
                 description = ''
@@ -93,59 +98,67 @@ in
                         ];
                       }
                       {
-                        options.rules = optional types.str "" // {
+                        options.rules = nullable nonempty-str // {
                           description = ''
                             The rules file to use.
 
                             The rules file describes how to interpret the values of the model, layout, variant and options fields.
 
-                            ${str-fallback "rules"}
+                            ${default-env "rules"}
                           '';
                         };
                         render = config: [
-                          (kdl.leaf "rules" config.rules)
+                          (lib.mkIf (config.rules != null) [
+                            (kdl.leaf "rules" config.rules)
+                          ])
                         ];
                       }
                       {
-                        options.model = optional types.str "" // {
+                        options.model = nullable nonempty-str // {
                           description = ''
                             The keyboard model by which to interpret keycodes and LEDs
 
                             See ${arch-man-xkb "MODELS"} for a list of available models.
 
-                            ${str-fallback "model"}
+                            ${default-env "model"}
                           '';
                         };
                         render = config: [
-                          (kdl.leaf "model" config.model)
+                          (lib.mkIf (config.model != null) [
+                            (kdl.leaf "model" config.model)
+                          ])
                         ];
                       }
                       {
-                        options.layout = optional types.str "" // {
+                        options.layout = nullable nonempty-str // {
                           description = ''
                             A comma-separated list of layouts (languages) to include in the keymap.
 
                             See ${arch-man-xkb "LAYOUTS"} for a list of available layouts and their variants.
 
-                            ${str-fallback "layout"}
+                            ${default-env "layout"}
                           '';
                         };
                         render = config: [
-                          (kdl.leaf "layout" config.layout)
+                          (lib.mkIf (config.layout != null) [
+                            (kdl.leaf "layout" config.layout)
+                          ])
                         ];
                       }
                       {
-                        options.variant = optional types.str "" // {
+                        options.variant = nullable nonempty-str // {
                           description = ''
                             A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
 
                             See ${arch-man-xkb "LAYOUTS"} for a list of available variants for each layout.
 
-                            ${str-fallback "variant"}
+                            ${default-env "variant"}
                           '';
                         };
                         render = config: [
-                          (kdl.leaf "variant" config.variant)
+                          (lib.mkIf (config.variant != null) [
+                            (kdl.leaf "variant" config.variant)
+                          ])
                         ];
                       }
                       {
@@ -157,7 +170,7 @@ in
 
                             If this is set to an empty string, no options will be used.
 
-                            ${nullable-fallback "options"}
+                            ${default-env "options"}
                           '';
                         };
                         render = config: [
