@@ -1064,6 +1064,33 @@ If multiple outputs with `focus-at-startup` are connected, then the one with the
 When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
 
 
+## `programs.niri.settings.outputs.<name>.hot-corners`
+- type: `null or (submodule)`
+- default: `null`
+
+Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
+
+By default, hot corner configuration is inherited from [`gestures.hot-corners`](#programsnirisettingsgestureshot-corners). You can use this option to explicitly set which hot corners you want to use on this output.
+
+Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.bottom-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.bottom-right`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.top-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.top-right`
+- type: `boolean`
+
+
 ## `programs.niri.settings.outputs.<name>.mode`
 - type: `null or (submodule)`
 - default: `null`
@@ -3428,13 +3455,33 @@ The delay in milliseconds before the view starts scrolling.
 When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
 
 
-<!-- programs.niri.settings.gestures.hot-corners -->
+## `programs.niri.settings.gestures.hot-corners`
+- type: `null or (submodule)`
+- default: `null`
 
-## `programs.niri.settings.gestures.hot-corners.enable`
+Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
+
+By default, the top-left corner is the only hot corner. You can use this option to explicitly set which hot corners you want.
+
+Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
+
+You can configure different hot corners for each output with [`outputs.<name>.hot-corners`](#programsnirisettingsoutputsnamehot-corners)
+
+
+## `programs.niri.settings.gestures.hot-corners.bottom-left`
 - type: `boolean`
-- default: `true`
 
-Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+
+## `programs.niri.settings.gestures.hot-corners.bottom-right`
+- type: `boolean`
+
+
+## `programs.niri.settings.gestures.hot-corners.top-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.gestures.hot-corners.top-right`
+- type: `boolean`
 
 
 ## `programs.niri.settings.debug`

@@ -16,6 +16,16 @@ let
       ;
   };
 
+  interactions = import ./interactions {
+    inherit
+      lib
+      kdl
+      fragments
+      niri-flake-internal
+      toplevel-options
+      ;
+  };
+
   inherit (lib)
     types
     ;
@@ -214,6 +224,7 @@ in
                   }
                 ]
                 ++ appearance.output
+                ++ interactions.output
               )
               (
                 contents:

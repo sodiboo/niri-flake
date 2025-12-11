@@ -8,4 +8,5 @@ let
 in
 {
   gestures = elements.gesture or [ ];
+  output = elements.output or [ ];
 }
