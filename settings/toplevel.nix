@@ -120,6 +120,8 @@ let
       inherit content;
     };
 
+  link-opt' = opt: loc: link-opt-masked opt (fmt.code (lib.showOption loc));
+
   unstable-note = fmt.admonition.important ''
     This option is not yet available in stable niri.
 
@@ -213,7 +215,9 @@ let
             imports = [
               {
                 imports = s.mod.extra-modules or [ ];
-                options = lib.filterAttrs (_: opt: !(opt ? niri-flake-document-internal)) s.mod.options;
+                options =
+                  lib.filterAttrs (_: opt: !(opt ? niri-flake-document-internal))
+                    s.mod.options or (throw (builtins.concatStringsSep "," (builtins.attrNames (s.mod))));
               }
               {
                 options._module.niri-flake-ordered-record.extra-docs-options = lib.filterAttrs (
@@ -293,6 +297,7 @@ let
       inherit
         fmt
         link-opt
+        link-opt'
         link-opt-masked
         subopts
         make-ordered-options
@@ -321,6 +326,7 @@ let
     };
     appearance = import ./appearance args;
     interactions = import ./interactions args;
+    niri-flake-utils = import ./utils args;
   };
 in
 {
@@ -338,19 +344,20 @@ in
       (
         map (f: lib.setDefaultModuleLocation f (import f args)) [
           ./input.nix
-          ./outputs.nix
           ./binds.nix
           ./switch-events.nix
-          ./layout.nix
-          ./overview.nix
+          ./gestures.nix
 
+          ./animations.nix
+
+          ./overview.nix
+          ./appearance.nix
+
+          ./outputs.nix
           ./workspaces.nix
+          ./surface-rules.nix
 
           ./misc.nix
-
-          ./surface-rules.nix
-          ./animations.nix
-          ./gestures.nix
 
           ./debug.nix
         ]

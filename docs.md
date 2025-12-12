@@ -1030,173 +1030,6 @@ You can disable this behaviour if you prefer to configure the power button elsew
 - default: `null`
 
 
-## `programs.niri.settings.outputs`
-- type: `attribute set of (submodule)`
-
-
-## `programs.niri.settings.outputs.<name>.name`
-- type: `string`
-- default: `the key of the output`
-
-The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
-
-
-## `programs.niri.settings.outputs.<name>.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.outputs.<name>.scale`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The scale of this output, which represents how many physical pixels fit in one logical pixel.
-
-If this is null, niri will automatically pick a scale for you.
-
-
-## `programs.niri.settings.outputs.<name>.transform.flipped`
-- type: `boolean`
-- default: `false`
-
-Whether to flip this output vertically.
-
-
-## `programs.niri.settings.outputs.<name>.transform.rotation`
-- type: `one of 0, 90, 180, 270`
-- default: `0`
-
-Counter-clockwise rotation of this output in degrees.
-
-
-## `programs.niri.settings.outputs.<name>.position`
-- type: `null or (submodule)`
-- default: `null`
-
-Position of the output in the global coordinate space.
-
-This affects directional monitor actions like "focus-monitor-left", and cursor movement.
-
-The cursor can only move between directly adjacent outputs.
-
-Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
-
-For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
-
-If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
-
-
-## `programs.niri.settings.outputs.<name>.position.x`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.position.y`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.mode`
-- type: `null or (submodule)`
-- default: `null`
-
-The resolution and refresh rate of this display.
-
-By default, when this is null, niri will automatically pick a mode for you.
-
-If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
-
-
-## `programs.niri.settings.outputs.<name>.mode.height`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.mode.refresh`
-- type: `null or floating point number`
-- default: `null`
-
-The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
-
-
-## `programs.niri.settings.outputs.<name>.mode.width`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
-- type: `one of false, "on-demand", true`
-- default: `false`
-
-Whether to enable variable refresh rate (VRR) on this output.
-
-VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
-
-Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
-
-
-## `programs.niri.settings.outputs.<name>.focus-at-startup`
-- type: `boolean`
-- default: `false`
-
-Focus this output by default when niri starts.
-
-If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set [`outputs.<name>.name`](#programsnirisettingsoutputsnamename) to be the actual name of the output.
-
-When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
-
-
-## `programs.niri.settings.outputs.<name>.backdrop-color`
-- type: `null or string`
-- default: `null`
-
-The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
-
-The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
-
-To set the backdrop color for all outputs, see [`overview.backdrop-color`](#programsnirisettingsoverviewbackdrop-color)
-
-See also [`layout.background-color`](#programsnirisettingslayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
-
-
-
-## `programs.niri.settings.outputs.<name>.background-color`
-- type: `null or string`
-- default: `null`
-
-The background is a solid-colored layer drawn behind each workspace.
-
-It's visible through transparent windows, between [gaps](#programsnirisettingslayoutgaps), and inside any [struts](#programsnirisettingslayoutstruts)
-
-To set the default background color for all outputs, see [`overview.backdrop-color`](#programsnirisettingsoverviewbackdrop-color)
-
-See also [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
-
-
-
-## `programs.niri.settings.outputs.<name>.hot-corners`
-- type: `null or (submodule)`
-- default: `null`
-
-Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
-
-By default, hot corner configuration is inherited from [`gestures.hot-corners`](#programsnirisettingsgestureshot-corners). You can use this option to explicitly set which hot corners you want to use on this output.
-
-Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
-
-
-## `programs.niri.settings.outputs.<name>.hot-corners.bottom-left`
-- type: `boolean`
-
-
-## `programs.niri.settings.outputs.<name>.hot-corners.bottom-right`
-- type: `boolean`
-
-
-## `programs.niri.settings.outputs.<name>.hot-corners.top-left`
-- type: `boolean`
-
-
-## `programs.niri.settings.outputs.<name>.hot-corners.top-right`
-- type: `boolean`
-
-
 ## `programs.niri.settings.binds`
 - type: `attribute set of (niri keybind)`
 
@@ -1368,116 +1201,965 @@ See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more 
 
 
 
-<!-- programs.niri.settings.layout -->
+<!-- programs.niri.settings.gestures -->
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll`
+
+
+When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the edge of the screen where dragging a window will scroll the view.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.max-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
+
+
+In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
+
+This does not happen when the overview is not open.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The height of the edge of the screen where dragging a window will scroll the view.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.max-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+## `programs.niri.settings.gestures.hot-corners`
+- type: `null or (submodule)`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.hot-corners`](#programsnirisettingsoutputsnamehot-corners)
+
+
+
+Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
+
+By default, the top-left corner is the only hot corner. You can use this option to explicitly set which hot corners you want.
+
+Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
+
+
+
+## `programs.niri.settings.gestures.hot-corners.bottom-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.gestures.hot-corners.bottom-right`
+- type: `boolean`
+
+
+## `programs.niri.settings.gestures.hot-corners.top-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.gestures.hot-corners.top-right`
+- type: `boolean`
+
+
+<!-- programs.niri.settings.animations -->
+
+## `programs.niri.settings.animations.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.animations.slowdown`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.animations.workspace-switch`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.workspace-switch.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.workspace-switch.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.horizontal-view-movement`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.horizontal-view-movement.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.horizontal-view-movement.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.config-notification-open-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.config-notification-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.config-notification-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.exit-confirmation-open-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-movement`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-movement.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-movement.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-open`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-open.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-open.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-open.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-open.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-close.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-resize`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-resize.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-resize.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-resize.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-resize.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.screenshot-ui-open`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.screenshot-ui-open.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.screenshot-ui-open.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.overview-open-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.overview-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.overview-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `<animation-kind>`
+- type: `attribute-tagged union with choices: easing, spring`
+
+
+<!-- <animation-kind>.easing -->
+
+## `<animation-kind>.easing.curve`
+- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo", "cubic-bezier"`
+
+The curve to use for the easing function.
+
+
+## `<animation-kind>.easing.curve-args`
+- type: `list of KDL value without type annotation`
+
+Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
+
+
+## `<animation-kind>.easing.duration-ms`
+- type: `signed integer`
+
+
+<!-- <animation-kind>.spring -->
+
+## `<animation-kind>.spring.damping-ratio`
+- type: `floating point number`
+
+
+## `<animation-kind>.spring.epsilon`
+- type: `floating point number`
+
+
+## `<animation-kind>.spring.stiffness`
+- type: `signed integer`
+
+
+<!-- programs.niri.settings.overview -->
+
+## `programs.niri.settings.overview.backdrop-color`
+- type: `null or string`
+- default: `null`
+
+The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
+
+The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
+
+See also [`layout.background-color`](#programsnirisettingslayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
+
+
+## `programs.niri.settings.overview.workspace-shadow`
+
+
+
+
+
+
+
+
+
+## `programs.niri.settings.overview.workspace-shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+
+
+
+
+
+
+## `programs.niri.settings.overview.workspace-shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+
+
+
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.overview.workspace-shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.overview.workspace-shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.overview.workspace-shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+
+
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.overview.workspace-shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+
+
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.overview.workspace-shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+
+
+
+
+
+
+## `programs.niri.settings.overview.workspace-shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+
+
+
+
+
+
+## `programs.niri.settings.overview.zoom`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
+
+
+## `programs.niri.settings.layout`
+
+
+
+
+refined by:
+- [`outputs.<name>.layout`](#programsnirisettingsoutputsnamelayout)
+- [`workspaces.<name>.layout`](#programsnirisettingsworkspacesnamelayout)
+
+
+
+
+
 
 ## `programs.niri.settings.layout.background-color`
 - type: `null or string`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.background-color`](#programsnirisettingsoutputsnamelayoutbackground-color)
+- [`workspaces.<name>.layout.background-color`](#programsnirisettingsworkspacesnamelayoutbackground-color)
+
+
+
 The background is a solid-colored layer drawn behind each workspace.
 
 It's visible through transparent windows, between [gaps](#programsnirisettingslayoutgaps), and inside any [struts](#programsnirisettingslayoutstruts)
 
-You can override the background color for an output with [`outputs.<name>.background-color`](#programsnirisettingsoutputsnamebackground-color)
-
 See also [`overview.backdrop-color`](#programsnirisettingsoverviewbackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
+
+
+
+## `programs.niri.settings.layout.gaps`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.gaps`](#programsnirisettingsoutputsnamelayoutgaps)
+- [`workspaces.<name>.layout.gaps`](#programsnirisettingsworkspacesnamelayoutgaps)
+
+
+
+The gap between windows in the layout, measured in logical pixels.
+
+
+
+## `programs.niri.settings.layout.struts`
+- type: `null or (submodule)`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.struts`](#programsnirisettingsoutputsnamelayoutstruts)
+- [`workspaces.<name>.layout.struts`](#programsnirisettingsworkspacesnamelayoutstruts)
+
+
+
+The distances from the edges of the workspace to the edges of the working area.
+
+The top and bottom struts are absolute gaps from the edges of the workspace. If you set a bottom strut of 64px and the scale is 2.0, then the workspace will have 128 physical pixels under the scrollable working area where it only shows the background.
+
+Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero [borders](#programsnirisettingslayoutborder) and [gaps](#programsnirisettingslayoutgaps))
+
+Note that individual struts cannot be modified separately. This option configures all four struts at once.
+
+
+
+## `programs.niri.settings.layout.struts.bottom`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.layout.struts.left`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.layout.struts.right`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.layout.struts.top`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.layout.empty-workspace-above-first`
+- type: `null or boolean`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.empty-workspace-above-first`](#programsnirisettingsoutputsnamelayoutempty-workspace-above-first)
+
+
+
+Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+
+When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
+
+
+
+## `programs.niri.settings.layout.preset-column-widths`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.preset-column-widths`](#programsnirisettingsoutputsnamelayoutpreset-column-widths)
+- [`workspaces.<name>.layout.preset-column-widths`](#programsnirisettingsworkspacesnamelayoutpreset-column-widths)
+
+
+
+The widths that `switch-preset-column-width` will cycle through.
+
+Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.layout.preset-column-widths = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1920; }
+  ];
+}
+```
+
+
+
+
+## `programs.niri.settings.layout.preset-column-widths.*.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.layout.preset-column-widths.*.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.layout.preset-window-heights`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.preset-window-heights`](#programsnirisettingsoutputsnamelayoutpreset-window-heights)
+- [`workspaces.<name>.layout.preset-window-heights`](#programsnirisettingsworkspacesnamelayoutpreset-window-heights)
+
+
+
+The heights that `switch-preset-window-height` will cycle through.
+
+Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.layout.preset-window-heights = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1080; }
+  ];
+}
+```
+
+
+
+
+## `programs.niri.settings.layout.preset-window-heights.*.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+## `programs.niri.settings.layout.preset-window-heights.*.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.layout.default-column-width`
+- type: `null or {} or attribute-tagged union with choices: fixed, proportion`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.default-column-width`](#programsnirisettingsoutputsnamelayoutdefault-column-width)
+- [`workspaces.<name>.layout.default-column-width`](#programsnirisettingsworkspacesnamelayoutdefault-column-width)
+- [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
+
+
+
+The default width for new columns with a freshly opened window.
+
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+
+
+
+## `programs.niri.settings.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.layout.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.default-column-display`](#programsnirisettingsoutputsnamelayoutdefault-column-display)
+- [`workspaces.<name>.layout.default-column-display`](#programsnirisettingsworkspacesnamelayoutdefault-column-display)
+- [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display)
+
+
+
+How windows in newly opened columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+
+
+## `programs.niri.settings.layout.center-focused-column`
+- type: `null or one of "never", "always", "on-overflow"`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.center-focused-column`](#programsnirisettingsoutputsnamelayoutcenter-focused-column)
+- [`workspaces.<name>.layout.center-focused-column`](#programsnirisettingsworkspacesnamelayoutcenter-focused-column)
+
+
+
+When changing focus, niri can automatically center the focused column.
+
+- `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+- `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+- `"always"`: the focused column will always be centered, even if it was already fully visible.
+
+
+
+
+## `programs.niri.settings.layout.always-center-single-column`
+- type: `null or boolean`
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.always-center-single-column`](#programsnirisettingsoutputsnamelayoutalways-center-single-column)
+- [`workspaces.<name>.layout.always-center-single-column`](#programsnirisettingsworkspacesnamelayoutalways-center-single-column)
+
+
+
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
 
 ## `programs.niri.settings.layout.border`
 
 
+
+
+refined by:
+- [`outputs.<name>.layout.border`](#programsnirisettingsoutputsnamelayoutborder)
+- [`workspaces.<name>.layout.border`](#programsnirisettingsworkspacesnamelayoutborder)
+- [`window-rules.*.border`](#programsnirisettingswindow-rulesborder)
+
+
+
 The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
 
-The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to [`layout.border.active`](#programsnirisettingslayoutborderactive), and all other windows will be drawn according to [`layout.border.inactive`](#programsnirisettingslayoutborderinactive).
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingslayoutborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingslayoutborderinactive).
 
-If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+If you have the [`focus-ring`](#programsnirisettingslayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
 
 
 ## `programs.niri.settings.layout.border.enable`
 - type: `null or boolean`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.border.enable`](#programsnirisettingsoutputsnamelayoutborderenable)
+- [`workspaces.<name>.layout.border.enable`](#programsnirisettingsworkspacesnamelayoutborderenable)
+- [`window-rules.*.border.enable`](#programsnirisettingswindow-rulesborderenable)
+
+
+
 Whether to enable the border.
+
 
 
 ## `programs.niri.settings.layout.border.width`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.border.width`](#programsnirisettingsoutputsnamelayoutborderwidth)
+- [`workspaces.<name>.layout.border.width`](#programsnirisettingsworkspacesnamelayoutborderwidth)
+- [`window-rules.*.border.width`](#programsnirisettingswindow-rulesborderwidth)
+
+
+
 The width of the border drawn around each window.
 
-
-## `programs.niri.settings.layout.border.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for the window that has keyboard focus.
-
-
-## `programs.niri.settings.layout.border.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.layout.border.urgent`
 - type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.border.urgent`](#programsnirisettingsoutputsnamelayoutborderurgent)
+- [`workspaces.<name>.layout.border.urgent`](#programsnirisettingsworkspacesnamelayoutborderurgent)
+- [`window-rules.*.border.urgent`](#programsnirisettingswindow-rulesborderurgent)
+
+
+
 The color of the border for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.layout.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.border.active`](#programsnirisettingsoutputsnamelayoutborderactive)
+- [`workspaces.<name>.layout.border.active`](#programsnirisettingsworkspacesnamelayoutborderactive)
+- [`window-rules.*.border.active`](#programsnirisettingswindow-rulesborderactive)
+
+
+
+The color of the border for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.layout.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.border.inactive`](#programsnirisettingsoutputsnamelayoutborderinactive)
+- [`workspaces.<name>.layout.border.inactive`](#programsnirisettingsworkspacesnamelayoutborderinactive)
+- [`window-rules.*.border.inactive`](#programsnirisettingswindow-rulesborderinactive)
+
+
+
+The color of the border for windows that do not have keyboard focus.
+
 
 
 ## `programs.niri.settings.layout.focus-ring`
 
 
-The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
 
-The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive), and the last focused window on all other monitors will be drawn according to [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive).
 
-If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+refined by:
+- [`outputs.<name>.layout.focus-ring`](#programsnirisettingsoutputsnamelayoutfocus-ring)
+- [`workspaces.<name>.layout.focus-ring`](#programsnirisettingsworkspacesnamelayoutfocus-ring)
+- [`window-rules.*.focus-ring`](#programsnirisettingswindow-rulesfocus-ring)
+
+
+
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingslayoutfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive).
+
+If you have the [`border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+
 
 
 ## `programs.niri.settings.layout.focus-ring.enable`
 - type: `null or boolean`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.focus-ring.enable`](#programsnirisettingsoutputsnamelayoutfocus-ringenable)
+- [`workspaces.<name>.layout.focus-ring.enable`](#programsnirisettingsworkspacesnamelayoutfocus-ringenable)
+- [`window-rules.*.focus-ring.enable`](#programsnirisettingswindow-rulesfocus-ringenable)
+
+
+
 Whether to enable the focus ring.
+
 
 
 ## `programs.niri.settings.layout.focus-ring.width`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.focus-ring.width`](#programsnirisettingsoutputsnamelayoutfocus-ringwidth)
+- [`workspaces.<name>.layout.focus-ring.width`](#programsnirisettingsworkspacesnamelayoutfocus-ringwidth)
+- [`window-rules.*.focus-ring.width`](#programsnirisettingswindow-rulesfocus-ringwidth)
+
+
+
 The width of the focus ring drawn around each focused window.
 
-
-## `programs.niri.settings.layout.focus-ring.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for the window that has keyboard focus.
-
-
-## `programs.niri.settings.layout.focus-ring.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that do not have keyboard focus.
 
 
 ## `programs.niri.settings.layout.focus-ring.urgent`
 - type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.focus-ring.urgent`](#programsnirisettingsoutputsnamelayoutfocus-ringurgent)
+- [`workspaces.<name>.layout.focus-ring.urgent`](#programsnirisettingsworkspacesnamelayoutfocus-ringurgent)
+- [`window-rules.*.focus-ring.urgent`](#programsnirisettingswindow-rulesfocus-ringurgent)
+
+
+
 The color of the focus ring for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.layout.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.focus-ring.active`](#programsnirisettingsoutputsnamelayoutfocus-ringactive)
+- [`workspaces.<name>.layout.focus-ring.active`](#programsnirisettingsworkspacesnamelayoutfocus-ringactive)
+- [`window-rules.*.focus-ring.active`](#programsnirisettingswindow-rulesfocus-ringactive)
+
+
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.layout.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.focus-ring.inactive`](#programsnirisettingsoutputsnamelayoutfocus-ringinactive)
+- [`workspaces.<name>.layout.focus-ring.inactive`](#programsnirisettingsworkspacesnamelayoutfocus-ringinactive)
+- [`window-rules.*.focus-ring.inactive`](#programsnirisettingswindow-rulesfocus-ringinactive)
+
+
+
+The color of the focus ring for windows that do not have keyboard focus.
+
 
 
 ## `programs.niri.settings.layout.insert-hint`
 
 
+
+
+refined by:
+- [`outputs.<name>.layout.insert-hint`](#programsnirisettingsoutputsnamelayoutinsert-hint)
+
+
+
 The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+
+Note that the insert hint is also shown in the overview when dragging a window in the gaps between workspaces, to indicate that releasing it will create a new workspace with that window. As such, insert hints are actually an output-level concept, and so there is no workspace-level configuration.
+
 
 
 ## `programs.niri.settings.layout.insert-hint.enable`
@@ -1491,12 +2173,30 @@ Whether to enable the insert hint.
 - type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.insert-hint.display`](#programsnirisettingsoutputsnamelayoutinsert-hintdisplay)
+
+
+
 The color of the insert hint.
 
 
+
 ## `programs.niri.settings.layout.tab-indicator`
-- type: `null or (submodule)`
-- default: `null`
+
+
+
+
+refined by:
+- [`outputs.<name>.layout.tab-indicator`](#programsnirisettingsoutputsnamelayouttab-indicator)
+- [`workspaces.<name>.layout.tab-indicator`](#programsnirisettingsworkspacesnamelayouttab-indicator)
+- [`window-rules.*.tab-indicator`](#programsnirisettingswindow-rulestab-indicator)
+
+
+
+
 
 
 ## `programs.niri.settings.layout.tab-indicator.enable`
@@ -1504,9 +2204,29 @@ The color of the insert hint.
 - default: `null`
 
 
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.enable`](#programsnirisettingsoutputsnamelayouttab-indicatorenable)
+- [`workspaces.<name>.layout.tab-indicator.enable`](#programsnirisettingsworkspacesnamelayouttab-indicatorenable)
+
+
+
+
+
+
 ## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
 - type: `null or boolean`
 - default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.hide-when-single-tab`](#programsnirisettingsoutputsnamelayouttab-indicatorhide-when-single-tab)
+- [`workspaces.<name>.layout.tab-indicator.hide-when-single-tab`](#programsnirisettingsworkspacesnamelayouttab-indicatorhide-when-single-tab)
+
+
+
+
 
 
 ## `programs.niri.settings.layout.tab-indicator.place-within-column`
@@ -1514,9 +2234,29 @@ The color of the insert hint.
 - default: `null`
 
 
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.place-within-column`](#programsnirisettingsoutputsnamelayouttab-indicatorplace-within-column)
+- [`workspaces.<name>.layout.tab-indicator.place-within-column`](#programsnirisettingsworkspacesnamelayouttab-indicatorplace-within-column)
+
+
+
+
+
+
 ## `programs.niri.settings.layout.tab-indicator.gap`
 - type: `null or floating point number or signed integer`
 - default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.gap`](#programsnirisettingsoutputsnamelayouttab-indicatorgap)
+- [`workspaces.<name>.layout.tab-indicator.gap`](#programsnirisettingsworkspacesnamelayouttab-indicatorgap)
+
+
+
+
 
 
 ## `programs.niri.settings.layout.tab-indicator.width`
@@ -1524,9 +2264,29 @@ The color of the insert hint.
 - default: `null`
 
 
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.width`](#programsnirisettingsoutputsnamelayouttab-indicatorwidth)
+- [`workspaces.<name>.layout.tab-indicator.width`](#programsnirisettingsworkspacesnamelayouttab-indicatorwidth)
+
+
+
+
+
+
 ## `programs.niri.settings.layout.tab-indicator.length`
 - type: `null or (submodule)`
 - default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.length`](#programsnirisettingsoutputsnamelayouttab-indicatorlength)
+- [`workspaces.<name>.layout.tab-indicator.length`](#programsnirisettingsworkspacesnamelayouttab-indicatorlength)
+
+
+
+
 
 
 ## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
@@ -1538,9 +2298,29 @@ The color of the insert hint.
 - default: `null`
 
 
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.position`](#programsnirisettingsoutputsnamelayouttab-indicatorposition)
+- [`workspaces.<name>.layout.tab-indicator.position`](#programsnirisettingsworkspacesnamelayouttab-indicatorposition)
+
+
+
+
+
+
 ## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
 - type: `null or floating point number or signed integer`
 - default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.gaps-between-tabs`](#programsnirisettingsoutputsnamelayouttab-indicatorgaps-between-tabs)
+- [`workspaces.<name>.layout.tab-indicator.gaps-between-tabs`](#programsnirisettingsworkspacesnamelayouttab-indicatorgaps-between-tabs)
+
+
+
+
 
 
 ## `programs.niri.settings.layout.tab-indicator.corner-radius`
@@ -1548,25 +2328,65 @@ The color of the insert hint.
 - default: `null`
 
 
-## `programs.niri.settings.layout.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
 
-The color of the tab indicator for the window that has keyboard focus.
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.corner-radius`](#programsnirisettingsoutputsnamelayouttab-indicatorcorner-radius)
+- [`workspaces.<name>.layout.tab-indicator.corner-radius`](#programsnirisettingsworkspacesnamelayouttab-indicatorcorner-radius)
 
 
-## `programs.niri.settings.layout.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
 
-The color of the tab indicator for windows that do not have keyboard focus.
+
 
 
 ## `programs.niri.settings.layout.tab-indicator.urgent`
 - type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.urgent`](#programsnirisettingsoutputsnamelayouttab-indicatorurgent)
+- [`workspaces.<name>.layout.tab-indicator.urgent`](#programsnirisettingsworkspacesnamelayouttab-indicatorurgent)
+- [`window-rules.*.tab-indicator.urgent`](#programsnirisettingswindow-rulestab-indicatorurgent)
+
+
+
 The color of the tab indicator for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.active`](#programsnirisettingsoutputsnamelayouttab-indicatoractive)
+- [`workspaces.<name>.layout.tab-indicator.active`](#programsnirisettingsworkspacesnamelayouttab-indicatoractive)
+- [`window-rules.*.tab-indicator.active`](#programsnirisettingswindow-rulestab-indicatoractive)
+
+
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.tab-indicator.inactive`](#programsnirisettingsoutputsnamelayouttab-indicatorinactive)
+- [`workspaces.<name>.layout.tab-indicator.inactive`](#programsnirisettingsworkspacesnamelayouttab-indicatorinactive)
+- [`window-rules.*.tab-indicator.inactive`](#programsnirisettingswindow-rulestab-indicatorinactive)
+
+
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
 
 
 ## `<decoration>`
@@ -1658,20 +2478,60 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-<!-- programs.niri.settings.layout.shadow -->
+## `programs.niri.settings.layout.shadow`
+
+
+
+
+refined by:
+- [`outputs.<name>.layout.shadow`](#programsnirisettingsoutputsnamelayoutshadow)
+- [`workspaces.<name>.layout.shadow`](#programsnirisettingsworkspacesnamelayoutshadow)
+- [`window-rules.*.shadow`](#programsnirisettingswindow-rulesshadow)
+- [`layer-rules.*.shadow`](#programsnirisettingslayer-rulesshadow)
+
+
+
+
+
 
 ## `programs.niri.settings.layout.shadow.enable`
 - type: `null or boolean`
 - default: `null`
 
 
+
+overridden by:
+- [`outputs.<name>.layout.shadow.enable`](#programsnirisettingsoutputsnamelayoutshadowenable)
+- [`workspaces.<name>.layout.shadow.enable`](#programsnirisettingsworkspacesnamelayoutshadowenable)
+- [`window-rules.*.shadow.enable`](#programsnirisettingswindow-rulesshadowenable)
+
+
+
+Whether to enable shadows for all windows.
+
+Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set [`layer-rules.*.shadow.enable`](#programsnirisettingslayer-rulesshadowenable) to `true`.
+
+
+
+
 ## `programs.niri.settings.layout.shadow.offset`
 - type: `null or (submodule)`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.shadow.offset`](#programsnirisettingsoutputsnamelayoutshadowoffset)
+- [`workspaces.<name>.layout.shadow.offset`](#programsnirisettingsworkspacesnamelayoutshadowoffset)
+- [`window-rules.*.shadow.offset`](#programsnirisettingswindow-rulesshadowoffset)
+- [`layer-rules.*.shadow.offset`](#programsnirisettingslayer-rulesshadowoffset)
+
+
+
 The offset of the shadow from the window, measured in logical pixels.
 
 This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
 
 
 ## `programs.niri.settings.layout.shadow.offset.x`
@@ -1686,18 +2546,40 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 - type: `null or floating point number or signed integer`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.shadow.softness`](#programsnirisettingsoutputsnamelayoutshadowsoftness)
+- [`workspaces.<name>.layout.shadow.softness`](#programsnirisettingsworkspacesnamelayoutshadowsoftness)
+- [`window-rules.*.shadow.softness`](#programsnirisettingswindow-rulesshadowsoftness)
+- [`layer-rules.*.shadow.softness`](#programsnirisettingslayer-rulesshadowsoftness)
+
+
+
 The softness/size of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
 
 
 ## `programs.niri.settings.layout.shadow.spread`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
+
+
+overridden by:
+- [`outputs.<name>.layout.shadow.spread`](#programsnirisettingsoutputsnamelayoutshadowspread)
+- [`workspaces.<name>.layout.shadow.spread`](#programsnirisettingsworkspacesnamelayoutshadowspread)
+- [`window-rules.*.shadow.spread`](#programsnirisettingswindow-rulesshadowspread)
+- [`layer-rules.*.shadow.spread`](#programsnirisettingslayer-rulesshadowspread)
+
+
+
 The spread of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
 
 
 ## `programs.niri.settings.layout.shadow.draw-behind-window`
@@ -1705,9 +2587,33 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 - default: `null`
 
 
+
+overridden by:
+- [`outputs.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsoutputsnamelayoutshadowdraw-behind-window)
+- [`workspaces.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsworkspacesnamelayoutshadowdraw-behind-window)
+- [`window-rules.*.shadow.draw-behind-window`](#programsnirisettingswindow-rulesshadowdraw-behind-window)
+- [`layer-rules.*.shadow.draw-behind-window`](#programsnirisettingslayer-rulesshadowdraw-behind-window)
+
+
+
+
+
+
 ## `programs.niri.settings.layout.shadow.color`
 - type: `null or string`
 - default: `null`
+
+
+
+overridden by:
+- [`outputs.<name>.layout.shadow.color`](#programsnirisettingsoutputsnamelayoutshadowcolor)
+- [`workspaces.<name>.layout.shadow.color`](#programsnirisettingsworkspacesnamelayoutshadowcolor)
+- [`window-rules.*.shadow.color`](#programsnirisettingswindow-rulesshadowcolor)
+- [`layer-rules.*.shadow.color`](#programsnirisettingslayer-rulesshadowcolor)
+
+
+
+
 
 
 ## `programs.niri.settings.layout.shadow.inactive-color`
@@ -1715,9 +2621,273 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 - default: `null`
 
 
-## `programs.niri.settings.layout.preset-column-widths`
+
+overridden by:
+- [`outputs.<name>.layout.shadow.inactive-color`](#programsnirisettingsoutputsnamelayoutshadowinactive-color)
+- [`workspaces.<name>.layout.shadow.inactive-color`](#programsnirisettingsworkspacesnamelayoutshadowinactive-color)
+- [`window-rules.*.shadow.inactive-color`](#programsnirisettingswindow-rulesshadowinactive-color)
+- [`layer-rules.*.shadow.inactive-color`](#programsnirisettingslayer-rulesshadowinactive-color)
+
+
+
+
+
+
+## `programs.niri.settings.outputs`
+- type: `attribute set of (submodule)`
+
+
+## `programs.niri.settings.outputs.<name>.name`
+- type: `string`
+- default: `the key of the output`
+
+The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
+
+
+## `programs.niri.settings.outputs.<name>.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.outputs.<name>.scale`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The scale of this output, which represents how many physical pixels fit in one logical pixel.
+
+If this is null, niri will automatically pick a scale for you.
+
+
+## `programs.niri.settings.outputs.<name>.transform.flipped`
+- type: `boolean`
+- default: `false`
+
+Whether to flip this output vertically.
+
+
+## `programs.niri.settings.outputs.<name>.transform.rotation`
+- type: `one of 0, 90, 180, 270`
+- default: `0`
+
+Counter-clockwise rotation of this output in degrees.
+
+
+## `programs.niri.settings.outputs.<name>.position`
+- type: `null or (submodule)`
+- default: `null`
+
+Position of the output in the global coordinate space.
+
+This affects directional monitor actions like "focus-monitor-left", and cursor movement.
+
+The cursor can only move between directly adjacent outputs.
+
+Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
+
+For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
+
+If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
+
+
+## `programs.niri.settings.outputs.<name>.position.x`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.position.y`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.mode`
+- type: `null or (submodule)`
+- default: `null`
+
+The resolution and refresh rate of this display.
+
+By default, when this is null, niri will automatically pick a mode for you.
+
+If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
+
+
+## `programs.niri.settings.outputs.<name>.mode.height`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.mode.refresh`
+- type: `null or floating point number`
+- default: `null`
+
+The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
+
+
+## `programs.niri.settings.outputs.<name>.mode.width`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
+- type: `one of false, "on-demand", true`
+- default: `false`
+
+Whether to enable variable refresh rate (VRR) on this output.
+
+VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
+
+Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
+
+
+## `programs.niri.settings.outputs.<name>.focus-at-startup`
+- type: `boolean`
+- default: `false`
+
+Focus this output by default when niri starts.
+
+If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set [`outputs.<name>.name`](#programsnirisettingsoutputsnamename) to be the actual name of the output.
+
+When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
+
+
+## `programs.niri.settings.outputs.<name>.backdrop-color`
+- type: `null or string`
+- default: `null`
+
+The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
+
+The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
+
+See also [`outputs.<name>.layout.background-color`](#programsnirisettingsoutputsnamelayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
+
+
+## `programs.niri.settings.outputs.<name>.layout`
+
+
+refines:
+- [`layout`](#programsnirisettingslayout)
+
+
+
+refined by:
+- [`workspaces.<name>.layout`](#programsnirisettingsworkspacesnamelayout)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.background-color`
+- type: `null or string`
+- default: `null`
+
+overrides:
+- [`layout.background-color`](#programsnirisettingslayoutbackground-color)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.background-color`](#programsnirisettingsworkspacesnamelayoutbackground-color)
+
+
+
+The background is a solid-colored layer drawn behind each workspace.
+
+It's visible through transparent windows, between [gaps](#programsnirisettingsoutputsnamelayoutgaps), and inside any [struts](#programsnirisettingsoutputsnamelayoutstruts)
+
+See also [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.gaps`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.gaps`](#programsnirisettingslayoutgaps)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.gaps`](#programsnirisettingsworkspacesnamelayoutgaps)
+
+
+
+The gap between windows in the layout, measured in logical pixels.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts`
+- type: `null or (submodule)`
+- default: `null`
+
+overrides:
+- [`layout.struts`](#programsnirisettingslayoutstruts)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.struts`](#programsnirisettingsworkspacesnamelayoutstruts)
+
+
+
+The distances from the edges of the workspace to the edges of the working area.
+
+The top and bottom struts are absolute gaps from the edges of the workspace. If you set a bottom strut of 64px and the scale is 2.0, then the workspace will have 128 physical pixels under the scrollable working area where it only shows the background.
+
+Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero [borders](#programsnirisettingsoutputsnamelayoutborder) and [gaps](#programsnirisettingsoutputsnamelayoutgaps))
+
+Note that individual struts cannot be modified separately. This option configures all four struts at once.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.bottom`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.left`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.right`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.top`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.empty-workspace-above-first`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.empty-workspace-above-first`](#programsnirisettingslayoutempty-workspace-above-first)
+
+
+
+
+
+Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+
+When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths`
 - type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
 - default: `null`
+
+overrides:
+- [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.preset-column-widths`](#programsnirisettingsworkspacesnamelayoutpreset-column-widths)
+
+
 
 The widths that `switch-preset-column-width` will cycle through.
 
@@ -1727,33 +2897,44 @@ Example:
 
 ```nix
 {
-  programs.niri.settings.layout.preset-column-widths = [
+  programs.niri.settings.outputs.<name>.layout.preset-column-widths = [
     { proportion = 1. / 3.; }
     { proportion = 1. / 2.; }
     { proportion = 2. / 3.; }
 
-    # { fixed = 1920; }
+    { fixed = 1920; }
   ];
 }
 ```
 
 
 
-## `programs.niri.settings.layout.preset-column-widths.*.fixed`
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-## `programs.niri.settings.layout.preset-column-widths.*.proportion`
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-## `programs.niri.settings.layout.preset-window-heights`
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights`
 - type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
 - default: `null`
+
+overrides:
+- [`layout.preset-window-heights`](#programsnirisettingslayoutpreset-window-heights)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.preset-window-heights`](#programsnirisettingsworkspacesnamelayoutpreset-window-heights)
+
+
 
 The heights that `switch-preset-window-height` will cycle through.
 
@@ -1763,60 +2944,84 @@ Example:
 
 ```nix
 {
-  programs.niri.settings.layout.preset-window-heights = [
+  programs.niri.settings.outputs.<name>.layout.preset-window-heights = [
     { proportion = 1. / 3.; }
     { proportion = 1. / 2.; }
     { proportion = 2. / 3.; }
 
-    # { fixed = 1080; }
+    { fixed = 1080; }
   ];
 }
 ```
 
 
 
-## `programs.niri.settings.layout.preset-window-heights.*.fixed`
+
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.fixed`
 - type: `signed integer`
 
 The height of the window in logical pixels
 
 
-## `programs.niri.settings.layout.preset-window-heights.*.proportion`
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.proportion`
 - type: `floating point number`
 
 The height of the window as a proportion of the screen's height
 
 
-## `programs.niri.settings.layout.default-column-width`
+## `programs.niri.settings.outputs.<name>.layout.default-column-width`
 - type: `null or {} or attribute-tagged union with choices: fixed, proportion`
 - default: `null`
 
-The default width for new columns.
+overrides:
+- [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
 
-When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is distinct from null, which represents that this particular layout block has no effect on the default width.
+
+
+overridden by:
+- [`workspaces.<name>.layout.default-column-width`](#programsnirisettingsworkspacesnamelayoutdefault-column-width)
+- [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
+
+
+
+The default width for new columns with a freshly opened window.
+
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
 
 See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
 
-You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
 
 
-## `programs.niri.settings.layout.default-column-width.fixed`
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-## `programs.niri.settings.layout.default-column-width.proportion`
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-## `programs.niri.settings.layout.default-column-display`
+## `programs.niri.settings.outputs.<name>.layout.default-column-display`
 - type: `null or one of "normal", "tabbed"`
 - default: `null`
 
-How windows in columns should be displayed by default.
+overrides:
+- [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.default-column-display`](#programsnirisettingsworkspacesnamelayoutdefault-column-display)
+- [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display)
+
+
+
+How windows in newly opened columns should be displayed by default.
 
 - `"normal"`: Windows are arranged vertically, spread across the working area height.
 - `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
@@ -1824,12 +3029,23 @@ How windows in columns should be displayed by default.
 
 Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
 
-Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
 
 
-## `programs.niri.settings.layout.center-focused-column`
+
+## `programs.niri.settings.outputs.<name>.layout.center-focused-column`
 - type: `null or one of "never", "always", "on-overflow"`
 - default: `null`
+
+overrides:
+- [`layout.center-focused-column`](#programsnirisettingslayoutcenter-focused-column)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.center-focused-column`](#programsnirisettingsworkspacesnamelayoutcenter-focused-column)
+
+
 
 When changing focus, niri can automatically center the focused column.
 
@@ -1839,135 +3055,732 @@ When changing focus, niri can automatically center the focused column.
 
 
 
-## `programs.niri.settings.layout.always-center-single-column`
+
+## `programs.niri.settings.outputs.<name>.layout.always-center-single-column`
 - type: `null or boolean`
 - default: `null`
+
+overrides:
+- [`layout.always-center-single-column`](#programsnirisettingslayoutalways-center-single-column)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.always-center-single-column`](#programsnirisettingsworkspacesnamelayoutalways-center-single-column)
+
+
 
 This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
-## `programs.niri.settings.layout.empty-workspace-above-first`
+
+## `programs.niri.settings.outputs.<name>.layout.border`
+
+
+refines:
+- [`layout.border`](#programsnirisettingslayoutborder)
+
+
+
+refined by:
+- [`workspaces.<name>.layout.border`](#programsnirisettingsworkspacesnamelayoutborder)
+- [`window-rules.*.border`](#programsnirisettingswindow-rulesborder)
+
+
+
+The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingsoutputsnamelayoutborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingsoutputsnamelayoutborderinactive).
+
+If you have the [`focus-ring`](#programsnirisettingsoutputsnamelayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.enable`
 - type: `null or boolean`
 - default: `null`
 
-Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+overrides:
+- [`layout.border.enable`](#programsnirisettingslayoutborderenable)
 
-When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
 
 
-## `programs.niri.settings.layout.gaps`
+overridden by:
+- [`workspaces.<name>.layout.border.enable`](#programsnirisettingsworkspacesnamelayoutborderenable)
+- [`window-rules.*.border.enable`](#programsnirisettingswindow-rulesborderenable)
+
+
+
+Whether to enable the border.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.width`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
-The gap between windows in the layout, measured in logical pixels.
+overrides:
+- [`layout.border.width`](#programsnirisettingslayoutborderwidth)
 
 
-## `programs.niri.settings.layout.struts`
-- type: `null or (submodule)`
+
+overridden by:
+- [`workspaces.<name>.layout.border.width`](#programsnirisettingsworkspacesnamelayoutborderwidth)
+- [`window-rules.*.border.width`](#programsnirisettingswindow-rulesborderwidth)
+
+
+
+The width of the border drawn around each window.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
-The distances from the edges of the screen to the eges of the working area.
-
-The top and bottom struts are absolute gaps from the edges of the screen. If you set a bottom strut of 64px and the scale is 2.0, then the output will have 128 physical pixels under the scrollable working area where it only shows the wallpaper.
-
-Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
-
-The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
+overrides:
+- [`layout.border.urgent`](#programsnirisettingslayoutborderurgent)
 
 
-## `programs.niri.settings.layout.struts.bottom`
-- type: `floating point number or signed integer`
-- default: `0`
+
+overridden by:
+- [`workspaces.<name>.layout.border.urgent`](#programsnirisettingsworkspacesnamelayoutborderurgent)
+- [`window-rules.*.border.urgent`](#programsnirisettingswindow-rulesborderurgent)
 
 
-## `programs.niri.settings.layout.struts.left`
-- type: `floating point number or signed integer`
-- default: `0`
+
+The color of the border for windows that are requesting attention.
 
 
-## `programs.niri.settings.layout.struts.right`
-- type: `floating point number or signed integer`
-- default: `0`
 
-
-## `programs.niri.settings.layout.struts.top`
-- type: `floating point number or signed integer`
-- default: `0`
-
-
-<!-- programs.niri.settings.overview -->
-
-## `programs.niri.settings.overview.backdrop-color`
-- type: `null or string`
+## `programs.niri.settings.outputs.<name>.layout.border.active`
+- type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
-The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
-
-The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
-
-You can override the backdrop color for an output with [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color)
-
-See also [`layout.background-color`](#programsnirisettingslayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
+overrides:
+- [`layout.border.active`](#programsnirisettingslayoutborderactive)
 
 
 
-<!-- programs.niri.settings.overview.workspace-shadow -->
+overridden by:
+- [`workspaces.<name>.layout.border.active`](#programsnirisettingsworkspacesnamelayoutborderactive)
+- [`window-rules.*.border.active`](#programsnirisettingswindow-rulesborderactive)
 
-## `programs.niri.settings.overview.workspace-shadow.enable`
+
+
+The color of the border for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.border.inactive`](#programsnirisettingslayoutborderinactive)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.border.inactive`](#programsnirisettingsworkspacesnamelayoutborderinactive)
+- [`window-rules.*.border.inactive`](#programsnirisettingswindow-rulesborderinactive)
+
+
+
+The color of the border for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring`
+
+
+refines:
+- [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring)
+
+
+
+refined by:
+- [`workspaces.<name>.layout.focus-ring`](#programsnirisettingsworkspacesnamelayoutfocus-ring)
+- [`window-rules.*.focus-ring`](#programsnirisettingswindow-rulesfocus-ring)
+
+
+
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingsoutputsnamelayoutfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingsoutputsnamelayoutfocus-ringinactive).
+
+If you have the [`border`](#programsnirisettingsoutputsnamelayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.enable`
 - type: `null or boolean`
 - default: `null`
 
+overrides:
+- [`layout.focus-ring.enable`](#programsnirisettingslayoutfocus-ringenable)
 
-## `programs.niri.settings.overview.workspace-shadow.offset`
+
+
+overridden by:
+- [`workspaces.<name>.layout.focus-ring.enable`](#programsnirisettingsworkspacesnamelayoutfocus-ringenable)
+- [`window-rules.*.focus-ring.enable`](#programsnirisettingswindow-rulesfocus-ringenable)
+
+
+
+Whether to enable the focus ring.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.width`](#programsnirisettingslayoutfocus-ringwidth)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.focus-ring.width`](#programsnirisettingsworkspacesnamelayoutfocus-ringwidth)
+- [`window-rules.*.focus-ring.width`](#programsnirisettingswindow-rulesfocus-ringwidth)
+
+
+
+The width of the focus ring drawn around each focused window.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.urgent`](#programsnirisettingslayoutfocus-ringurgent)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.focus-ring.urgent`](#programsnirisettingsworkspacesnamelayoutfocus-ringurgent)
+- [`window-rules.*.focus-ring.urgent`](#programsnirisettingswindow-rulesfocus-ringurgent)
+
+
+
+The color of the focus ring for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.focus-ring.active`](#programsnirisettingsworkspacesnamelayoutfocus-ringactive)
+- [`window-rules.*.focus-ring.active`](#programsnirisettingswindow-rulesfocus-ringactive)
+
+
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.focus-ring.inactive`](#programsnirisettingsworkspacesnamelayoutfocus-ringinactive)
+- [`window-rules.*.focus-ring.inactive`](#programsnirisettingswindow-rulesfocus-ringinactive)
+
+
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint`
+
+
+refines:
+- [`layout.insert-hint`](#programsnirisettingslayoutinsert-hint)
+
+
+
+
+
+The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+
+Note that the insert hint is also shown in the overview when dragging a window in the gaps between workspaces, to indicate that releasing it will create a new workspace with that window. As such, insert hints are actually an output-level concept, and so there is no workspace-level configuration.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the insert hint.
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint.display`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.insert-hint.display`](#programsnirisettingslayoutinsert-hintdisplay)
+
+
+
+
+
+The color of the insert hint.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator`
+
+
+refines:
+- [`layout.tab-indicator`](#programsnirisettingslayouttab-indicator)
+
+
+
+refined by:
+- [`workspaces.<name>.layout.tab-indicator`](#programsnirisettingsworkspacesnamelayouttab-indicator)
+- [`window-rules.*.tab-indicator`](#programsnirisettingswindow-rulestab-indicator)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.enable`](#programsnirisettingslayouttab-indicatorenable)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.enable`](#programsnirisettingsworkspacesnamelayouttab-indicatorenable)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.hide-when-single-tab`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.hide-when-single-tab`](#programsnirisettingslayouttab-indicatorhide-when-single-tab)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.hide-when-single-tab`](#programsnirisettingsworkspacesnamelayouttab-indicatorhide-when-single-tab)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.place-within-column`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.place-within-column`](#programsnirisettingslayouttab-indicatorplace-within-column)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.place-within-column`](#programsnirisettingsworkspacesnamelayouttab-indicatorplace-within-column)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.gap`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.gap`](#programsnirisettingslayouttab-indicatorgap)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.gap`](#programsnirisettingsworkspacesnamelayouttab-indicatorgap)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.width`](#programsnirisettingslayouttab-indicatorwidth)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.width`](#programsnirisettingsworkspacesnamelayouttab-indicatorwidth)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.length`
 - type: `null or (submodule)`
 - default: `null`
+
+overrides:
+- [`layout.tab-indicator.length`](#programsnirisettingslayouttab-indicatorlength)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.length`](#programsnirisettingsworkspacesnamelayouttab-indicatorlength)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.length.total-proportion`
+- type: `floating point number`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.position`
+- type: `null or one of "left", "right", "top", "bottom"`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.position`](#programsnirisettingslayouttab-indicatorposition)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.position`](#programsnirisettingsworkspacesnamelayouttab-indicatorposition)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.gaps-between-tabs`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.gaps-between-tabs`](#programsnirisettingslayouttab-indicatorgaps-between-tabs)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.gaps-between-tabs`](#programsnirisettingsworkspacesnamelayouttab-indicatorgaps-between-tabs)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.corner-radius`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.corner-radius`](#programsnirisettingslayouttab-indicatorcorner-radius)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.corner-radius`](#programsnirisettingsworkspacesnamelayouttab-indicatorcorner-radius)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.urgent`](#programsnirisettingsworkspacesnamelayouttab-indicatorurgent)
+- [`window-rules.*.tab-indicator.urgent`](#programsnirisettingswindow-rulestab-indicatorurgent)
+
+
+
+The color of the tab indicator for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.active`](#programsnirisettingsworkspacesnamelayouttab-indicatoractive)
+- [`window-rules.*.tab-indicator.active`](#programsnirisettingswindow-rulestab-indicatoractive)
+
+
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.tab-indicator.inactive`](#programsnirisettingsworkspacesnamelayouttab-indicatorinactive)
+- [`window-rules.*.tab-indicator.inactive`](#programsnirisettingswindow-rulestab-indicatorinactive)
+
+
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow`
+
+
+refines:
+- [`layout.shadow`](#programsnirisettingslayoutshadow)
+
+
+
+refined by:
+- [`workspaces.<name>.layout.shadow`](#programsnirisettingsworkspacesnamelayoutshadow)
+- [`window-rules.*.shadow`](#programsnirisettingswindow-rulesshadow)
+- [`layer-rules.*.shadow`](#programsnirisettingslayer-rulesshadow)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.shadow.enable`](#programsnirisettingslayoutshadowenable)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.shadow.enable`](#programsnirisettingsworkspacesnamelayoutshadowenable)
+- [`window-rules.*.shadow.enable`](#programsnirisettingswindow-rulesshadowenable)
+
+
+
+Whether to enable shadows for windows on this output.
+
+Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set [`layer-rules.*.shadow.enable`](#programsnirisettingslayer-rulesshadowenable) to `true`.
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+overrides:
+- [`layout.shadow.offset`](#programsnirisettingslayoutshadowoffset)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.shadow.offset`](#programsnirisettingsworkspacesnamelayoutshadowoffset)
+- [`window-rules.*.shadow.offset`](#programsnirisettingswindow-rulesshadowoffset)
+- [`layer-rules.*.shadow.offset`](#programsnirisettingslayer-rulesshadowoffset)
+
+
 
 The offset of the shadow from the window, measured in logical pixels.
 
 This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.overview.workspace-shadow.offset.x`
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset.x`
 - type: `floating point number or signed integer`
 
 
-## `programs.niri.settings.overview.workspace-shadow.offset.y`
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset.y`
 - type: `floating point number or signed integer`
 
 
-## `programs.niri.settings.overview.workspace-shadow.softness`
+## `programs.niri.settings.outputs.<name>.layout.shadow.softness`
 - type: `null or floating point number or signed integer`
 - default: `null`
+
+overrides:
+- [`layout.shadow.softness`](#programsnirisettingslayoutshadowsoftness)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.shadow.softness`](#programsnirisettingsworkspacesnamelayoutshadowsoftness)
+- [`window-rules.*.shadow.softness`](#programsnirisettingswindow-rulesshadowsoftness)
+- [`layer-rules.*.shadow.softness`](#programsnirisettingslayer-rulesshadowsoftness)
+
+
 
 The softness/size of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.overview.workspace-shadow.spread`
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.spread`
 - type: `null or floating point number or signed integer`
 - default: `null`
+
+overrides:
+- [`layout.shadow.spread`](#programsnirisettingslayoutshadowspread)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.shadow.spread`](#programsnirisettingsworkspacesnamelayoutshadowspread)
+- [`window-rules.*.shadow.spread`](#programsnirisettingswindow-rulesshadowspread)
+- [`layer-rules.*.shadow.spread`](#programsnirisettingslayer-rulesshadowspread)
+
+
 
 The spread of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.overview.workspace-shadow.draw-behind-window`
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.draw-behind-window`
 - type: `null or boolean`
 - default: `null`
 
+overrides:
+- [`layout.shadow.draw-behind-window`](#programsnirisettingslayoutshadowdraw-behind-window)
 
-## `programs.niri.settings.overview.workspace-shadow.color`
+
+
+overridden by:
+- [`workspaces.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsworkspacesnamelayoutshadowdraw-behind-window)
+- [`window-rules.*.shadow.draw-behind-window`](#programsnirisettingswindow-rulesshadowdraw-behind-window)
+- [`layer-rules.*.shadow.draw-behind-window`](#programsnirisettingslayer-rulesshadowdraw-behind-window)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.color`
 - type: `null or string`
 - default: `null`
 
+overrides:
+- [`layout.shadow.color`](#programsnirisettingslayoutshadowcolor)
 
-## `programs.niri.settings.overview.zoom`
-- type: `null or floating point number or signed integer`
+
+
+overridden by:
+- [`workspaces.<name>.layout.shadow.color`](#programsnirisettingsworkspacesnamelayoutshadowcolor)
+- [`window-rules.*.shadow.color`](#programsnirisettingswindow-rulesshadowcolor)
+- [`layer-rules.*.shadow.color`](#programsnirisettingslayer-rulesshadowcolor)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.inactive-color`
+- type: `null or string`
 - default: `null`
 
-Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
+overrides:
+- [`layout.shadow.inactive-color`](#programsnirisettingslayoutshadowinactive-color)
+
+
+
+overridden by:
+- [`workspaces.<name>.layout.shadow.inactive-color`](#programsnirisettingsworkspacesnamelayoutshadowinactive-color)
+- [`window-rules.*.shadow.inactive-color`](#programsnirisettingswindow-rulesshadowinactive-color)
+- [`layer-rules.*.shadow.inactive-color`](#programsnirisettingslayer-rulesshadowinactive-color)
+
+
+
+
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners`
+- type: `null or (submodule)`
+- default: `null`
+
+overrides:
+- [`gestures.hot-corners`](#programsnirisettingsgestureshot-corners)
+
+
+
+
+
+Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
+
+By default, the top-left corner is the only hot corner. You can use this option to explicitly set which hot corners you want.
+
+Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
+
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.bottom-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.bottom-right`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.top-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.top-right`
+- type: `boolean`
 
 
 ## `programs.niri.settings.workspaces`
@@ -2014,197 +3827,907 @@ The name of the workspace. You set this manually if you want the keys to be orde
 The name of the output the workspace should be assigned to.
 
 
-## `programs.niri.settings.spawn-at-startup`
-- type: `list of attribute-tagged union with choices: argv, command, sh`
-
-A list of commands to run when niri starts.
-
-Each command can be represented as its raw arguments, or as a shell invocation.
-
-When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+## `programs.niri.settings.workspaces.<name>.layout`
 
 
-## `programs.niri.settings.spawn-at-startup.*.argv`
-- type: `list of string`
-
-Almost raw process arguments to spawn, without shell syntax.
-
-A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
-
-Usage is like so:
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { argv = ["waybar"]; }
-    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
-    { argv = ["~/.config/niri/scripts/startup.sh"]; }
-  ];
-}
-```
+refines:
+- [`layout`](#programsnirisettingslayout)
+- [`outputs.<name>.layout`](#programsnirisettingsoutputsnamelayout)
 
 
 
-## `programs.niri.settings.spawn-at-startup.*.sh`
-- type: `string`
-
-A shell command to spawn. Run wild with POSIX syntax.
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
-  ];
-}
-```
 
 
-Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
 
 
-<!-- programs.niri.settings.cursor -->
 
-## `programs.niri.settings.cursor.theme`
+## `programs.niri.settings.workspaces.<name>.layout.background-color`
 - type: `null or string`
 - default: `null`
 
-The name of the xcursor theme to use.
+overrides:
+- [`layout.background-color`](#programsnirisettingslayoutbackground-color)
+- [`outputs.<name>.layout.background-color`](#programsnirisettingsoutputsnamelayoutbackground-color)
 
-This will also set the XCURSOR_THEME environment variable for all spawned processes.
 
 
-## `programs.niri.settings.cursor.size`
-- type: `null or signed integer`
+
+
+The background is a solid-colored layer drawn behind each workspace.
+
+It's visible through transparent windows, between [gaps](#programsnirisettingsworkspacesnamelayoutgaps), and inside any [struts](#programsnirisettingsworkspacesnamelayoutstruts)
+
+See also [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.gaps`
+- type: `null or floating point number or signed integer`
 - default: `null`
 
-The size of the cursor in logical pixels.
-
-This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-
-
-## `programs.niri.settings.cursor.hide-when-typing`
-- type: `null or boolean`
-- default: `null`
-
-Whether to hide the cursor when typing.
+overrides:
+- [`layout.gaps`](#programsnirisettingslayoutgaps)
+- [`outputs.<name>.layout.gaps`](#programsnirisettingsoutputsnamelayoutgaps)
 
 
-## `programs.niri.settings.cursor.hide-after-inactive-ms`
-- type: `null or signed integer`
-- default: `null`
-
-If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
 
 
-## `programs.niri.settings.screenshot`
+
+The gap between windows in the layout, measured in logical pixels.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts`
 - type: `null or (submodule)`
 - default: `null`
 
-
-## `programs.niri.settings.screenshot.path`
-- type: `null or string`
-
-The path to save screenshots to.
-
-If this is null, then no screenshots will be saved.
-
-If the path starts with a `~`, then it will be expanded to the user's home directory.
-
-The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+overrides:
+- [`layout.struts`](#programsnirisettingslayoutstruts)
+- [`outputs.<name>.layout.struts`](#programsnirisettingsoutputsnamelayoutstruts)
 
 
-<!-- programs.niri.settings.hotkey-overlay -->
 
-## `programs.niri.settings.hotkey-overlay.skip-at-startup`
-- type: `null or boolean`
+
+
+The distances from the edges of the workspace to the edges of the working area.
+
+The top and bottom struts are absolute gaps from the edges of the workspace. If you set a bottom strut of 64px and the scale is 2.0, then the workspace will have 128 physical pixels under the scrollable working area where it only shows the background.
+
+Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero [borders](#programsnirisettingsworkspacesnamelayoutborder) and [gaps](#programsnirisettingsworkspacesnamelayoutgaps))
+
+Note that individual struts cannot be modified separately. This option configures all four struts at once.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.bottom`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.left`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.right`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.top`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-column-widths`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
 - default: `null`
 
-Whether to skip the hotkey overlay shown when niri starts.
+overrides:
+- [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths)
+- [`outputs.<name>.layout.preset-column-widths`](#programsnirisettingsoutputsnamelayoutpreset-column-widths)
 
 
-## `programs.niri.settings.hotkey-overlay.hide-not-bound`
-- type: `null or boolean`
-- default: `null`
-
-By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
-In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
-
-You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
 
 
-<!-- programs.niri.settings.config-notification -->
 
-## `programs.niri.settings.config-notification.disable-failed`
-- type: `null or boolean`
-- default: `null`
+The widths that `switch-preset-column-width` will cycle through.
 
-Disable the notification that the config file failed to load.
+Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
 
-
-<!-- programs.niri.settings.clipboard -->
-
-## `programs.niri.settings.clipboard.disable-primary`
-- type: `null or boolean`
-- default: `null`
-
-The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
-
-This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
-
-This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
-
-If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
-
-Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
-
-
-## `programs.niri.settings.prefer-no-csd`
-- type: `null or boolean`
-- default: `null`
-
-Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
-
-
-## `programs.niri.settings.environment`
-- type: `attribute set of (null or string)`
-
-Environment variables to set for processes spawned by niri.
-
-If an environment variable is already set in the environment, then it will be overridden by the value set here.
-
-If a value is null, then the environment variable will be unset, even if it already existed.
-
-Examples:
+Example:
 
 ```nix
 {
-  programs.niri.settings.environment = {
-    QT_QPA_PLATFORM = "wayland";
-    DISPLAY = null;
-  };
+  programs.niri.settings.workspaces.<name>.layout.preset-column-widths = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1920; }
+  ];
 }
 ```
 
 
 
-## `programs.niri.settings.xwayland-satellite`
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-column-widths.*.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
 
 
-Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
+## `programs.niri.settings.workspaces.<name>.layout.preset-column-widths.*.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
 
 
-## `programs.niri.settings.xwayland-satellite.enable`
+## `programs.niri.settings.workspaces.<name>.layout.preset-window-heights`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
+
+overrides:
+- [`layout.preset-window-heights`](#programsnirisettingslayoutpreset-window-heights)
+- [`outputs.<name>.layout.preset-window-heights`](#programsnirisettingsoutputsnamelayoutpreset-window-heights)
+
+
+
+
+
+The heights that `switch-preset-window-height` will cycle through.
+
+Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.workspaces.<name>.layout.preset-window-heights = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1080; }
+  ];
+}
+```
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-window-heights.*.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-window-heights.*.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-width`
+- type: `null or {} or attribute-tagged union with choices: fixed, proportion`
+- default: `null`
+
+overrides:
+- [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
+- [`outputs.<name>.layout.default-column-width`](#programsnirisettingsoutputsnamelayoutdefault-column-width)
+
+
+
+overridden by:
+- [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
+
+
+
+The default width for new columns with a freshly opened window.
+
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+overrides:
+- [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display)
+- [`outputs.<name>.layout.default-column-display`](#programsnirisettingsoutputsnamelayoutdefault-column-display)
+
+
+
+overridden by:
+- [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display)
+
+
+
+How windows in newly opened columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.center-focused-column`
+- type: `null or one of "never", "always", "on-overflow"`
+- default: `null`
+
+overrides:
+- [`layout.center-focused-column`](#programsnirisettingslayoutcenter-focused-column)
+- [`outputs.<name>.layout.center-focused-column`](#programsnirisettingsoutputsnamelayoutcenter-focused-column)
+
+
+
+
+
+When changing focus, niri can automatically center the focused column.
+
+- `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+- `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+- `"always"`: the focused column will always be centered, even if it was already fully visible.
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.always-center-single-column`
 - type: `null or boolean`
 - default: `null`
 
+overrides:
+- [`layout.always-center-single-column`](#programsnirisettingslayoutalways-center-single-column)
+- [`outputs.<name>.layout.always-center-single-column`](#programsnirisettingsoutputsnamelayoutalways-center-single-column)
 
-## `programs.niri.settings.xwayland-satellite.path`
+
+
+
+
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border`
+
+
+refines:
+- [`layout.border`](#programsnirisettingslayoutborder)
+- [`outputs.<name>.layout.border`](#programsnirisettingsoutputsnamelayoutborder)
+
+
+
+refined by:
+- [`window-rules.*.border`](#programsnirisettingswindow-rulesborder)
+
+
+
+The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingsworkspacesnamelayoutborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingsworkspacesnamelayoutborderinactive).
+
+If you have the [`focus-ring`](#programsnirisettingsworkspacesnamelayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.border.enable`](#programsnirisettingslayoutborderenable)
+- [`outputs.<name>.layout.border.enable`](#programsnirisettingsoutputsnamelayoutborderenable)
+
+
+
+overridden by:
+- [`window-rules.*.border.enable`](#programsnirisettingswindow-rulesborderenable)
+
+
+
+Whether to enable the border.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.border.width`](#programsnirisettingslayoutborderwidth)
+- [`outputs.<name>.layout.border.width`](#programsnirisettingsoutputsnamelayoutborderwidth)
+
+
+
+overridden by:
+- [`window-rules.*.border.width`](#programsnirisettingswindow-rulesborderwidth)
+
+
+
+The width of the border drawn around each window.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.border.urgent`](#programsnirisettingslayoutborderurgent)
+- [`outputs.<name>.layout.border.urgent`](#programsnirisettingsoutputsnamelayoutborderurgent)
+
+
+
+overridden by:
+- [`window-rules.*.border.urgent`](#programsnirisettingswindow-rulesborderurgent)
+
+
+
+The color of the border for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.border.active`](#programsnirisettingslayoutborderactive)
+- [`outputs.<name>.layout.border.active`](#programsnirisettingsoutputsnamelayoutborderactive)
+
+
+
+overridden by:
+- [`window-rules.*.border.active`](#programsnirisettingswindow-rulesborderactive)
+
+
+
+The color of the border for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.border.inactive`](#programsnirisettingslayoutborderinactive)
+- [`outputs.<name>.layout.border.inactive`](#programsnirisettingsoutputsnamelayoutborderinactive)
+
+
+
+overridden by:
+- [`window-rules.*.border.inactive`](#programsnirisettingswindow-rulesborderinactive)
+
+
+
+The color of the border for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring`
+
+
+refines:
+- [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring)
+- [`outputs.<name>.layout.focus-ring`](#programsnirisettingsoutputsnamelayoutfocus-ring)
+
+
+
+refined by:
+- [`window-rules.*.focus-ring`](#programsnirisettingswindow-rulesfocus-ring)
+
+
+
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingsworkspacesnamelayoutfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingsworkspacesnamelayoutfocus-ringinactive).
+
+If you have the [`border`](#programsnirisettingsworkspacesnamelayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.enable`](#programsnirisettingslayoutfocus-ringenable)
+- [`outputs.<name>.layout.focus-ring.enable`](#programsnirisettingsoutputsnamelayoutfocus-ringenable)
+
+
+
+overridden by:
+- [`window-rules.*.focus-ring.enable`](#programsnirisettingswindow-rulesfocus-ringenable)
+
+
+
+Whether to enable the focus ring.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.width`](#programsnirisettingslayoutfocus-ringwidth)
+- [`outputs.<name>.layout.focus-ring.width`](#programsnirisettingsoutputsnamelayoutfocus-ringwidth)
+
+
+
+overridden by:
+- [`window-rules.*.focus-ring.width`](#programsnirisettingswindow-rulesfocus-ringwidth)
+
+
+
+The width of the focus ring drawn around each focused window.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.urgent`](#programsnirisettingslayoutfocus-ringurgent)
+- [`outputs.<name>.layout.focus-ring.urgent`](#programsnirisettingsoutputsnamelayoutfocus-ringurgent)
+
+
+
+overridden by:
+- [`window-rules.*.focus-ring.urgent`](#programsnirisettingswindow-rulesfocus-ringurgent)
+
+
+
+The color of the focus ring for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive)
+- [`outputs.<name>.layout.focus-ring.active`](#programsnirisettingsoutputsnamelayoutfocus-ringactive)
+
+
+
+overridden by:
+- [`window-rules.*.focus-ring.active`](#programsnirisettingswindow-rulesfocus-ringactive)
+
+
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive)
+- [`outputs.<name>.layout.focus-ring.inactive`](#programsnirisettingsoutputsnamelayoutfocus-ringinactive)
+
+
+
+overridden by:
+- [`window-rules.*.focus-ring.inactive`](#programsnirisettingswindow-rulesfocus-ringinactive)
+
+
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator`
+
+
+refines:
+- [`layout.tab-indicator`](#programsnirisettingslayouttab-indicator)
+- [`outputs.<name>.layout.tab-indicator`](#programsnirisettingsoutputsnamelayouttab-indicator)
+
+
+
+refined by:
+- [`window-rules.*.tab-indicator`](#programsnirisettingswindow-rulestab-indicator)
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.enable`](#programsnirisettingslayouttab-indicatorenable)
+- [`outputs.<name>.layout.tab-indicator.enable`](#programsnirisettingsoutputsnamelayouttab-indicatorenable)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.hide-when-single-tab`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.hide-when-single-tab`](#programsnirisettingslayouttab-indicatorhide-when-single-tab)
+- [`outputs.<name>.layout.tab-indicator.hide-when-single-tab`](#programsnirisettingsoutputsnamelayouttab-indicatorhide-when-single-tab)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.place-within-column`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.place-within-column`](#programsnirisettingslayouttab-indicatorplace-within-column)
+- [`outputs.<name>.layout.tab-indicator.place-within-column`](#programsnirisettingsoutputsnamelayouttab-indicatorplace-within-column)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.gap`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.gap`](#programsnirisettingslayouttab-indicatorgap)
+- [`outputs.<name>.layout.tab-indicator.gap`](#programsnirisettingsoutputsnamelayouttab-indicatorgap)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.width`](#programsnirisettingslayouttab-indicatorwidth)
+- [`outputs.<name>.layout.tab-indicator.width`](#programsnirisettingsoutputsnamelayouttab-indicatorwidth)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.length`
+- type: `null or (submodule)`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.length`](#programsnirisettingslayouttab-indicatorlength)
+- [`outputs.<name>.layout.tab-indicator.length`](#programsnirisettingsoutputsnamelayouttab-indicatorlength)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.length.total-proportion`
+- type: `floating point number`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.position`
+- type: `null or one of "left", "right", "top", "bottom"`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.position`](#programsnirisettingslayouttab-indicatorposition)
+- [`outputs.<name>.layout.tab-indicator.position`](#programsnirisettingsoutputsnamelayouttab-indicatorposition)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.gaps-between-tabs`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.gaps-between-tabs`](#programsnirisettingslayouttab-indicatorgaps-between-tabs)
+- [`outputs.<name>.layout.tab-indicator.gaps-between-tabs`](#programsnirisettingsoutputsnamelayouttab-indicatorgaps-between-tabs)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.corner-radius`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.corner-radius`](#programsnirisettingslayouttab-indicatorcorner-radius)
+- [`outputs.<name>.layout.tab-indicator.corner-radius`](#programsnirisettingsoutputsnamelayouttab-indicatorcorner-radius)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent)
+- [`outputs.<name>.layout.tab-indicator.urgent`](#programsnirisettingsoutputsnamelayouttab-indicatorurgent)
+
+
+
+overridden by:
+- [`window-rules.*.tab-indicator.urgent`](#programsnirisettingswindow-rulestab-indicatorurgent)
+
+
+
+The color of the tab indicator for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive)
+- [`outputs.<name>.layout.tab-indicator.active`](#programsnirisettingsoutputsnamelayouttab-indicatoractive)
+
+
+
+overridden by:
+- [`window-rules.*.tab-indicator.active`](#programsnirisettingswindow-rulestab-indicatoractive)
+
+
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive)
+- [`outputs.<name>.layout.tab-indicator.inactive`](#programsnirisettingsoutputsnamelayouttab-indicatorinactive)
+
+
+
+overridden by:
+- [`window-rules.*.tab-indicator.inactive`](#programsnirisettingswindow-rulestab-indicatorinactive)
+
+
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow`
+
+
+refines:
+- [`layout.shadow`](#programsnirisettingslayoutshadow)
+- [`outputs.<name>.layout.shadow`](#programsnirisettingsoutputsnamelayoutshadow)
+
+
+
+refined by:
+- [`window-rules.*.shadow`](#programsnirisettingswindow-rulesshadow)
+- [`layer-rules.*.shadow`](#programsnirisettingslayer-rulesshadow)
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.shadow.enable`](#programsnirisettingslayoutshadowenable)
+- [`outputs.<name>.layout.shadow.enable`](#programsnirisettingsoutputsnamelayoutshadowenable)
+
+
+
+overridden by:
+- [`window-rules.*.shadow.enable`](#programsnirisettingswindow-rulesshadowenable)
+
+
+
+Whether to enable shadows for windows in this workspace.
+
+Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set [`layer-rules.*.shadow.enable`](#programsnirisettingslayer-rulesshadowenable) to `true`.
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+overrides:
+- [`layout.shadow.offset`](#programsnirisettingslayoutshadowoffset)
+- [`outputs.<name>.layout.shadow.offset`](#programsnirisettingsoutputsnamelayoutshadowoffset)
+
+
+
+overridden by:
+- [`window-rules.*.shadow.offset`](#programsnirisettingswindow-rulesshadowoffset)
+- [`layer-rules.*.shadow.offset`](#programsnirisettingslayer-rulesshadowoffset)
+
+
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.shadow.softness`](#programsnirisettingslayoutshadowsoftness)
+- [`outputs.<name>.layout.shadow.softness`](#programsnirisettingsoutputsnamelayoutshadowsoftness)
+
+
+
+overridden by:
+- [`window-rules.*.shadow.softness`](#programsnirisettingswindow-rulesshadowsoftness)
+- [`layer-rules.*.shadow.softness`](#programsnirisettingslayer-rulesshadowsoftness)
+
+
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.shadow.spread`](#programsnirisettingslayoutshadowspread)
+- [`outputs.<name>.layout.shadow.spread`](#programsnirisettingsoutputsnamelayoutshadowspread)
+
+
+
+overridden by:
+- [`window-rules.*.shadow.spread`](#programsnirisettingswindow-rulesshadowspread)
+- [`layer-rules.*.shadow.spread`](#programsnirisettingslayer-rulesshadowspread)
+
+
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.shadow.draw-behind-window`](#programsnirisettingslayoutshadowdraw-behind-window)
+- [`outputs.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsoutputsnamelayoutshadowdraw-behind-window)
+
+
+
+overridden by:
+- [`window-rules.*.shadow.draw-behind-window`](#programsnirisettingswindow-rulesshadowdraw-behind-window)
+- [`layer-rules.*.shadow.draw-behind-window`](#programsnirisettingslayer-rulesshadowdraw-behind-window)
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.color`
 - type: `null or string`
 - default: `null`
 
-Path to the xwayland-satellite binary.
+overrides:
+- [`layout.shadow.color`](#programsnirisettingslayoutshadowcolor)
+- [`outputs.<name>.layout.shadow.color`](#programsnirisettingsoutputsnamelayoutshadowcolor)
 
-Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
+
+
+overridden by:
+- [`window-rules.*.shadow.color`](#programsnirisettingswindow-rulesshadowcolor)
+- [`layer-rules.*.shadow.color`](#programsnirisettingslayer-rulesshadowcolor)
+
+
+
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+overrides:
+- [`layout.shadow.inactive-color`](#programsnirisettingslayoutshadowinactive-color)
+- [`outputs.<name>.layout.shadow.inactive-color`](#programsnirisettingsoutputsnamelayoutshadowinactive-color)
+
+
+
+overridden by:
+- [`window-rules.*.shadow.inactive-color`](#programsnirisettingswindow-rulesshadowinactive-color)
+- [`layer-rules.*.shadow.inactive-color`](#programsnirisettingslayer-rulesshadowinactive-color)
+
+
+
+
 
 
 ## `programs.niri.settings.window-rules`
@@ -2517,179 +5040,26 @@ Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to
 - type: `floating point number`
 
 
-## `programs.niri.settings.window-rules.*.border`
-
-
-See [`layout.border`](#programsnirisettingslayoutborder).
-
-
-## `programs.niri.settings.window-rules.*.border.enable`
-- type: `null or boolean`
-- default: `null`
-
-Whether to enable the border.
-
-
-## `programs.niri.settings.window-rules.*.border.width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the border drawn around each matched window.
-
-
-## `programs.niri.settings.window-rules.*.border.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for the window that has keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.border.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that do not have keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.border.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that are requesting attention.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring`
-
-
-See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.enable`
-- type: `null or boolean`
-- default: `null`
-
-Whether to enable the focus ring.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the focus ring drawn around each matched window with focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for the window that has keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that do not have keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that are requesting attention.
-
-
-<!-- programs.niri.settings.window-rules.*.tab-indicator -->
-
-## `programs.niri.settings.window-rules.*.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
-
-
-<!-- programs.niri.settings.window-rules.*.shadow -->
-
-## `programs.niri.settings.window-rules.*.shadow.enable`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset`
-- type: `null or (submodule)`
-- default: `null`
-
-The offset of the shadow from the window, measured in logical pixels.
-
-This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset.x`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset.y`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.window-rules.*.shadow.softness`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The softness/size of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.window-rules.*.shadow.spread`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The spread of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
-
-
 ## `programs.niri.settings.window-rules.*.default-column-width`
 - type: `null or {} or attribute-tagged union with choices: fixed, proportion`
 - default: `null`
 
-The default width for new columns.
+overrides:
+- [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
+- [`outputs.<name>.layout.default-column-width`](#programsnirisettingsoutputsnamelayoutdefault-column-width)
+- [`workspaces.<name>.layout.default-column-width`](#programsnirisettingsworkspacesnamelayoutdefault-column-width)
 
-If the final value of this option is null, it default to [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
 
-If the final value option is not null, then its value will take priority over [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width) for windows matching this rule.
 
-An empty attrset `{}` is not the same as null. When this is set to an empty attrset `{}`, windows will get to decide their initial width. When set to null, it represents that this particular window rule has no effect on the default width (and it should instead be taken from an earlier rule or the global default).
+
+
+The default width for new columns with a freshly opened window.
+
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
 
 
 
@@ -2734,6 +5104,31 @@ The height of the window in logical pixels
 The height of the window as a proportion of the screen's height
 
 
+## `programs.niri.settings.window-rules.*.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+overrides:
+- [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display)
+- [`outputs.<name>.layout.default-column-display`](#programsnirisettingsoutputsnamelayoutdefault-column-display)
+- [`workspaces.<name>.layout.default-column-display`](#programsnirisettingsworkspacesnamelayoutdefault-column-display)
+
+
+
+
+
+How windows in newly opened columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+
+
 ## `programs.niri.settings.window-rules.*.max-height`
 - type: `null or signed integer`
 - default: `null`
@@ -2775,13 +5170,425 @@ Sets the minimum width (in logical pixels) that niri will ever ask this window f
 Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
 
 
-## `programs.niri.settings.window-rules.*.default-column-display`
-- type: `null or one of "normal", "tabbed"`
+## `programs.niri.settings.window-rules.*.border`
+
+
+refines:
+- [`layout.border`](#programsnirisettingslayoutborder)
+- [`outputs.<name>.layout.border`](#programsnirisettingsoutputsnamelayoutborder)
+- [`workspaces.<name>.layout.border`](#programsnirisettingsworkspacesnamelayoutborder)
+
+
+
+
+
+The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingswindow-rulesborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingswindow-rulesborderinactive).
+
+If you have the [`focus-ring`](#programsnirisettingswindow-rulesfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
+
+
+## `programs.niri.settings.window-rules.*.border.enable`
+- type: `null or boolean`
 - default: `null`
 
-When this window is inserted into the tiling layout such that a new column is created (e.g. when it is first opened, when it is expelled from an existing column, when it's moved to a new workspace, etc), this setting controls the default display mode of the column.
+overrides:
+- [`layout.border.enable`](#programsnirisettingslayoutborderenable)
+- [`outputs.<name>.layout.border.enable`](#programsnirisettingsoutputsnamelayoutborderenable)
+- [`workspaces.<name>.layout.border.enable`](#programsnirisettingsworkspacesnamelayoutborderenable)
 
-If the final value of this field is null, then the default display mode is taken from [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display).
+
+
+
+
+Whether to enable the border.
+
+
+
+## `programs.niri.settings.window-rules.*.border.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.border.width`](#programsnirisettingslayoutborderwidth)
+- [`outputs.<name>.layout.border.width`](#programsnirisettingsoutputsnamelayoutborderwidth)
+- [`workspaces.<name>.layout.border.width`](#programsnirisettingsworkspacesnamelayoutborderwidth)
+
+
+
+
+
+The width of the border drawn around each window.
+
+
+
+## `programs.niri.settings.window-rules.*.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.border.urgent`](#programsnirisettingslayoutborderurgent)
+- [`outputs.<name>.layout.border.urgent`](#programsnirisettingsoutputsnamelayoutborderurgent)
+- [`workspaces.<name>.layout.border.urgent`](#programsnirisettingsworkspacesnamelayoutborderurgent)
+
+
+
+
+
+The color of the border for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.window-rules.*.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.border.active`](#programsnirisettingslayoutborderactive)
+- [`outputs.<name>.layout.border.active`](#programsnirisettingsoutputsnamelayoutborderactive)
+- [`workspaces.<name>.layout.border.active`](#programsnirisettingsworkspacesnamelayoutborderactive)
+
+
+
+
+
+The color of the border for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.window-rules.*.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.border.inactive`](#programsnirisettingslayoutborderinactive)
+- [`outputs.<name>.layout.border.inactive`](#programsnirisettingsoutputsnamelayoutborderinactive)
+- [`workspaces.<name>.layout.border.inactive`](#programsnirisettingsworkspacesnamelayoutborderinactive)
+
+
+
+
+
+The color of the border for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.window-rules.*.focus-ring`
+
+
+refines:
+- [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring)
+- [`outputs.<name>.layout.focus-ring`](#programsnirisettingsoutputsnamelayoutfocus-ring)
+- [`workspaces.<name>.layout.focus-ring`](#programsnirisettingsworkspacesnamelayoutfocus-ring)
+
+
+
+
+
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingswindow-rulesfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingswindow-rulesfocus-ringinactive).
+
+If you have the [`border`](#programsnirisettingswindow-rulesborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.enable`](#programsnirisettingslayoutfocus-ringenable)
+- [`outputs.<name>.layout.focus-ring.enable`](#programsnirisettingsoutputsnamelayoutfocus-ringenable)
+- [`workspaces.<name>.layout.focus-ring.enable`](#programsnirisettingsworkspacesnamelayoutfocus-ringenable)
+
+
+
+
+
+Whether to enable the focus ring.
+
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.width`](#programsnirisettingslayoutfocus-ringwidth)
+- [`outputs.<name>.layout.focus-ring.width`](#programsnirisettingsoutputsnamelayoutfocus-ringwidth)
+- [`workspaces.<name>.layout.focus-ring.width`](#programsnirisettingsworkspacesnamelayoutfocus-ringwidth)
+
+
+
+
+
+The width of the focus ring drawn around each focused window.
+
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.urgent`](#programsnirisettingslayoutfocus-ringurgent)
+- [`outputs.<name>.layout.focus-ring.urgent`](#programsnirisettingsoutputsnamelayoutfocus-ringurgent)
+- [`workspaces.<name>.layout.focus-ring.urgent`](#programsnirisettingsworkspacesnamelayoutfocus-ringurgent)
+
+
+
+
+
+The color of the focus ring for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive)
+- [`outputs.<name>.layout.focus-ring.active`](#programsnirisettingsoutputsnamelayoutfocus-ringactive)
+- [`workspaces.<name>.layout.focus-ring.active`](#programsnirisettingsworkspacesnamelayoutfocus-ringactive)
+
+
+
+
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive)
+- [`outputs.<name>.layout.focus-ring.inactive`](#programsnirisettingsoutputsnamelayoutfocus-ringinactive)
+- [`workspaces.<name>.layout.focus-ring.inactive`](#programsnirisettingsworkspacesnamelayoutfocus-ringinactive)
+
+
+
+
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator`
+
+
+refines:
+- [`layout.tab-indicator`](#programsnirisettingslayouttab-indicator)
+- [`outputs.<name>.layout.tab-indicator`](#programsnirisettingsoutputsnamelayouttab-indicator)
+- [`workspaces.<name>.layout.tab-indicator`](#programsnirisettingsworkspacesnamelayouttab-indicator)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent)
+- [`outputs.<name>.layout.tab-indicator.urgent`](#programsnirisettingsoutputsnamelayouttab-indicatorurgent)
+- [`workspaces.<name>.layout.tab-indicator.urgent`](#programsnirisettingsworkspacesnamelayouttab-indicatorurgent)
+
+
+
+
+
+The color of the tab indicator for windows that are requesting attention.
+
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive)
+- [`outputs.<name>.layout.tab-indicator.active`](#programsnirisettingsoutputsnamelayouttab-indicatoractive)
+- [`workspaces.<name>.layout.tab-indicator.active`](#programsnirisettingsworkspacesnamelayouttab-indicatoractive)
+
+
+
+
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+overrides:
+- [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive)
+- [`outputs.<name>.layout.tab-indicator.inactive`](#programsnirisettingsoutputsnamelayouttab-indicatorinactive)
+- [`workspaces.<name>.layout.tab-indicator.inactive`](#programsnirisettingsworkspacesnamelayouttab-indicatorinactive)
+
+
+
+
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+
+## `programs.niri.settings.window-rules.*.shadow`
+
+
+refines:
+- [`layout.shadow`](#programsnirisettingslayoutshadow)
+- [`outputs.<name>.layout.shadow`](#programsnirisettingsoutputsnamelayoutshadow)
+- [`workspaces.<name>.layout.shadow`](#programsnirisettingsworkspacesnamelayoutshadow)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.window-rules.*.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.shadow.enable`](#programsnirisettingslayoutshadowenable)
+- [`outputs.<name>.layout.shadow.enable`](#programsnirisettingsoutputsnamelayoutshadowenable)
+- [`workspaces.<name>.layout.shadow.enable`](#programsnirisettingsworkspacesnamelayoutshadowenable)
+
+
+
+
+
+Whether to enable shadows on this window.
+
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+overrides:
+- [`layout.shadow.offset`](#programsnirisettingslayoutshadowoffset)
+- [`outputs.<name>.layout.shadow.offset`](#programsnirisettingsoutputsnamelayoutshadowoffset)
+- [`workspaces.<name>.layout.shadow.offset`](#programsnirisettingsworkspacesnamelayoutshadowoffset)
+
+
+
+
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.window-rules.*.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.shadow.softness`](#programsnirisettingslayoutshadowsoftness)
+- [`outputs.<name>.layout.shadow.softness`](#programsnirisettingsoutputsnamelayoutshadowsoftness)
+- [`workspaces.<name>.layout.shadow.softness`](#programsnirisettingsworkspacesnamelayoutshadowsoftness)
+
+
+
+
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.window-rules.*.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+overrides:
+- [`layout.shadow.spread`](#programsnirisettingslayoutshadowspread)
+- [`outputs.<name>.layout.shadow.spread`](#programsnirisettingsoutputsnamelayoutshadowspread)
+- [`workspaces.<name>.layout.shadow.spread`](#programsnirisettingsworkspacesnamelayoutshadowspread)
+
+
+
+
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+
+## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+overrides:
+- [`layout.shadow.draw-behind-window`](#programsnirisettingslayoutshadowdraw-behind-window)
+- [`outputs.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsoutputsnamelayoutshadowdraw-behind-window)
+- [`workspaces.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsworkspacesnamelayoutshadowdraw-behind-window)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.window-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+overrides:
+- [`layout.shadow.color`](#programsnirisettingslayoutshadowcolor)
+- [`outputs.<name>.layout.shadow.color`](#programsnirisettingsoutputsnamelayoutshadowcolor)
+- [`workspaces.<name>.layout.shadow.color`](#programsnirisettingsworkspacesnamelayoutshadowcolor)
+
+
+
+
+
+
+
+
+## `programs.niri.settings.window-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+overrides:
+- [`layout.shadow.inactive-color`](#programsnirisettingslayoutshadowinactive-color)
+- [`outputs.<name>.layout.shadow.inactive-color`](#programsnirisettingsoutputsnamelayoutshadowinactive-color)
+- [`workspaces.<name>.layout.shadow.inactive-color`](#programsnirisettingsworkspacesnamelayoutshadowinactive-color)
+
+
+
+
+
+
 
 
 ## `programs.niri.settings.window-rules.*.open-on-output`
@@ -3118,20 +5925,52 @@ The corner radii of the surface layer decorations (shadow) in logical pixels.
 - type: `floating point number`
 
 
-<!-- programs.niri.settings.layer-rules.*.shadow -->
+## `programs.niri.settings.layer-rules.*.shadow`
+
+
+refines:
+- [`layout.shadow`](#programsnirisettingslayoutshadow)
+- [`outputs.<name>.layout.shadow`](#programsnirisettingsoutputsnamelayoutshadow)
+- [`workspaces.<name>.layout.shadow`](#programsnirisettingsworkspacesnamelayoutshadow)
+
+
+
+
+
+
+
 
 ## `programs.niri.settings.layer-rules.*.shadow.enable`
 - type: `null or boolean`
 - default: `null`
 
 
+
+
+
+Whether to enable shadows for this layer surface.
+
+Note that while shadow properties are generally inherited from the workspace layout, this option is an exception. [`workspaces.<name>.layout.shadow.enable`](#programsnirisettingsworkspacesnamelayoutshadowenable) has no effect on this option. To use shadows on layer surfaces, you must explicitly set this option to true.
+
+
+
 ## `programs.niri.settings.layer-rules.*.shadow.offset`
 - type: `null or (submodule)`
 - default: `null`
 
+overrides:
+- [`layout.shadow.offset`](#programsnirisettingslayoutshadowoffset)
+- [`outputs.<name>.layout.shadow.offset`](#programsnirisettingsoutputsnamelayoutshadowoffset)
+- [`workspaces.<name>.layout.shadow.offset`](#programsnirisettingsworkspacesnamelayoutshadowoffset)
+
+
+
+
+
 The offset of the shadow from the window, measured in logical pixels.
 
 This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
 
 
 ## `programs.niri.settings.layer-rules.*.shadow.offset.x`
@@ -3146,33 +5985,86 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 - type: `null or floating point number or signed integer`
 - default: `null`
 
+overrides:
+- [`layout.shadow.softness`](#programsnirisettingslayoutshadowsoftness)
+- [`outputs.<name>.layout.shadow.softness`](#programsnirisettingsoutputsnamelayoutshadowsoftness)
+- [`workspaces.<name>.layout.shadow.softness`](#programsnirisettingsworkspacesnamelayoutshadowsoftness)
+
+
+
+
+
 The softness/size of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
 
 
 ## `programs.niri.settings.layer-rules.*.shadow.spread`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
+overrides:
+- [`layout.shadow.spread`](#programsnirisettingslayoutshadowspread)
+- [`outputs.<name>.layout.shadow.spread`](#programsnirisettingsoutputsnamelayoutshadowspread)
+- [`workspaces.<name>.layout.shadow.spread`](#programsnirisettingsworkspacesnamelayoutshadowspread)
+
+
+
+
+
 The spread of the shadow, measured in logical pixels.
 
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
 
 
 ## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
 - type: `null or boolean`
 - default: `null`
 
+overrides:
+- [`layout.shadow.draw-behind-window`](#programsnirisettingslayoutshadowdraw-behind-window)
+- [`outputs.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsoutputsnamelayoutshadowdraw-behind-window)
+- [`workspaces.<name>.layout.shadow.draw-behind-window`](#programsnirisettingsworkspacesnamelayoutshadowdraw-behind-window)
+
+
+
+
+
+
+
 
 ## `programs.niri.settings.layer-rules.*.shadow.color`
 - type: `null or string`
 - default: `null`
 
+overrides:
+- [`layout.shadow.color`](#programsnirisettingslayoutshadowcolor)
+- [`outputs.<name>.layout.shadow.color`](#programsnirisettingsoutputsnamelayoutshadowcolor)
+- [`workspaces.<name>.layout.shadow.color`](#programsnirisettingsworkspacesnamelayoutshadowcolor)
+
+
+
+
+
+
+
 
 ## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
 - type: `null or string`
 - default: `null`
+
+overrides:
+- [`layout.shadow.inactive-color`](#programsnirisettingslayoutshadowinactive-color)
+- [`outputs.<name>.layout.shadow.inactive-color`](#programsnirisettingsoutputsnamelayoutshadowinactive-color)
+- [`workspaces.<name>.layout.shadow.inactive-color`](#programsnirisettingsworkspacesnamelayoutshadowinactive-color)
+
+
+
+
+
+
 
 
 ## `programs.niri.settings.layer-rules.*.place-within-backdrop`
@@ -3192,322 +6084,197 @@ Makes your layer surface FLOAT up and down, like in the game Baba Is You.
 Made for April Fools 2025.
 
 
-<!-- programs.niri.settings.animations -->
+## `programs.niri.settings.spawn-at-startup`
+- type: `list of attribute-tagged union with choices: argv, command, sh`
 
-## `programs.niri.settings.animations.enable`
+A list of commands to run when niri starts.
+
+Each command can be represented as its raw arguments, or as a shell invocation.
+
+When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+
+
+## `programs.niri.settings.spawn-at-startup.*.argv`
+- type: `list of string`
+
+Almost raw process arguments to spawn, without shell syntax.
+
+A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { argv = ["waybar"]; }
+    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
+    { argv = ["~/.config/niri/scripts/startup.sh"]; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.spawn-at-startup.*.sh`
+- type: `string`
+
+A shell command to spawn. Run wild with POSIX syntax.
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
+  ];
+}
+```
+
+
+Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
+
+
+<!-- programs.niri.settings.cursor -->
+
+## `programs.niri.settings.cursor.theme`
+- type: `null or string`
+- default: `null`
+
+The name of the xcursor theme to use.
+
+This will also set the XCURSOR_THEME environment variable for all spawned processes.
+
+
+## `programs.niri.settings.cursor.size`
+- type: `null or signed integer`
+- default: `null`
+
+The size of the cursor in logical pixels.
+
+This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+
+
+## `programs.niri.settings.cursor.hide-when-typing`
+- type: `null or boolean`
+- default: `null`
+
+Whether to hide the cursor when typing.
+
+
+## `programs.niri.settings.cursor.hide-after-inactive-ms`
+- type: `null or signed integer`
+- default: `null`
+
+If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+
+
+## `programs.niri.settings.screenshot`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.screenshot.path`
+- type: `null or string`
+
+The path to save screenshots to.
+
+If this is null, then no screenshots will be saved.
+
+If the path starts with a `~`, then it will be expanded to the user's home directory.
+
+The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+
+
+<!-- programs.niri.settings.hotkey-overlay -->
+
+## `programs.niri.settings.hotkey-overlay.skip-at-startup`
+- type: `null or boolean`
+- default: `null`
+
+Whether to skip the hotkey overlay shown when niri starts.
+
+
+## `programs.niri.settings.hotkey-overlay.hide-not-bound`
+- type: `null or boolean`
+- default: `null`
+
+By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
+In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
+
+You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
+
+
+<!-- programs.niri.settings.config-notification -->
+
+## `programs.niri.settings.config-notification.disable-failed`
+- type: `null or boolean`
+- default: `null`
+
+Disable the notification that the config file failed to load.
+
+
+<!-- programs.niri.settings.clipboard -->
+
+## `programs.niri.settings.clipboard.disable-primary`
+- type: `null or boolean`
+- default: `null`
+
+The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
+
+This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
+
+This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
+
+If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
+
+Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
+
+
+## `programs.niri.settings.prefer-no-csd`
+- type: `null or boolean`
+- default: `null`
+
+Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
+
+
+## `programs.niri.settings.environment`
+- type: `attribute set of (null or string)`
+
+Environment variables to set for processes spawned by niri.
+
+If an environment variable is already set in the environment, then it will be overridden by the value set here.
+
+If a value is null, then the environment variable will be unset, even if it already existed.
+
+Examples:
+
+```nix
+{
+  programs.niri.settings.environment = {
+    QT_QPA_PLATFORM = "wayland";
+    DISPLAY = null;
+  };
+}
+```
+
+
+
+## `programs.niri.settings.xwayland-satellite`
+
+
+Xwayland-satellite integration. Requires unstable niri and unstable xwayland-satellite.
+
+
+## `programs.niri.settings.xwayland-satellite.enable`
 - type: `null or boolean`
 - default: `null`
 
 
-## `programs.niri.settings.animations.slowdown`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-
-## `programs.niri.settings.animations.workspace-switch`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.workspace-switch.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.workspace-switch.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.config-notification-open-close`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.config-notification-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.config-notification-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.exit-confirmation-open-close`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-movement`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-movement.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-movement.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-open`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-open.custom-shader`
+## `programs.niri.settings.xwayland-satellite.path`
 - type: `null or string`
 - default: `null`
 
-Source code for a GLSL shader to use for this animation.
+Path to the xwayland-satellite binary.
 
-For example, set it to `builtins.readFile ./window-open.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-open.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-open.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-close`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-close.custom-shader`
-- type: `null or string`
-- default: `null`
-
-Source code for a GLSL shader to use for this animation.
-
-For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-resize`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.window-resize.custom-shader`
-- type: `null or string`
-- default: `null`
-
-Source code for a GLSL shader to use for this animation.
-
-For example, set it to `builtins.readFile ./window-resize.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-resize.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-resize.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.screenshot-ui-open`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.screenshot-ui-open.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.screenshot-ui-open.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `programs.niri.settings.animations.overview-open-close`
-- type: `null or (submodule)`
-- default: `null`
-
-
-## `programs.niri.settings.animations.overview-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.overview-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `<animation-kind>`
-- type: `attribute-tagged union with choices: easing, spring`
-
-
-<!-- <animation-kind>.easing -->
-
-## `<animation-kind>.easing.curve`
-- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo", "cubic-bezier"`
-
-The curve to use for the easing function.
-
-
-## `<animation-kind>.easing.curve-args`
-- type: `list of KDL value without type annotation`
-
-Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
-
-
-## `<animation-kind>.easing.duration-ms`
-- type: `signed integer`
-
-
-<!-- <animation-kind>.spring -->
-
-## `<animation-kind>.spring.damping-ratio`
-- type: `floating point number`
-
-
-## `<animation-kind>.spring.epsilon`
-- type: `floating point number`
-
-
-## `<animation-kind>.spring.stiffness`
-- type: `signed integer`
-
-
-<!-- programs.niri.settings.gestures -->
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll`
-
-
-When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the edge of the screen where dragging a window will scroll the view.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The delay in milliseconds before the view starts scrolling.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.max-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
-
-
-In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
-
-This does not happen when the overview is not open.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The height of the edge of the screen where dragging a window will scroll the view.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The delay in milliseconds before the view starts scrolling.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.max-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
-
-
-## `programs.niri.settings.gestures.hot-corners`
-- type: `null or (submodule)`
-- default: `null`
-
-Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
-
-By default, the top-left corner is the only hot corner. You can use this option to explicitly set which hot corners you want.
-
-Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
-
-You can configure different hot corners for each output with [`outputs.<name>.hot-corners`](#programsnirisettingsoutputsnamehot-corners)
-
-
-## `programs.niri.settings.gestures.hot-corners.bottom-left`
-- type: `boolean`
-
-
-## `programs.niri.settings.gestures.hot-corners.bottom-right`
-- type: `boolean`
-
-
-## `programs.niri.settings.gestures.hot-corners.top-left`
-- type: `boolean`
-
-
-## `programs.niri.settings.gestures.hot-corners.top-right`
-- type: `boolean`
+Set it to something like `lib.getExe pkgs.xwayland-satellite-unstable`.
 
 
 ## `programs.niri.settings.debug`

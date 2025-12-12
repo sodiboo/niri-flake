@@ -1,6 +1,7 @@
 {
   lib,
   kdl,
+  hierarchies,
   niri-flake-internal,
   toplevel-options,
   ...
@@ -11,11 +12,10 @@ let
 
   inherit (niri-flake-internal)
     fmt
-    make-rendered-options
-    make-rendered-section
     optional
     float-or-int
     link-opt
+    link-opt'
     subopts
     nullable
     required
@@ -25,6 +25,8 @@ let
     shorthand-for
     link-niri-release
     ;
+
+  inherit (hierarchies) layout-options;
 
   # niri seems to have deprecated this way of defining colors; so we won't support it
   # color-array = mkOptionType {
@@ -160,36 +162,27 @@ let
       };
     };
 
-  make-decoration-options =
-    variants:
-    { options, ... }:
+  make-decoration-option =
+    ctx: name:
     {
-      options = builtins.mapAttrs (
-        name:
-        { description, ... }:
-        nullable (shorthand-for "decoration" (decoration (options.${name})))
-        // {
-          visible = "shallow";
-          inherit description;
-        }
-      ) variants;
-      render =
-        config:
-        builtins.map (
-          name:
-          let
-            color-node = variants.${name}.color-node or "${name}-color";
-            gradient-node = variants.${name}.color-node or "${name}-gradient";
-          in
-          [
-            (lib.mkIf (config ? ${name}.color) [
-              (kdl.leaf color-node config.${name}.color)
-            ])
-            (lib.mkIf (config ? ${name}.gradient) [
-              (render-gradient gradient-node config.${name}.gradient)
-            ])
-          ]
-        ) (builtins.attrNames (variants));
+      description,
+      color-node ? "${name}-color",
+      gradient-node ? "${name}-gradient",
+    }:
+    {
+      options.${name} = ctx.nullable name {
+        type = (shorthand-for "decoration" (decoration (ctx.options.${name})));
+        visible = "shallow";
+        inherit description;
+      };
+      render = config: [
+        (lib.mkIf (config ? ${name}.color) [
+          (kdl.leaf color-node config.${name}.color)
+        ])
+        (lib.mkIf (config ? ${name}.gradient) [
+          (render-gradient gradient-node config.${name}.gradient)
+        ])
+      ];
     };
 
   render-gradient =
@@ -203,25 +196,160 @@ let
       ) cfg
     );
 
-  make-borderish-option =
+  borderish =
     {
-      name,
       node-name,
-      description,
+      name,
       window,
+      description,
     }:
-    make-rendered-section node-name
-      {
-        inherit description;
-        partial = true;
-      }
-      [
+    layout-options.window-level (ctx: {
+      options.${node-name} =
+        ctx.rendered-section node-name
+          {
+            partial = true;
+            description = description ctx.options;
+          }
+          (ctx: [
+            {
+              options.enable = ctx.nullable "enable" {
+                type = types.bool;
+                description = ''
+                  Whether to enable the ${name}.
+                '';
+              };
+              render = config: [
+                (lib.mkIf (config.enable == true) [
+                  (kdl.flag "on")
+                ])
+                (lib.mkIf (config.enable == false) [
+                  (kdl.flag "off")
+                ])
+              ];
+            }
+            {
+              options.width = ctx.nullable "width" {
+                type = float-or-int;
+                description = ''
+                  The width of the ${name} drawn around each ${window}.
+                '';
+              };
+              render = config: [
+                (lib.mkIf (config.width != null) [
+                  (kdl.leaf "width" config.width)
+                ])
+              ];
+            }
+            (make-decoration-option ctx "urgent" {
+              description = ''
+                The color of the ${name} for windows that are requesting attention.
+              '';
+            })
+            (make-decoration-option ctx "active" {
+              description = ''
+                The color of the ${name} for the window that has keyboard focus.
+              '';
+            })
+            (make-decoration-option ctx "inactive" {
+              description = ''
+                The color of the ${name} for windows that do not have keyboard focus.
+              '';
+            })
+          ]);
+      render = config: config.${node-name}.rendered;
+    });
+in
+[
+  (borderish {
+    node-name = "border";
+    name = "border";
+    window = "window";
+    description = layout: ''
+      The border is a decoration drawn ${fmt.em "inside"} every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+      The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to ${
+        link-opt' (subopts layout.border).active [
+          "border"
+          "active"
+        ]
+      }, and all other windows will be drawn according to ${
+        link-opt' (subopts layout.border).inactive [
+          "border"
+          "inactive"
+        ]
+      }.
+
+      If you have the ${
+        link-opt' layout.focus-ring [ "focus-ring" ]
+      } enabled, the border will be drawn inside (and over) the focus ring.
+    '';
+  })
+  (borderish {
+    node-name = "focus-ring";
+    name = "focus ring";
+    window = "focused window";
+    description = layout: ''
+      The focus ring is a decoration drawn ${fmt.em "around"} the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+      The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to ${
+        link-opt' (subopts layout.focus-ring).active [
+          "focus-ring"
+          "active"
+        ]
+      }, and the last focused window on all other workspaces will be drawn according to ${
+        link-opt' (subopts layout.focus-ring).inactive [
+          "focus-ring"
+          "inactive"
+        ]
+      }.
+
+      If you have the ${
+        link-opt' layout.border [ "border" ]
+      } enabled, the focus ring will be drawn around (and under) the border.
+    '';
+  })
+  (layout-options.output-level (ctx: {
+    options.insert-hint =
+      ctx.rendered-section "insert-hint"
         {
-          options.enable = nullable types.bool // {
+          partial = true;
+          description = ''
+            The insert hint is a decoration drawn ${fmt.em "between"} windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+
+            Note that the insert hint is also shown in the overview when dragging a window in the gaps between workspaces, to indicate that releasing it will create a new workspace with that window. As such, insert hints are actually an output-level concept, and so there is no workspace-level configuration.
+          '';
+        }
+        (ctx: [
+          {
+            options.enable = nullable types.bool // {
+              description = ''
+                Whether to enable the insert hint.
+              '';
+            };
+            render = config: [
+              (lib.mkIf (config.enable == true) [
+                (kdl.flag "on")
+              ])
+              (lib.mkIf (config.enable == false) [
+                (kdl.flag "off")
+              ])
+            ];
+          }
+          (make-decoration-option ctx "display" {
             description = ''
-              Whether to enable the ${name}.
+              The color of the insert hint.
             '';
-          };
+            color-node = "color";
+            gradient-node = "gradient";
+          })
+        ]);
+    render = config: config.insert-hint.rendered;
+  }))
+  (layout-options.window-level (ctx: {
+    options.tab-indicator = ctx.rendered-section "tab-indicator" { partial = true; } (ctx: [
+      (ctx.workspace-level (ctx: [
+        {
+          options.enable = ctx.nullable "enable" { type = types.bool; };
           render = config: [
             (lib.mkIf (config.enable == true) [
               (kdl.flag "on")
@@ -232,264 +360,101 @@ let
           ];
         }
         {
-          options.width = nullable float-or-int // {
-            description = ''
-              The width of the ${name} drawn around each ${window}.
-            '';
-          };
+          options.hide-when-single-tab = ctx.nullable "hide-when-single-tab" { type = types.bool; };
+          render = config: [
+            (lib.mkIf (config.hide-when-single-tab != null) [
+              (kdl.leaf "hide-when-single-tab" config.hide-when-single-tab)
+            ])
+          ];
+        }
+        {
+          options.place-within-column = ctx.nullable "place-within-column" { type = types.bool; };
+          render = config: [
+            (lib.mkIf (config.place-within-column != null) [
+              (kdl.leaf "place-within-column" config.place-within-column)
+            ])
+          ];
+        }
+        {
+          options.gap = ctx.nullable "gap" { type = float-or-int; };
+          render = config: [
+            (lib.mkIf (config.gap != null) [
+              (kdl.leaf "gap" config.gap)
+            ])
+          ];
+        }
+        {
+          options.width = ctx.nullable "width" { type = float-or-int; };
           render = config: [
             (lib.mkIf (config.width != null) [
               (kdl.leaf "width" config.width)
             ])
           ];
         }
-        (make-decoration-options {
-          urgent.description = ''
-            The color of the ${name} for windows that are requesting attention.
-          '';
-          active.description = ''
-            The color of the ${name} for the window that has keyboard focus.
-          '';
-          inactive.description = ''
-            The color of the ${name} for windows that do not have keyboard focus.
-          '';
-        })
-      ];
-
-  borderish =
-    {
-      node-name,
-      name,
-      window,
-      matched-window,
-      description,
-    }:
-    {
-      layout = {
-        options.${node-name} = make-borderish-option {
-          inherit
-            name
-            node-name
-            description
-            window
-            ;
-        };
-        render = config: config.${node-name}.rendered;
-      };
-
-      window-rule = {
-        options.${node-name} = make-borderish-option {
-          inherit name node-name;
-          description = ''
-            See ${link-opt (subopts toplevel-options.layout).${node-name}}.
-          '';
-          window = matched-window;
-        };
-        render = config: config.${node-name}.rendered;
-      };
-    };
-
-in
-[
-  (borderish {
-    node-name = "border";
-    name = "border";
-    window = "window";
-    matched-window = "matched window";
-    description = ''
-      The border is a decoration drawn ${fmt.em "inside"} every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
-
-      The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to ${link-opt (subopts (subopts toplevel-options.layout).border).active}, and all other windows will be drawn according to ${link-opt (subopts (subopts toplevel-options.layout).border).inactive}.
-
-      If you have ${link-opt (subopts toplevel-options.layout).focus-ring} enabled, the border will be drawn inside (and over) the focus ring.
-    '';
-  })
-  (borderish {
-    node-name = "focus-ring";
-    name = "focus ring";
-    window = "focused window";
-    matched-window = "matched window with focus";
-    description = ''
-      The focus ring is a decoration drawn ${fmt.em "around"} the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
-
-      The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to ${link-opt (subopts (subopts toplevel-options.layout).focus-ring).active}, and the last focused window on all other monitors will be drawn according to ${link-opt (subopts (subopts toplevel-options.layout).focus-ring).inactive}.
-
-      If you have ${link-opt (subopts toplevel-options.layout).border} enabled, the focus ring will be drawn around (and under) the border.
-    '';
-  })
-  {
-    layout = {
-      options.insert-hint =
-        make-rendered-section "insert-hint"
-          {
-            partial = true;
-            description = ''
-              The insert hint is a decoration drawn ${fmt.em "between"} windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
-            '';
-          }
-          [
-            {
-              options.enable = nullable types.bool // {
-                description = ''
-                  Whether to enable the insert hint.
-                '';
-              };
-              render = config: [
-                (lib.mkIf (config.enable == true) [
-                  (kdl.flag "on")
-                ])
-                (lib.mkIf (config.enable == false) [
-                  (kdl.flag "off")
-                ])
-              ];
-            }
-            (make-decoration-options {
-              display = {
-                description = ''
-                  The color of the insert hint.
-                '';
-                color-node = "color";
-                gradient-node = "gradient";
-              };
-            })
+        {
+          options.length = ctx.nullable "length" {
+            type = record {
+              total-proportion = required types.float;
+            };
+          };
+          render = config: [
+            (lib.mkIf (config.length != null) [
+              (kdl.leaf "length" config.length)
+            ])
           ];
-      render = config: config.insert-hint.rendered;
-    };
-  }
+        }
+        {
+          options.position = ctx.nullable "position" {
+            type = lib.types.enum [
+              "left"
+              "right"
+              "top"
+              "bottom"
+            ];
+          };
+          render = config: [
+            (lib.mkIf (config.position != null) [
+              (kdl.leaf "position" config.position)
+            ])
+          ];
+        }
+        {
+          options.gaps-between-tabs = ctx.nullable "gaps-between-tabs" { type = float-or-int; };
+          render = config: [
+            (lib.mkIf (config.gaps-between-tabs != null) [
+              (kdl.leaf "gaps-between-tabs" config.gaps-between-tabs)
+            ])
+          ];
+        }
+        {
+          options.corner-radius = ctx.nullable "corner-radius" { type = float-or-int; };
+          render = config: [
+            (lib.mkIf (config.corner-radius != null) [
+              (kdl.leaf "corner-radius" config.corner-radius)
+            ])
+          ];
+        }
+      ]))
+      (make-decoration-option ctx "urgent" {
+        description = ''
+          The color of the tab indicator for windows that are requesting attention.
+        '';
+      })
+      (make-decoration-option ctx "active" {
+        description = ''
+          The color of the tab indicator for the window that has keyboard focus.
+        '';
+      })
+      (make-decoration-option ctx "inactive" {
+        description = ''
+          The color of the tab indicator for windows that do not have keyboard focus.
+        '';
+      })
+    ]);
+    render = config: config.tab-indicator.rendered;
+  }))
   {
-    layout = {
-      options.tab-indicator = nullable (
-        lib.types.submodule (
-          make-rendered-options "tab-indicator" { partial = true; } [
-            {
-              options.enable = nullable types.bool;
-              render = config: [
-                (lib.mkIf (config.enable == true) [
-                  (kdl.flag "on")
-                ])
-                (lib.mkIf (config.enable == false) [
-                  (kdl.flag "off")
-                ])
-              ];
-            }
-            {
-              options.hide-when-single-tab = nullable types.bool;
-              render = config: [
-                (lib.mkIf (config.hide-when-single-tab != null) [
-                  (kdl.leaf "hide-when-single-tab" config.hide-when-single-tab)
-                ])
-              ];
-            }
-            {
-              options.place-within-column = nullable types.bool;
-              render = config: [
-                (lib.mkIf (config.place-within-column != null) [
-                  (kdl.leaf "place-within-column" config.place-within-column)
-                ])
-              ];
-            }
-            {
-              options.gap = nullable float-or-int;
-              render = config: [
-                (lib.mkIf (config.gap != null) [
-                  (kdl.leaf "gap" config.gap)
-                ])
-              ];
-            }
-            {
-              options.width = nullable float-or-int;
-              render = config: [
-                (lib.mkIf (config.width != null) [
-                  (kdl.leaf "width" config.width)
-                ])
-              ];
-            }
-            {
-              options.length = nullable (record {
-                total-proportion = required types.float;
-              });
-              render = config: [
-                (lib.mkIf (config.length != null) [
-                  (kdl.leaf "length" config.length)
-                ])
-              ];
-            }
-            {
-              options.position = nullable (
-                lib.types.enum [
-                  "left"
-                  "right"
-                  "top"
-                  "bottom"
-                ]
-              );
-              render = config: [
-                (lib.mkIf (config.position != null) [
-                  (kdl.leaf "position" config.position)
-                ])
-              ];
-            }
-            {
-              options.gaps-between-tabs = nullable float-or-int;
-              render = config: [
-                (lib.mkIf (config.gaps-between-tabs != null) [
-                  (kdl.leaf "gaps-between-tabs" config.gaps-between-tabs)
-                ])
-              ];
-            }
-            {
-              options.corner-radius = nullable float-or-int;
-              render = config: [
-                (lib.mkIf (config.corner-radius != null) [
-                  (kdl.leaf "corner-radius" config.corner-radius)
-                ])
-              ];
-            }
-            (make-decoration-options {
-              urgent.description = ''
-                The color of the tab indicator for windows that are requesting attention.
-              '';
-              active.description = ''
-                The color of the tab indicator for the window that has keyboard focus.
-              '';
-              inactive.description = ''
-                The color of the tab indicator for windows that do not have keyboard focus.
-              '';
-            })
-          ]
-        )
-      );
-      render = config: [
-        (lib.mkIf (config.tab-indicator != null) [
-          config.tab-indicator.rendered
-        ])
-      ];
-    };
-    window-rule = {
-      options.tab-indicator =
-        let
-          layout-tab-indicator = subopts (subopts toplevel-options.layout).tab-indicator;
-        in
-        make-rendered-section "tab-indicator" { partial = true; } [
-          (make-decoration-options {
-            urgent.description = ''
-              See ${link-opt layout-tab-indicator.urgent}.
-            '';
-            active.description = ''
-              See ${link-opt layout-tab-indicator.active}.
-            '';
-            inactive.description = ''
-              See ${link-opt layout-tab-indicator.inactive}.
-            '';
-          })
-        ];
-      render = config: [
-        config.tab-indicator.rendered
-      ];
-    };
-  }
-  {
-    layout = {
+    global-layout = {
       options."<decoration>" =
         let
           self = docs-only (decoration (self // { loc = [ "<decoration>" ]; })) // {

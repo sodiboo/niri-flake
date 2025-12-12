@@ -3,6 +3,7 @@
   kdl,
   niri-flake-internal,
   toplevel-options,
+  appearance,
   ...
 }:
 let
@@ -91,6 +92,7 @@ in
                   ])
                 ];
               }
+              appearance.workspace
             ]
         )
       );
