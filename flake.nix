@@ -463,6 +463,13 @@
             default = true;
           };
 
+          options.niri-flake.homeManagerIntegration.autoImport = nixpkgs.lib.mkOption {
+            description = "Whether Home Manager modules should be autmatically imported.";
+            type = nixpkgs.lib.types.bool;
+            default = true;
+            example = false;
+          };
+
           config = nixpkgs.lib.mkMerge [
             (nixpkgs.lib.mkIf config.niri-flake.cache.enable {
               nix.settings = {
@@ -514,13 +521,16 @@
               programs.dconf.enable = nixpkgs.lib.mkDefault true;
               fonts.enableDefaultPackages = nixpkgs.lib.mkDefault true;
             })
-            (nixpkgs.lib.optionalAttrs (options ? home-manager) {
-              home-manager.sharedModules = [
-                self.homeModules.config
-                { programs.niri.package = nixpkgs.lib.mkForce cfg.package; }
-              ]
-              ++ nixpkgs.lib.optionals (options ? stylix) [ self.homeModules.stylix ];
-            })
+
+            (nixpkgs.lib.optionalAttrs (options ? home-manager) (
+              nixpkgs.lib.mkIf config.niri-flake.homeManagerIntegration.autoImport {
+                home-manager.sharedModules = [
+                  self.homeModules.config
+                  { programs.niri.package = nixpkgs.lib.mkForce cfg.package; }
+                ]
+                ++ nixpkgs.lib.optionals (options ? stylix) [ self.homeModules.stylix ];
+              }
+            ))
           ];
         };
       homeModules.niri =
