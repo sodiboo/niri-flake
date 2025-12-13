@@ -78,8 +78,7 @@ let
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="https://sodi.boo/css/pico.blue.min.css" />
-        <!-- <link rel="stylesheet" href="style.css" /> -->
+        <link rel="stylesheet" href="css/pico.blue.min.css" />
         <title>niri-flake settings docs</title>
 
         <style>${extra-css}</style>

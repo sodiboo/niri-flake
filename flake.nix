@@ -363,10 +363,7 @@
               settings-fmt
               ;
           };
-          docs-html = import ./pages/settings.html.nix {
-            inherit (nixpkgs) lib;
-            inherit kdl settings-fmt;
-          };
+          inherit settings-fmt;
           settings-type = nixpkgs.lib.types.submoduleWith {
             modules = [ ./settings/toplevel.nix ];
             specialArgs = {
@@ -626,6 +623,11 @@
               programs.niri.enable = true;
             }
           ];
+
+          pages = import ./pages {
+            niri-flake = self;
+            inherit system;
+          };
         }
       );
     };
