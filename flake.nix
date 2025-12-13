@@ -554,6 +554,9 @@
           };
         };
 
+      nixosModules.default = self.nixosModules.niri;
+      homeModules.default = self.homeModules.niri;
+
       checks = forAllSystems (
         system:
         let
