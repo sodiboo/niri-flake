@@ -13,8 +13,6 @@ let
 
   inherit (niri-flake-internal)
     fmt
-    link-opt
-    link-opt-masked
     subopts
     nullable
     optional
@@ -104,7 +102,7 @@ in
 
         Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
 
-        The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero ${link-opt-masked ctx.options.border "borders"} and ${link-opt-masked ctx.options.gaps "gaps"})
+        The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero ${fmt.link-opt-masked ctx.options.border "borders"} and ${fmt.link-opt-masked ctx.options.gaps "gaps"})
 
         Note that individual struts cannot be modified separately. This option configures all four struts at once.
       '';
@@ -215,7 +213,7 @@ in
 
         A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
 
-        See ${link-opt (subopts toplevel-options.layout).preset-column-widths} for more information.
+        See ${fmt.link-opt (subopts toplevel-options.layout).preset-column-widths} for more information.
       '';
     };
     render = config: [

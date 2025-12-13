@@ -89,38 +89,10 @@ let
 
   rename-warning = from: to: obsolete-warning (showOption from) (showOption to);
 
-  link-niri-release =
-    version:
-    fmt.masked-link {
-      href = "https://github.com/YaLTeR/niri/releases/tag/${version}";
-      content = fmt.code version;
-    };
-
-  link' =
-    loc:
-    fmt.masked-link {
-      href = fmt.link-to-setting loc;
-      content = fmt.code (lib.removePrefix "programs.niri.settings." (lib.showOption loc));
-    };
-
   subopts =
     opt:
     assert opt._type == "option";
     opt.type.getSubOptions opt.loc;
-  link-opt =
-    opt:
-    assert opt._type == "option";
-    link' opt.loc;
-
-  link-opt-masked =
-    opt: content:
-    assert opt._type == "option";
-    fmt.masked-link {
-      href = fmt.link-to-setting opt.loc;
-      inherit content;
-    };
-
-  link-opt' = opt: loc: link-opt-masked opt (fmt.code (lib.showOption loc));
 
   unstable-note = fmt.admonition.important ''
     This option is not yet available in stable niri.
@@ -296,9 +268,6 @@ let
     niri-flake-internal = {
       inherit
         fmt
-        link-opt
-        link-opt'
-        link-opt-masked
         subopts
         make-ordered-options
         make-rendered-options
@@ -321,7 +290,6 @@ let
         optional
         rename-warning
         obsolete-warning
-        link-niri-release
         ;
     };
     appearance = import ./appearance args;

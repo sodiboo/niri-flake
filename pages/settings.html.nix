@@ -1,11 +1,21 @@
 {
-  inputs,
   lib,
   kdl,
-  ...
+  settings-fmt,
 }:
 let
+  inherit (settings-fmt) html;
+
+  toplevel-options-type = lib.types.submoduleWith {
+    modules = [ ../settings/toplevel.nix ];
+    specialArgs = {
+      inherit kdl;
+      niri-flake-internal-fmt = html.fmt;
+    };
+  };
+
   showOption = lib.concatStringsSep ".";
+
   match = name: cases: cases.${name} or cases._;
   indent =
     entries:
@@ -60,18 +70,6 @@ let
           delimit' "[" (indent' (map display-value' v)) "]";
       _ = "<${(builtins.typeOf v)}>";
     };
-
-  escape-html =
-    let
-      html-escapes = {
-        "\"" = "&quot;";
-        "'" = "&apos;";
-        "<" = "&lt;";
-        ">" = "&gt;";
-        "&" = "&amp;";
-      };
-    in
-    builtins.replaceStrings (builtins.attrNames html-escapes) (builtins.attrValues html-escapes);
 
   html-skeleton = main-generated-content: ''
     <!DOCTYPE html>
@@ -136,7 +134,7 @@ let
     }
 
     ${base-colors}
-    ${builtins.concatStringsSep "\n" admonitions-css}
+    ${builtins.concatStringsSep "\n" html.css.admonitions}
   '';
 
   base-colors = ''
@@ -168,80 +166,10 @@ let
     }
   '';
 
-  admonitions-template = {
-    note = {
-      title = "Note";
-      color = "indigo";
-    };
-    tip = {
-      title = "Tip";
-      color = "green";
-    };
-    important = {
-      title = "Important";
-      color = "purple";
-    };
-    warning = {
-      title = "Warning";
-      color = "yellow";
-    };
-    caution = {
-      title = "Caution";
-      color = "red";
-    };
-  };
-
-  admonitions-components = lib.mapAttrs (
-    kind:
-    {
-      title,
-      color,
-    }:
-    body: ''
-      <div class="admonition ${kind}">
-      <div class="admonition-title">${title}</div>
-      ${body}
-      </div>
-    ''
-  ) admonitions-template;
-
-  admonitions-css = lib.mapAttrsToList (
-    kind:
-    {
-      title,
-      color,
-    }:
-    ''
-      .admonition.${kind} {
-        border: 1px solid transparent;
-        background-color: var(--${color}-soft);
-        border-radius: 8px;
-        padding: 16px 16px 8px;
-
-        .admonition-title {
-          color: var(--${color}-3);
-          font-weight: 600;
-          margin-bottom: .5em;
-        }
-      }
-    ''
-  ) admonitions-template;
-
-  break-paragraphs =
-    text:
-    lib.pipe text [
-      (lib.replaceStrings [ "\\\n" ] [ "" ])
-      (lib.splitString "\n\n")
-      (lib.remove "\n")
-      (lib.remove "")
-      (map (s: "<p>${s}</p>"))
-      lib.concatStrings
-    ];
-
   describe-type =
     type:
     let
-      code = c: "<code>${escape-html c}</code>";
+      code = c: "<code>${html.escape c}</code>";
     in
     if type.name == "rename" then
       (code type.description) + ", which is a ${describe-type type.nestedTypes.real}"
@@ -271,12 +199,12 @@ let
 
           nested =
             let
-              ancestor-path = escape-html (showOption (lib.lists.dropEnd 1 loc));
-              this = escape-html (showOption ([ (lib.lists.last loc) ]));
+              ancestor-path = html.escape (showOption (lib.lists.dropEnd 1 loc));
+              this = html.escape (showOption ([ (lib.lists.last loc) ]));
             in
             ''<span class="ancestor-path">${ancestor-path}.</span>${this}'';
 
-          toplevel = escape-html (showOption loc);
+          toplevel = html.escape (showOption loc);
         in
         if has-ancestor then nested else toplevel
       }</a>
@@ -310,11 +238,11 @@ let
               )
               (lib.optionalString (opt.defaultText != null) (''
                 <p>
-                default: <code>${escape-html opt.defaultText}</code>
+                default: <code>${html.escape opt.defaultText}</code>
                 </p>
               ''))
               (lib.optionalString (opt.description or null != null) (''
-                ${break-paragraphs opt.description}
+                ${html.break-paragraphs opt.description}
               ''))
             ]}
           '';
@@ -404,125 +332,10 @@ let
       else
         render-options-node (loc ++ [ name ]) opt
     ) options';
-
-  make-docs = lib.flip lib.pipe [
-    (ty: ty.getSubOptions [ ])
-    (expand-suboptions [ ])
-    (render-suboptions)
-    html-skeleton
-  ];
 in
-{
-  inherit make-docs;
-  settings-fmt =
-    let
-      body = break-paragraphs;
-
-      literal = lit: builtins.replaceStrings [ "\n" ] [ "<br>" ] (escape-html lit);
-    in
-    rec {
-      bare-link =
-        href:
-        masked-link {
-          href = href;
-          content = href;
-        };
-      masked-link =
-        {
-          href,
-          content,
-        }:
-        "<a href=\"${href}\">${content}</a>";
-
-      code = code: "<code>${literal code}</code>";
-
-      link-to-setting = loc: "#${showOption loc}";
-
-      admonition = builtins.mapAttrs (
-        _: wrap: content:
-        wrap (body content)
-      ) admonitions-components;
-
-      list = items: "<ul>${lib.concatStrings (map (s: "<li>${body s}</li>") items)}</ul>";
-      ordered-list = items: "<ol>${lib.concatStrings (map (s: "<li>${body s}</li>") items)}</ol>";
-
-      nix-code-block = code: ''
-        <pre><code class="block language-nix">${literal code}</code></pre>
-      '';
-
-      em = text: "<em>${text}</em>";
-      strong = text: "<strong>${text}</strong>";
-
-      table =
-        {
-          headers,
-          align,
-          rows,
-        }:
-        assert (builtins.length headers == builtins.length align);
-        let
-
-          align' = map (
-            align:
-            if align == null then
-              ""
-            else
-              {
-                left = " align=\"left\"";
-                center = " align=\"center\"";
-                right = " align=\"right\"";
-              }
-              .${align}
-          ) align;
-
-          with-align = lib.imap0 (
-            i: content: {
-              align = builtins.elemAt align' i;
-              inherit content;
-            }
-          );
-
-          header-row = "<tr>${
-            lib.concatStrings (
-              map (
-                {
-                  align,
-                  content,
-                }:
-                "<th${align}>${content}</th>"
-              ) (with-align headers)
-            )
-          }</tr>";
-
-          body-rows = map (
-            row:
-            assert builtins.length headers == builtins.length row;
-            "<tr>${
-              lib.concatStrings (
-                map (
-                  {
-                    align,
-                    content,
-                  }:
-                  "<td${align}>${content}</td>"
-                ) (with-align row)
-              )
-            }</tr>"
-          ) rows;
-        in
-        "<table><thead>${header-row}</thead><tbody>${lib.concatStrings body-rows}</tbody></table>";
-
-      kbd = keys: "<kbd>${escape-html keys}</kbd>";
-      # kbd = code;
-
-      img =
-        {
-          src,
-          alt,
-          title,
-        }:
-        "<img src=\"${src}\" alt=\"${builtins.replaceStrings [ "\n" ] [ "  " ] alt}\" title=\"${
-          builtins.replaceStrings [ "\"" ] [ "\\\"" ] title
-        }\">";
-    };
-}
+lib.pipe toplevel-options-type [
+  (ty: ty.getSubOptions [ ])
+  (expand-suboptions [ ])
+  (render-suboptions)
+  html-skeleton
+]

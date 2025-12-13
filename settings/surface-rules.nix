@@ -12,7 +12,6 @@ let
   inherit (lib.types) enum;
   inherit (niri-flake-internal)
     fmt
-    link-opt
     subopts
     make-ordered-options
     make-rendered-options
@@ -44,8 +43,8 @@ let
       properties,
     }:
     let
-      matches = link-opt (subopts self).matches;
-      excludes = link-opt (subopts self).excludes;
+      matches = fmt.link-opt (subopts self).matches;
+      excludes = fmt.link-opt (subopts self).excludes;
 
       match-rule = types.submoduleWith {
         description = "match rule";
@@ -58,7 +57,7 @@ let
                 {
                   at-startup = nullable types.bool // {
                     description = ''
-                      When true, this rule will match ${surfaces} opened within the first 60 seconds of niri starting up. When false, this rule will match ${surfaces} opened ${fmt.em "more than"} 60 seconds after niri started up. This is useful for applying different rules to ${surfaces} opened from ${link-opt spawn-at-startup} versus those opened later.
+                      When true, this rule will match ${surfaces} opened within the first 60 seconds of niri starting up. When false, this rule will match ${surfaces} opened ${fmt.em "more than"} 60 seconds after niri started up. This is useful for applying different rules to ${surfaces} opened from ${fmt.link-opt spawn-at-startup} versus those opened later.
                     '';
                   };
                 }
@@ -343,7 +342,7 @@ in
 
         By default, the actual window surface will be unaffected by this.
 
-        Set ${link-opt (subopts toplevel-options.window-rules).clip-to-geometry} to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
+        Set ${fmt.link-opt (subopts toplevel-options.window-rules).clip-to-geometry} to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
       '';
 
       example-fields = [
@@ -589,7 +588,7 @@ in
         {
           options.variable-refresh-rate = nullable types.bool // {
             description = ''
-              Takes effect only when the window is on an output with ${link-opt (subopts toplevel-options.outputs).variable-refresh-rate} set to ${fmt.code ''"on-demand"''}. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
+              Takes effect only when the window is on an output with ${fmt.link-opt (subopts toplevel-options.outputs).variable-refresh-rate} set to ${fmt.code ''"on-demand"''}. If the final value of this field is true, then the output will enable variable refresh rate when this window is present on it.
             '';
           };
           render = config: [

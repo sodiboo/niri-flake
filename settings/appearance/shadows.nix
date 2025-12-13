@@ -13,7 +13,6 @@ let
   inherit (niri-flake-internal)
     fmt
     float-or-int
-    link-opt
     record
     required
     subopts
@@ -120,7 +119,7 @@ in
                 }.
 
                 ${lib.optionalString (!ctx.is-window-level) ''
-                  Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set ${link-opt (subopts (subopts toplevel-options.layer-rules).shadow).enable} to ${fmt.code "true"}.
+                  Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set ${fmt.link-opt (subopts (subopts toplevel-options.layer-rules).shadow).enable} to ${fmt.code "true"}.
                 ''}
               '';
         };
@@ -140,7 +139,7 @@ in
           description = ''
             Whether to enable shadows for this layer surface.
 
-            Note that while shadow properties are generally inherited from the workspace layout, this option is an exception. ${link-opt (subopts (subopts (subopts toplevel-options.workspaces).layout).shadow).enable} has no effect on this option. To use shadows on layer surfaces, you must explicitly set this option to true.
+            Note that while shadow properties are generally inherited from the workspace layout, this option is an exception. ${fmt.link-opt (subopts (subopts (subopts toplevel-options.workspaces).layout).shadow).enable} has no effect on this option. To use shadows on layer surfaces, you must explicitly set this option to true.
           '';
         };
         render = config: [

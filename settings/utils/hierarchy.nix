@@ -7,7 +7,6 @@
 let
   inherit (niri-flake-internal)
     fmt
-    link-opt
     subopts
     make-rendered-section
     ;
@@ -23,12 +22,12 @@ let
     ''
       ${lib.optionalString (before != [ ]) ''
         ${before-label}:
-        ${fmt.list (builtins.map link-opt before)}
+        ${fmt.list (builtins.map fmt.link-opt before)}
       ''}
 
       ${lib.optionalString (after != [ ]) ''
         ${after-label}:
-        ${fmt.list (builtins.map link-opt after)}
+        ${fmt.list (builtins.map fmt.link-opt after)}
       ''}
 
       ${description}
@@ -210,7 +209,7 @@ let
           } (f (ctx'.map subopts));
 
         contextual = choices: choices.${ctx.position};
-        link-opt-contextual = choices: link-opt choices.${ctx.position};
+        link-opt-contextual = choices: fmt.link-opt choices.${ctx.position};
       }
     );
 in

@@ -30,17 +30,12 @@
         inherit
           inputs
           kdl
-          docs
           binds
-          settings
           ;
         inherit (nixpkgs) lib;
       };
       kdl = call ./kdl.nix;
       binds = call ./parse-binds.nix;
-      docs = call ./generate-docs.nix;
-      html-docs = call ./generate-html-docs.nix;
-      settings = call ./settings.nix;
       stylix-module = call ./stylix.nix;
 
       stable-revs = import ./refs.nix;
@@ -346,6 +341,11 @@
       ];
 
       forAllSystems = nixpkgs.lib.genAttrs systems;
+
+      settings-fmt = import ./settings/fmt {
+        inherit (nixpkgs) lib;
+        niri-flake-rev = inputs.self.rev or "main";
+      };
     in
     {
       lib = {
@@ -353,9 +353,32 @@
         internal = {
           inherit make-package-set validated-config-for;
           package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
-          docs-markdown = docs.make-docs (settings.fake-docs { inherit fmt-date fmt-time; });
-          docs-html = html-docs.make-docs (settings.type-with html-docs.settings-fmt);
-          settings-module = settings.module;
+          docs-markdown = import ./pages/legacy/generate.nix {
+            inherit (nixpkgs) lib;
+            inherit
+              inputs
+              kdl
+              fmt-date
+              fmt-time
+              settings-fmt
+              ;
+          };
+          docs-html = import ./pages/settings.html.nix {
+            inherit (nixpkgs) lib;
+            inherit kdl settings-fmt;
+          };
+          settings-type = nixpkgs.lib.types.submoduleWith {
+            modules = [ ./settings/toplevel.nix ];
+            specialArgs = {
+              inherit kdl;
+              niri-flake-internal-fmt = settings-fmt.gfm;
+            };
+          };
+          settings-module = import ./settings.nix {
+            inherit (nixpkgs) lib;
+            inherit kdl;
+            fmt = settings-fmt.gfm;
+          };
           memo-binds = nixpkgs.lib.pipe (binds "${inputs.niri-unstable}/niri-config/src/binds.rs") [
             (map (bind: "  \"${bind.name}\""))
             (builtins.concatStringsSep "\n")
@@ -408,7 +431,7 @@
         in
         {
           imports = [
-            settings.module
+            self.lib.internal.settings-module
           ];
 
           options.programs.niri = {
@@ -579,7 +602,7 @@
             let
               eval = nixpkgs.lib.evalModules {
                 modules = [
-                  settings.module
+                  self.lib.internal.settings-module
                   {
                     config._module.args.pkgs = inputs.nixpkgs.legacyPackages.${system};
                     config.programs.niri.settings = { };

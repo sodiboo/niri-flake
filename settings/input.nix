@@ -13,7 +13,6 @@ let
   inherit (lib.types) enum;
   inherit (niri-flake-internal)
     fmt
-    link-opt
     subopts
     nullable
     make-ordered-options
@@ -634,7 +633,7 @@ in
                     ])
                     // {
                       description = ''
-                        The mouse button to register when tapping with 1, 2, or 3 fingers, when ${link-opt (subopts (subopts toplevel-options.input).touchpad).tap} is enabled.
+                        The mouse button to register when tapping with 1, 2, or 3 fingers, when ${fmt.link-opt (subopts (subopts toplevel-options.input).touchpad).tap} is enabled.
 
                         Further reading:
                         ${fmt.list [

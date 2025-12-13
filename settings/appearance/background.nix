@@ -13,7 +13,6 @@ let
   inherit (niri-flake-internal)
     fmt
     nullable
-    link-opt-masked
     subopts
     ;
 
@@ -47,7 +46,7 @@ in
       description = ''
         The background is a solid-colored layer drawn behind each workspace.
 
-        It's visible through transparent windows, between ${link-opt-masked ctx.options.gaps "gaps"}, and inside any ${link-opt-masked ctx.options.struts "struts"}
+        It's visible through transparent windows, between ${fmt.link-opt-masked ctx.options.gaps "gaps"}, and inside any ${fmt.link-opt-masked ctx.options.struts "struts"}
 
         See also ${
           ctx.link-opt-contextual {

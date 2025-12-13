@@ -14,8 +14,6 @@ let
     fmt
     optional
     float-or-int
-    link-opt
-    link-opt'
     subopts
     nullable
     required
@@ -23,7 +21,6 @@ let
     record'
     docs-only
     shorthand-for
-    link-niri-release
     ;
 
   inherit (hierarchies) layout-options;
@@ -82,14 +79,14 @@ let
             description = ''
               The starting ${css-color} of the gradient.
 
-              For more details, see ${link-opt (subopts self).color}.
+              For more details, see ${fmt.link-opt (subopts self).color}.
             '';
           };
           to = required types.str // {
             description = ''
               The ending ${css-color} of the gradient.
 
-              For more details, see ${link-opt (subopts self).color}.
+              For more details, see ${fmt.link-opt (subopts self).color}.
             '';
           };
           angle = optional types.int 180 // {
@@ -155,7 +152,7 @@ let
                   title = ''behaviour of relative-to="workspace-view"'';
                 }}
 
-                these beautiful images are sourced from the release notes for ${link-niri-release "v0.1.3"}
+                these beautiful images are sourced from the release notes for ${fmt.link-niri-release "v0.1.3"}
               '';
             };
         };
@@ -268,19 +265,19 @@ in
       The border is a decoration drawn ${fmt.em "inside"} every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
 
       The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to ${
-        link-opt' (subopts layout.border).active [
+        fmt.link-opt' (subopts layout.border).active [
           "border"
           "active"
         ]
       }, and all other windows will be drawn according to ${
-        link-opt' (subopts layout.border).inactive [
+        fmt.link-opt' (subopts layout.border).inactive [
           "border"
           "inactive"
         ]
       }.
 
       If you have the ${
-        link-opt' layout.focus-ring [ "focus-ring" ]
+        fmt.link-opt' layout.focus-ring [ "focus-ring" ]
       } enabled, the border will be drawn inside (and over) the focus ring.
     '';
   })
@@ -292,19 +289,19 @@ in
       The focus ring is a decoration drawn ${fmt.em "around"} the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
 
       The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to ${
-        link-opt' (subopts layout.focus-ring).active [
+        fmt.link-opt' (subopts layout.focus-ring).active [
           "focus-ring"
           "active"
         ]
       }, and the last focused window on all other workspaces will be drawn according to ${
-        link-opt' (subopts layout.focus-ring).inactive [
+        fmt.link-opt' (subopts layout.focus-ring).inactive [
           "focus-ring"
           "inactive"
         ]
       }.
 
       If you have the ${
-        link-opt' layout.border [ "border" ]
+        fmt.link-opt' layout.border [ "border" ]
       } enabled, the focus ring will be drawn around (and under) the border.
     '';
   })
@@ -462,7 +459,7 @@ in
             description = ''
               A decoration is drawn around a surface, adding additional elements that are not necessarily part of an application, but are part of what we think of as a "window".
 
-              This type specifically represents decorations drawn by niri: that is, ${link-opt (subopts toplevel-options.layout).focus-ring} and/or ${link-opt (subopts toplevel-options.layout).border}.
+              This type specifically represents decorations drawn by niri: that is, ${fmt.link-opt (subopts toplevel-options.layout).focus-ring} and/or ${fmt.link-opt (subopts toplevel-options.layout).border}.
             '';
           };
         in

@@ -13,7 +13,6 @@ let
     rename
     record'
     subopts
-    link-opt
     make-rendered-section
     docs-only
     shorthand-for
@@ -24,7 +23,7 @@ let
       description = ''
         A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
 
-        See also ${link-opt ((subopts toplevel-options.binds).action)} for more information on how this works, it has the exact same option type. Beware that switch binds are not the same as regular binds, and the actions they take are different. Currently, they can only accept spawn binds. Correct usage is like so:
+        See also ${fmt.link-opt ((subopts toplevel-options.binds).action)} for more information on how this works, it has the exact same option type. Beware that switch binds are not the same as regular binds, and the actions they take are different. Currently, they can only accept spawn binds. Correct usage is like so:
 
         ${fmt.nix-code-block ''
           {

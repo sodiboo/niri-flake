@@ -14,7 +14,6 @@ let
   inherit (lib.types) enum;
   inherit (niri-flake-internal)
     fmt
-    link-opt
     subopts
     nullable
     float-or-int
@@ -187,7 +186,7 @@ in
 
                       VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
 
-                      Setting this to ${fmt.code ''"on-demand"''} will enable VRR only when a window with ${link-opt (subopts toplevel-options.window-rules).variable-refresh-rate} is present on this output.
+                      Setting this to ${fmt.code ''"on-demand"''} will enable VRR only when a window with ${fmt.link-opt (subopts toplevel-options.window-rules).variable-refresh-rate} is present on this output.
                     '';
                   };
                 render = config: [
@@ -201,7 +200,7 @@ in
                   description = ''
                     Focus this output by default when niri starts.
 
-                    If multiple outputs with ${fmt.code "focus-at-startup"} are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set ${link-opt (subopts toplevel-options.outputs).name} to be the actual name of the output.
+                    If multiple outputs with ${fmt.code "focus-at-startup"} are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set ${fmt.link-opt (subopts toplevel-options.outputs).name} to be the actual name of the output.
 
                     When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
                   '';
