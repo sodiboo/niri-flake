@@ -902,6 +902,61 @@
         # ];
         imports = make-ordered-options [
           {
+            includes = list types.str // {
+              description = ''
+                List of kdl files to include in your configuration.
+
+                Settings from included files will be merged with the settings from the main config file.
+
+                By default, includes are placed at the end of the generated config file (after HM-defined settings), allowing them to override settings you've configured through HM options.
+
+                You can use `lib.mkBefore` to place includes at the beginning of the file instead (before HM-defined settings). This is useful for base configurations that you want to override with HM options.
+
+                To declare both before and after includes in the same attribute set, use `lib.mkMerge`:
+                ${fmt.nix-code-block ''
+                  {
+                    programs.niri.settings.includes = lib.mkMerge [
+                      (lib.mkBefore [ "~/.config/niri/base.kdl" ])
+                      [ "~/.config/niri/overrides.kdl" ]
+                    ];
+                  }
+                ''}
+              '';
+            };
+          }
+
+          # Compute includes split based on priority
+          {
+            __module = (
+              { config, options, ... }:
+              let
+                defs = options.includes.definitionsWithLocations or [ ];
+
+                unwrapValue = val: if builtins.isList val then val else [ ];
+
+                # priority < 1000 (mkBefore) -> start of file
+                # priority >= 1000 (default/mkAfter) -> end of file
+                before = builtins.concatLists (
+                  map (def: if (def.priority or 1000) < 1000 then unwrapValue def.value else [ ]) defs
+                );
+
+                after = builtins.concatLists (
+                  map (def: if (def.priority or 1000) >= 1000 then unwrapValue def.value else [ ]) defs
+                );
+              in
+              {
+                options._includes-split = mkOption {
+                  internal = true;
+                  visible = false;
+                  type = types.attrsOf (types.listOf types.str);
+                };
+
+                config._includes-split = { inherit before after; };
+              }
+            );
+          }
+
+          {
             switch-events =
               let
                 switch-bind = record' "niri switch bind" {
@@ -2806,6 +2861,7 @@
                       };
                     }
                   )
+
                   {
                     baba-is-float = nullable types.bool // {
                       description = ''
@@ -3540,8 +3596,17 @@
           plain' name (pointer-tablet cfg (ext cfg));
         pointer' = pointer-tablet' pointer;
         tablet' = pointer-tablet' tablet;
+
+        include = path: (leaf "include" path);
+        includesSplit =
+          cfg._includes-split or {
+            before = [ ];
+            after = [ ];
+          };
       in
       normalize-nodes [
+        (each includesSplit.before include)
+
         (plain "input" [
           (plain "keyboard" [
             (plain "xkb" [
@@ -3781,5 +3846,7 @@
         ])
 
         (map' plain' (lib.mapAttrsToList leaf) "debug" cfg.debug)
+
+        (each includesSplit.after include)
       ];
 }
