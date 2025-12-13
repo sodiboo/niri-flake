@@ -375,6 +375,7 @@
       packages = forAllSystems (system: make-package-set inputs.nixpkgs.legacyPackages.${system});
 
       overlays.niri = final: prev: make-package-set final;
+      overlays.default = self.overlays.niri;
 
       apps = forAllSystems (
         system:
