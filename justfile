@@ -40,8 +40,8 @@ watch:
 
 # intentionally copy out of nix store to play nicer with "Live Server"
 pages:
-    {{nom-or-nix}} build -o result-pages-link -f ./pages
-    rsync -Lrcv result-pages-link/ result-pages
+    {{nom-or-nix}} build -o result-pages-link -f ./pages --show-trace
+    rsync --chmod=+w -Lrcv result-pages-link/ result-pages
 
 watch-pages:
     fd .nix . | entr just pages
