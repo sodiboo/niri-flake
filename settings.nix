@@ -908,16 +908,16 @@
 
                 Settings from included files will be merged with the settings from the main config file.
 
-                By default, includes are placed at the end of the generated config file (after HM-defined settings), allowing them to override settings you've configured through HM options.
+                By default, includes are placed at the start of the generated config file (before HM-defined settings), having your settings to be prioritized over the included files.
 
-                You can use `lib.mkBefore` to place includes at the beginning of the file instead (before HM-defined settings). This is useful for base configurations that you want to override with HM options.
+                You can use ${fmt.code "lib.mkAfter"} to place includes at the end of the file instead (before HM-defined settings). This is useful if you want to prioritize included files instead or if you want to have a file for testing configurations.
 
-                To declare both before and after includes in the same attribute set, use `lib.mkMerge`:
+                To declare both before and after includes in the same attribute set, use ${fmt.code "lib.mkMerge"}:
                 ${fmt.nix-code-block ''
                   {
                     programs.niri.settings.includes = lib.mkMerge [
-                      (lib.mkBefore [ "~/.config/niri/base.kdl" ])
-                      [ "~/.config/niri/overrides.kdl" ]
+                      [ "~/.config/niri/base.kdl" ]
+                      (lib.mkAfter [ "~/.config/niri/overrides.kdl" ])
                     ];
                   }
                 ''}
@@ -934,14 +934,14 @@
 
                 unwrapValue = val: if builtins.isList val then val else [ ];
 
-                # priority < 1000 (mkBefore) -> start of file
-                # priority >= 1000 (default/mkAfter) -> end of file
+                # priority <= 1000 (default/mkBefore) -> start of file
+                # priority > 1000 (mkAfter) -> end of file
                 before = builtins.concatLists (
-                  map (def: if (def.priority or 1000) < 1000 then unwrapValue def.value else [ ]) defs
+                  map (def: if (def.priority or 1000) <= 1000 then unwrapValue def.value else [ ]) defs
                 );
 
                 after = builtins.concatLists (
-                  map (def: if (def.priority or 1000) >= 1000 then unwrapValue def.value else [ ]) defs
+                  map (def: if (def.priority or 1000) > 1000 then unwrapValue def.value else [ ]) defs
                 );
               in
               {
