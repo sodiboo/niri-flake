@@ -14,5 +14,5 @@ builtins.mapAttrs
   )
   {
     gfm = ./gfm.nix;
-    html = ./html.nix;
+    xml = ./xml.nix;
   }

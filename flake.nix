@@ -344,13 +344,14 @@
 
       settings-fmt = import ./settings/fmt {
         inherit (nixpkgs) lib;
-        niri-flake-rev = inputs.self.rev or "main";
+        niri-flake-rev = self.lib.internal.rev;
       };
     in
     {
       lib = {
         inherit kdl;
         internal = {
+          rev = inputs.self.rev or "main";
           inherit make-package-set validated-config-for;
           package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
           docs-markdown = import ./pages/legacy/generate.nix {
