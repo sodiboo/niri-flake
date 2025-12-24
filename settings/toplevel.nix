@@ -122,8 +122,6 @@ let
       nestedTypes = { inherit real; };
     };
 
-  regex = rename "regular expression" types.str;
-
   make-ordered-options =
     {
       finalize ? _: { },
@@ -279,7 +277,6 @@ let
         record'
         section'
         required
-        regex
         list
         attrs
         rename

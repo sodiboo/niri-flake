@@ -3216,7 +3216,7 @@ If all of the rules do not match a window, then this window rule will not apply 
 
 
 ## `programs.niri.settings.window-rules.*.matches.*.app-id`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the app id of the window.
@@ -3225,7 +3225,7 @@ When non-null, for this field to match a window, a client must set the app id of
 
 
 ## `programs.niri.settings.window-rules.*.matches.*.title`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the title of the window.
@@ -3305,7 +3305,7 @@ If none of these rules match a window, then this window rule will not be rejecte
 
 
 ## `programs.niri.settings.window-rules.*.excludes.*.app-id`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the app id of the window.
@@ -3314,7 +3314,7 @@ When non-null, for this field to match a window, a client must set the app id of
 
 
 ## `programs.niri.settings.window-rules.*.excludes.*.title`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the title of the window.
@@ -3962,7 +3962,7 @@ If all of the rules do not match a layer surface, then this layer rule will not 
 
 
 ## `programs.niri.settings.layer-rules.*.matches.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the namespace of the layer surface.
@@ -3988,7 +3988,7 @@ If none of these rules match a layer surface, then this layer rule will not be r
 
 
 ## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the namespace of the layer surface.

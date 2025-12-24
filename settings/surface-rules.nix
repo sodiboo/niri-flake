@@ -19,9 +19,15 @@ let
     float-or-int
     record
     required
-    regex
     list
     ;
+
+  regex = lib.mkOptionType {
+    name = "regex";
+    description = "regular expression string";
+    descriptionClass = "noun";
+    inherit (lib.types.str) check merge getSubOptions;
+  };
 
   make-rules-option =
     {
