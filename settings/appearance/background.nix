@@ -12,7 +12,6 @@ let
 
   inherit (niri-flake-internal)
     fmt
-    nullable
     subopts
     ;
 
@@ -20,7 +19,8 @@ let
 in
 [
   (overview-options.output-level (ctx: {
-    options.backdrop-color = nullable types.str // {
+    options.backdrop-color = ctx.nullable "backdrop-color" {
+      type = types.str;
       description = ''
         The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
 

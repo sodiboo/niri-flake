@@ -318,7 +318,8 @@ in
         }
         (ctx: [
           {
-            options.enable = nullable types.bool // {
+            options.enable = ctx.nullable "enable" {
+              type = types.bool;
               description = ''
                 Whether to enable the insert hint.
               '';
