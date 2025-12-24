@@ -1,5 +1,5 @@
 {
-  niri-flake ? builtins.getFlake (toString ../.),
+  niri-flake ? builtins.getFlake "git+file:${toString ../.}",
   rev ? niri-flake.lib.internal.rev,
 
   system ? builtins.currentSystem,
