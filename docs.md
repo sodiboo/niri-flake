@@ -1103,7 +1103,7 @@ The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk
 
 
 ## `programs.niri.settings.binds.<name>.action`
-- type: `niri action`, which is a `kdl leaf`
+- type: `kdl leaf`
 
 An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
@@ -1184,7 +1184,7 @@ This description doesn't matter to the docs, but is necessary to make this heade
 
 
 ## `<switch-bind>.action`
-- type: `niri switch action`, which is a `kdl leaf`
+- type: `kdl leaf`
 
 A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
 

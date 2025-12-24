@@ -112,16 +112,6 @@ let
       nestedTypes = { inherit real; };
     };
 
-  rename =
-    name: real:
-    mkOptionType {
-      name = "rename";
-      description = "${name}";
-      descriptionClass = "noun";
-      inherit (real) check merge getSubOptions;
-      nestedTypes = { inherit real; };
-    };
-
   make-ordered-options =
     {
       finalize ? _: { },
@@ -279,7 +269,6 @@ let
         required
         list
         attrs
-        rename
         shorthand-for
         docs-only
         attrs-record

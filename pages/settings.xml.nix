@@ -17,10 +17,7 @@ let
 
   describe-type =
     type:
-    if type.name == "rename" then
-      type.description
-    # (code type.description) + ", which is a ${describe-type type.nestedTypes.real}"
-    else if type.name == "shorthand" then
+    if type.name == "shorthand" then
       describe-type type.nestedTypes.real
     else if type.name == "nullOr" && type.nestedTypes.elemType.name == "rename" then
       type.description

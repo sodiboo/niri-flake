@@ -15,7 +15,6 @@ let
     nullable
     make-ordered-options
     required
-    rename
     optional
     ;
 
@@ -164,7 +163,7 @@ in
                   };
                 }
                 {
-                  options.action = required (rename "niri action" kdl.types.kdl-leaf) // {
+                  options.action = required kdl.types.kdl-leaf // {
                     description = ''
                       An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 

@@ -10,7 +10,6 @@ let
     fmt
     nullable
     required
-    rename
     record'
     subopts
     make-rendered-section
@@ -19,7 +18,7 @@ let
     ;
 
   switch-bind = record' "niri switch bind" {
-    action = required (rename "niri switch action" kdl.types.kdl-leaf) // {
+    action = required kdl.types.kdl-leaf // {
       description = ''
         A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
 
