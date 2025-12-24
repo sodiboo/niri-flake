@@ -15,6 +15,11 @@ let
   };
 
   showOption = lib.concatStringsSep ".";
+  display-path-segments =
+    loc:
+    builtins.concatStringsSep "." (
+      map (segment: "<path-segment>${html.escape segment}</path-segment>") loc
+    );
 
   match = name: cases: cases.${name} or cases._;
   indent =
@@ -78,24 +83,29 @@ let
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="css/pico.blue.min.css" />
-        <title>niri-flake settings docs</title>
+        <meta name="color-scheme" content="dark light" />
+        <link rel=stylesheet href="/settings.css" />
+        <title>niri-flake settings</title>
 
-        <style>${extra-css}</style>
+        <script defer src="settings.js"></script>
     </head>
 
     <body>
-        <header class="container">
-            <nav aria-label="breadcrumb">
-                <ul>
-                    <li><a href="#">niri-flake</a></li>
-                    <li>settings</li>
-                </ul>
-            </nav>
+        <header>
+        <nav aria-label=breadcrumb>${
+          builtins.concatStringsSep "" [
+            "<ul>"
+            ''<li><a href="/">niri-flake</a></li>''
+            ''<li><a href="#" aria-current=page>settings</a></li>''
+            "</ul>"
+          ]
+        }</nav>
         </header>
 
+        <hr>
 
-        <main class="container">
+
+        <main>
 
     ${main-generated-content}
 
@@ -105,70 +115,10 @@ let
     </html>
   '';
 
-  extra-css = ''
-    html {
-      scroll-behavior: smooth;
-    }
-    code:not(.block) {
-      display: unset;
-    }
-    a {
-      --pico-code-color: var(--pico-color-primary);
-    }
-
-    .options {
-      padding-left: 1em;
-    }
-
-    .option {
-      scroll-margin-top: 1em;
-    }
-
-    .option-anchor {
-      scroll-margin-top: 3.5em;
-    }
-
-    .option-link:not(:hover) > .ancestor-path {
-      opacity: 50%;
-    }
-
-    ${base-colors}
-    ${builtins.concatStringsSep "\n" html.css.admonitions}
-  '';
-
-  base-colors = ''
-    :root {
-      --gray-1: #515c67;
-      --gray-2: #414853;
-      --gray-3: #32363f;
-      --gray-soft: #65758529;
-      --indigo-1: #a8b1ff;
-      --indigo-2: #5c73e7;
-      --indigo-3: #3e63dd;
-      --indigo-soft: #646cff29;
-      --purple-1: #c8abfa;
-      --purple-2: #a879e6;
-      --purple-3: #8e5cd9;
-      --purple-soft: #9f7aea29;
-      --green-1: #3dd68c;
-      --green-2: #30a46c;
-      --green-3: #298459;
-      --green-soft: #10b98129;
-      --yellow-1: #f9b44e;
-      --yellow-2: #da8b17;
-      --yellow-3: #a46a0a;
-      --yellow-soft: #eab30829;
-      --red-1: #f66f81;
-      --red-2: #f14158;
-      --red-3: #b62a3c;
-      --red-soft: #f43f5e29;
-    }
-  '';
-
   describe-type =
     type:
     let
-      code = c: "<code>${html.escape c}</code>";
+      code = html.escape; # c: "<code>${html.escape c}</code>";
     in
     if type.name == "rename" then
       (code type.description) + ", which is a ${describe-type type.nestedTypes.real}"
@@ -182,113 +132,160 @@ let
     else
       code type.description;
 
-  option-component =
-    loc:
-    {
-      open ? false,
-      content ? null,
-      children,
-    }:
-    ''
-      <details class="option"${lib.optionalString open " open"}>
-      <summary>
-      <a class="option-link" href="#${showOption loc}">${
-        let
-          has-ancestor = builtins.length loc > 1;
-
-          nested =
-            let
-              ancestor-path = html.escape (showOption (lib.lists.dropEnd 1 loc));
-              this = html.escape (showOption ([ (lib.lists.last loc) ]));
-            in
-            ''<span class="ancestor-path">${ancestor-path}.</span>${this}'';
-
-          toplevel = html.escape (showOption loc);
-        in
-        if has-ancestor then nested else toplevel
-      }</a>
-      </summary>
-      <a id="${showOption loc}" class="option-anchor"></a>
-      ${lib.optionalString (content != null) ''
-        <div class="option-content">${content}</div>
-      ''}
-      ${children}
-      </details>
+  render-options-section =
+    traversed-loc: options:
+    let
+      items = render-options-node traversed-loc options;
+    in
+    lib.optionalString (items != "") ''
+      <ul class=options>${items}</ul>
     '';
 
   render-option =
-    opt:
+    traversed-loc: opt:
     assert opt._type or null == "option";
-    lib.optional (opt.visible or true != false) ''
-      ${
-        option-component opt.loc {
-          # open = opt.visible or true == true;
-          content = ''
-            ${lib.concatStringsSep "\n" [
-              (
-                let
-                  described = describe-type opt.type;
-                in
-                lib.optionalString (described != "<code>submodule</code>") ''
-                  <p>
-                  type: ${described}
-                  </p>
-                ''
-              )
-              (lib.optionalString (opt.defaultText != null) (''
-                <p>
-                default: <code>${html.escape opt.defaultText}</code>
-                </p>
-              ''))
-              (lib.optionalString (opt.description or null != null) (''
-                ${html.break-paragraphs opt.description}
-              ''))
-            ]}
-          '';
-          children = lib.optionalString (opt.visible or true != false) (
-            render-suboptions (expand-suboptions opt.loc (opt.type.getSubOptions opt.loc))
-          );
-        }
+    lib.optionalString (opt.visible or true != false) (
+      let
+        # a "section" option is equivalent to a plain option node.
+        # a submodule always contains suboptions.
+        is-section = opt.type.name == "submodule" && opt.default or null == { };
 
-      }
-    '';
+        open = false; # is-section || suboptions == "";
+
+        content = body: lib.optionalString (body != "") "<option-content>${body}</option-content>";
+
+        component = ''
+          <details class=option${lib.optionalString open " open"}>
+          <summary>${name}</summary>${anchor}${
+            builtins.concatStringsSep "" (
+              map
+                (lib.flip lib.pipe [
+                  (lib.remove "")
+                  (builtins.concatStringsSep "")
+                  content
+                ])
+                [
+                  [ declaration ]
+                  [
+                    before
+                    after
+                  ]
+                  [
+                    (type {
+                      rich = true;
+                      wrap = type: "<dt>type</dt><dd><option-type>${type}</option-type></dd>";
+                    })
+                    (default {
+                      wrap = default: "<dt>default</dt><dd><option-default>${default}</option-default></dd>";
+                    })
+                  ]
+                  [ description ]
+                ]
+            )
+          }${suboptions}</details>
+        '';
+
+        hierarchy-part =
+          {
+            area,
+            label,
+            items,
+          }:
+          lib.optionalString (items != [ ])
+            ''<dt>${label}</dt>${
+              builtins.concatStringsSep "" (
+                map (item: ''
+                  <dd><a href="#${lib.showOption item.loc}">
+                  ${html.escape (lib.showOption item.loc)}
+                  </a></dd>'') items
+              )
+            }'';
+
+        declaration = lib.optionalString (opt.declarationPositions != [ ]) (
+          let
+            link =
+              pos: content:
+              let
+                file = lib.strings.removePrefix "${toString ../.}/" (toString pos.file);
+                base = html.fmt.link-this-github file;
+                href =
+                  if pos.line != null then
+                    "${base}#L${toString pos.line}"
+                  else
+                    lib.warn "${lib.showOption opt.loc} has no position data for declaration in ${pos.file}" base;
+              in
+              ''<a target="_blank" href="${href}">${content file}</a>'';
+
+            many-declarations = "<dt>declarations</dt>${
+              builtins.concatStringsSep "" (
+                map (pos: "<dd>${link pos html.escape}</dd>") opt.declarationPositions
+              )
+            }";
+          in
+
+          if builtins.length opt.declarationPositions == 1 then
+            many-declarations
+          else
+            builtins.trace "${lib.showOption opt.loc} has >1 declaration?" many-declarations
+        );
+
+        before = hierarchy-part {
+          area = "before";
+          label = if is-section then "refines" else "overrides";
+          items = opt.niri-flake-hierarchy.before or [ ];
+        };
+
+        after = hierarchy-part {
+          area = "after";
+          label = if is-section then "refined by" else "overridden by";
+          items = opt.niri-flake-hierarchy.after or [ ];
+        };
+
+        name = ''<option-name><a href="#${showOption opt.loc}">${
+          let
+            has-ancestor = builtins.length opt.loc > 1;
+
+            nested =
+              let
+                ancestor-path = lib.lists.dropEnd 1 opt.loc;
+                this = lib.lists.last opt.loc;
+              in
+              ''<ancestor-path>${display-path-segments ancestor-path}.</ancestor-path>${display-path-segments [ this ]}'';
+
+            toplevel = display-path-segments opt.loc;
+          in
+          if has-ancestor then nested else toplevel
+        }</a></option-name>'';
+        anchor = ''<a class="option-anchor" id="${showOption opt.loc}"></a>'';
+
+        type =
+          {
+            wrap ? lib.id,
+          }:
+          let
+            described = describe-type opt.type;
+          in
+          lib.optionalString (described != "submodule") (wrap described);
+
+        default =
+          {
+            wrap ? lib.id,
+          }:
+          lib.optionalString (opt.defaultText != null) (wrap (html.escape opt.defaultText));
+
+        description = lib.optionalString (
+          opt.description or null != null
+        ) ''${html.break-paragraphs opt.description}'';
+
+        suboptions = lib.optionalString (opt.visible or true != false) (
+          render-options-section traversed-loc (opt.type.getSubOptions opt.loc)
+        );
+      in
+      component
+    );
 
   render-options-node =
-    loc: options:
-    assert !(options ? _type);
-    expand-suboptions loc options;
-
-  # render-options-node =
-  #   loc: options:
-  #   assert !(options ? _type);
-  # let
-  #   suboptions = expand-suboptions loc options;
-  # in
-  # lib.optional (suboptions != [ ]) ''
-  #   ${option-component loc {
-  #     children = render-suboptions suboptions;
-  #   }}
-  # '';
-
-  # (lib.remove "")
-
-  # (
-  #   suboptions:
-  #   lib.optionalString (suboptions != [ ]) ''
-  #     <ul class="options">
-  #     ${lib.concatStrings (map (s: "<li>${s}</li>") suboptions)}
-  #     </ul>
-  #   ''
-  # )
-
-  render-suboptions = suboptions: ''
-    <ul class="options">
-    ${lib.concatStrings (map (s: "<hr><li>${s}</li>") suboptions)}
-    </ul>
-  '';
-
-  expand-suboptions =
-    loc: options:
+    traversed-loc: options:
     assert !(options ? _type);
     let
       to-list = lib.mapAttrsToList (name: opt: { inherit name opt; });
@@ -313,28 +310,31 @@ let
           ) (to-list (builtins.removeAttrs (options // extra-docs-options) [ "_module" ]))
         else
           to-list (builtins.removeAttrs options [ "_module" ]);
-
     in
-    builtins.concatMap (
-      { name, opt }:
-      if opt ? _type then
-        render-option (
-          opt
-          // {
-            defaultText =
-              opt.defaultText
-                or (if opt ? default then display-value { omit-empty-composites = true; } opt.default else null);
+    builtins.concatStringsSep "" (
+      map (
+        { name, opt }:
+        if opt ? _type then
+          render-option (traversed-loc ++ [ name ]) (
+            opt
+            // {
+              defaultText =
+                opt.defaultText
+                  or (if opt ? default then display-value { omit-empty-composites = true; } opt.default else null);
 
-            loc = opt.override-loc or lib.id opt.loc;
-          }
-        )
-      else
-        render-options-node (loc ++ [ name ]) opt
-    ) options';
+              loc = opt.override-loc or lib.id opt.loc;
+            }
+          )
+        else
+          let
+            rendered = render-options-node (traversed-loc ++ [ name ]) opt;
+          in
+          lib.warnIf (rendered != "") "${
+            lib.showOption (traversed-loc ++ [ name ])
+          } should probably be an option" rendered
+      ) options'
+    );
 in
-lib.pipe toplevel-options-type [
-  (ty: ty.getSubOptions [ ])
-  (expand-suboptions [ ])
-  (render-suboptions)
-  html-skeleton
-]
+builtins.toFile "settings.html" (
+  html-skeleton (render-options-section [ ] (toplevel-options-type.getSubOptions [ ]))
+)

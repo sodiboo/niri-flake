@@ -44,4 +44,4 @@ pages:
     rsync --chmod=+w -Lrcv result-pages-link/ result-pages
 
 watch-pages:
-    fd .nix . | entr just pages
+    fd -p "^$(pwd)/pages/|\\.nix\$" . | entr just pages

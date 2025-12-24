@@ -12,19 +12,13 @@
   settings-fmt ? niri-flake.lib.internal.settings-fmt,
 }:
 let
-  settings-html = builtins.toFile "settings.html" (
-    import ./settings.html.nix { inherit lib kdl settings-fmt; }
-  );
-  picocss = pkgs.fetchFromGitHub {
-    owner = "picocss";
-    repo = "pico";
-    tag = "v2.1.1";
-    hash = "sha256-fGQWYKCpprE9FvU7mbgxks41t8x7GsGvhkzVV95dgec=";
-  };
+  call = file: pkgs.callPackage file { inherit kdl settings-fmt; };
 in
 pkgs.runCommand "niri-flake-pages" { } ''
   mkdir $out
-  ln -s ${settings-html} $out/settings.html
-  ln -s ${picocss}/css $out/css
   ln -s ${../assets} $out/assets
+  ln -s ${./base.css} $out/base.css
+  ln -s ${call ./settings.html.nix} $out/settings.html
+  ln -s ${./settings.css} $out/settings.css
+  ln -s ${./settings.js} $out/settings.js
 ''

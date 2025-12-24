@@ -30,29 +30,6 @@ let
 
   literal = lit: builtins.replaceStrings [ "\n" ] [ "<br>" ] (escape-html lit);
 
-  admonitions-template = {
-    note = {
-      title = "Note";
-      color = "indigo";
-    };
-    tip = {
-      title = "Tip";
-      color = "green";
-    };
-    important = {
-      title = "Important";
-      color = "purple";
-    };
-    warning = {
-      title = "Warning";
-      color = "yellow";
-    };
-    caution = {
-      title = "Caution";
-      color = "red";
-    };
-  };
-
 in
 {
   inherit break-paragraphs;
@@ -76,55 +53,28 @@ in
 
   fmt.link-to-setting = loc: "#${showOption loc}";
 
-  css.admonitions = lib.mapAttrsToList (
-    kind:
-    {
-      title,
-      color,
-    }:
-    ''
-      .admonition.${kind} {
-        border: 1px solid transparent;
-        background-color: var(--${color}-soft);
-        border-radius: 8px;
-        padding: 16px 16px 8px;
-
-        .admonition-title {
-          color: var(--${color}-3);
-          font-weight: 600;
-          margin-bottom: .5em;
-        }
-      }
-    ''
-  ) admonitions-template;
-
   fmt.admonition =
-    builtins.mapAttrs
+    lib.genAttrs
+      [
+        "note"
+        "tip"
+        "important"
+        "warning"
+        "caution"
+      ]
       (
-        _: wrap: content:
-        wrap (body content)
-      )
-      (
-        lib.mapAttrs (
-          kind:
-          {
-            title,
-            color,
-          }:
-          body: ''
-            <div class="admonition ${kind}">
-            <div class="admonition-title">${title}</div>
-            ${body}
-            </div>
-          ''
-        ) admonitions-template
+        kind: body: ''
+          <div class="admonition ${kind}">
+          ${body}
+          </div>
+        ''
       );
 
   fmt.list = items: "<ul>${lib.concatStrings (map (s: "<li>${body s}</li>") items)}</ul>";
   fmt.ordered-list = items: "<ol>${lib.concatStrings (map (s: "<li>${body s}</li>") items)}</ol>";
 
   fmt.nix-code-block = code: ''
-    <pre><code class="block language-nix">${literal code}</code></pre>
+    <pre><code class="language-nix">${literal code}</code></pre>
   '';
 
   fmt.em = text: "<em>${text}</em>";

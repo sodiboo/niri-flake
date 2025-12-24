@@ -11,28 +11,6 @@ let
     make-rendered-section
     ;
 
-  wrap-description =
-    {
-      before-label,
-      before,
-      after-label,
-      after,
-      description,
-    }:
-    ''
-      ${lib.optionalString (before != [ ]) ''
-        ${before-label}:
-        ${fmt.list (builtins.map fmt.link-opt before)}
-      ''}
-
-      ${lib.optionalString (after != [ ]) ''
-        ${after-label}:
-        ${fmt.list (builtins.map fmt.link-opt after)}
-      ''}
-
-      ${description}
-    '';
-
   tree = {
     node =
       name:
@@ -156,22 +134,11 @@ let
       )
       // {
         mkOption =
-          name:
-          {
-            description ? "",
-            ...
-          }@args:
-          lib.mkOption (
-            args
-            // {
-              description = wrap-description {
-                before-label = "overrides";
-                after-label = "overridden by";
-                inherit (ctx.map (options: options.${name})) before after;
-                inherit description;
-              };
-            }
-          );
+          name: args:
+          lib.mkOption args
+          // {
+            niri-flake-hierarchy = { inherit (ctx.map (options: options.${name})) before after; };
+          };
 
         nullable =
           name:
@@ -189,24 +156,14 @@ let
           );
 
         rendered-section =
-          name:
-          {
-            partial,
-            description ? "",
-          }:
-          f:
+          name: args: f:
           let
             ctx' = ctx.map (options: options.${name});
           in
-          make-rendered-section name {
-            inherit partial;
-            description = wrap-description {
-              before-label = "refines";
-              after-label = "refined by";
-              inherit (ctx') before after;
-              inherit description;
-            };
-          } (f (ctx'.map subopts));
+          make-rendered-section name args (f (ctx'.map subopts))
+          // {
+            niri-flake-hierarchy = { inherit (ctx') before after; };
+          };
 
         contextual = choices: choices.${ctx.position};
         link-opt-contextual = choices: fmt.link-opt choices.${ctx.position};
