@@ -22,37 +22,41 @@ let
     nullable
     required
     optional
-    section
+    record
     ;
 
   animation-kind = types.attrTag {
-    spring = section {
-      damping-ratio = required types.float;
-      stiffness = required types.int;
-      epsilon = required types.float;
+    spring = lib.mkOption {
+      type = record {
+
+        damping-ratio = required types.float;
+        stiffness = required types.int;
+        epsilon = required types.float;
+      };
     };
-    easing = section {
-      duration-ms = required types.int;
-      curve =
-        required (enum [
-          "linear"
-          "ease-out-quad"
-          "ease-out-cubic"
-          "ease-out-expo"
-          "cubic-bezier"
-        ])
-        // {
+    easing = lib.mkOption {
+      type = record {
+        duration-ms = required types.int;
+        curve = lib.mkOption {
+          type = enum [
+            "linear"
+            "ease-out-quad"
+            "ease-out-cubic"
+            "ease-out-expo"
+            "cubic-bezier"
+          ];
           description = ''
             The curve to use for the easing function.
           '';
         };
 
-      # eh? not loving this. but anything better is kinda nontrivial.
-      # will refactor, currently just a stopgap so that it is usable.
-      curve-args = list kdl.types.kdl-value // {
-        description = ''
-          Arguments to the easing curve. ${fmt.code "cubic-bezier"} requires 4 arguments, all others don't allow arguments.
-        '';
+        # eh? not loving this. but anything better is kinda nontrivial.
+        # will refactor, currently just a stopgap so that it is usable.
+        curve-args = list kdl.types.kdl-value // {
+          description = ''
+            Arguments to the easing curve. ${fmt.code "cubic-bezier"} requires 4 arguments, all others don't allow arguments.
+          '';
+        };
       };
     };
   };
