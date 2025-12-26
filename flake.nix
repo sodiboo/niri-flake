@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
-    niri-stable.url = "github:YaLTeR/niri/v25.08";
+    niri-stable.url = "github:YaLTeR/niri/v25.11";
     niri-unstable.url = "github:YaLTeR/niri";
 
     xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.7";
@@ -30,17 +30,12 @@
         inherit
           inputs
           kdl
-          docs
           binds
-          settings
           ;
         inherit (nixpkgs) lib;
       };
       kdl = call ./kdl.nix;
       binds = call ./parse-binds.nix;
-      docs = call ./generate-docs.nix;
-      html-docs = call ./generate-html-docs.nix;
-      settings = call ./settings.nix;
       stylix-module = call ./stylix.nix;
 
       stable-revs = import ./refs.nix;
@@ -346,16 +341,42 @@
       ];
 
       forAllSystems = nixpkgs.lib.genAttrs systems;
+
+      settings-fmt = import ./settings/fmt {
+        inherit (nixpkgs) lib;
+        niri-flake-rev = self.lib.internal.rev;
+      };
     in
     {
       lib = {
         inherit kdl;
         internal = {
+          rev = inputs.self.rev or "main";
           inherit make-package-set validated-config-for;
           package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
-          docs-markdown = docs.make-docs (settings.fake-docs { inherit fmt-date fmt-time; });
-          docs-html = html-docs.make-docs (settings.type-with html-docs.settings-fmt);
-          settings-module = settings.module;
+          docs-markdown = import ./pages/legacy/generate.nix {
+            inherit (nixpkgs) lib;
+            inherit
+              inputs
+              kdl
+              fmt-date
+              fmt-time
+              settings-fmt
+              ;
+          };
+          inherit settings-fmt;
+          settings-type = nixpkgs.lib.types.submoduleWith {
+            modules = [ ./settings/toplevel.nix ];
+            specialArgs = {
+              inherit kdl;
+              niri-flake-internal-fmt = settings-fmt.gfm;
+            };
+          };
+          settings-module = import ./settings.nix {
+            inherit (nixpkgs) lib;
+            inherit kdl;
+            fmt = settings-fmt.gfm;
+          };
           memo-binds = nixpkgs.lib.pipe (binds "${inputs.niri-unstable}/niri-config/src/binds.rs") [
             (map (bind: "  \"${bind.name}\""))
             (builtins.concatStringsSep "\n")
@@ -408,7 +429,7 @@
         in
         {
           imports = [
-            settings.module
+            self.lib.internal.settings-module
           ];
 
           options.programs.niri = {
@@ -433,6 +454,7 @@
             source = validated-config-for pkgs cfg.package cfg.finalConfig;
           };
         };
+      nixosModules.binary-cache = ./modules/binary-cache.nix;
       nixosModules.niri =
         {
           config,
@@ -450,6 +472,8 @@
           # in favour of other modules that aren't redundant with nixpkgs (and don't yet exist)
           disabledModules = [ "programs/wayland/niri.nix" ];
 
+          imports = [ self.nixosModules.binary-cache ];
+
           options.programs.niri = {
             enable = nixpkgs.lib.mkEnableOption "niri";
             package = nixpkgs.lib.mkOption {
@@ -459,17 +483,7 @@
             };
           };
 
-          options.niri-flake.cache.enable = nixpkgs.lib.mkEnableOption "the niri-flake binary cache" // {
-            default = true;
-          };
-
           config = nixpkgs.lib.mkMerge [
-            (nixpkgs.lib.mkIf config.niri-flake.cache.enable {
-              nix.settings = {
-                substituters = [ "https://niri.cachix.org" ];
-                trusted-public-keys = [ "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=" ];
-              };
-            })
             (nixpkgs.lib.mkIf cfg.enable {
               environment.systemPackages = [
                 pkgs.xdg-utils
@@ -579,8 +593,9 @@
             let
               eval = nixpkgs.lib.evalModules {
                 modules = [
-                  settings.module
+                  self.lib.internal.settings-module
                   {
+                    config._module.args.pkgs = inputs.nixpkgs.legacyPackages.${system};
                     config.programs.niri.settings = { };
                   }
                 ];
@@ -602,6 +617,11 @@
               programs.niri.enable = true;
             }
           ];
+
+          pages = import ./pages {
+            niri-flake = self;
+            inherit system;
+          };
         }
       );
     };
