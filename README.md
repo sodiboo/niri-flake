@@ -54,6 +54,75 @@ You can also set the package to the one from nixpkgs (`pkgs.niri`), which will l
 
 `niri.homeModules.config` also provides the option to set the package. This won't install niri by itself, but it does set the package version used for build-time validation.
 
+# Using home-manager
+
+To setup and configure Niri with home-manager, you need to both enable Niri on NixOS and configure it correctly in home-manager.
+
+The following is an (almost) minimal configuration for using Niri with home-manager in practice:
+```nix
+{
+  pkgs,
+  inputs,
+  ...
+}:
+
+let
+  # ensure you use the same package in hm and nixos
+  niri = pkgs.niri-unstable;
+in
+{
+  # use the overlay
+  nixpkgs.overlays = [
+    inputs.niri.overlays.niri
+  ];
+
+  # support legacy x apps
+  environment.systemPackages = with pkgs; [
+    xwayland-satellite
+    # wl-clipboard # optional: provide complete clipboard API (used by some terminal apps)
+  ];
+
+  # enable niri in nixos
+  programs.niri = {
+    enable = true;
+    package = niri;
+  };
+
+  # enable and configure niri in hm
+  home-manager.users.foobar =
+    { config, ... }:
+    {
+      programs.niri = {
+        package = niri;
+        settings = {
+          environment = {
+            NIXOS_OZONE_WL = "1"; # support electron and chromium based apps
+            DISPLAY = ":0"; # important for xwayland-satellite
+            # QT_QPA_PLATFORM = "wayland"; # optional: force QT apps to always use wayland
+          };
+          spawn-at-startup = [
+            { command = [ "xwayland-satellite" ]; }
+          ];
+          # use niri actions
+          binds = with config.lib.niri.actions; {
+            # example binding to a niri action
+            "Mod+Ctrl+Left".action = move-column-left;
+            "Mod+Ctrl+Right".action = move-column-right;
+            # example binding to a custom command
+            "Mod+H".action.spawn = [
+              "firefox"
+              "https://github.com/YaLTeR/niri/wiki/Getting-Started"
+              "https://github.com/sodiboo/niri-flake"
+              "https://github.com/sodiboo/niri-flake/blob/main/docs.md"
+            ];
+          };
+          # hotkey-overlay.skip-at-startup = true; # optional: hide the keybinding popup
+        };
+      };
+    };
+}
+```
+
 # Configuration of niri
 
 `programs.niri.settings` is the preferred way to configure niri. This is provided by `niri.homeModules.config`, which is automatically imported when using home-manager as a NixOS module. All options are documented in [`docs.md`](./docs.md#programsnirisettings).
