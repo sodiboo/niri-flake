@@ -287,16 +287,25 @@ in
   imports = [
     (make-ordered-options
       {
-        finalize = rendered: {
-          options.rendered = lib.mkOption {
-            type = kdl.types.kdl-document;
-            readOnly = true;
+        finalize =
+          rendered:
+          { config, ... }:
+          {
+            options.rendered = lib.mkOption {
+              type = kdl.types.kdl-document;
+              readOnly = true;
+            };
+            config.rendered = [
+              (map (include: include.rendered) config.includes.before)
+              rendered
+              (map (include: include.rendered) config.includes.after)
+            ];
           };
-          config.rendered = rendered;
-        };
       }
       (
         map (f: lib.setDefaultModuleLocation f (import f args)) [
+          ./includes.nix
+
           ./input.nix
           ./binds.nix
           ./switch-events.nix
