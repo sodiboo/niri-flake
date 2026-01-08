@@ -289,7 +289,7 @@ in
       {
         finalize =
           rendered:
-          { config, ... }:
+          { config, specialArgs, ... }:
           {
             options.rendered = lib.mkOption {
               type = kdl.types.kdl-document;
@@ -300,6 +300,40 @@ in
               rendered
               (map (include: include.rendered) config.includes.after)
             ];
+
+            imports = lib.optional (specialArgs ? pkgs) (
+              { pkgs, ... }:
+              {
+                options._module.filename = lib.mkOption {
+                  type = lib.types.str;
+                  default = "config.kdl";
+                };
+
+                options.outPath = lib.mkOption {
+                  type = lib.types.path;
+                  readOnly = true;
+                };
+
+                config.outPath = pkgs.callPackage kdl.generator {
+                  name = config._module.filename;
+                  document = config.rendered;
+                };
+
+                options.validated = lib.mkOption {
+                  type = lib.types.functionTo lib.types.path;
+                  readOnly = true;
+                };
+
+                config.validated =
+                  {
+                    package,
+                  }:
+                  pkgs.runCommand "validated-${config._module.filename}" { buildInputs = [ package ]; } ''
+                    niri validate -c "${config}"
+                    cp "${config}" $out
+                  '';
+              }
+            );
           };
       }
       (

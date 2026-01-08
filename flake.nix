@@ -361,6 +361,17 @@
     {
       lib = {
         inherit kdl;
+        settings = builtins.mapAttrs (
+          _: f: args:
+          f (
+            {
+              inherit kdl;
+              niri-flake-internal-fmt = settings-fmt.gfm.fmt;
+            }
+            // args
+          )
+        ) (import ./settings);
+
         internal = {
           rev = inputs.self.rev or "main";
           inherit make-package-set validated-config-for;
@@ -376,13 +387,7 @@
               ;
           };
           inherit settings-fmt;
-          settings-type = nixpkgs.lib.types.submoduleWith {
-            modules = [ ./settings/toplevel.nix ];
-            specialArgs = {
-              inherit kdl;
-              niri-flake-internal-fmt = settings-fmt.gfm;
-            };
-          };
+          settings-type = throw "niri-flake internals: `settings-type` is now public interface. use `niri-flake.lib.settings.make-type`";
           settings-module = import ./settings.nix {
             inherit (nixpkgs) lib;
             inherit kdl;

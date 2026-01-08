@@ -7,12 +7,9 @@
 let
   inherit (settings-fmt) xml;
 
-  toplevel-options-type = lib.types.submoduleWith {
-    modules = [ ../settings/toplevel.nix ];
-    specialArgs = {
-      inherit kdl;
-      niri-flake-internal-fmt = xml.fmt;
-    };
+  toplevel-options-type = (import ../settings).make-type {
+    inherit lib kdl;
+    niri-flake-internal-fmt = xml.fmt;
   };
 
   describe-type =
