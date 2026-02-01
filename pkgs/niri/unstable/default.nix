@@ -12,9 +12,9 @@ callPackage ../generic.nix (
       let
         inherit (builtins) concatStringsSep splitVersion;
         inherit (lib.lists) sublist;
-        date = concatStringsSep "-" (sublist 3 5 (splitVersion version));
       in
-      "unstable ${date} (commit ${src.rev})";
+      concatStringsSep "-" (sublist 3 5 (splitVersion version));
+    versionString = "unstable ${commitDate} (commit ${src.rev})";
     src = fetchFromGitHub {
       owner = "YaLTeR";
       repo = "niri";

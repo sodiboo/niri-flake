@@ -3,7 +3,6 @@
   kdl,
   lib,
   docs,
-  binds,
   settings,
   ...
 }:
@@ -26,9 +25,6 @@
         submodule
         enum
         ;
-
-      binds-stable = binds "${inputs.niri-stable}/niri-config/src/binds.rs";
-      binds-unstable = binds "${inputs.niri-unstable}/niri-config/src/binds.rs";
 
       record = record' null;
 
@@ -3171,8 +3167,8 @@
                 The latest commit to the development branch of niri.
 
                 Currently, this is exactly commit ${
-                  link-niri-commit { inherit (inputs.niri-unstable) shortRev rev; }
-                } which was authored on `${fmt-date inputs.niri-unstable.lastModifiedDate} ${fmt-time inputs.niri-unstable.lastModifiedDate}`.
+                  link-niri-commit inputs.self.packages.x86_64-linux.niri-unstable.src.rev
+                } which was authored on `${fmt-date inputs.self.packages.x86_64-linux.niri-unstable.passthru.commitDate}`.
 
                 > [!warning]
                 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
