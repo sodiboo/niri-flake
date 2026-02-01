@@ -1,5 +1,6 @@
 {
   version,
+  commitDate ? null,
   versionString,
   src,
   patches ? [ ],
@@ -71,7 +72,12 @@ rustPlatform.buildRustPackage {
     ++ lib.optional withScreencastSupport "xdp-gnome-screencast"
     ++ lib.optional withSystemd "systemd";
 
-  passthru.providedSessions = [ "niri" ];
+  passthru = {
+    providedSessions = [ "niri" ];
+  }
+  // (lib.attrsets.optionalAttrs (commitDate != null) {
+    inherit commitDate;
+  });
 
   # we want backtraces to be readable
   dontStrip = true;

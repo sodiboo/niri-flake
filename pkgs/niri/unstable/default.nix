@@ -8,13 +8,13 @@
 callPackage ../generic.nix (
   rec {
     version = "25.11-unstable-2026-01-28";
-    versionString =
+    commitDate =
       let
         inherit (builtins) concatStringsSep splitVersion;
         inherit (lib.lists) sublist;
-        date = concatStringsSep "-" (sublist 3 5 (splitVersion version));
       in
-      "unstable ${date} (commit ${src.rev})";
+      concatStringsSep "-" (sublist 3 5 (splitVersion version));
+    versionString = "unstable ${commitDate} (commit ${src.rev})";
     src = fetchFromGitHub {
       owner = "YaLTeR";
       repo = "niri";

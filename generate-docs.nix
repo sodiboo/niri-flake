@@ -105,10 +105,10 @@ let
     '';
 
   link-niri-commit =
-    {
-      rev,
-      shortRev,
-    }:
+    rev:
+    let
+      shortRev = builtins.substring 0 7 rev;
+    in
     "[`${shortRev}`](https://github.com/YaLTeR/niri/tree/${rev})";
   link-niri-release =
     version: "[`${version}`](https://github.com/YaLTeR/niri/releases/tag/${version})";
