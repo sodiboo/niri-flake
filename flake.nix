@@ -5,8 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
-    niri-stable.url = "github:YaLTeR/niri/v25.08";
-    niri-unstable.url = "github:YaLTeR/niri";
+    niri-stable.url = "github:niri-wm/niri/v25.08";
+    niri-unstable.url = "github:niri-wm/niri";
 
     xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.7";
     xwayland-satellite-unstable.url = "github:Supreeeme/xwayland-satellite";
@@ -220,7 +220,7 @@
 
           meta = {
             description = "Scrollable-tiling Wayland compositor";
-            homepage = "https://github.com/YaLTeR/niri";
+            homepage = "https://github.com/niri-wm/niri";
             license = nixpkgs.lib.licenses.gpl3Only;
             maintainers = with nixpkgs.lib.maintainers; [ sodiboo ];
             mainProgram = "niri";

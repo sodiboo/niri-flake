@@ -109,9 +109,9 @@ let
       rev,
       shortRev,
     }:
-    "[`${shortRev}`](https://github.com/YaLTeR/niri/tree/${rev})";
+    "[`${shortRev}`](https://github.com/niri-wm/niri/tree/${rev})";
   link-niri-release =
-    version: "[`${version}`](https://github.com/YaLTeR/niri/releases/tag/${version})";
+    version: "[`${version}`](https://github.com/niri-wm/niri/releases/tag/${version})";
 
   link-stylix-opt = opt: "[`${opt}`](https://danth.github.io/stylix/options/hm.html#${anchor opt})";
 
