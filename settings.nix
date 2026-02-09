@@ -113,7 +113,7 @@
       link-niri-release =
         version:
         fmt.masked-link {
-          href = "https://github.com/YaLTeR/niri/releases/tag/${version}";
+          href = "https://github.com/niri-wm/niri/releases/tag/${version}";
           content = fmt.code version;
         };
 
@@ -2309,7 +2309,7 @@
 
                               For example, set it to ${fmt.code "builtins.readFile ./${name}.glsl"} to use a shader from the same directory as your configuration file.
 
-                              See: ${fmt.bare-link "https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader"}
+                              See: ${fmt.bare-link "https://github.com/niri-wm/niri/wiki/Configuration:-Animations#custom-shader"}
                             '';
                           };
                         }
@@ -3122,7 +3122,7 @@
             builtins.concatMap (
               patch:
               let
-                m = lib.strings.match "${lib.escapeRegex "https://github.com/YaLTeR/niri/commit/"}([0-9a-f]{40})${lib.escapeRegex ".patch"}" patch.url;
+                m = lib.strings.match "${lib.escapeRegex "https://github.com/niri-wm/niri/commit/"}([0-9a-f]{40})${lib.escapeRegex ".patch"}" patch.url;
               in
               if m != null then
                 [

@@ -1,4 +1,4 @@
-This flake contains nix packages for [niri](https://github.com/YaLTeR/niri), a scrollable-tiling Wayland compositor. You can try it right now: add the binary cache with `cachix use niri` and then `nix run github:sodiboo/niri-flake`. You can also try the latest commit to the `main` branch with `nix run github:sodiboo/niri-flake#niri-unstable`.
+This flake contains nix packages for [niri](https://github.com/niri-wm/niri), a scrollable-tiling Wayland compositor. You can try it right now: add the binary cache with `cachix use niri` and then `nix run github:sodiboo/niri-flake`. You can also try the latest commit to the `main` branch with `nix run github:sodiboo/niri-flake#niri-unstable`.
 
 This flake also contains NixOS and home-manager modules to install all necessary components of a working Wayland environment, and to let you manage your configuration declaratively, validating it at build-time. This ensures that your config's schema is always in sync with the installed version of niri.
 
