@@ -2358,6 +2358,9 @@ window-rules = [
             { app-id = "firefox"; }
             { title = "^Extension: Bitwarden - Password Manager$"; }
         ];
+        excludes = [
+            { app-id = "firefox"; }
+        ];
         open-floating = true;
     }
 ];
