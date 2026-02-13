@@ -600,6 +600,41 @@
             validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable
               eval.config.programs.niri.finalConfig;
 
+          output-layout-schema-valid-stable =
+            let
+              eval = nixpkgs.lib.evalModules {
+                modules = [
+                  settings.module
+                  {
+                    config.programs.niri.settings.outputs."eDP-1".layout.gaps = 42;
+                  }
+                ];
+              };
+            in
+            validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable
+              eval.config.programs.niri.finalConfig;
+
+          output-layout-renders-stable =
+            let
+              eval = nixpkgs.lib.evalModules {
+                modules = [
+                  settings.module
+                  {
+                    config.programs.niri.settings = {
+                      layout.gaps = 16;
+                      outputs."eDP-1".layout.gaps = 42;
+                    };
+                  }
+                ];
+              };
+              final-config = eval.config.programs.niri.finalConfig;
+            in
+            assert
+              builtins.match ''(.|\n)*output "eDP-1" \{(.|\n)*layout \{(.|\n)*gaps 42(.|\n)*'' final-config
+              != null;
+            validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable
+              final-config;
+
           nixos-unstable = test-nixos-for nixpkgs [
             self.nixosModules.niri
             {
