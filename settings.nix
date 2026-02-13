@@ -2088,7 +2088,44 @@
                       '';
                     };
                 }
-              ];
+              ] // {
+                description = ''
+                  Per-output overrides for ${link-opt options.layout}.
+
+                  This is useful when you want different width behavior on different displays, e.g. keeping your current ultrawide defaults while making the laptop screen use wider columns.
+
+                  Example:
+
+                  ${fmt.nix-code-block ''
+                    {
+                      programs.niri.settings = {
+                        outputs = {
+                          "DVI-I-1".layout = {
+                            # Ultrawide: narrower defaults
+                            default-column-width = { proportion = 1.0 / 2.0; };
+                            preset-column-widths = [
+                              { proportion = 1.0 / 3.0; }
+                              { proportion = 1.0 / 2.0; }
+                              { proportion = 2.0 / 3.0; }
+                            ];
+                          };
+
+                          "eDP-1".layout = {
+                            # Laptop: wider defaults
+                            default-column-width = { proportion = 2.0 / 3.0; };
+                            preset-column-widths = [
+                              { proportion = 1.0 / 2.0; }
+                              { proportion = 2.0 / 3.0; }
+                              { proportion = 3.0 / 4.0; }
+                              { proportion = 5.0 / 6.0; }
+                            ];
+                          };
+                        };
+                      };
+                    }
+                  ''}
+                '';
+              };
             });
           }
 

@@ -1371,7 +1371,45 @@ If multiple outputs with `focus-at-startup` are connected, then the one with the
 When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
 
 
-<!-- programs.niri.settings.outputs.<name>.layout -->
+## `programs.niri.settings.outputs.<name>.layout`
+
+
+Per-output overrides for [`layout`](#programsnirisettingslayout).
+
+This is useful when you want different width behavior on different displays, e.g. keeping your current ultrawide defaults while making the laptop screen use wider columns.
+
+Example:
+
+```nix
+{
+  programs.niri.settings = {
+    outputs = {
+      "DVI-I-1".layout = {
+        # Ultrawide: narrower defaults
+        default-column-width = { proportion = 1.0 / 2.0; };
+        preset-column-widths = [
+          { proportion = 1.0 / 3.0; }
+          { proportion = 1.0 / 2.0; }
+          { proportion = 2.0 / 3.0; }
+        ];
+      };
+
+      "eDP-1".layout = {
+        # Laptop: wider defaults
+        default-column-width = { proportion = 2.0 / 3.0; };
+        preset-column-widths = [
+          { proportion = 1.0 / 2.0; }
+          { proportion = 2.0 / 3.0; }
+          { proportion = 3.0 / 4.0; }
+          { proportion = 5.0 / 6.0; }
+        ];
+      };
+    };
+  };
+}
+```
+
+
 
 ## `programs.niri.settings.outputs.<name>.layout.border`
 
