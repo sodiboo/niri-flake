@@ -1371,6 +1371,369 @@ If multiple outputs with `focus-at-startup` are connected, then the one with the
 When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
 
 
+<!-- programs.niri.settings.outputs.<name>.layout -->
+
+## `programs.niri.settings.outputs.<name>.layout.border`
+
+
+Output-local overrides for [`layout.border`](#programsnirisettingslayoutborder).
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the border.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the border drawn around each window.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for the window that has keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring`
+
+
+Output-local overrides for [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the focus ring.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the focus ring drawn around each focused window.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow`
+
+
+Output-local overrides for [`layout.shadow`](#programsnirisettingslayoutshadow).
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint`
+
+
+Output-local overrides for [`layout.insert-hint`](#programsnirisettingslayoutinsert-hint).
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the insert hint.
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint.display`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the insert hint.
+
+
+## `programs.niri.settings.outputs.<name>.layout.background-color`
+- type: `null or string`
+- default: `null`
+
+Output-local overrides for [`layout.background-color`](#programsnirisettingslayoutbackground-color).
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths`
+- type: `null or (list of attribute-tagged union with choices: fixed, proportion)`
+- default: `null`
+
+Output-local overrides for [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths).
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights`
+- type: `null or (list of attribute-tagged union with choices: fixed, proportion)`
+- default: `null`
+
+Output-local overrides for [`layout.preset-window-heights`](#programsnirisettingslayoutpreset-window-heights).
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.outputs.<name>.layout.always-center-single-column`
+- type: `null or boolean`
+- default: `null`
+
+Output-local overrides for [`layout.always-center-single-column`](#programsnirisettingslayoutalways-center-single-column).
+
+
+## `programs.niri.settings.outputs.<name>.layout.center-focused-column`
+- type: `null or one of "never", "always", "on-overflow"`
+- default: `null`
+
+Output-local overrides for [`layout.center-focused-column`](#programsnirisettingslayoutcenter-focused-column).
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+Output-local overrides for [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display).
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-width`
+- type: `null or {} or attribute-tagged union with choices: fixed, proportion`
+- default: `null`
+
+Output-local overrides for [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width).
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator`
+- type: `null or (submodule)`
+- default: `null`
+
+Output-local overrides for [`layout.tab-indicator`](#programsnirisettingslayouttab-indicator).
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.corner-radius`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.gap`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.gaps-between-tabs`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.hide-when-single-tab`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.length.total-proportion`
+- type: `null or floating point number`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.place-within-column`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.position`
+- type: `null or one of "left", "right", "top", "bottom"`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that are requesting attention.
+
+
+## `programs.niri.settings.outputs.<name>.layout.empty-workspace-above-first`
+- type: `null or boolean`
+- default: `null`
+
+Output-local overrides for [`layout.empty-workspace-above-first`](#programsnirisettingslayoutempty-workspace-above-first).
+
+
+## `programs.niri.settings.outputs.<name>.layout.gaps`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Output-local overrides for [`layout.gaps`](#programsnirisettingslayoutgaps).
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts`
+
+
+Output-local overrides for [`layout.struts`](#programsnirisettingslayoutstruts).
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.bottom`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.left`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.right`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.top`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
 ## `programs.niri.settings.outputs.<name>.mode`
 - type: `null or (submodule)`
 - default: `null`
