@@ -600,6 +600,83 @@
             validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable
               eval.config.programs.niri.finalConfig;
 
+          output-layout-schema-valid-unstable =
+            let
+              eval = nixpkgs.lib.evalModules {
+                modules = [
+                  settings.module
+                  {
+                    config.programs.niri.settings.outputs."eDP-1".layout.gaps = 42;
+                  }
+                ];
+              };
+            in
+            validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-unstable
+              eval.config.programs.niri.finalConfig;
+
+          output-layout-renders-unstable =
+            let
+              eval = nixpkgs.lib.evalModules {
+                modules = [
+                  settings.module
+                  {
+                    config.programs.niri.settings = {
+                      layout.gaps = 16;
+                      outputs."eDP-1".layout.gaps = 42;
+                    };
+                  }
+                ];
+              };
+              final-config = eval.config.programs.niri.finalConfig;
+            in
+            assert
+              nixpkgs.lib.hasInfix ''output "eDP-1" {'' final-config
+              && nixpkgs.lib.hasInfix "layout { gaps 42; }" final-config;
+            validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-unstable
+              final-config;
+
+          output-layout-dual-display-unstable =
+            let
+              eval = nixpkgs.lib.evalModules {
+                modules = [
+                  settings.module
+                  {
+                    config.programs.niri.settings.outputs = {
+                      "DP-1".layout = {
+                        default-column-width = {
+                          proportion = 0.25;
+                        };
+                        preset-column-widths = [
+                          { proportion = 0.2; }
+                          { proportion = 0.25; }
+                          { proportion = 0.5; }
+                          { proportion = 0.75; }
+                        ];
+                      };
+                      "eDP-1".layout = {
+                        default-column-width = {
+                          proportion = 0.6;
+                        };
+                        preset-column-widths = [
+                          { proportion = 0.5; }
+                          { proportion = 0.6; }
+                          { proportion = 0.8; }
+                        ];
+                      };
+                    };
+                  }
+                ];
+              };
+              final-config = eval.config.programs.niri.finalConfig;
+            in
+            assert
+              nixpkgs.lib.hasInfix ''output "DP-1" {'' final-config
+              && nixpkgs.lib.hasInfix ''output "eDP-1" {'' final-config
+              && nixpkgs.lib.hasInfix "proportion 0.25" final-config
+              && nixpkgs.lib.hasInfix "proportion 0.6" final-config;
+            validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-unstable
+              final-config;
+
           nixos-unstable = test-nixos-for nixpkgs [
             self.nixosModules.niri
             {
