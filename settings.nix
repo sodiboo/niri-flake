@@ -1914,6 +1914,20 @@
                   When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
                 '';
               };
+
+              hot-corners =
+                  section {
+                    enable = optional types.bool true // {
+                      description = "Set to false to disable hot corners.";
+                    };
+                    selection = nullable (listOf types.str) // {
+                      description = "Subset of top-left, top-right, bottom-left, bottom-right.";
+                    };
+                  } // {
+                  description = ''
+                    Put your mouse at a corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+                  '';
+                };
             });
           }
 
@@ -3621,6 +3635,9 @@
               (nullable (map' leaf mode) "mode" cfg.mode)
               (optional-node (cfg.variable-refresh-rate != false) (
                 leaf "variable-refresh-rate" { on-demand = cfg.variable-refresh-rate == "on-demand"; }
+              ))
+              (optional-node (cfg.hot-corners.enable == false || cfg.hot-corners.selection != null) (
+                plain' "hot-corners" (toggle "off" cfg.hot-corners [(each cfg.hot-corners.selection flag)])
               ))
             ])
           ])
