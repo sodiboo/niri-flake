@@ -2438,9 +2438,17 @@
                       This does not happen when the overview is not open.
                     '';
                   };
-                hot-corners.enable = optional types.bool true // {
+                hot-corners =
+                  section {
+                    enable = optional types.bool true // {
+                      description = "Set to false to disable hot corners.";
+                    };
+                    selection = optional (listOf types.str) [ "top-left" ] // {
+                      description = "Subset of top-left, top-right, bottom-left, bottom-right.";
+                    };
+                  } // {
                   description = ''
-                    Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
+                    Put your mouse at a corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
                   '';
                 };
               };
@@ -3764,7 +3772,7 @@
             (nullable leaf "delay-ms" cfg.gestures.dnd-edge-workspace-switch.delay-ms)
             (nullable leaf "max-speed" cfg.gestures.dnd-edge-workspace-switch.max-speed)
           ])
-          (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners [ ]))
+          (plain' "hot-corners" (toggle "off" cfg.gestures.hot-corners [(each cfg.gestures.hot-corners.selection flag)]))
         ])
 
         (plain' "animations" [
