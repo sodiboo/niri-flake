@@ -386,6 +386,7 @@
       packages = forAllSystems (system: make-package-set inputs.nixpkgs.legacyPackages.${system});
 
       overlays.niri = final: prev: make-package-set final;
+      overlays.default = self.overlays.niri;
 
       apps = forAllSystems (
         system:
@@ -564,6 +565,9 @@
             };
           };
         };
+
+      nixosModules.default = self.nixosModules.niri;
+      homeModules.default = self.homeModules.niri;
 
       checks = forAllSystems (
         system:
