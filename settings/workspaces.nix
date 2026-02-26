@@ -62,9 +62,8 @@ in
                     visible = false;
                   };
 
-                  config.rendered = kdl.node "output" config.name [
-                    (lib.mkIf (!config.enable) (kdl.flag "off"))
-                    (lib.mkIf (config.enable) [ rendered ])
+                  config.rendered = kdl.node "workspace" config.name [
+                    [ rendered ]
                   ];
 
                   config.name = lib.mkOptionDefault name;
@@ -79,6 +78,7 @@ in
                     The name of the workspace. You set this manually if you want the keys to be ordered in a specific way.
                   '';
                 };
+                render = _: [ ];
               }
               {
                 options.open-on-output = nullable types.str // {
