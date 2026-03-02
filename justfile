@@ -6,6 +6,8 @@ set shell := ["fish", "-c"]
 current-system := `nix eval --impure --raw --expr builtins.currentSystem`
 nom-path := `command -v nom || true`
 
+nom-or-nix := if nom-path != "" { "nom" } else { "nix" }
+
 default: check
 
 fmt:
@@ -33,24 +35,13 @@ check-docs: check
 doc: check
     NIX_CONFIG="max-call-depth = 20000" nix eval --quiet --quiet --raw .#lib.internal.docs-markdown | sponge docs.md
 
-html-doc: check
-    NIX_CONFIG="max-call-depth = 20000" nix eval --quiet --quiet --raw .#lib.internal.docs-html | sponge docs.html.gen
-    @[ -s docs.html.gen ]
-    cat docs.html.gen | sponge docs.html
-
 watch:
     fd .nix . | entr just doc
 
-watch-html:
-    fd .nix . | entr just html-doc
+# intentionally copy out of nix store to play nicer with "Live Server"
+pages:
+    {{nom-or-nix}} build -o result-pages-link -f ./pages --show-trace
+    rsync --chmod=+w -Lrcv result-pages-link/ result-pages
 
-doc-both: fmt
-    NIX_CONFIG="max-call-depth = 20000" nix eval --quiet --quiet --raw .#lib.internal.docs-markdown --show-trace | sponge docs.md.gen
-    @[ -s docs.md.gen ]
-    NIX_CONFIG="max-call-depth = 20000" nix eval --quiet --quiet --raw .#lib.internal.docs-html --show-trace | sponge docs.html.gen
-    @[ -s docs.html.gen ]
-    mv docs.md.gen docs.md
-    mv docs.html.gen docs.html
-
-watch-both:
-    fd .nix . | entr -r just doc-both
+watch-pages:
+    fd -p "^$(pwd)/pages/|\\.nix\$" . | entr just pages
