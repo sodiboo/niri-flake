@@ -95,11 +95,11 @@
     "xwayland-satellite-unstable": {
       "flake": false,
       "locked": {
-        "lastModified": 1772429643,
-        "narHash": "sha256-M+bAeCCcjBnVk6w/4dIVvXvpJwOKnXjwi/lDbaN6Yws=",
+        "lastModified": 1773499041,
+        "narHash": "sha256-XZ4/tVdLeAYDgKe4JD4C7yYUKydMxwt8c2j6APFWcIc=",
         "owner": "Supreeeme",
         "repo": "xwayland-satellite",
-        "rev": "10f985b84cdbcc3bbf35b3e7e43d1b2a84fa9ce2",
+        "rev": "309d8e2a29953f7465dc14c939e2afe4682c0aa9",
         "type": "github"
       },
       "original": {
