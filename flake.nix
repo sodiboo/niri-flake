@@ -235,9 +235,14 @@
             inherit config;
             passAsFile = [ "config" ];
             buildInputs = [ package ];
+            nativeBuildInputs = [ pkgs.gnugrep ];
           }
           ''
-            niri validate -c $configPath
+            # Remove include lines for validation (they could fail in pure environment)
+            # but keep the original config for output
+            grep -v '^include\s' $configPath > config-without-includes.kdl
+            niri validate -c config-without-includes.kdl
+
             cp $configPath $out
           '';
 
