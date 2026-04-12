@@ -1,3 +1,9 @@
+# Purpose of this fork
+
+I am using this main flake heavily for configuration of niri. However, I am also using the niri blur PR and am unable to configure blur at all since it isn't added. So I added a backdoor that appends text to the config.kdl without the kdl check. This is temporary, once the next niri release happens I will take down this fork.
+
+---
+
 This flake contains nix packages for [niri](https://github.com/YaLTeR/niri), a scrollable-tiling Wayland compositor. You can try it right now: add the binary cache with `cachix use niri` and then `nix run github:sodiboo/niri-flake`. You can also try the latest commit to the `main` branch with `nix run github:sodiboo/niri-flake#niri-unstable`.
 
 This flake also contains NixOS and home-manager modules to install all necessary components of a working Wayland environment, and to let you manage your configuration declaratively, validating it at build-time. This ensures that your config's schema is always in sync with the installed version of niri.
