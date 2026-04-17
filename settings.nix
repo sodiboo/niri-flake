@@ -542,6 +542,20 @@
           inherit description;
         };
 
+      popups-rule = section {
+        opacity = nullable types.float // {
+          description = ''
+            Override properties for this window's pop-ups (menus and tooltips).
+
+            The properties work the same way as the corresponding window-rule properties, except that they apply to the window's pop-ups rather than to the window itself.
+
+            opacity is applied on top of the layer surface's own opacity rule, so setting both will make pop-ups more transparent than the surface. Other properties apply independently.
+          '';
+        };
+        geometry-corner-radius = geometry-corner-radius-rule;
+        background-effect = background-effect-rule;
+      };
+
       background-effect-rule = section {
         xray = nullable types.bool // {
           description = "Whether to enable the xray effect.";
@@ -2253,45 +2267,37 @@
                 '';
               };
 
-              passes =
-                nullable types.int
-                // {
-                  description = ''
-                    The number of downsample/upsample passes for dual kawase blur.
+              passes = nullable types.int // {
+                description = ''
+                  The number of downsample/upsample passes for dual kawase blur.
 
-                    More passes produce a larger, smoother blur, but cost more GPU resources.
-                  '';
-                };
+                  More passes produce a larger, smoother blur, but cost more GPU resources.
+                '';
+              };
 
-              offset =
-                nullable float-or-int
-                // {
-                  description = ''
-                    The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
+              offset = nullable float-or-int // {
+                description = ''
+                  The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
 
-                    However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
+                  However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
 
-                    When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
-                  '';
-                };
+                  When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
+                '';
+              };
 
-              noise =
-                nullable float-or-int
-                // {
-                  description = ''
-                    Amount of noise to add on top of the blur.
+              noise = nullable float-or-int // {
+                description = ''
+                  Amount of noise to add on top of the blur.
 
-                    This is helpful to reduce color banding artifacts.
-                  '';
-                };
+                  This is helpful to reduce color banding artifacts.
+                '';
+              };
 
-              saturation =
-                nullable float-or-int
-                // {
-                  description = ''
-                    Color saturation applied to the blurred background.
+              saturation = nullable float-or-int // {
+                description = ''
+                  Color saturation applied to the blurred background.
 
-                    Values above 1 increase saturation; values below 1 reduce it.
+                  Values above 1 increase saturation; values below 1 reduce it.
                 '';
               };
             };
@@ -2928,6 +2934,9 @@
                   {
                     background-effect = background-effect-rule;
                   }
+                  {
+                    popups = popups-rule;
+                  }
                 ]
               )
               // {
@@ -3023,6 +3032,9 @@
                   }
                   {
                     background-effect = background-effect-rule;
+                  }
+                  {
+                    popups = popups-rule;
                   }
                 ]
               )
@@ -3558,6 +3570,12 @@
           (nullable leaf "saturation" cfg.saturation)
         ]);
 
+        popups-rule = map' plain' (cfg: [
+          (nullable leaf "opacity" cfg.opacity)
+          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+          (background-effect-rule "background-effect" cfg.background-effect)
+        ]);
+
         corner-radius = cfg: [
           cfg.top-left
           cfg.top-right
@@ -3821,6 +3839,7 @@
             (nullable leaf "scroll-factor" cfg.scroll-factor)
             (nullable leaf "tiled-state" cfg.tiled-state)
             (background-effect-rule "background-effect" cfg.background-effect)
+            (popups-rule "popups" cfg.popups)
           ])
         ]))
         (each cfg.layer-rules (cfg: [
@@ -3834,6 +3853,7 @@
             (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
             (nullable leaf "baba-is-float" cfg.baba-is-float)
             (background-effect-rule "background-effect" cfg.background-effect)
+            (popups-rule "popups" cfg.popups)
           ])
         ]))
 

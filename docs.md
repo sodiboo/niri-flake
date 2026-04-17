@@ -3103,6 +3103,66 @@ The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200%
 
 Whether to enable the xray effect.
 
+<!-- programs.niri.settings.window-rules.*.popups -->
+
+<!-- programs.niri.settings.window-rules.*.popups.background-effect -->
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+Override properties for this window's pop-ups (menus and tooltips).
+
+The properties work the same way as the corresponding window-rule properties, except that they apply to the window's pop-ups rather than to the window itself.
+
+opacity is applied on top of the layer surface's own opacity rule, so setting both will make pop-ups more transparent than the surface. Other properties apply independently.
+
+
 ## `programs.niri.settings.layer-rules`
 - type: `list of (layer rule)`
 
@@ -3381,6 +3441,66 @@ The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200%
 - default: `null`
 
 Whether to enable the xray effect.
+
+<!-- programs.niri.settings.layer-rules.*.popups -->
+
+<!-- programs.niri.settings.layer-rules.*.popups.background-effect -->
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+Override properties for this window's pop-ups (menus and tooltips).
+
+The properties work the same way as the corresponding window-rule properties, except that they apply to the window's pop-ups rather than to the window itself.
+
+opacity is applied on top of the layer surface's own opacity rule, so setting both will make pop-ups more transparent than the surface. Other properties apply independently.
+
 
 ## `programs.niri.settings.xwayland-satellite`
 
