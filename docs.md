@@ -2010,6 +2010,55 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `0`
 
 
+<!-- programs.niri.settings.blur -->
+
+## `programs.niri.settings.blur.enable`
+- type: `boolean`
+- default: `true`
+
+By default, blur is available on request by a window or layer surface (via the ext-background-effect protocol). You can also enable it manually with the blur true background effect window or layer rule.
+
+Setting the off flag will disable all blur, both requested by the window, and configured in window rules.
+
+
+## `programs.niri.settings.blur.noise`
+- type: `floating point number`
+- default: `0.020000`
+
+Amount of noise to add on top of the blur.
+
+This is helpful to reduce color banding artifacts.
+
+
+## `programs.niri.settings.blur.offset`
+- type: `floating point number or signed integer`
+- default: `3`
+
+The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
+
+However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
+
+When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
+
+
+## `programs.niri.settings.blur.passes`
+- type: `signed integer`
+- default: `3`
+
+The number of downsample/upsample passes for dual kawase blur.
+
+More passes produce a larger, smoother blur, but cost more GPU resources.
+
+
+## `programs.niri.settings.blur.saturation`
+- type: `floating point number`
+- default: `1.500000`
+
+Color saturation applied to the blurred background.
+
+Values above 1 increase saturation; values below 1 reduce it.
+
+
 <!-- programs.niri.settings.animations -->
 
 ## `programs.niri.settings.animations.enable`

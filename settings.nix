@@ -2229,6 +2229,51 @@
           }
 
           {
+            blur = section {
+              enable = optional types.bool true // {
+                description = ''
+                  By default, blur is available on request by a window or layer surface (via the ext-background-effect protocol). You can also enable it manually with the blur true background effect window or layer rule.
+
+                  Setting the off flag will disable all blur, both requested by the window, and configured in window rules.
+                '';
+              };
+
+              passes = optional types.int 3 // {
+                description = ''
+                  The number of downsample/upsample passes for dual kawase blur.
+
+                  More passes produce a larger, smoother blur, but cost more GPU resources.
+                '';
+              };
+              offset = optional float-or-int 3 // {
+                description = ''
+                  The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
+
+                  However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
+
+                  When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
+                '';
+              };
+
+              noise = optional types.float 0.02 // {
+                description = ''
+                  Amount of noise to add on top of the blur.
+
+                  This is helpful to reduce color banding artifacts.
+                '';
+              };
+
+              saturation = optional types.float 1.5 // {
+                description = ''
+                  Color saturation applied to the blurred background.
+
+                  Values above 1 increase saturation; values below 1 reduce it.
+                '';
+              };
+            };
+          }
+
+          {
             animations =
               let
                 animation-kind = types.attrTag {
@@ -3752,6 +3797,15 @@
             (nullable leaf "baba-is-float" cfg.baba-is-float)
           ])
         ]))
+
+        (plain' "blur" [
+          (toggle "off" cfg.blur [
+            (leaf "passes" cfg.blur.passes)
+            (leaf "offset" cfg.blur.offset)
+            (leaf "noise" cfg.blur.noise)
+            (leaf "saturation" cfg.blur.saturation)
+          ])
+        ])
 
         (plain' "gestures" [
           (plain' "dnd-edge-view-scroll" [
