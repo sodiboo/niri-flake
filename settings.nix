@@ -542,6 +542,21 @@
           inherit description;
         };
 
+      background-effect-rule = section {
+        xray = nullable types.bool // {
+          description = "Whether to enable the xray effect.";
+        };
+        blur = nullable types.bool // {
+          description = "Whether to enable the blur effect.";
+        };
+        noise = nullable float-or-int // {
+          description = "The amount of pixel noise added to the background (helps with color banding from blur)";
+        };
+        saturation = nullable float-or-int // {
+          description = "The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).";
+        };
+      };
+
       shadow-rule = section {
         enable = nullable types.bool;
         offset =
@@ -2901,6 +2916,9 @@
                   {
                     tiled-state = nullable types.bool;
                   }
+                  {
+                    background-effect = background-effect-rule;
+                  }
                 ]
               )
               // {
@@ -2993,6 +3011,9 @@
                         This is a natural extension of the April Fools' 2025 feature.
                       '';
                     };
+                  }
+                  {
+                    background-effect = background-effect-rule;
                   }
                 ]
               )
@@ -3521,6 +3542,13 @@
           (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
         ]);
 
+      background-effect-rule = map' plain' (cfg: [
+        (nullable leaf "xray" cfg.xray)
+        (nullable leaf "blur" cfg.blur)
+        (nullable leaf "noise" cfg.noise)
+        (nullable leaf "saturation" cfg.saturation)
+      ]);
+
         corner-radius = cfg: [
           cfg.top-left
           cfg.top-right
@@ -3783,6 +3811,7 @@
             (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
             (nullable leaf "scroll-factor" cfg.scroll-factor)
             (nullable leaf "tiled-state" cfg.tiled-state)
+            (background-effect-rule "background-effect" cfg.background-effect)
           ])
         ]))
         (each cfg.layer-rules (cfg: [
@@ -3795,6 +3824,7 @@
             (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
             (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
             (nullable leaf "baba-is-float" cfg.baba-is-float)
+            (background-effect-rule "background-effect" cfg.background-effect)
           ])
         ]))
 

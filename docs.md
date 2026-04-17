@@ -3077,6 +3077,32 @@ Takes effect only when the window is on an output with [`outputs.<name>.variable
 - default: `null`
 
 
+<!-- programs.niri.settings.window-rules.*.background-effect -->
+
+## `programs.niri.settings.window-rules.*.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.window-rules.*.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.window-rules.*.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.window-rules.*.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
+
 ## `programs.niri.settings.layer-rules`
 - type: `list of (layer rule)`
 
@@ -3329,6 +3355,32 @@ This is a natural extension of the April Fools' 2025 feature.
 Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
 This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
 
+
+<!-- programs.niri.settings.layer-rules.*.background-effect -->
+
+## `programs.niri.settings.layer-rules.*.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.layer-rules.*.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.layer-rules.*.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.layer-rules.*.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
 
 ## `programs.niri.settings.xwayland-satellite`
 
