@@ -2022,8 +2022,8 @@ Setting the off flag will disable all blur, both requested by the window, and co
 
 
 ## `programs.niri.settings.blur.noise`
-- type: `floating point number`
-- default: `0.020000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 Amount of noise to add on top of the blur.
 
@@ -2031,8 +2031,8 @@ This is helpful to reduce color banding artifacts.
 
 
 ## `programs.niri.settings.blur.offset`
-- type: `floating point number or signed integer`
-- default: `3`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
 
@@ -2042,8 +2042,8 @@ When configuring blur, try increasing offset first (since it doesn't cause any e
 
 
 ## `programs.niri.settings.blur.passes`
-- type: `signed integer`
-- default: `3`
+- type: `null or signed integer`
+- default: `null`
 
 The number of downsample/upsample passes for dual kawase blur.
 
@@ -2051,8 +2051,8 @@ More passes produce a larger, smoother blur, but cost more GPU resources.
 
 
 ## `programs.niri.settings.blur.saturation`
-- type: `floating point number`
-- default: `1.500000`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 Color saturation applied to the blurred background.
 

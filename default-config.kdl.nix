@@ -293,17 +293,6 @@ in {
       # (flag "skip-at-startup")
     ])
 
-    # Blur settings
-    (plain "blur" [
-      # Uncomment to turn off all blur.
-      # (flag "off")
-
-      # (leaf "passes" 3)
-      # (leaf "offset" 3)
-      # (leaf "noise" 0.02)
-      # (leaf "saturation" 1.5)
-    ])
-
     # Animation settings.
     (plain "animations" [
       # Uncomment to turn off all animations.

@@ -2253,36 +2253,45 @@
                 '';
               };
 
-              passes = optional types.int 3 // {
-                description = ''
-                  The number of downsample/upsample passes for dual kawase blur.
+              passes =
+                nullable types.int
+                // {
+                  description = ''
+                    The number of downsample/upsample passes for dual kawase blur.
 
-                  More passes produce a larger, smoother blur, but cost more GPU resources.
-                '';
-              };
-              offset = optional float-or-int 3 // {
-                description = ''
-                  The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
+                    More passes produce a larger, smoother blur, but cost more GPU resources.
+                  '';
+                };
 
-                  However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
+              offset =
+                nullable float-or-int
+                // {
+                  description = ''
+                    The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
 
-                  When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
-                '';
-              };
+                    However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
 
-              noise = optional types.float 0.02 // {
-                description = ''
-                  Amount of noise to add on top of the blur.
+                    When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
+                  '';
+                };
 
-                  This is helpful to reduce color banding artifacts.
-                '';
-              };
+              noise =
+                nullable float-or-int
+                // {
+                  description = ''
+                    Amount of noise to add on top of the blur.
 
-              saturation = optional types.float 1.5 // {
-                description = ''
-                  Color saturation applied to the blurred background.
+                    This is helpful to reduce color banding artifacts.
+                  '';
+                };
 
-                  Values above 1 increase saturation; values below 1 reduce it.
+              saturation =
+                nullable float-or-int
+                // {
+                  description = ''
+                    Color saturation applied to the blurred background.
+
+                    Values above 1 increase saturation; values below 1 reduce it.
                 '';
               };
             };
@@ -3542,12 +3551,12 @@
           (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
         ]);
 
-      background-effect-rule = map' plain' (cfg: [
-        (nullable leaf "xray" cfg.xray)
-        (nullable leaf "blur" cfg.blur)
-        (nullable leaf "noise" cfg.noise)
-        (nullable leaf "saturation" cfg.saturation)
-      ]);
+        background-effect-rule = map' plain' (cfg: [
+          (nullable leaf "xray" cfg.xray)
+          (nullable leaf "blur" cfg.blur)
+          (nullable leaf "noise" cfg.noise)
+          (nullable leaf "saturation" cfg.saturation)
+        ]);
 
         corner-radius = cfg: [
           cfg.top-left
@@ -3830,10 +3839,10 @@
 
         (plain' "blur" [
           (toggle "off" cfg.blur [
-            (leaf "passes" cfg.blur.passes)
-            (leaf "offset" cfg.blur.offset)
-            (leaf "noise" cfg.blur.noise)
-            (leaf "saturation" cfg.blur.saturation)
+            (nullable leaf "passes" cfg.blur.passes)
+            (nullable leaf "offset" cfg.blur.offset)
+            (nullable leaf "noise" cfg.blur.noise)
+            (nullable leaf "saturation" cfg.blur.saturation)
           ])
         ])
 
