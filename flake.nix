@@ -3,47 +3,28 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
-    niri-stable.url = "github:YaLTeR/niri/v25.08";
-    niri-unstable.url = "github:YaLTeR/niri";
+    niri.url = "github:YaLTeR/niri";
+    xwayland-satellite.url = "github:Supreeeme/xwayland-satellite";
 
-    xwayland-satellite-stable.url = "github:Supreeeme/xwayland-satellite/v0.7";
-    xwayland-satellite-unstable.url = "github:Supreeeme/xwayland-satellite";
-
-    # they do all have flakes, but we specifically want just the Rust sources and no flakes.
-    niri-stable.flake = false;
-    niri-unstable.flake = false;
-    xwayland-satellite-stable.flake = false;
-    xwayland-satellite-unstable.flake = false;
+    niri.flake = false;
+    xwayland-satellite.flake = false;
   };
 
   outputs =
     inputs@{
       self,
       nixpkgs,
-      nixpkgs-stable,
       ...
     }:
     let
       call = nixpkgs.lib.flip import {
-        inherit
-          inputs
+inherit
           kdl
-          docs
-          binds
-          settings
           ;
         inherit (nixpkgs) lib;
       };
       kdl = call ./kdl.nix;
-      binds = call ./parse-binds.nix;
-      docs = call ./generate-docs.nix;
-      html-docs = call ./generate-html-docs.nix;
-      settings = call ./settings.nix;
-      stylix-module = call ./stylix.nix;
-
-      stable-revs = import ./refs.nix;
 
       date = {
         year = builtins.substring 0 4;
@@ -59,17 +40,11 @@
 
       version-string =
         src:
-        if stable-revs ? ${src.rev} then
-          "stable ${stable-revs.${src.rev}} (commit ${src.rev})"
-        else
-          "unstable ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
+        "niri ${fmt-date src.lastModifiedDate} (commit ${src.rev})";
 
       package-version =
         src:
-        if stable-revs ? ${src.rev} then
-          nixpkgs.lib.removePrefix "v" stable-revs.${src.rev}
-        else
-          "unstable-${fmt-date src.lastModifiedDate}-${src.shortRev}";
+        "${fmt-date src.lastModifiedDate}-${src.shortRev}";
 
       make-niri =
         {
@@ -96,11 +71,7 @@
           withSystemd ? true,
           fetchzip,
           runCommand,
-
-          # remove param at next release after 25.11 (yes! i know that's not even the stable version provided by this flake right now. i'm Working On It™)
-          replace-service-with-usr-bin,
         }:
-        assert libdisplay-info_0_2.version == "0.2.0";
         rustPlatform.buildRustPackage {
           pname = "niri";
           version = package-version src;
@@ -205,18 +176,7 @@
                 --nushell <($out/bin/niri completions nushell)
 
               install -Dm0644 README.md resources/default-config.kdl -t $doc/share/doc/niri
-              mv docs/wiki $doc/share/doc/niri/wiki
             '';
-
-          postFixup =
-            if replace-service-with-usr-bin then
-              ''
-                substituteInPlace $out/lib/systemd/user/niri.service --replace-fail /usr/bin $out/bin
-              ''
-            else
-              ''
-                substituteInPlace $out/lib/systemd/user/niri.service --replace-fail "ExecStart=niri" "ExecStart=$out/bin/niri"
-              '';
 
           meta = {
             description = "Scrollable-tiling Wayland compositor";
@@ -304,19 +264,11 @@
         };
 
       make-package-set = pkgs: {
-        niri-stable = pkgs.callPackage make-niri {
-          src = inputs.niri-stable;
-          replace-service-with-usr-bin = true;
+        niri = pkgs.callPackage make-niri {
+          src = inputs.niri;
         };
-        niri-unstable = pkgs.callPackage make-niri {
-          src = inputs.niri-unstable;
-          replace-service-with-usr-bin = false;
-        };
-        xwayland-satellite-stable = pkgs.callPackage make-xwayland-satellite {
-          src = inputs.xwayland-satellite-stable;
-        };
-        xwayland-satellite-unstable = pkgs.callPackage make-xwayland-satellite {
-          src = inputs.xwayland-satellite-unstable;
+        xwayland-satellite = pkgs.callPackage make-xwayland-satellite {
+          src = inputs.xwayland-satellite;
         };
       };
 
@@ -340,14 +292,9 @@
             mkdir $out
           ''
           + builtins.concatStringsSep "" (
-            nixpkgs.lib.mapAttrsToList
-              (name: nixpkgs': ''
-                ln -s ${combined-closure name nixpkgs'.legacyPackages.${system}} $out/${name}
-              '')
-              {
-                nixos-unstable = nixpkgs;
-                "nixos-25.11" = nixpkgs-stable;
-              }
+            nixpkgs.lib.mapAttrsToList (name: package: ''
+              ln -s ${package} $out/${name}
+            '') (combined-closure nixpkgs.legacyPackages.${system})
           )
         );
 
@@ -364,22 +311,6 @@
         internal = {
           inherit make-package-set validated-config-for;
           package-set = abort "niri-flake internals: `package-set.\${package} pkgs` is now `(make-package-set pkgs).\${package}`";
-          docs-markdown = docs.make-docs (settings.fake-docs { inherit fmt-date fmt-time; });
-          docs-html = html-docs.make-docs (settings.type-with html-docs.settings-fmt);
-          settings-module = settings.module;
-          memo-binds = nixpkgs.lib.pipe (binds "${inputs.niri-unstable}/niri-config/src/binds.rs") [
-            (map (bind: "  \"${bind.name}\""))
-            (builtins.concatStringsSep "\n")
-            (memo'd: ''
-              # This is a generated file.
-              # It caches the output of `parse-binds.nix` for the latest niri-unstable.
-              # That script is slow and also now exceeds the default call depth limit.
-              # So, we memoize it here. It doesn't change anyway.
-              [
-              ${memo'd}
-              ]
-            '')
-          ];
         };
       };
 
@@ -394,7 +325,7 @@
           program = nixpkgs.lib.getExe package;
         }) (make-package-set inputs.nixpkgs.legacyPackages.${system}))
         // {
-          default = self.apps.${system}.niri-stable;
+          default = self.apps.${system}.niri;
         }
       );
 
@@ -407,41 +338,56 @@
         };
       });
 
-      homeModules.stylix = stylix-module;
-      homeModules.config =
+homeModules.config =
         {
           config,
           pkgs,
+          lib,
           ...
         }:
         let
           cfg = config.programs.niri;
+          kdl = import ./kdl.nix {
+            inherit lib;
+            inputs = inputs;
+          };
         in
         {
-          imports = [
-            settings.module
-          ];
-
           options.programs.niri = {
             package = nixpkgs.lib.mkOption {
               type = nixpkgs.lib.types.package;
-              default = (make-package-set pkgs).niri-stable;
+              default = (make-package-set pkgs).niri;
               description = "The niri package to use.";
+            };
+            config = nixpkgs.lib.mkOption {
+              type = nixpkgs.lib.types.nullOr (
+                nixpkgs.lib.types.either nixpkgs.lib.types.str kdl.types.kdl-document
+              );
+              default = null;
+              description = ''
+                The niri config file.
+
+                - When this is null, no config file is generated.
+                - When this is a string, it is assumed to be the config file contents.
+                - When this is a KDL document, it is serialized to a string before being used.
+              '';
             };
           };
 
-          config.lib.niri = {
-            actions = nixpkgs.lib.mergeAttrsList (
-              map (name: {
-                ${name} = kdl.magic-leaf name;
-              }) (import ./memo-binds.nix)
-            );
-          };
-
           config.xdg.configFile.niri-config = {
-            enable = cfg.finalConfig != null;
+            enable = cfg.config != null;
             target = "niri/config.kdl";
-            source = validated-config-for pkgs cfg.package cfg.finalConfig;
+            source =
+              let
+                final-config =
+                  if builtins.isString cfg.config then
+                    cfg.config
+                  else if cfg.config != null then
+                    kdl.serialize.nodes cfg.config
+                  else
+                    null;
+              in
+              validated-config-for pkgs cfg.package final-config;
           };
         };
       nixosModules.niri =
@@ -465,7 +411,7 @@
             enable = nixpkgs.lib.mkEnableOption "niri";
             package = nixpkgs.lib.mkOption {
               type = nixpkgs.lib.types.package;
-              default = (make-package-set pkgs).niri-stable;
+              default = (make-package-set pkgs).niri;
               description = "The niri package to use.";
             };
           };
@@ -525,13 +471,6 @@
               programs.dconf.enable = nixpkgs.lib.mkDefault true;
               fonts.enableDefaultPackages = nixpkgs.lib.mkDefault true;
             })
-            (nixpkgs.lib.optionalAttrs (options ? home-manager) {
-              home-manager.sharedModules = [
-                self.homeModules.config
-                { programs.niri.package = nixpkgs.lib.mkForce cfg.package; }
-              ]
-              ++ nixpkgs.lib.optionals (options ? stylix) [ self.homeModules.stylix ];
-            })
           ];
         };
       homeModules.niri =
@@ -586,28 +525,8 @@
         in
         {
           cached-packages = cached-packages-for system;
-          empty-config-valid-stable =
-            let
-              eval = nixpkgs.lib.evalModules {
-                modules = [
-                  settings.module
-                  {
-                    config.programs.niri.settings = { };
-                  }
-                ];
-              };
-            in
-            validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable
-              eval.config.programs.niri.finalConfig;
 
-          nixos-unstable = test-nixos-for nixpkgs [
-            self.nixosModules.niri
-            {
-              programs.niri.enable = true;
-            }
-          ];
-
-          nixos-stable = test-nixos-for nixpkgs-stable [
+          nixos = test-nixos-for nixpkgs [
             self.nixosModules.niri
             {
               programs.niri.enable = true;
