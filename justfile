@@ -15,8 +15,9 @@ hook:
     -ln -s ../../pre-commit .git/hooks/pre-commit
     -ln -s ../../post-commit .git/hooks/post-commit
 
-ref:
-    nix eval --raw --file fetch-refs.nix > refs.nix
+update-stable:
+    nix run "nixpkgs#nix-update" -- --flake --version=stable --override-file=pkgs/niri/stable/default.nix niri-stable
+    nix run "nixpkgs#nix-update" -- --flake --version=stable --override-file=pkgs/xwayland-satellite/stable/default.nix xwayland-satellite-stable
 
 # that's an ugly just command. but hey, it works. and doesn't require `nom` to be installed.
 # but if you do have `nom` installed, the check command will have a nicer output
