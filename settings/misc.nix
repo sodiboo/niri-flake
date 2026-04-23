@@ -339,4 +339,73 @@ in
 
     render = config: config.xwayland-satellite.rendered;
   }
+  {
+    options.blur =
+      make-rendered-section "blur"
+        {
+          partial = true;
+          description = ''
+            Blur configuration
+          '';
+        }
+        [
+          {
+            options.enable = nullable types.bool;
+            render = config: [
+              (lib.mkIf (config.enable == true) [
+                (kdl.flag "on")
+              ])
+              (lib.mkIf (config.enable == false) [
+                (kdl.flag "off")
+              ])
+            ];
+          }
+          {
+            options.passes = nullable types.int // {
+              description = ''
+                Controls the number of downsample/upsample passes for dual kawase blur.
+              '';
+            };
+            render = config: [
+              (lib.mkIf (config.passes != null) [
+                (kdl.leaf "passes" config.passes)
+              ])
+            ];
+          }
+          {
+            options.offset = nullable types.float // {
+              description = ''
+                Pixel offset multiplier for each pass.
+              '';
+            };
+            render = config: [
+              (lib.mkIf (config.offset != null) [
+                (kdl.leaf "offset" config.offset)
+              ])
+            ];
+          }{
+            options.noise = nullable types.float // {
+              description = ''
+                Amount of noise to add on top of the blur.
+              '';
+            };
+            render = config: [
+              (lib.mkIf (config.noise != null) [
+                (kdl.leaf "noise" config.noise)
+              ])
+            ];
+          }{
+            options.saturation = nullable types.float // {
+              description = ''
+                Color saturation applied to the blurred background.
+              '';
+            };
+            render = config: [
+              (lib.mkIf (config.saturation != null) [
+                (kdl.leaf "saturation" config.saturation)
+              ])
+            ];
+          }
+        ];
+  }
 ]
