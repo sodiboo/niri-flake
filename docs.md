@@ -2336,6 +2336,35 @@ The "final value" of a field is simply its value at the end of this process. Tha
 
 If the final value of a given field is null, then it usually means that the client gets to decide. For more information, see the documentation for each field.
 
+```nix
+window-rules = [
+    {
+        matches = [
+            { app-id = "^steam$"; }
+            { title = ''r#"^notificationtoasts_\d+_desktop$"#''; }
+        ];
+        excludes = [
+            { app-id = "^steam$"; }
+        ];
+        open-floating = true;
+        default-floating-position = {
+            x = 0;
+            y = 0;
+            relative-to = "bottom-right";
+        };
+    }
+    {
+        matches = [
+            { app-id = "firefox"; }
+            { title = "^Extension: Bitwarden - Password Manager$"; }
+        ];
+        excludes = [
+            { app-id = "firefox"; }
+        ];
+        open-floating = true;
+    }
+];
+```
 
 ## `programs.niri.settings.window-rules.*.matches`
 - type: `list of (match rule)`
