@@ -964,6 +964,14 @@
                   Has no effect when ${fmt.code "action"} is ${fmt.code "toggle-keyboard-shortcuts-inhibit"}. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
                 '';
               };
+              allow-invalidation = optional types.bool true // {
+                description = ''
+                  Whether a release bind will trigger if any other keys were released or any keys or mouse buttons were pressed after the bound key was pressed.
+
+                  By default this is ${fmt.code "true"}, meaning release binds will only trigger if no other keys were released and no keys or mouse buttons were pressed after the bound key was pressed.
+                  If you want a release bind to always trigger regardless, set this to ${fmt.code "false"}.
+                '';
+              };
               cooldown-ms = nullable types.int // {
                 description = ''
                   The minimum cooldown before a keybind can be triggered again, in milliseconds.
@@ -1017,7 +1025,21 @@
                     ]}
                   '';
                 };
-              action = required (rename "niri action" kdl.types.kdl-leaf) // {
+              press = nullable (rename "niri action" kdl.types.kdl-leaf) // {
+                description = ''
+                  The action to trigger when the key is pressed.
+
+                  See also ${link-opt (subopts options.binds).action} for more information on how this works.
+                '';
+              };
+              release = nullable (rename "niri action" kdl.types.kdl-leaf) // {
+                description = ''
+                  The action to trigger when the key is released.
+
+                  See also ${link-opt (subopts options.binds).action} for more information on how this works.
+                '';
+              };
+              action = nullable (rename "niri action" kdl.types.kdl-leaf) // {
                 description = ''
                   An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
@@ -3523,6 +3545,7 @@
                 repeat = true;
                 allow-when-locked = false;
                 allow-inhibiting = true;
+                allow-invalidation = true;
               }
               // lib.optionalAttrs (cfg.hotkey-overlay.hidden or false) {
                 hotkey-overlay-title = null;
@@ -3531,9 +3554,11 @@
                 hotkey-overlay-title = cfg.hotkey-overlay.title or null;
               }
             )
-            [
-              (lib.mapAttrsToList leaf cfg.action)
-            ];
+            (normalize-nodes [
+              (if cfg.action != null then (lib.mapAttrsToList leaf cfg.action) else null)
+              (if cfg.press != null then (node "press" { } (lib.mapAttrsToList leaf cfg.press)) else null)
+              (if cfg.release != null then (node "release" { } (lib.mapAttrsToList leaf cfg.release)) else null)
+            ]);
 
         pointer-tablet' =
           ext: name: cfg:
