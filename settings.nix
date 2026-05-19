@@ -542,6 +542,35 @@
           inherit description;
         };
 
+      popups-rule = section {
+        opacity = nullable types.float // {
+          description = ''
+            Override properties for this window's pop-ups (menus and tooltips).
+
+            The properties work the same way as the corresponding window-rule properties, except that they apply to the window's pop-ups rather than to the window itself.
+
+            opacity is applied on top of the layer surface's own opacity rule, so setting both will make pop-ups more transparent than the surface. Other properties apply independently.
+          '';
+        };
+        geometry-corner-radius = geometry-corner-radius-rule;
+        background-effect = background-effect-rule;
+      };
+
+      background-effect-rule = section {
+        xray = nullable types.bool // {
+          description = "Whether to enable the xray effect.";
+        };
+        blur = nullable types.bool // {
+          description = "Whether to enable the blur effect.";
+        };
+        noise = nullable float-or-int // {
+          description = "The amount of pixel noise added to the background (helps with color banding from blur)";
+        };
+        saturation = nullable float-or-int // {
+          description = "The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).";
+        };
+      };
+
       shadow-rule = section {
         enable = nullable types.bool;
         offset =
@@ -2229,6 +2258,52 @@
           }
 
           {
+            blur = section {
+              enable = optional types.bool true // {
+                description = ''
+                  By default, blur is available on request by a window or layer surface (via the ext-background-effect protocol). You can also enable it manually with the blur true background effect window or layer rule.
+
+                  Setting the off flag will disable all blur, both requested by the window, and configured in window rules.
+                '';
+              };
+
+              passes = nullable types.int // {
+                description = ''
+                  The number of downsample/upsample passes for dual kawase blur.
+
+                  More passes produce a larger, smoother blur, but cost more GPU resources.
+                '';
+              };
+
+              offset = nullable float-or-int // {
+                description = ''
+                  The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
+
+                  However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
+
+                  When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
+                '';
+              };
+
+              noise = nullable float-or-int // {
+                description = ''
+                  Amount of noise to add on top of the blur.
+
+                  This is helpful to reduce color banding artifacts.
+                '';
+              };
+
+              saturation = nullable float-or-int // {
+                description = ''
+                  Color saturation applied to the blurred background.
+
+                  Values above 1 increase saturation; values below 1 reduce it.
+                '';
+              };
+            };
+          }
+
+          {
             animations =
               let
                 animation-kind = types.attrTag {
@@ -2856,6 +2931,12 @@
                   {
                     tiled-state = nullable types.bool;
                   }
+                  {
+                    background-effect = background-effect-rule;
+                  }
+                  {
+                    popups = popups-rule;
+                  }
                 ]
               )
               // {
@@ -2948,6 +3029,12 @@
                         This is a natural extension of the April Fools' 2025 feature.
                       '';
                     };
+                  }
+                  {
+                    background-effect = background-effect-rule;
+                  }
+                  {
+                    popups = popups-rule;
                   }
                 ]
               )
@@ -3476,6 +3563,19 @@
           (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
         ]);
 
+        background-effect-rule = map' plain' (cfg: [
+          (nullable leaf "xray" cfg.xray)
+          (nullable leaf "blur" cfg.blur)
+          (nullable leaf "noise" cfg.noise)
+          (nullable leaf "saturation" cfg.saturation)
+        ]);
+
+        popups-rule = map' plain' (cfg: [
+          (nullable leaf "opacity" cfg.opacity)
+          (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
+          (background-effect-rule "background-effect" cfg.background-effect)
+        ]);
+
         corner-radius = cfg: [
           cfg.top-left
           cfg.top-right
@@ -3738,6 +3838,8 @@
             (nullable leaf "variable-refresh-rate" cfg.variable-refresh-rate)
             (nullable leaf "scroll-factor" cfg.scroll-factor)
             (nullable leaf "tiled-state" cfg.tiled-state)
+            (background-effect-rule "background-effect" cfg.background-effect)
+            (popups-rule "popups" cfg.popups)
           ])
         ]))
         (each cfg.layer-rules (cfg: [
@@ -3750,8 +3852,19 @@
             (nullable (map' leaf corner-radius) "geometry-corner-radius" cfg.geometry-corner-radius)
             (nullable leaf "place-within-backdrop" cfg.place-within-backdrop)
             (nullable leaf "baba-is-float" cfg.baba-is-float)
+            (background-effect-rule "background-effect" cfg.background-effect)
+            (popups-rule "popups" cfg.popups)
           ])
         ]))
+
+        (plain' "blur" [
+          (toggle "off" cfg.blur [
+            (nullable leaf "passes" cfg.blur.passes)
+            (nullable leaf "offset" cfg.blur.offset)
+            (nullable leaf "noise" cfg.blur.noise)
+            (nullable leaf "saturation" cfg.blur.saturation)
+          ])
+        ])
 
         (plain' "gestures" [
           (plain' "dnd-edge-view-scroll" [
