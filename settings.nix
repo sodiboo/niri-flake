@@ -3036,21 +3036,47 @@
 
             - When this is null, no config file is generated.
             - When this is a string, it is assumed to be the config file contents.
-            - When this is kdl document, it is serialized to a string before being used as the config file contents.
+            - When this is a KDL document, it is serialized to a string before being used as the config file contents.
 
-            By default, this is a KDL document that reflects the settings in ${link' "programs.niri.settings"}.
+            By default, this is a KDL document that reflects the settings in ${link' "programs.niri.settings"} plus ${link' "programs.niri.extraConfig"}.
+          '';
+        };
+
+        extraConfig = mkOption {
+          type = types.nullOr (types.either types.str kdl.types.kdl-document);
+          default = null;
+          description = ''
+            A verbatim section to be appended to the niri config file.
+
+            - When this is null, nothing will be appended.
+            - When this is a string, it is assumed to be literal config file contents.
+            - When this is a KDL document, it is serialized to a string before being appended to the config file.
           '';
         };
 
         finalConfig = mkOption {
           type = types.nullOr types.str;
           default =
-            if builtins.isString cfg.config then
-              cfg.config
-            else if cfg.config != null then
-              kdl.serialize.nodes cfg.config
+            let
+              flatten =
+                value:
+                if builtins.isString value then
+                  value
+                else if value != null then
+                  kdl.serialize.nodes value
+                else
+                  null;
+
+              mainRendered = flatten cfg.config;
+              extraRendered = flatten cfg.extraConfig;
+            in
+            if mainRendered == null then
+              extraRendered
+            else if extraRendered == null then
+              mainRendered
             else
-              null;
+              mainRendered + "\n" + extraRendered;
+
           readOnly = true;
           defaultText = null;
           description = ''
