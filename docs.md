@@ -1381,6 +1381,28 @@ By default, when this is null, niri will automatically pick a mode for you.
 
 If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
 
+If [`outputs.<n>.mode.custom`](#programsnirisettingsoutputsnmodecustom) is set to true, this creates a custom mode that the monitor may not advertise. In this case, the refresh rate must be specified.
+
+
+## `programs.niri.settings.outputs.<name>.mode.custom`
+- type: `boolean`
+- default: `false`
+
+Whether this is a custom mode (not offered by the monitor).
+
+> [!caution]
+> Custom modes may damage your monitor, especially if it's a CRT.
+> Follow the maximum supported limits in your monitor's instructions.
+
+
+> [!important]
+> This option is not yet available in stable niri.
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
+> Otherwise, your system might fail to build.
+
+
 
 ## `programs.niri.settings.outputs.<name>.mode.height`
 - type: `signed integer`
@@ -1395,6 +1417,53 @@ The refresh rate of this output. When this is null, but the resolution is set, n
 
 ## `programs.niri.settings.outputs.<name>.mode.width`
 - type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.modeline`
+- type: `null or (list of (floating point number or signed integer or string)) or (submodule)`
+- default: `null`
+
+Directly configure the monitor's mode via a modeline.
+
+This overrides any configured [`outputs.<n>.mode`](#programsnirisettingsoutputsnmode).
+
+The modeline can be calculated via utilities such as https://man.archlinux.org/man/cvt.1.en or https://man.archlinux.org/man/gtf.1.en.
+
+> [!caution]
+> Out of spec modelines may damage your monitor, especially if it's a CRT.
+> Follow the maximum supported limits in your monitor's instructions.
+
+
+This option accepts two formats:
+
+> [!note]
+>         **List format** (recommended for ease of use):
+> ```nix
+>         modeline = [ 173.00  1920 2048 2248 2576  1080 1083 1088 1120  "-hsync" "+vsync" ];
+> ```
+>         This format is convenient for copy-pasting from `cvt` or `gtf` output.
+
+
+> [!note]
+>         **Record format** (for explicit field names):
+> ```nix
+>         modeline = {
+>           clock = 173.00;
+>           hdisplay = 1920;
+>           hsync-start = 2048;
+>           # ... etc
+>         };
+> ```
+>         This format provides better documentation and validation for each field.
+
+
+> [!important]
+> This option is not yet available in stable niri.
+> 
+> If you wish to modify this option, you should make sure you're using the latest unstable niri.
+> 
+> Otherwise, your system might fail to build.
+
 
 
 ## `programs.niri.settings.outputs.<name>.name`
