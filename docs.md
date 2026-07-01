@@ -2010,6 +2010,55 @@ The left and right structs work in a similar way, except the padded space is not
 - default: `0`
 
 
+<!-- programs.niri.settings.blur -->
+
+## `programs.niri.settings.blur.enable`
+- type: `boolean`
+- default: `true`
+
+By default, blur is available on request by a window or layer surface (via the ext-background-effect protocol). You can also enable it manually with the blur true background effect window or layer rule.
+
+Setting the off flag will disable all blur, both requested by the window, and configured in window rules.
+
+
+## `programs.niri.settings.blur.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Amount of noise to add on top of the blur.
+
+This is helpful to reduce color banding artifacts.
+
+
+## `programs.niri.settings.blur.offset`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The pixel offset multiplier for each pass. Offset 1 is the original dual kawase blur. Larger values produce a smoother blur, at no additional GPU cost.
+
+However, setting offset too big will produce visual artifacts. You will need to increase passes to be able to use a bigger offset without artifacts.
+
+When configuring blur, try increasing offset first (since it doesn't cause any extra GPU load) until you start getting artifacts. Then, if you still need smoother blur, increase passes by 1. Keep doing this until you get the desired visuals.
+
+
+## `programs.niri.settings.blur.passes`
+- type: `null or signed integer`
+- default: `null`
+
+The number of downsample/upsample passes for dual kawase blur.
+
+More passes produce a larger, smoother blur, but cost more GPU resources.
+
+
+## `programs.niri.settings.blur.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Color saturation applied to the blurred background.
+
+Values above 1 increase saturation; values below 1 reduce it.
+
+
 <!-- programs.niri.settings.animations -->
 
 ## `programs.niri.settings.animations.enable`
@@ -3028,6 +3077,92 @@ Takes effect only when the window is on an output with [`outputs.<name>.variable
 - default: `null`
 
 
+<!-- programs.niri.settings.window-rules.*.background-effect -->
+
+## `programs.niri.settings.window-rules.*.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.window-rules.*.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.window-rules.*.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.window-rules.*.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
+
+<!-- programs.niri.settings.window-rules.*.popups -->
+
+<!-- programs.niri.settings.window-rules.*.popups.background-effect -->
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.window-rules.*.popups.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.popups.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+Override properties for this window's pop-ups (menus and tooltips).
+
+The properties work the same way as the corresponding window-rule properties, except that they apply to the window's pop-ups rather than to the window itself.
+
+opacity is applied on top of the layer surface's own opacity rule, so setting both will make pop-ups more transparent than the surface. Other properties apply independently.
+
+
 ## `programs.niri.settings.layer-rules`
 - type: `list of (layer rule)`
 
@@ -3279,6 +3414,92 @@ This is a natural extension of the April Fools' 2025 feature.
 
 Set to `true` to place the surface into the backdrop visible in the Overview and between workspaces.
 This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
+
+
+<!-- programs.niri.settings.layer-rules.*.background-effect -->
+
+## `programs.niri.settings.layer-rules.*.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.layer-rules.*.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.layer-rules.*.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.layer-rules.*.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
+
+<!-- programs.niri.settings.layer-rules.*.popups -->
+
+<!-- programs.niri.settings.layer-rules.*.popups.background-effect -->
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.blur`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the blur effect.
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.noise`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The amount of pixel noise added to the background (helps with color banding from blur)
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.saturation`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The color saturation of the background (0 is desaturated, 1 is normal, 2 is 200% saturation).
+
+## `programs.niri.settings.layer-rules.*.popups.background-effect.xray`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the xray effect.
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.geometry-corner-radius.top-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layer-rules.*.popups.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+Override properties for this window's pop-ups (menus and tooltips).
+
+The properties work the same way as the corresponding window-rule properties, except that they apply to the window's pop-ups rather than to the window itself.
+
+opacity is applied on top of the layer surface's own opacity rule, so setting both will make pop-ups more transparent than the surface. Other properties apply independently.
 
 
 ## `programs.niri.settings.xwayland-satellite`
