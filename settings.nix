@@ -3001,6 +3001,16 @@
               '';
             };
           }
+
+          {
+            extraConfig = optional types.lines "" // {
+              description = ''
+                Extra KDL config to append to the generated config file.
+
+                This is not validated by niri at build time. Use this for experimental options that are not yet supported by ${fmt.code "programs.niri.settings"}.
+              '';
+            };
+          }
         ];
       }
     );
@@ -3045,10 +3055,11 @@
         finalConfig = mkOption {
           type = types.nullOr types.str;
           default =
-            if builtins.isString cfg.config then
-              cfg.config
-            else if cfg.config != null then
-              kdl.serialize.nodes cfg.config
+            if cfg.checkedConfig != null then
+              cfg.checkedConfig
+              + lib.optionalString (
+                cfg.settings != null && cfg.settings.extraConfig != ""
+              ) "\n${cfg.settings.extraConfig}"
             else
               null;
           readOnly = true;
@@ -3056,9 +3067,29 @@
           description = ''
             The final niri config file contents.
 
-            This is a string that reflects the document stored in ${link' "programs.niri.config"}.
+            This is a string that reflects the document stored in ${link' "programs.niri.config"}, with ${link' "programs.niri.settings.extraConfig"} appended.
 
             It is exposed mainly for debugging purposes, such as when you need to inspect how a certain option affects the resulting config file.
+          '';
+        };
+
+        checkedConfig = mkOption {
+          type = types.nullOr types.str;
+          default =
+            if builtins.isString cfg.config then
+              cfg.config
+            else if cfg.config != null then
+              kdl.serialize.nodes cfg.config
+            else
+              null;
+          readOnly = true;
+          internal = true;
+          visible = false;
+          defaultText = null;
+          description = ''
+            The niri config file contents that should be validated at build time.
+
+            Unlike ${link' "programs.niri.finalConfig"}, this does not include ${link' "programs.niri.settings.extraConfig"}.
           '';
         };
       };
