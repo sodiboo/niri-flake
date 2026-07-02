@@ -582,7 +582,7 @@
                 }
               ]
               ++ modules;
-            }).config.system.build.toplevel;
+            }).config.stdenv.hostPlatform.system.build.toplevel;
         in
         {
           cached-packages = cached-packages-for system;
