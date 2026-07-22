@@ -1,5 +1,5 @@
 {
-  inputs,
+  pkgs,
   kdl,
   lib,
   docs,
@@ -27,8 +27,8 @@
         enum
         ;
 
-      binds-stable = binds "${inputs.niri-stable}/niri-config/src/binds.rs";
-      binds-unstable = binds "${inputs.niri-unstable}/niri-config/src/binds.rs";
+      binds-stable = binds "${pkgs.niri-stable.src}/niri-config/src/binds.rs";
+      binds-unstable = binds "${pkgs.niri-unstable.src}/niri-config/src/binds.rs";
 
       record = record' null;
 
@@ -3135,7 +3135,7 @@
                 [ ]
             ) (pkg.patches or [ ]);
 
-          stable-patches = patches inputs.self.packages.x86_64-linux.niri-stable;
+          stable-patches = patches pkgs.niri-stable;
         in
         {
           a.nonmodules = {
@@ -3153,7 +3153,7 @@
               niri-stable = pkg-output "niri-stable" ''
                 The latest stable tagged version of niri, along with potential patches.
 
-                Currently, this is release ${link-niri-release inputs.self.packages.x86_64-linux.niri-stable.version}${
+                Currently, this is release ${link-niri-release pkgs.niri-stable.version}${
                   if stable-patches != [ ] then " plus the following patches:" else " with no additional patches."
                 }
 
@@ -3171,8 +3171,8 @@
                 The latest commit to the development branch of niri.
 
                 Currently, this is exactly commit ${
-                  link-niri-commit { inherit (inputs.niri-unstable) shortRev rev; }
-                } which was authored on `${fmt-date inputs.niri-unstable.lastModifiedDate} ${fmt-time inputs.niri-unstable.lastModifiedDate}`.
+                  link-niri-commit { inherit (pkgs.niri-unstable.src) rev shortRev; }
+                } which was authored on `${fmt-date pkgs.niri-unstable.src.lastModifiedDate} ${fmt-time pkgs.niri-unstable.src.lastModifiedDate}`.
 
                 > [!warning]
                 > `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
