@@ -13,8 +13,15 @@ jobs:
         nix_path: nixpkgs=channel:nixos-unstable
     - run: nix fmt $(find ./ -regex './[^.]*\.nix') -- --check
   check:
-    name: "nix flake check"
-    runs-on: ubuntu-latest
+    name: "nix flake check (${{ matrix.system }})"
+    strategy:
+      matrix:
+        include:
+          - system: x86_64-linux
+            runner: ubuntu-latest
+          - system: aarch64-linux
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
     - name: Free Disk Space (Ubuntu)
       uses: jlumbroso/free-disk-space@v1.3.1
