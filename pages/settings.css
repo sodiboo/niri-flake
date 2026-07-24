@@ -1,0 +1,199 @@
+@import url(base.css);
+
+:root {
+  --option-border-size: var(--tiny-border-size);
+
+  @media not (pointer: coarse) {
+    --option-spacing: .5rem;
+  }
+
+  @media (pointer: coarse) {
+    --option-spacing: .75rem;
+  }
+
+  --option-padding: .5rem;
+  --option-radius: var(--option-spacing);
+}
+
+.options {
+  padding-left: 0;
+}
+
+@property --option-border-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+
+.option {
+  margin: var(--option-spacing) 0;
+
+  /* when scripting, option contents are expanded on focus as they should be */
+  scroll-margin-top: calc(var(--option-spacing) / 2);
+
+  /* when noscript, we emulate it by focusing an anchor inside the <details>.
+     this lines up exactly if the name doesn't wrap, but looks bad on narrow screens. */
+  .option-anchor {
+    scroll-margin-top: calc(1lh + var(--option-padding)*2 + var(--option-border-size) + var(--option-spacing)/2);
+  }
+
+  @media screen and (hover: hover) {
+    --option-border-color: transparent;
+
+    &:has(>summary:hover) {
+      --option-border-color: lch(from var(--accent-color) 50% 30 h / 20%);
+    }
+
+    &[open] {
+      --option-border-color: lch(from var(--accent-color) 30% 30 h / 60%);
+
+      &:has(>summary:hover) {
+        --option-border-color: lch(from var(--accent-color) 30% 35 h / 70%);
+      }
+    }
+  }
+
+  @media screen and (hover: none) {
+    --option-border-color: lch(from var(--accent-color) 50% 30 h / 10%);
+
+    &[open] {
+      --option-border-color: lch(from var(--accent-color) 30% 25 h);
+    }
+  }
+
+  &[open]:not(:last-child):has(.options) {
+    border-bottom: var(--option-border-size) dashed var(--accent-color);
+  }
+
+  >summary {
+    padding: var(--option-padding);
+    border-radius: var(--option-radius);
+    background: var(--option-border-color);
+    transition: background 200ms;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    cursor: pointer;
+
+    option-name {
+      display: inline flow-root list-item;
+      list-style: disc inside;
+      min-width: 0;
+      margin-inline-end: var(--option-padding);
+
+      a {
+        @media screen and (hover: none) and (scripting: enabled) {
+          /* script will click the link when expanding details.
+          therefore, the link itself is not the thing you can click. */
+          text-decoration: none;
+          pointer-events: none;
+        }
+
+        color: lch(from linktext l c h / 50%);
+
+        >:last-child {
+          color: linktext;
+        }
+
+        @media screen and (hover: hover) {
+          &:hover {
+            color: linktext;
+          }
+        }
+      }
+    }
+
+    &::after {
+      display: block;
+      width: 1rem;
+      height: 1rem;
+      transform: rotate(-90deg);
+      background-image: var(--chevron);
+      background-position: right center;
+      background-size: 1rem auto;
+      background-repeat: no-repeat;
+      content: "";
+      transition: transform 200ms;
+    }
+  }
+
+  &[open]>summary {
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    &::after {
+      transform: rotate(0);
+    }
+  }
+
+  >option-content {
+    display: block;
+    border: var(--option-border-size) solid var(--option-border-color);
+    transition: border-color 200ms;
+    border-top: none;
+
+    &:last-of-type {
+      border-bottom-right-radius: var(--option-radius);
+      border-bottom-left-radius: var(--option-radius);
+    }
+
+    padding: var(--option-padding);
+
+    --table-border-color: var(--option-border-color);
+
+    hr {
+      border-color: var(--option-border-color);
+      transition: border-color 200ms;
+    }
+  }
+}
+
+option-content {
+  dt::after {
+    content: ": ";
+  }
+}
+
+option-declaration {
+  dd {
+    list-style: disc;
+    display: list-item;
+  }
+}
+
+option-type,
+option-default {
+  font-family: monospace;
+}
+
+option-content {
+  >dt {
+    margin-block-start: 1em;
+  }
+
+  >dd {
+    margin-block: .25em;
+    margin-inline-start: 1em;
+
+    @media screen and (pointer:coarse) {
+      &:has(a) {
+        margin-block: .5em;
+      }
+    }
+  }
+
+  >:first-child {
+    margin-block-start: .5em;
+  }
+
+  >:last-child {
+    margin-block-end: .5em;
+  }
+}
+
+path-segment {
+  text-wrap-mode: nowrap;
+}
