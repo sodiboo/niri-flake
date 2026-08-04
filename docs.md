@@ -15,7 +15,7 @@ You should preferably not be using these outputs directly. Instead, you should u
 
 The latest stable tagged version of niri, along with potential patches.
 
-Currently, this is release [`25.08`](https://github.com/YaLTeR/niri/releases/tag/25.08) with no additional patches.
+Currently, this is release [`25.11`](https://github.com/YaLTeR/niri/releases/tag/25.11) with no additional patches.
 
 
 
@@ -200,7 +200,7 @@ The `niri` package that the config is validated against. This cannot be modified
 
 
 ## `programs.niri.config`
-- type: `null or string or kdl document`
+- type: `null or string or KDL document`
 
 The niri config file.
 
@@ -232,12 +232,993 @@ By default, when this is null, no config file is generated.
 Beware that setting [`programs.niri.config`](#programsniriconfig) completely overrides everything under this option.
 
 
+## `programs.niri.settings.includes`
+- type: `partitioned list of ((config include) or path convertible to it)`
+
+Includes for this config file.
+
+Notice that the type is a *paritioned list*. This option partitions its values based on if they are after the default order priority or not.
+
+```nix
+{
+  # Include the system-wide configuration for niri at the top.
+  programs.niri.settings.includes = [
+    { path = "/etc/niri/config.kdl"; }
+  ];
+}
+```
+
+
+All definitions in the Nixpkgs module system have an inherent "order priority" to them.
+This priority can be manually set using utilities like `lib.mkOrder`, `lib.mkBefore`, and `lib.mkAfter`:
+
+```nix
+{
+  # Include a file that is generated at runtime at the bottom.
+  programs.niri.settings.includes = lib.mkAfter [
+    { path = "generated.kdl"; }
+  ];
+}
+```
+
+
+Note that relative paths (like in the previous example) are resolved without dereferencing symlinks. As such, if this config file is symlinked to `/home/sodiboo/.config/niri/config.kdl`, and `sodiboo` runs niri normally, niri will look for that included file at `/home/sodiboo/.config/niri/generated.kdl`. It does not matter if the main config file actually lives in the Nix store, or anywhere else.
+
+You can configure whether each include is required or not. By default, includes are not required unless they are a Nix store path, but you can override this behaviour by specifying it manually:
+
+```nix
+{
+  # The system-wide niri configuration **must** exist, or else this config file will not load.
+  # This can no longer be validated at system build time, because that path doesn't exist in the Nix sandbox.
+  programs.niri.settings.includes = [
+    { required = true; path = "/etc/niri/config.kdl"; }
+  ];
+}
+```
+
+
+If you just specify the path, you don't need to wrap it in an attrset:
+
+```nix
+{
+  # This includes the same file twice, both times optional.
+  programs.niri.settings.includes = [
+    "shell/colors.kdl"
+    { path = "shell/colors.kdl"; }
+  ];
+}
+```
+
+
+If you want to specify includes for the start and end of the config file in the same location, you must use `lib.mkMerge`:
+
+```nix
+{
+  programs.niri.settings.includes = lib.mkMerge [
+    (lib.mkBefore [
+      { required = true; path = "/etc/niri/config.kdl"; }
+      "shell/base.kdl"
+    ])
+    (lib.mkAfter [
+      "shell/overlay.kdl"
+    ])
+  ];
+}
+```
+
+
+That's because you can only set the priority on a given definition, not on individual entries:
+
+```nix
+{
+  # WRONG: lib.mkAfter must wrap the whole list, not individual values within it.
+  programs.niri.settings.includes = [
+    (lib.mkAfter "invalid.kdl")
+  ];
+}
+```
+
+
+Unlike some other parts of niri's configuration, there is no shorthand for the home directory:
+
+```nix
+{
+  # WRONG: The tilde is not expanded how you'd expect.
+  programs.niri.settings.includes = [
+    { path = "~/.config/niri/generated.kdl"; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.includes.*.path`
+- type: `path`
+
+The path to the file that is to be included. It can be relative to the current file, or an absolute path. Unlike some other paths in the niri configuration, it may *not* contain a tilde expansion at the start.
+
+
+## `programs.niri.settings.includes.*.required`
+- type: `boolean`
+- default: `path is a store path`
+
+Whether this path must exist and contain a valid niri config file when the current config is loaded.
+
+By default, all includes are optional unless the path is a store path. This is because it is generally expected to run `niri validate` at system build time, at which point the Nix store is all that exists.
+
+
+<!-- programs.niri.settings.input -->
+
+<!-- programs.niri.settings.input.keyboard -->
+
+## `programs.niri.settings.input.keyboard.xkb`
+- type: `null or (submodule)`
+- default: `null`
+
+Parameters passed to libxkbcommon, which handles the keyboard in niri.
+
+Further reading:
+- [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.file`
+- type: `null or string`
+- default: `null`
+
+Path to a `.xkb` keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
+
+
+## `programs.niri.settings.input.keyboard.xkb.rules`
+- type: `null or non-empty string`
+- default: `null`
+
+The rules file to use.
+
+The rules file describes how to interpret the values of the model, layout, variant and options fields.
+
+If this is set to null, the rules will be read from the `XKB_DEFAULT_RULES` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.model`
+- type: `null or non-empty string`
+- default: `null`
+
+The keyboard model by which to interpret keycodes and LEDs
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#MODELS) for a list of available models.
+
+If this is set to null, the model will be read from the `XKB_DEFAULT_MODEL` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.layout`
+- type: `null or non-empty string`
+- default: `null`
+
+A comma-separated list of layouts (languages) to include in the keymap.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available layouts and their variants.
+
+If this is set to null, the layout will be read from the `XKB_DEFAULT_LAYOUT` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.variant`
+- type: `null or non-empty string`
+- default: `null`
+
+A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available variants for each layout.
+
+If this is set to null, the variant will be read from the `XKB_DEFAULT_VARIANT` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.xkb.options`
+- type: `null or string`
+- default: `null`
+
+A comma separated list of options, through which the user specifies non-layout related preferences, like which key combinations are used for switching layouts, or which key is the Compose key.
+
+See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#OPTIONS) for a list of available options.
+
+If this is set to an empty string, no options will be used.
+
+If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` environment variable.
+
+
+
+## `programs.niri.settings.input.keyboard.repeat-delay`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before a key starts repeating.
+
+
+## `programs.niri.settings.input.keyboard.repeat-rate`
+- type: `null or signed integer`
+- default: `null`
+
+The rate in characters per second at which a key repeats.
+
+
+## `programs.niri.settings.input.keyboard.track-layout`
+- type: `null or one of "global", "window"`
+- default: `null`
+
+The keyboard layout can be remembered per `"window"`, such that when you switch to a window, the keyboard layout is set to the one that was last used in that window.
+
+By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
+
+
+## `programs.niri.settings.input.keyboard.numlock`
+- type: `null or boolean`
+- default: `null`
+
+Enable numlock by default
+
+
+## `programs.niri.settings.input.mouse`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.input.mouse.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.input.mouse.left-handed`
+- type: `boolean`
+- default: `false`
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+
+## `programs.niri.settings.input.mouse.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
+## `programs.niri.settings.input.mouse.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
+
+
+## `programs.niri.settings.input.mouse.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+
+## `programs.niri.settings.input.mouse.accel-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
+
+
+## `programs.niri.settings.input.mouse.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.mouse.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.mouse.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
+
+
+## `programs.niri.settings.input.mouse.scroll-factor`
+- type: `null or floating point number or signed integer or (submodule)`
+- default: `null`
+
+For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
+
+This is not a libinput property, but rather a niri-specific one.
+
+
+## `programs.niri.settings.input.tablet`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.input.tablet.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.input.tablet.left-handed`
+- type: `boolean`
+- default: `false`
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+
+## `programs.niri.settings.input.tablet.map-to-output`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.input.tablet.calibration-matrix`
+- type: `null or (2x3 matrix)`
+- default: `null`
+
+An augmented calibration matrix for the tablet or touch screen.
+
+This is represented in Nix as a 2-list of 3-lists of floats.
+
+For example:
+```nix
+{
+  # 90 degree rotation clockwise
+  calibration-matrix = [
+    [ 0.0 -1.0 1.0 ]
+    [ 1.0  0.0 0.0 ]
+  ];
+}
+```
+
+
+Further reading:
+- [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
+- [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
+- [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+
+
+
+## `programs.niri.settings.input.touch`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.input.touch.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.input.touch.map-to-output`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.input.touch.calibration-matrix`
+- type: `null or (2x3 matrix)`
+- default: `null`
+
+An augmented calibration matrix for the tablet or touch screen.
+
+This is represented in Nix as a 2-list of 3-lists of floats.
+
+For example:
+```nix
+{
+  # 90 degree rotation clockwise
+  calibration-matrix = [
+    [ 0.0 -1.0 1.0 ]
+    [ 1.0  0.0 0.0 ]
+  ];
+}
+```
+
+
+Further reading:
+- [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
+- [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
+- [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+
+
+
+## `programs.niri.settings.input.touchpad`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.input.touchpad.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.input.touchpad.left-handed`
+- type: `boolean`
+- default: `false`
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+
+## `programs.niri.settings.input.touchpad.natural-scroll`
+- type: `boolean`
+- default: `true`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
+## `programs.niri.settings.input.touchpad.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
+
+
+## `programs.niri.settings.input.touchpad.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+
+## `programs.niri.settings.input.touchpad.accel-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
+
+
+## `programs.niri.settings.input.touchpad.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.touchpad.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.touchpad.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
+
+
+## `programs.niri.settings.input.touchpad.tap`
+- type: `boolean`
+- default: `true`
+
+Whether to enable tap-to-click.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
+- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-to-click-behaviour
+
+
+
+## `programs.niri.settings.input.touchpad.dwt`
+- type: `boolean`
+- default: `false`
+
+Whether to disable the touchpad while typing.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-typing
+- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-typing
+
+
+
+## `programs.niri.settings.input.touchpad.dwtp`
+- type: `boolean`
+- default: `false`
+
+Whether to disable the touchpad while the trackpoint is in use.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-trackpointing
+- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
+
+
+
+## `programs.niri.settings.input.touchpad.drag`
+- type: `null or boolean`
+- default: `null`
+
+On most touchpads, "tap and drag" is enabled by default. This option allows you to explicitly enable or disable it.
+
+Tap and drag means that to drag an item, you tap the touchpad with some amount of fingers to decide what kind of button press is emulated, but don't hold those fingers, and then you immediately start dragging with one finger.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-and-drag
+
+
+
+## `programs.niri.settings.input.touchpad.drag-lock`
+- type: `boolean`
+- default: `false`
+
+By default, a "tap and drag" gesture is terminated by releasing the finger that is dragging.
+
+Drag lock means that the drag gesture is not terminated when the finger is released, but only when the finger is tapped again, or after a timeout (unless sticky mode is enabled). This allows you to reset your finger position without losing the drag gesture.
+
+Drag lock is only applicable when tap and drag is enabled.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-and-drag
+
+
+
+## `programs.niri.settings.input.touchpad.disabled-on-external-mouse`
+- type: `boolean`
+- default: `false`
+
+Whether to disable the touchpad when an external mouse is plugged in.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#send-events-mode
+
+
+
+## `programs.niri.settings.input.touchpad.tap-button-map`
+- type: `null or one of "left-middle-right", "left-right-middle"`
+- default: `null`
+
+The mouse button to register when tapping with 1, 2, or 3 fingers, when [`input.touchpad.tap`](#programsnirisettingsinputtouchpadtap) is enabled.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
+
+
+
+## `programs.niri.settings.input.touchpad.click-method`
+- type: `null or one of "button-areas", "clickfinger"`
+- default: `null`
+
+Method to determine which mouse button is pressed when you click the touchpad.
+
+- `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#software-button-areas) \
+  The button is determined by which part of the touchpad was clicked.
+- `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickfinger-behavior) \
+  The button is determined by how many fingers clicked.
+
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#click-method
+- https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
+
+
+
+## `programs.niri.settings.input.touchpad.scroll-factor`
+- type: `null or floating point number or signed integer or (submodule)`
+- default: `null`
+
+For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
+
+This is not a libinput property, but rather a niri-specific one.
+
+
+## `programs.niri.settings.input.trackball`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.input.trackball.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.input.trackball.left-handed`
+- type: `boolean`
+- default: `false`
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+
+## `programs.niri.settings.input.trackball.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
+## `programs.niri.settings.input.trackball.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
+
+
+## `programs.niri.settings.input.trackball.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+
+## `programs.niri.settings.input.trackball.accel-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
+
+
+## `programs.niri.settings.input.trackball.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.trackball.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.trackball.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
+
+
+## `programs.niri.settings.input.trackpoint`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.input.trackpoint.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.input.trackpoint.left-handed`
+- type: `boolean`
+- default: `false`
+
+Whether to accomodate left-handed usage for this device.
+This varies based on the exact device, but will for example swap left/right mouse buttons.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+
+
+
+## `programs.niri.settings.input.trackpoint.natural-scroll`
+- type: `boolean`
+- default: `false`
+
+Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
+
+
+
+## `programs.niri.settings.input.trackpoint.middle-emulation`
+- type: `boolean`
+- default: `false`
+
+Whether a middle mouse button press should be sent when you press the left and right mouse buttons
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
+- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
+
+
+
+## `programs.niri.settings.input.trackpoint.accel-profile`
+- type: `null or one of "adaptive", "flat"`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+
+
+
+## `programs.niri.settings.input.trackpoint.accel-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+
+
+
+## `programs.niri.settings.input.trackpoint.scroll-button`
+- type: `null or signed integer`
+- default: `null`
+
+When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.trackpoint.scroll-button-lock`
+- type: `boolean`
+- default: `false`
+
+When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+
+
+
+## `programs.niri.settings.input.trackpoint.scroll-method`
+- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+- default: `null`
+
+When to convert motion events to scrolling events.
+The default and supported values vary based on the device type.
+
+Further reading:
+- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+
+
+
+## `programs.niri.settings.input.warp-mouse-to-focus`
+- type: `null or (submodule)`
+- default: `null`
+
+Warp the mouse to the focused window when switching focus.
+
+Note that there is no way to set `enable = false;`. If any config file enables this, it cannot be disabled by a later file.
+
+
+## `programs.niri.settings.input.warp-mouse-to-focus.enable`
+- type: `value true (singular enum)`
+- default: `true`
+
+
+## `programs.niri.settings.input.warp-mouse-to-focus.mode`
+- type: `null or one of "center-xy", "center-xy-always"`
+- default: `null`
+
+By default, when `mode = null;`, if the mouse is outside of the focused window on the X axis, it will warp to the middle vertical line of the window. Likewise if it is outside the focused window on the Y axis, it will warp to the middle horizontal line. And, if it is outside the window's bounds on both axes, it will warp to the center of the window.
+
+When `mode = "center-xy";`, if the mouse is outside the window *at all*, it will warp on both axes to the very center of the window.
+
+When `mode = "center-xy-always";`, the mouse will always warp to the center of the focused window upon any focus change, even if the mouse was *already* inside the bounds of that window
+
+
+## `programs.niri.settings.input.focus-follows-mouse`
+- type: `null or (submodule)`
+- default: `null`
+
+Focus the window under the mouse when the mouse moves.
+
+Note that there is no way to set `enable = false;`. If any config file enables this, it cannot be disabled by a later file.
+
+
+## `programs.niri.settings.input.focus-follows-mouse.enable`
+- type: `value true (singular enum)`
+- default: `true`
+
+
+## `programs.niri.settings.input.focus-follows-mouse.max-scroll-amount`
+- type: `null or string`
+- default: `null`
+
+The maximum proportion of the screen to scroll at a time (expressed in percent)
+
+
+## `programs.niri.settings.input.workspace-auto-back-and-forth`
+- type: `null or boolean`
+- default: `null`
+
+When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
+
+Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
+
+
+## `programs.niri.settings.input.power-key-handling.enable`
+- type: `null or boolean`
+- default: `null`
+
+By default, niri will take over the power button to make it sleep instead of power off.
+
+You can disable this behaviour if you prefer to configure the power button elsewhere.
+
+
+## `programs.niri.settings.input.mod-key`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.input.mod-key-nested`
+- type: `null or string`
+- default: `null`
+
+
 ## `programs.niri.settings.binds`
 - type: `attribute set of (niri keybind)`
 
 
+## `programs.niri.settings.binds.<name>.allow-when-locked`
+- type: `boolean`
+- default: `false`
+
+Whether this keybind should be allowed when the screen is locked.
+
+This is only applicable for `spawn` keybinds.
+
+
+## `programs.niri.settings.binds.<name>.allow-inhibiting`
+- type: `boolean`
+- default: `true`
+
+When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
+
+By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
+
+When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
+
+Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
+
+
+## `programs.niri.settings.binds.<name>.cooldown-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The minimum cooldown before a keybind can be triggered again, in milliseconds.
+
+This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
+
+
+## `programs.niri.settings.binds.<name>.repeat`
+- type: `boolean`
+- default: `true`
+
+Whether this keybind should trigger repeatedly when held down.
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay`
+- type: `attribute-tagged union with choices: hidden, title`
+- default:
+  ```nix
+  {
+    hidden = false;
+  }
+  ```
+
+
+How this keybind should be displayed in the hotkey overlay.
+
+- By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
+- `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
+- `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
+
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
+- type: `boolean`
+
+When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
+
+
+## `programs.niri.settings.binds.<name>.hotkey-overlay.title`
+- type: `string`
+
+The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
+
+
 ## `programs.niri.settings.binds.<name>.action`
-- type: `niri action`, which is a `kdl leaf`
+- type: `kdl leaf`
 
 An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
@@ -287,82 +1268,9 @@ If an action takes properties and positional arguments, you can write it like th
 
 
 
-## `programs.niri.settings.binds.<name>.allow-inhibiting`
-- type: `boolean`
-- default: `true`
-
-When a surface is inhibiting keyboard shortcuts, this option dictates wether *this* keybind will be inhibited as well.
-
-By default it is true for all keybinds, meaning an application can block this keybind from being triggered, and the application will receive the key event instead.
-
-When false, this keybind will always be triggered, even if an application is inhibiting keybinds. There is no way for a client to observe this keypress.
-
-Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
-
-
-## `programs.niri.settings.binds.<name>.allow-when-locked`
-- type: `boolean`
-- default: `false`
-
-Whether this keybind should be allowed when the screen is locked.
-
-This is only applicable for `spawn` keybinds.
-
-
-## `programs.niri.settings.binds.<name>.cooldown-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The minimum cooldown before a keybind can be triggered again, in milliseconds.
-
-This is mostly useful for binds on the mouse wheel, where you might not want to activate an action several times in quick succession. You can use it for any bind, though.
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay`
-- type: `attribute-tagged union with choices: hidden, title`
-- default:
-  ```nix
-  {
-    hidden = false;
-  }
-  ```
-
-
-How this keybind should be displayed in the hotkey overlay.
-
-- By default, `{hidden = false;}` maps to omitting this from the KDL config; the default title of the action will be used.
-- `{hidden = true;}` will emit `hotkey-overlay-title=null` in the KDL config, and the hotkey overlay will not contain this keybind at all.
-- `{title = "foo";}` will emit `hotkey-overlay-title="foo"` in the KDL config, and the hotkey overlay will show "foo" as the title of this keybind.
-
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay.hidden`
-- type: `boolean`
-
-When `true`, the hotkey overlay will not contain this keybind at all. When `false`, it will show the default title of the action.
-
-
-## `programs.niri.settings.binds.<name>.hotkey-overlay.title`
-- type: `string`
-
-The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
-
-
-## `programs.niri.settings.binds.<name>.repeat`
-- type: `boolean`
-- default: `true`
-
-Whether this keybind should trigger repeatedly when held down.
-
-
 <!-- programs.niri.settings.switch-events -->
 
-## `programs.niri.settings.switch-events.lid-close`
-- type: `null or`[`<switch-bind>`](#switch-bind)
-- default: `null`
-
-
-## `programs.niri.settings.switch-events.lid-open`
+## `programs.niri.settings.switch-events.tablet-mode-on`
 - type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 
@@ -372,7 +1280,12 @@ Whether this keybind should trigger repeatedly when held down.
 - default: `null`
 
 
-## `programs.niri.settings.switch-events.tablet-mode-on`
+## `programs.niri.settings.switch-events.lid-open`
+- type: `null or`[`<switch-bind>`](#switch-bind)
+- default: `null`
+
+
+## `programs.niri.settings.switch-events.lid-close`
 - type: `null or`[`<switch-bind>`](#switch-bind)
 - default: `null`
 
@@ -386,7 +1299,7 @@ This description doesn't matter to the docs, but is necessary to make this heade
 
 
 ## `<switch-bind>.action`
-- type: `niri switch action`, which is a `kdl leaf`
+- type: `kdl leaf`
 
 A switch action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments.
 
@@ -403,174 +1316,340 @@ See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more 
 
 
 
-## `programs.niri.settings.screenshot-path`
-- type: `null or string`
-- default: `"~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"`
+<!-- programs.niri.settings.gestures -->
 
-The path to save screenshots to.
-
-If this is null, then no screenshots will be saved.
-
-If the path starts with a `~`, then it will be expanded to the user's home directory.
-
-The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+## `programs.niri.settings.gestures.dnd-edge-view-scroll`
 
 
-## `programs.niri.settings.hotkey-overlay.hide-not-bound`
+When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the edge of the screen where dragging a window will scroll the view.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+## `programs.niri.settings.gestures.dnd-edge-view-scroll.max-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
+
+
+In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
+
+This does not happen when the overview is not open.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The height of the edge of the screen where dragging a window will scroll the view.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
+- type: `null or signed integer`
+- default: `null`
+
+The delay in milliseconds before the view starts scrolling.
+
+
+## `programs.niri.settings.gestures.dnd-edge-workspace-switch.max-speed`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
+
+
+## `programs.niri.settings.gestures.hot-corners`
+- type: `null or (submodule)`
+- default: `null`
+
+Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
+
+By default, the top-left corner is the only hot corner. You can use this option to explicitly set which hot corners you want.
+
+Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
+
+
+## `programs.niri.settings.gestures.hot-corners.bottom-left`
 - type: `boolean`
-- default: `false`
-
-By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
-In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
-
-You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
 
 
-## `programs.niri.settings.hotkey-overlay.skip-at-startup`
+## `programs.niri.settings.gestures.hot-corners.bottom-right`
 - type: `boolean`
-- default: `false`
-
-Whether to skip the hotkey overlay shown when niri starts.
 
 
-## `programs.niri.settings.config-notification.disable-failed`
+## `programs.niri.settings.gestures.hot-corners.top-left`
 - type: `boolean`
-- default: `false`
-
-Disable the notification that the config file failed to load.
 
 
-## `programs.niri.settings.clipboard.disable-primary`
+## `programs.niri.settings.gestures.hot-corners.top-right`
 - type: `boolean`
-- default: `false`
-
-The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
-
-This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
-
-This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
-
-If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
-
-Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
 
 
-## `programs.niri.settings.prefer-no-csd`
+<!-- programs.niri.settings.animations -->
+
+## `programs.niri.settings.animations.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.animations.slowdown`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.animations.workspace-switch`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.workspace-switch.enable`
 - type: `boolean`
-- default: `false`
-
-Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
+- default: `true`
 
 
-## `programs.niri.settings.spawn-at-startup`
-- type: `list of attribute-tagged union with choices: argv, command, sh`
-
-A list of commands to run when niri starts.
-
-Each command can be represented as its raw arguments, or as a shell invocation.
-
-When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+## `programs.niri.settings.animations.workspace-switch.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
 
 
-## `programs.niri.settings.spawn-at-startup.*.argv`
-- type: `list of string`
-
-Almost raw process arguments to spawn, without shell syntax.
-
-A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
-
-Usage is like so:
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { argv = ["waybar"]; }
-    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
-    { argv = ["~/.config/niri/scripts/startup.sh"]; }
-  ];
-}
-```
+## `programs.niri.settings.animations.horizontal-view-movement`
+- type: `null or (submodule)`
+- default: `null`
 
 
-
-## `programs.niri.settings.spawn-at-startup.*.sh`
-- type: `string`
-
-A shell command to spawn. Run wild with POSIX syntax.
-
-```nix
-{
-  programs.niri.settings.spawn-at-startup = [
-    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
-  ];
-}
-```
+## `programs.niri.settings.animations.horizontal-view-movement.enable`
+- type: `boolean`
+- default: `true`
 
 
-Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
+## `programs.niri.settings.animations.horizontal-view-movement.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
 
 
-## `programs.niri.settings.workspaces`
-- type: `attribute set of (submodule)`
-
-Declare named workspaces.
-
-Named workspaces are similar to regular, dynamic workspaces, except they can be
-referred to by name, and they are persistent, they do not close when there are
-no more windows left on them.
-
-Usage is like so:
-
-```nix
-{
-  programs.niri.settings.workspaces."name" = {};
-  programs.niri.settings.workspaces."01-another-one" = {
-    open-on-output = "DP-1";
-    name = "another-one";
-  };
-}
-```
+## `programs.niri.settings.animations.config-notification-open-close`
+- type: `null or (submodule)`
+- default: `null`
 
 
-Unless a `name` is declared, the workspace will use the attribute key as the name.
-
-Workspaces will be created in a specific order: sorted by key. If you do not care
-about the order of named workspaces, you can skip using the `name` attribute, and
-use the key instead. If you do care about it, you can use the key to order them,
-and a `name` attribute to have a friendlier name.
+## `programs.niri.settings.animations.config-notification-open-close.enable`
+- type: `boolean`
+- default: `true`
 
 
-## `programs.niri.settings.workspaces.<name>.name`
-- type: `string`
-- default: `the key of the workspace`
-
-The name of the workspace. You set this manually if you want the keys to be ordered in a specific way.
+## `programs.niri.settings.animations.config-notification-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
 
 
-## `programs.niri.settings.workspaces.<name>.open-on-output`
+## `programs.niri.settings.animations.exit-confirmation-open-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-movement`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-movement.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-movement.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-open`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-open.custom-shader`
 - type: `null or string`
 - default: `null`
 
-The name of the output the workspace should be assigned to.
+Source code for a GLSL shader to use for this animation.
 
+For example, set it to `builtins.readFile ./window-open.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-open.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-open.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-close.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-resize`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.window-resize.custom-shader`
+- type: `null or string`
+- default: `null`
+
+Source code for a GLSL shader to use for this animation.
+
+For example, set it to `builtins.readFile ./window-resize.glsl` to use a shader from the same directory as your configuration file.
+
+See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
+
+
+## `programs.niri.settings.animations.window-resize.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.window-resize.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.screenshot-ui-open`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.screenshot-ui-open.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.screenshot-ui-open.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `programs.niri.settings.animations.overview-open-close`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.animations.overview-open-close.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.animations.overview-open-close.kind`
+- type: `null or`[`<animation-kind>`](#animation-kind)
+- default: `null`
+
+
+## `<animation-kind>`
+- type: `attribute-tagged union with choices: easing, spring`
+
+
+<!-- <animation-kind>.easing -->
+
+## `<animation-kind>.easing.curve`
+- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo", "cubic-bezier"`
+
+The curve to use for the easing function.
+
+
+## `<animation-kind>.easing.curve-args`
+- type: `list of KDL value without type annotation`
+
+Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
+
+
+## `<animation-kind>.easing.duration-ms`
+- type: `signed integer`
+
+
+<!-- <animation-kind>.spring -->
+
+## `<animation-kind>.spring.damping-ratio`
+- type: `floating point number`
+
+
+## `<animation-kind>.spring.epsilon`
+- type: `floating point number`
+
+
+## `<animation-kind>.spring.stiffness`
+- type: `signed integer`
+
+
+<!-- programs.niri.settings.overview -->
 
 ## `programs.niri.settings.overview.backdrop-color`
 - type: `null or string`
 - default: `null`
 
-Set the backdrop color behind workspaces in the overview. The backdrop is also visible between workspaces when switching.
+The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
 
-The alpha channel for this color will be ignored.
+The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
+
+See also [`layout.background-color`](#programsnirisettingslayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
 
 
-## `programs.niri.settings.overview.workspace-shadow.color`
-- type: `null or string`
-- default: `null`
-
+<!-- programs.niri.settings.overview.workspace-shadow -->
 
 ## `programs.niri.settings.overview.workspace-shadow.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.overview.workspace-shadow.offset`
@@ -584,12 +1663,10 @@ This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/
 
 ## `programs.niri.settings.overview.workspace-shadow.offset.x`
 - type: `floating point number or signed integer`
-- default: `0.000000`
 
 
 ## `programs.niri.settings.overview.workspace-shadow.offset.y`
 - type: `floating point number or signed integer`
-- default: `5.000000`
 
 
 ## `programs.niri.settings.overview.workspace-shadow.softness`
@@ -610,6 +1687,16 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
+## `programs.niri.settings.overview.workspace-shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.overview.workspace-shadow.color`
+- type: `null or string`
+- default: `null`
+
+
 ## `programs.niri.settings.overview.zoom`
 - type: `null or floating point number or signed integer`
 - default: `null`
@@ -617,910 +1704,230 @@ This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org
 Control how much the workspaces zoom out in the overview. zoom ranges from 0 to 0.75 where lower values make everything smaller.
 
 
-## `programs.niri.settings.input.focus-follows-mouse.enable`
-- type: `boolean`
-- default: `false`
+<!-- programs.niri.settings.layout -->
 
-Whether to focus the window under the mouse when the mouse moves.
-
-
-## `programs.niri.settings.input.focus-follows-mouse.max-scroll-amount`
+## `programs.niri.settings.layout.background-color`
 - type: `null or string`
 - default: `null`
 
-The maximum proportion of the screen to scroll at a time
+The background is a solid-colored layer drawn behind each workspace.
+
+It's visible through transparent windows, between [gaps](#programsnirisettingslayoutgaps), and inside any [struts](#programsnirisettingslayoutstruts)
+
+See also [`overview.backdrop-color`](#programsnirisettingsoverviewbackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
 
 
-## `programs.niri.settings.input.keyboard.numlock`
-- type: `boolean`
-- default: `false`
-
-Enable numlock by default
-
-
-## `programs.niri.settings.input.keyboard.repeat-delay`
-- type: `signed integer`
-- default: `600`
-
-The delay in milliseconds before a key starts repeating.
-
-
-## `programs.niri.settings.input.keyboard.repeat-rate`
-- type: `signed integer`
-- default: `25`
-
-The rate in characters per second at which a key repeats.
-
-
-## `programs.niri.settings.input.keyboard.track-layout`
-- type: `one of "global", "window"`
-- default: `"global"`
-
-The keyboard layout can be remembered per `"window"`, such that when you switch to a window, the keyboard layout is set to the one that was last used in that window.
-
-By default, there is only one `"global"` keyboard layout and changing it in any window will affect the keyboard layout used in all other windows too.
-
-
-## `programs.niri.settings.input.keyboard.xkb`
-
-
-Parameters passed to libxkbcommon, which handles the keyboard in niri.
-
-Further reading:
-- [`smithay::wayland::seat::XkbConfig`](https://docs.rs/smithay/latest/smithay/wayland/seat/struct.XkbConfig.html)
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.file`
-- type: `null or string`
-- default: `null`
-
-Path to a `.xkb` keymap file. If set, this file will be used to configure libxkbcommon, and all other options will be ignored.
-
-
-## `programs.niri.settings.input.keyboard.xkb.layout`
-- type: `string`
-- default: `""`
-
-A comma-separated list of layouts (languages) to include in the keymap.
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available layouts and their variants.
-
-If this is set to an empty string, the layout will be read from the `XKB_DEFAULT_LAYOUT` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.model`
-- type: `string`
-- default: `""`
-
-The keyboard model by which to interpret keycodes and LEDs
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#MODELS) for a list of available models.
-
-If this is set to an empty string, the model will be read from the `XKB_DEFAULT_MODEL` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.options`
-- type: `null or string`
-- default: `null`
-
-A comma separated list of options, through which the user specifies non-layout related preferences, like which key combinations are used for switching layouts, or which key is the Compose key.
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#OPTIONS) for a list of available options.
-
-If this is set to an empty string, no options will be used.
-
-If this is set to null, the options will be read from the `XKB_DEFAULT_OPTIONS` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.rules`
-- type: `string`
-- default: `""`
-
-The rules file to use.
-
-The rules file describes how to interpret the values of the model, layout, variant and options fields.
-
-If this is set to an empty string, the rules will be read from the `XKB_DEFAULT_RULES` environment variable.
-
-
-
-## `programs.niri.settings.input.keyboard.xkb.variant`
-- type: `string`
-- default: `""`
-
-A comma separated list of variants, one per layout, which may modify or augment the respective layout in various ways.
-
-See [`xkeyboard-config(7)`](https://man.archlinux.org/man/xkeyboard-config.7#LAYOUTS) for a list of available variants for each layout.
-
-If this is set to an empty string, the variant will be read from the `XKB_DEFAULT_VARIANT` environment variable.
-
-
-
-## `programs.niri.settings.input.mod-key`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.input.mod-key-nested`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.input.mouse.accel-profile`
-- type: `null or one of "adaptive", "flat"`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
-
-
-
-## `programs.niri.settings.input.mouse.accel-speed`
+## `programs.niri.settings.layout.gaps`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+The gap between windows in the layout, measured in logical pixels.
 
 
-
-## `programs.niri.settings.input.mouse.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.input.mouse.left-handed`
-- type: `boolean`
-- default: `false`
-
-Whether to accomodate left-handed usage for this device.
-This varies based on the exact device, but will for example swap left/right mouse buttons.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
-
-
-
-## `programs.niri.settings.input.mouse.middle-emulation`
-- type: `boolean`
-- default: `false`
-
-Whether a middle mouse button press should be sent when you press the left and right mouse buttons
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
-- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
-
-
-
-## `programs.niri.settings.input.mouse.natural-scroll`
-- type: `boolean`
-- default: `false`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
-
-
-
-## `programs.niri.settings.input.mouse.scroll-button`
-- type: `null or signed integer`
+## `programs.niri.settings.layout.struts`
+- type: `null or (submodule)`
 - default: `null`
 
-When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
+The distances from the edges of the workspace to the edges of the working area.
 
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+The top and bottom struts are absolute gaps from the edges of the workspace. If you set a bottom strut of 64px and the scale is 2.0, then the workspace will have 128 physical pixels under the scrollable working area where it only shows the background.
 
+Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
 
+The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero [borders](#programsnirisettingslayoutborder) and [gaps](#programsnirisettingslayoutgaps))
 
-## `programs.niri.settings.input.mouse.scroll-button-lock`
-- type: `boolean`
-- default: `false`
-
-When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
+Note that individual struts cannot be modified separately. This option configures all four struts at once.
 
 
+## `programs.niri.settings.layout.struts.bottom`
+- type: `floating point number or signed integer`
+- default: `0`
 
-## `programs.niri.settings.input.mouse.scroll-factor`
-- type: `null or floating point number or signed integer or (submodule)`
+
+## `programs.niri.settings.layout.struts.left`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.layout.struts.right`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.layout.struts.top`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.layout.empty-workspace-above-first`
+- type: `null or boolean`
 - default: `null`
 
-For all scroll events triggered by a wheel source, the scroll distance is multiplied by this factor.
+Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
 
-This is not a libinput property, but rather a niri-specific one.
+When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
 
 
-## `programs.niri.settings.input.mouse.scroll-method`
-- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
+## `programs.niri.settings.layout.preset-column-widths`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
 - default: `null`
 
-When to convert motion events to scrolling events.
-The default and supported values vary based on the device type.
+The widths that `switch-preset-column-width` will cycle through.
 
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
+Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
 
+Example:
 
-
-## `programs.niri.settings.input.power-key-handling.enable`
-- type: `boolean`
-- default: `true`
-
-By default, niri will take over the power button to make it sleep instead of power off.
-
-You can disable this behaviour if you prefer to configure the power button elsewhere.
-
-
-## `programs.niri.settings.input.tablet.calibration-matrix`
-- type: `null or (2x3 matrix)`
-- default: `null`
-
-An augmented calibration matrix for the tablet.
-
-This is represented in Nix as a 2-list of 3-lists of floats.
-
-For example:
 ```nix
 {
-  # 90 degree rotation clockwise
-  calibration-matrix = [
-    [ 0.0 -1.0 1.0 ]
-    [ 1.0  0.0 0.0 ]
+  programs.niri.settings.layout.preset-column-widths = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1920; }
   ];
 }
 ```
 
 
-Further reading:
-- [`libinput_device_config_calibration_get_default_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga3d9f1b9be10e804e170c4ea455bd1f1b)
-- [`libinput_device_config_calibration_set_matrix()`](https://wayland.freedesktop.org/libinput/doc/1.8.2/group__config.html#ga09a798f58cc601edd2797780096e9804)
-- [rustdoc because libinput's web docs are an eyesore](https://smithay.github.io/smithay/input/struct.Device.html#method.config_calibration_set_matrix)
+
+## `programs.niri.settings.layout.preset-column-widths.*.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
 
 
+## `programs.niri.settings.layout.preset-column-widths.*.proportion`
+- type: `floating point number`
 
-## `programs.niri.settings.input.tablet.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.input.tablet.left-handed`
-- type: `boolean`
-- default: `false`
-
-Whether to accomodate left-handed usage for this device.
-This varies based on the exact device, but will for example swap left/right mouse buttons.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
+The width of the column as a proportion of the screen's width
 
 
-
-## `programs.niri.settings.input.tablet.map-to-output`
-- type: `null or string`
+## `programs.niri.settings.layout.preset-window-heights`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
 - default: `null`
 
+The heights that `switch-preset-window-height` will cycle through.
 
-## `programs.niri.settings.input.touch.enable`
-- type: `boolean`
-- default: `true`
+Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.layout.preset-window-heights = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1080; }
+  ];
+}
+```
 
 
-## `programs.niri.settings.input.touch.map-to-output`
-- type: `null or string`
+
+## `programs.niri.settings.layout.preset-window-heights.*.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+## `programs.niri.settings.layout.preset-window-heights.*.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.layout.default-column-width`
+- type: `null or {} or attribute-tagged union with choices: fixed, proportion`
 - default: `null`
 
+The default width for new columns with a freshly opened window.
 
-## `programs.niri.settings.input.touchpad.accel-profile`
-- type: `null or one of "adaptive", "flat"`
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+
+
+## `programs.niri.settings.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.layout.default-column-display`
+- type: `null or one of "normal", "tabbed"`
 - default: `null`
 
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
+How windows in newly opened columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
 
 
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
 
-## `programs.niri.settings.input.touchpad.accel-speed`
-- type: `null or floating point number or signed integer`
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+
+## `programs.niri.settings.layout.center-focused-column`
+- type: `null or one of "never", "always", "on-overflow"`
 - default: `null`
 
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
+When changing focus, niri can automatically center the focused column.
+
+- `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+- `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+- `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
 
-## `programs.niri.settings.input.touchpad.click-method`
-- type: `null or one of "button-areas", "clickfinger"`
-- default: `null`
-
-Method to determine which mouse button is pressed when you click the touchpad.
-
-- `"button-areas"`: [Software button areas](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#software-button-areas) \
-  The button is determined by which part of the touchpad was clicked.
-- `"clickfinger"`: [Clickfinger behavior](https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickfinger-behavior) \
-  The button is determined by how many fingers clicked.
-
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#click-method
-- https://wayland.freedesktop.org/libinput/doc/latest/clickpad-softbuttons.html#clickpad-software-button-behavior
-
-
-
-## `programs.niri.settings.input.touchpad.disabled-on-external-mouse`
-- type: `boolean`
-- default: `false`
-
-Whether to disable the touchpad when an external mouse is plugged in.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#send-events-mode
-
-
-
-## `programs.niri.settings.input.touchpad.drag`
+## `programs.niri.settings.layout.always-center-single-column`
 - type: `null or boolean`
 - default: `null`
 
-On most touchpads, "tap and drag" is enabled by default. This option allows you to explicitly enable or disable it.
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
-Tap and drag means that to drag an item, you tap the touchpad with some amount of fingers to decide what kind of button press is emulated, but don't hold those fingers, and then you immediately start dragging with one finger.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-and-drag
-
-
-
-## `programs.niri.settings.input.touchpad.drag-lock`
-- type: `boolean`
-- default: `false`
-
-By default, a "tap and drag" gesture is terminated by releasing the finger that is dragging.
-
-Drag lock means that the drag gesture is not terminated when the finger is released, but only when the finger is tapped again, or after a timeout (unless sticky mode is enabled). This allows you to reset your finger position without losing the drag gesture.
-
-Drag lock is only applicable when tap and drag is enabled.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-and-drag
-
-
-
-## `programs.niri.settings.input.touchpad.dwt`
-- type: `boolean`
-- default: `false`
-
-Whether to disable the touchpad while typing.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-typing
-- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-typing
-
-
-
-## `programs.niri.settings.input.touchpad.dwtp`
-- type: `boolean`
-- default: `false`
-
-Whether to disable the touchpad while the trackpoint is in use.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#disable-while-trackpointing
-- https://wayland.freedesktop.org/libinput/doc/latest/palm-detection.html#disable-while-trackpointing
-
-
-
-## `programs.niri.settings.input.touchpad.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.input.touchpad.left-handed`
-- type: `boolean`
-- default: `false`
-
-Whether to accomodate left-handed usage for this device.
-This varies based on the exact device, but will for example swap left/right mouse buttons.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
-
-
-
-## `programs.niri.settings.input.touchpad.middle-emulation`
-- type: `boolean`
-- default: `false`
-
-Whether a middle mouse button press should be sent when you press the left and right mouse buttons
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
-- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
-
-
-
-## `programs.niri.settings.input.touchpad.natural-scroll`
-- type: `boolean`
-- default: `true`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.scroll-button`
-- type: `null or signed integer`
-- default: `null`
-
-When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.scroll-button-lock`
-- type: `boolean`
-- default: `false`
-
-When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.scroll-factor`
-- type: `null or floating point number or signed integer or (submodule)`
-- default: `null`
-
-For all scroll events triggered by a finger source, the scroll distance is multiplied by this factor.
-
-This is not a libinput property, but rather a niri-specific one.
-
-
-## `programs.niri.settings.input.touchpad.scroll-method`
-- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
-- default: `null`
-
-When to convert motion events to scrolling events.
-The default and supported values vary based on the device type.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
-
-
-
-## `programs.niri.settings.input.touchpad.tap`
-- type: `boolean`
-- default: `true`
-
-Whether to enable tap-to-click.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
-- https://wayland.freedesktop.org/libinput/doc/latest/tapping.html#tap-to-click-behaviour
-
-
-
-## `programs.niri.settings.input.touchpad.tap-button-map`
-- type: `null or one of "left-middle-right", "left-right-middle"`
-- default: `null`
-
-The mouse button to register when tapping with 1, 2, or 3 fingers, when [`input.touchpad.tap`](#programsnirisettingsinputtouchpadtap) is enabled.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#tap-to-click
-
-
-
-## `programs.niri.settings.input.trackball.accel-profile`
-- type: `null or one of "adaptive", "flat"`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
-
-
-
-## `programs.niri.settings.input.trackball.accel-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
-
-
-
-## `programs.niri.settings.input.trackball.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.input.trackball.left-handed`
-- type: `boolean`
-- default: `false`
-
-Whether to accomodate left-handed usage for this device.
-This varies based on the exact device, but will for example swap left/right mouse buttons.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
-
-
-
-## `programs.niri.settings.input.trackball.middle-emulation`
-- type: `boolean`
-- default: `false`
-
-Whether a middle mouse button press should be sent when you press the left and right mouse buttons
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
-- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
-
-
-
-## `programs.niri.settings.input.trackball.natural-scroll`
-- type: `boolean`
-- default: `false`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
-
-
-
-## `programs.niri.settings.input.trackball.scroll-button`
-- type: `null or signed integer`
-- default: `null`
-
-When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.trackball.scroll-button-lock`
-- type: `boolean`
-- default: `false`
-
-When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.trackball.scroll-method`
-- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
-- default: `null`
-
-When to convert motion events to scrolling events.
-The default and supported values vary based on the device type.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
-
-
-
-## `programs.niri.settings.input.trackpoint.accel-profile`
-- type: `null or one of "adaptive", "flat"`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/pointer-acceleration.html#pointer-acceleration-profiles
-
-
-
-## `programs.niri.settings.input.trackpoint.accel-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#pointer-acceleration
-
-
-
-## `programs.niri.settings.input.trackpoint.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.input.trackpoint.left-handed`
-- type: `boolean`
-- default: `false`
-
-Whether to accomodate left-handed usage for this device.
-This varies based on the exact device, but will for example swap left/right mouse buttons.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#left-handed-mode
-
-
-
-## `programs.niri.settings.input.trackpoint.middle-emulation`
-- type: `boolean`
-- default: `false`
-
-Whether a middle mouse button press should be sent when you press the left and right mouse buttons
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#middle-button-emulation
-- https://wayland.freedesktop.org/libinput/doc/latest/middle-button-emulation.html#middle-button-emulation
-
-
-
-## `programs.niri.settings.input.trackpoint.natural-scroll`
-- type: `boolean`
-- default: `false`
-
-Whether scrolling should move the content in the scrolled direction (as opposed to moving the viewport)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/configuration.html#scrolling
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#natural-scrolling-vs-traditional-scrolling
-
-
-
-## `programs.niri.settings.input.trackpoint.scroll-button`
-- type: `null or signed integer`
-- default: `null`
-
-When `scroll-method = "on-button-down"`, this is the button that will be used to enable scrolling. This button must be on the same physical device as the pointer, according to libinput docs. The type is a button code, as defined in [`input-event-codes.h`](https://github.com/torvalds/linux/blob/e42b1a9a2557aa94fee47f078633677198386a52/include/uapi/linux/input-event-codes.h#L355-L363). Most commonly, this will be set to `BTN_LEFT`, `BTN_MIDDLE`, or `BTN_RIGHT`, or at least some mouse button, but any button from that file is a valid value for this option (though, libinput may not necessarily do anything useful with most of them)
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.trackpoint.scroll-button-lock`
-- type: `boolean`
-- default: `false`
-
-When this is false, `scroll-button` needs to be held down for pointer motion to be converted to scrolling. When this is true, `scroll-button` can be pressed and released to "lock" the device into this state, until it is pressed and released a second time.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#on-button-scrolling
-
-
-
-## `programs.niri.settings.input.trackpoint.scroll-method`
-- type: `null or one of "no-scroll", "two-finger", "edge", "on-button-down"`
-- default: `null`
-
-When to convert motion events to scrolling events.
-The default and supported values vary based on the device type.
-
-Further reading:
-- https://wayland.freedesktop.org/libinput/doc/latest/scrolling.html#scrolling
-
-
-
-## `programs.niri.settings.input.warp-mouse-to-focus`
-
-
-Whether to warp the mouse to the focused window when switching focus.
-
-
-## `programs.niri.settings.input.warp-mouse-to-focus.enable`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.input.warp-mouse-to-focus.mode`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.input.workspace-auto-back-and-forth`
-- type: `boolean`
-- default: `false`
-
-When invoking `focus-workspace` to switch to a workspace by index, if the workspace is already focused, usually nothing happens. When this option is enabled, the workspace will cycle back to the previously active workspace.
-
-Of note is that it does not switch to the previous *index*, but the previous *workspace*. That means you can reorder workspaces inbetween these actions, and it will still take you to the actual same workspace you came from.
-
-
-## `programs.niri.settings.outputs`
-- type: `attribute set of (submodule)`
-
-
-## `programs.niri.settings.outputs.<name>.backdrop-color`
-- type: `null or string`
-- default: `null`
-
-The backdrop color that niri draws for this output. This is visible between workspaces or in the overview.
-
-
-## `programs.niri.settings.outputs.<name>.background-color`
-- type: `null or string`
-- default: `null`
-
-The background color of this output. This is equivalent to launching `swaybg -c <color>` on that output, but is handled by the compositor itself for solid colors.
-
-
-## `programs.niri.settings.outputs.<name>.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.outputs.<name>.focus-at-startup`
-- type: `boolean`
-- default: `false`
-
-Focus this output by default when niri starts.
-
-If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set [`outputs.<name>.name`](#programsnirisettingsoutputsnamename) to be the actual name of the output.
-
-When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
-
-
-## `programs.niri.settings.outputs.<name>.mode`
-- type: `null or (submodule)`
-- default: `null`
-
-The resolution and refresh rate of this display.
-
-By default, when this is null, niri will automatically pick a mode for you.
-
-If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
-
-
-## `programs.niri.settings.outputs.<name>.mode.height`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.mode.refresh`
-- type: `null or floating point number`
-- default: `null`
-
-The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
-
-
-## `programs.niri.settings.outputs.<name>.mode.width`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.name`
-- type: `string`
-- default: `the key of the output`
-
-The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
-
-
-## `programs.niri.settings.outputs.<name>.position`
-- type: `null or (submodule)`
-- default: `null`
-
-Position of the output in the global coordinate space.
-
-This affects directional monitor actions like "focus-monitor-left", and cursor movement.
-
-The cursor can only move between directly adjacent outputs.
-
-Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
-
-For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
-
-If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
-
-
-## `programs.niri.settings.outputs.<name>.position.x`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.position.y`
-- type: `signed integer`
-
-
-## `programs.niri.settings.outputs.<name>.scale`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The scale of this output, which represents how many physical pixels fit in one logical pixel.
-
-If this is null, niri will automatically pick a scale for you.
-
-
-## `programs.niri.settings.outputs.<name>.transform.flipped`
-- type: `boolean`
-- default: `false`
-
-Whether to flip this output vertically.
-
-
-## `programs.niri.settings.outputs.<name>.transform.rotation`
-- type: `one of 0, 90, 180, 270`
-- default: `0`
-
-Counter-clockwise rotation of this output in degrees.
-
-
-## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
-- type: `one of false, "on-demand", true`
-- default: `false`
-
-Whether to enable variable refresh rate (VRR) on this output.
-
-VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
-
-Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
-
-
-<!-- programs.niri.settings.cursor -->
-
-## `programs.niri.settings.cursor.hide-after-inactive-ms`
-- type: `null or signed integer`
-- default: `null`
-
-If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
-
-
-## `programs.niri.settings.cursor.hide-when-typing`
-- type: `boolean`
-- default: `false`
-
-Whether to hide the cursor when typing.
-
-
-## `programs.niri.settings.cursor.size`
-- type: `signed integer`
-- default: `24`
-
-The size of the cursor in logical pixels.
-
-This will also set the XCURSOR_SIZE environment variable for all spawned processes.
-
-
-## `programs.niri.settings.cursor.theme`
-- type: `string`
-- default: `"default"`
-
-The name of the xcursor theme to use.
-
-This will also set the XCURSOR_THEME environment variable for all spawned processes.
-
-
-<!-- programs.niri.settings.layout -->
 
 ## `programs.niri.settings.layout.border`
 
 
 The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
 
-The currently focused window, i.e. the window that can receive keyboard input, will be drawn according to [`layout.border.active`](#programsnirisettingslayoutborderactive), and all other windows will be drawn according to [`layout.border.inactive`](#programsnirisettingslayoutborderinactive).
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingslayoutborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingslayoutborderinactive).
 
-If you have [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+If you have the [`focus-ring`](#programsnirisettingslayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
 
 
 ## `programs.niri.settings.layout.border.enable`
-- type: `boolean`
-- default: `false`
+- type: `null or boolean`
+- default: `null`
 
 Whether to enable the border.
 
 
 ## `programs.niri.settings.layout.border.width`
-- type: `floating point number or signed integer`
-- default: `4`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The width of the border drawn around each window.
+
+
+## `programs.niri.settings.layout.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
 
 
 ## `programs.niri.settings.layout.border.active`
@@ -1537,35 +1944,35 @@ The color of the border for the window that has keyboard focus.
 The color of the border for windows that do not have keyboard focus.
 
 
-## `programs.niri.settings.layout.border.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that are requesting attention.
-
-
 ## `programs.niri.settings.layout.focus-ring`
 
 
-The focus ring is a decoration drawn *around* the last focused window on each monitor. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
 
-The focused window of the currently focused monitor, i.e. the window that can receive keyboard input, will be drawn according to [`layout.focus-ring.active`](#programsnirisettingslayoutfocus-ringactive), and the last focused window on all other monitors will be drawn according to [`layout.focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive).
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingslayoutfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingslayoutfocus-ringinactive).
 
-If you have [`layout.border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+If you have the [`border`](#programsnirisettingslayoutborder) enabled, the focus ring will be drawn around (and under) the border.
 
 
 ## `programs.niri.settings.layout.focus-ring.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 Whether to enable the focus ring.
 
 
 ## `programs.niri.settings.layout.focus-ring.width`
-- type: `floating point number or signed integer`
-- default: `4`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 The width of the focus ring drawn around each focused window.
+
+
+## `programs.niri.settings.layout.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
 
 
 ## `programs.niri.settings.layout.focus-ring.active`
@@ -1582,80 +1989,17 @@ The color of the focus ring for the window that has keyboard focus.
 The color of the focus ring for windows that do not have keyboard focus.
 
 
-## `programs.niri.settings.layout.focus-ring.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that are requesting attention.
-
-
-<!-- programs.niri.settings.layout.shadow -->
-
-## `programs.niri.settings.layout.shadow.color`
-- type: `string`
-- default: `"#00000070"`
-
-
-## `programs.niri.settings.layout.shadow.draw-behind-window`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.shadow.enable`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.layout.shadow.offset`
-
-
-The offset of the shadow from the window, measured in logical pixels.
-
-This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layout.shadow.offset.x`
-- type: `floating point number or signed integer`
-- default: `0.000000`
-
-
-## `programs.niri.settings.layout.shadow.offset.y`
-- type: `floating point number or signed integer`
-- default: `5.000000`
-
-
-## `programs.niri.settings.layout.shadow.softness`
-- type: `floating point number or signed integer`
-- default: `30.000000`
-
-The softness/size of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.layout.shadow.spread`
-- type: `floating point number or signed integer`
-- default: `5.000000`
-
-The spread of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
 ## `programs.niri.settings.layout.insert-hint`
 
 
 The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
 
+Note that the insert hint is also shown in the overview when dragging a window in the gaps between workspaces, to indicate that releasing it will create a new workspace with that window. As such, insert hints are actually an output-level concept, and so there is no workspace-level configuration.
+
 
 ## `programs.niri.settings.layout.insert-hint.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 Whether to enable the insert hint.
 
@@ -1665,6 +2009,78 @@ Whether to enable the insert hint.
 - default: `null`
 
 The color of the insert hint.
+
+
+<!-- programs.niri.settings.layout.tab-indicator -->
+
+## `programs.niri.settings.layout.tab-indicator.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.place-within-column`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.gap`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.length`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
+- type: `floating point number`
+
+
+## `programs.niri.settings.layout.tab-indicator.position`
+- type: `null or one of "left", "right", "top", "bottom"`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.corner-radius`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.layout.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that are requesting attention.
+
+
+## `programs.niri.settings.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+## `programs.niri.settings.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that do not have keyboard focus.
 
 
 ## `<decoration>`
@@ -1756,15 +2172,258 @@ The ending [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_va
 For more details, see [`<decoration>.color`](#decorationcolor).
 
 
-## `programs.niri.settings.layout.background-color`
+<!-- programs.niri.settings.layout.shadow -->
+
+## `programs.niri.settings.layout.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable shadows for all windows.
+
+Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set [`layer-rules.*.shadow.enable`](#programsnirisettingslayer-rulesshadowenable) to `true`.
+
+
+
+## `programs.niri.settings.layout.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layout.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.layout.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.layout.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layout.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.layout.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.layout.shadow.color`
 - type: `null or string`
 - default: `null`
 
-The default background color that niri draws for workspaces. This is visible when you're not using any background tools like swaybg.
+
+## `programs.niri.settings.layout.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
 
 
-## `programs.niri.settings.layout.preset-column-widths`
-- type: `list of attribute-tagged union with choices: fixed, proportion`
+## `programs.niri.settings.outputs`
+- type: `attribute set of (submodule)`
+
+
+## `programs.niri.settings.outputs.<name>.name`
+- type: `string`
+- default: `the key of the output`
+
+The name of the output. You set this manually if you want the outputs to be ordered in a specific way.
+
+
+## `programs.niri.settings.outputs.<name>.enable`
+- type: `boolean`
+- default: `true`
+
+
+## `programs.niri.settings.outputs.<name>.scale`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The scale of this output, which represents how many physical pixels fit in one logical pixel.
+
+If this is null, niri will automatically pick a scale for you.
+
+
+## `programs.niri.settings.outputs.<name>.transform.flipped`
+- type: `boolean`
+- default: `false`
+
+Whether to flip this output vertically.
+
+
+## `programs.niri.settings.outputs.<name>.transform.rotation`
+- type: `one of 0, 90, 180, 270`
+- default: `0`
+
+Counter-clockwise rotation of this output in degrees.
+
+
+## `programs.niri.settings.outputs.<name>.position`
+- type: `null or (submodule)`
+- default: `null`
+
+Position of the output in the global coordinate space.
+
+This affects directional monitor actions like "focus-monitor-left", and cursor movement.
+
+The cursor can only move between directly adjacent outputs.
+
+Output scale has to be taken into account for positioning, because outputs are sized in logical pixels.
+
+For example, a 3840x2160 output with scale 2.0 will have a logical size of 1920x1080, so to put another output directly adjacent to it on the right, set its x to 1920.
+
+If the position is unset or multiple outputs overlap, niri will instead place the output automatically.
+
+
+## `programs.niri.settings.outputs.<name>.position.x`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.position.y`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.mode`
+- type: `null or (submodule)`
+- default: `null`
+
+The resolution and refresh rate of this display.
+
+By default, when this is null, niri will automatically pick a mode for you.
+
+If this is set to an invalid mode (i.e unsupported by this output), niri will act as if it is unset and pick one for you.
+
+
+## `programs.niri.settings.outputs.<name>.mode.height`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.mode.refresh`
+- type: `null or floating point number`
+- default: `null`
+
+The refresh rate of this output. When this is null, but the resolution is set, niri will automatically pick the highest available refresh rate.
+
+
+## `programs.niri.settings.outputs.<name>.mode.width`
+- type: `signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.variable-refresh-rate`
+- type: `one of false, "on-demand", true`
+- default: `false`
+
+Whether to enable variable refresh rate (VRR) on this output.
+
+VRR is also known as Adaptive Sync, FreeSync, and G-Sync.
+
+Setting this to `"on-demand"` will enable VRR only when a window with [`window-rules.*.variable-refresh-rate`](#programsnirisettingswindow-rulesvariable-refresh-rate) is present on this output.
+
+
+## `programs.niri.settings.outputs.<name>.focus-at-startup`
+- type: `boolean`
+- default: `false`
+
+Focus this output by default when niri starts.
+
+If multiple outputs with `focus-at-startup` are connected, then the one with the key that sorts first will be focused. You can change the key to affect the sorting order, and set [`outputs.<name>.name`](#programsnirisettingsoutputsnamename) to be the actual name of the output.
+
+When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
+
+
+## `programs.niri.settings.outputs.<name>.backdrop-color`
+- type: `null or string`
+- default: `null`
+
+The backdrop is the layer of solid color at the very back of the scene that niri draws. Because there's nothing behind it to blend with, its alpha channel will be ignored.
+
+The backdrop is visible behind the workspaces in the overview, or between workspaces when switching.
+
+See also [`outputs.<name>.layout.background-color`](#programsnirisettingsoutputsnamelayoutbackground-color), which is drawn for each workspace and goes in front of the backdrop.
+
+
+<!-- programs.niri.settings.outputs.<name>.layout -->
+
+## `programs.niri.settings.outputs.<name>.layout.background-color`
+- type: `null or string`
+- default: `null`
+
+The background is a solid-colored layer drawn behind each workspace.
+
+It's visible through transparent windows, between [gaps](#programsnirisettingsoutputsnamelayoutgaps), and inside any [struts](#programsnirisettingsoutputsnamelayoutstruts)
+
+See also [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
+
+
+## `programs.niri.settings.outputs.<name>.layout.gaps`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The gap between windows in the layout, measured in logical pixels.
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts`
+- type: `null or (submodule)`
+- default: `null`
+
+The distances from the edges of the workspace to the edges of the working area.
+
+The top and bottom struts are absolute gaps from the edges of the workspace. If you set a bottom strut of 64px and the scale is 2.0, then the workspace will have 128 physical pixels under the scrollable working area where it only shows the background.
+
+Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero [borders](#programsnirisettingsoutputsnamelayoutborder) and [gaps](#programsnirisettingsoutputsnamelayoutgaps))
+
+Note that individual struts cannot be modified separately. This option configures all four struts at once.
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.bottom`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.left`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.right`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.struts.top`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.outputs.<name>.layout.empty-workspace-above-first`
+- type: `null or boolean`
+- default: `null`
+
+Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
+
+When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
+
+
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
 
 The widths that `switch-preset-column-width` will cycle through.
 
@@ -1774,32 +2433,33 @@ Example:
 
 ```nix
 {
-  programs.niri.settings.layout.preset-column-widths = [
+  programs.niri.settings.outputs.<name>.layout.preset-column-widths = [
     { proportion = 1. / 3.; }
     { proportion = 1. / 2.; }
     { proportion = 2. / 3.; }
 
-    # { fixed = 1920; }
+    { fixed = 1920; }
   ];
 }
 ```
 
 
 
-## `programs.niri.settings.layout.preset-column-widths.*.fixed`
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.fixed`
 - type: `signed integer`
 
 The width of the column in logical pixels
 
 
-## `programs.niri.settings.layout.preset-column-widths.*.proportion`
+## `programs.niri.settings.outputs.<name>.layout.preset-column-widths.*.proportion`
 - type: `floating point number`
 
 The width of the column as a proportion of the screen's width
 
 
-## `programs.niri.settings.layout.preset-window-heights`
-- type: `list of attribute-tagged union with choices: fixed, proportion`
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
 
 The heights that `switch-preset-window-height` will cycle through.
 
@@ -1809,40 +2469,73 @@ Example:
 
 ```nix
 {
-  programs.niri.settings.layout.preset-window-heights = [
+  programs.niri.settings.outputs.<name>.layout.preset-window-heights = [
     { proportion = 1. / 3.; }
     { proportion = 1. / 2.; }
     { proportion = 2. / 3.; }
 
-    # { fixed = 1080; }
+    { fixed = 1080; }
   ];
 }
 ```
 
 
 
-## `programs.niri.settings.layout.preset-window-heights.*.fixed`
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.fixed`
 - type: `signed integer`
 
 The height of the window in logical pixels
 
 
-## `programs.niri.settings.layout.preset-window-heights.*.proportion`
+## `programs.niri.settings.outputs.<name>.layout.preset-window-heights.*.proportion`
 - type: `floating point number`
 
 The height of the window as a proportion of the screen's height
 
 
-## `programs.niri.settings.layout.always-center-single-column`
-- type: `boolean`
-- default: `false`
+## `programs.niri.settings.outputs.<name>.layout.default-column-width`
+- type: `null or {} or attribute-tagged union with choices: fixed, proportion`
+- default: `null`
 
-This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+The default width for new columns with a freshly opened window.
+
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
 
 
-## `programs.niri.settings.layout.center-focused-column`
-- type: `one of "never", "always", "on-overflow"`
-- default: `"never"`
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.outputs.<name>.layout.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+How windows in newly opened columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+
+## `programs.niri.settings.outputs.<name>.layout.center-focused-column`
+- type: `null or one of "never", "always", "on-overflow"`
+- default: `null`
 
 When changing focus, niri can automatically center the focused column.
 
@@ -1852,11 +2545,487 @@ When changing focus, niri can automatically center the focused column.
 
 
 
-## `programs.niri.settings.layout.default-column-display`
-- type: `one of "normal", "tabbed"`
-- default: `"normal"`
+## `programs.niri.settings.outputs.<name>.layout.always-center-single-column`
+- type: `null or boolean`
+- default: `null`
 
-How windows in columns should be displayed by default.
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border`
+
+
+The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingsoutputsnamelayoutborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingsoutputsnamelayoutborderinactive).
+
+If you have the [`focus-ring`](#programsnirisettingsoutputsnamelayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the border.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the border drawn around each window.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for the window that has keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring`
+
+
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingsoutputsnamelayoutfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingsoutputsnamelayoutfocus-ringinactive).
+
+If you have the [`border`](#programsnirisettingsoutputsnamelayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the focus ring.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the focus ring drawn around each focused window.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint`
+
+
+The insert hint is a decoration drawn *between* windows during an interactive move operation. It is drawn in the gap where the window will be inserted when you release the window. It does not occupy any space in the gap, and the insert hint extends onto the edges of adjacent windows. When you release the moved window, the windows that are covered by the insert hint will be pushed aside to make room for the moved window.
+
+Note that the insert hint is also shown in the overview when dragging a window in the gaps between workspaces, to indicate that releasing it will create a new workspace with that window. As such, insert hints are actually an output-level concept, and so there is no workspace-level configuration.
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the insert hint.
+
+
+## `programs.niri.settings.outputs.<name>.layout.insert-hint.display`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the insert hint.
+
+
+<!-- programs.niri.settings.outputs.<name>.layout.tab-indicator -->
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.hide-when-single-tab`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.place-within-column`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.gap`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.length`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.length.total-proportion`
+- type: `floating point number`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.position`
+- type: `null or one of "left", "right", "top", "bottom"`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.gaps-between-tabs`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.corner-radius`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that are requesting attention.
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+## `programs.niri.settings.outputs.<name>.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+<!-- programs.niri.settings.outputs.<name>.layout.shadow -->
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable shadows for windows on this output.
+
+Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set [`layer-rules.*.shadow.enable`](#programsnirisettingslayer-rulesshadowenable) to `true`.
+
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.layout.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners`
+- type: `null or (submodule)`
+- default: `null`
+
+Hot corners allow you to put your mouse in the corner of an output to toggle the overview. This interaction also works while drag-and-dropping.
+
+By default, the top-left corner is the only hot corner. You can use this option to explicitly set which hot corners you want.
+
+Individual hot corners cannot be enabled/disabled separately. This option configures all four hot corners at once.
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.bottom-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.bottom-right`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.top-left`
+- type: `boolean`
+
+
+## `programs.niri.settings.outputs.<name>.hot-corners.top-right`
+- type: `boolean`
+
+
+## `programs.niri.settings.workspaces`
+- type: `attribute set of (submodule)`
+
+Declare named workspaces.
+
+Named workspaces are similar to regular, dynamic workspaces, except they can be
+referred to by name, and they are persistent, they do not close when there are
+no more windows left on them.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.workspaces."name" = {};
+  programs.niri.settings.workspaces."01-another-one" = {
+    open-on-output = "DP-1";
+    name = "another-one";
+  };
+}
+```
+
+
+Unless a `name` is declared, the workspace will use the attribute key as the name.
+
+Workspaces will be created in a specific order: sorted by key. If you do not care
+about the order of named workspaces, you can skip using the `name` attribute, and
+use the key instead. If you do care about it, you can use the key to order them,
+and a `name` attribute to have a friendlier name.
+
+
+## `programs.niri.settings.workspaces.<name>.name`
+- type: `string`
+- default: `the key of the workspace`
+
+The name of the workspace. You set this manually if you want the keys to be ordered in a specific way.
+
+
+## `programs.niri.settings.workspaces.<name>.open-on-output`
+- type: `null or string`
+- default: `null`
+
+The name of the output the workspace should be assigned to.
+
+
+<!-- programs.niri.settings.workspaces.<name>.layout -->
+
+## `programs.niri.settings.workspaces.<name>.layout.background-color`
+- type: `null or string`
+- default: `null`
+
+The background is a solid-colored layer drawn behind each workspace.
+
+It's visible through transparent windows, between [gaps](#programsnirisettingsworkspacesnamelayoutgaps), and inside any [struts](#programsnirisettingsworkspacesnamelayoutstruts)
+
+See also [`outputs.<name>.backdrop-color`](#programsnirisettingsoutputsnamebackdrop-color), which is drawn at the back of each monitor, behind the workspace background.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.gaps`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The gap between windows in the layout, measured in logical pixels.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts`
+- type: `null or (submodule)`
+- default: `null`
+
+The distances from the edges of the workspace to the edges of the working area.
+
+The top and bottom struts are absolute gaps from the edges of the workspace. If you set a bottom strut of 64px and the scale is 2.0, then the workspace will have 128 physical pixels under the scrollable working area where it only shows the background.
+
+Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
+
+The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero [borders](#programsnirisettingsworkspacesnamelayoutborder) and [gaps](#programsnirisettingsworkspacesnamelayoutgaps))
+
+Note that individual struts cannot be modified separately. This option configures all four struts at once.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.bottom`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.left`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.right`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.struts.top`
+- type: `floating point number or signed integer`
+- default: `0`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-column-widths`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
+
+The widths that `switch-preset-column-width` will cycle through.
+
+Each width can either be a fixed width in logical pixels, or a proportion of the screen's width.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.workspaces.<name>.layout.preset-column-widths = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1920; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-column-widths.*.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-column-widths.*.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-window-heights`
+- type: `null or (non-empty (list of attribute-tagged union with choices: fixed, proportion))`
+- default: `null`
+
+The heights that `switch-preset-window-height` will cycle through.
+
+Each height can either be a fixed height in logical pixels, or a proportion of the screen's height.
+
+Example:
+
+```nix
+{
+  programs.niri.settings.workspaces.<name>.layout.preset-window-heights = [
+    { proportion = 1. / 3.; }
+    { proportion = 1. / 2.; }
+    { proportion = 2. / 3.; }
+
+    { fixed = 1080; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-window-heights.*.fixed`
+- type: `signed integer`
+
+The height of the window in logical pixels
+
+
+## `programs.niri.settings.workspaces.<name>.layout.preset-window-heights.*.proportion`
+- type: `floating point number`
+
+The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-width`
+- type: `null or {} or attribute-tagged union with choices: fixed, proportion`
+- default: `null`
+
+The default width for new columns with a freshly opened window.
+
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-width.fixed`
+- type: `signed integer`
+
+The width of the column in logical pixels
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-width.proportion`
+- type: `floating point number`
+
+The width of the column as a proportion of the screen's width
+
+
+## `programs.niri.settings.workspaces.<name>.layout.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+How windows in newly opened columns should be displayed by default.
 
 - `"normal"`: Windows are arranged vertically, spread across the working area height.
 - `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
@@ -1864,436 +3033,250 @@ How windows in columns should be displayed by default.
 
 Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
 
-Also, since a newly created column always contains a single window, you can override this default value with [`window-rules.*.default-column-display`](#programsnirisettingswindow-rulesdefault-column-display).
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
 
 
-## `programs.niri.settings.layout.default-column-width`
-- type: `{} or attribute-tagged union with choices: fixed, proportion`
+## `programs.niri.settings.workspaces.<name>.layout.center-focused-column`
+- type: `null or one of "never", "always", "on-overflow"`
+- default: `null`
 
-The default width for new columns.
+When changing focus, niri can automatically center the focused column.
 
-When this is set to an empty attrset `{}`, windows will get to decide their initial width. This is not null, such that it can be distinguished from window rules that don't touch this
-
-See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
-
-You can override this for specific windows using [`window-rules.*.default-column-width`](#programsnirisettingswindow-rulesdefault-column-width)
-
-
-## `programs.niri.settings.layout.default-column-width.fixed`
-- type: `signed integer`
-
-The width of the column in logical pixels
+- `"never"`: If the focused column doesn't fit, it will be aligned to the edges of the screen.
+- `"on-overflow"`: if the focused column doesn't fit, it will be centered on the screen.
+- `"always"`: the focused column will always be centered, even if it was already fully visible.
 
 
-## `programs.niri.settings.layout.default-column-width.proportion`
-- type: `floating point number`
 
-The width of the column as a proportion of the screen's width
+## `programs.niri.settings.workspaces.<name>.layout.always-center-single-column`
+- type: `null or boolean`
+- default: `null`
+
+This is like `center-focused-column = "always";`, but only for workspaces with a single column. Changes nothing if `center-focused-column` is set to `"always"`. Has no effect if more than one column is present.
 
 
-## `programs.niri.settings.layout.tab-indicator`
+## `programs.niri.settings.workspaces.<name>.layout.border`
+
+
+The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingsworkspacesnamelayoutborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingsworkspacesnamelayoutborderinactive).
+
+If you have the [`focus-ring`](#programsnirisettingsworkspacesnamelayoutfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the border.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the border drawn around each window.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for the window that has keyboard focus.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring`
+
+
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingsworkspacesnamelayoutfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingsworkspacesnamelayoutfocus-ringinactive).
+
+If you have the [`border`](#programsnirisettingsworkspacesnamelayoutborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the focus ring.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the focus ring drawn around each focused window.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+## `programs.niri.settings.workspaces.<name>.layout.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+<!-- programs.niri.settings.workspaces.<name>.layout.tab-indicator -->
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.enable`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.hide-when-single-tab`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.place-within-column`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.gap`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.length`
 - type: `null or (submodule)`
 - default: `null`
 
 
-## `programs.niri.settings.layout.tab-indicator.corner-radius`
-- type: `floating point number or signed integer`
-- default: `0.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.layout.tab-indicator.gap`
-- type: `floating point number or signed integer`
-- default: `5.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.gaps-between-tabs`
-- type: `floating point number or signed integer`
-- default: `0.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.hide-when-single-tab`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.tab-indicator.length.total-proportion`
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.length.total-proportion`
 - type: `floating point number`
-- default: `0.500000`
 
 
-## `programs.niri.settings.layout.tab-indicator.place-within-column`
-- type: `boolean`
-- default: `false`
-
-
-## `programs.niri.settings.layout.tab-indicator.position`
-- type: `one of "left", "right", "top", "bottom"`
-- default: `"left"`
-
-
-## `programs.niri.settings.layout.tab-indicator.width`
-- type: `floating point number or signed integer`
-- default: `4.000000`
-
-
-## `programs.niri.settings.layout.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.position`
+- type: `null or one of "left", "right", "top", "bottom"`
 - default: `null`
 
-The color of the tab indicator for the window that has keyboard focus.
 
-
-## `programs.niri.settings.layout.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.gaps-between-tabs`
+- type: `null or floating point number or signed integer`
 - default: `null`
 
-The color of the tab indicator for windows that do not have keyboard focus.
+
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.corner-radius`
+- type: `null or floating point number or signed integer`
+- default: `null`
 
 
-## `programs.niri.settings.layout.tab-indicator.urgent`
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.urgent`
 - type: `null or`[`<decoration>`](#decoration)
 - default: `null`
 
 The color of the tab indicator for windows that are requesting attention.
 
 
-## `programs.niri.settings.layout.empty-workspace-above-first`
-- type: `boolean`
-- default: `false`
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
 
-Normally, niri has a dynamic amount of workspaces, with one empty workspace at the end. The first workspace really is the first workspace, and you cannot go past it, but going past the last workspace puts you on the empty workspace.
-
-When this is enabled, there will be an empty workspace above the first workspace, and you can go past the first workspace to get to an empty workspace, just as in the other direction. This makes workspace navigation symmetric in all ways except indexing.
+The color of the tab indicator for the window that has keyboard focus.
 
 
-## `programs.niri.settings.layout.gaps`
+## `programs.niri.settings.workspaces.<name>.layout.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+<!-- programs.niri.settings.workspaces.<name>.layout.shadow -->
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable shadows for windows in this workspace.
+
+Note that while shadow properties defined in this section generally apply to layer surfaces, this option is an exception. To use shadows on layer surfaces, you must specifically set [`layer-rules.*.shadow.enable`](#programsnirisettingslayer-rulesshadowenable) to `true`.
+
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.offset.x`
 - type: `floating point number or signed integer`
-- default: `16`
-
-The gap between windows in the layout, measured in logical pixels.
 
 
-## `programs.niri.settings.layout.struts`
-
-
-The distances from the edges of the screen to the eges of the working area.
-
-The top and bottom struts are absolute gaps from the edges of the screen. If you set a bottom strut of 64px and the scale is 2.0, then the output will have 128 physical pixels under the scrollable working area where it only shows the wallpaper.
-
-Struts are computed in addition to layer-shell surfaces. If you have a waybar of 32px at the top, and you set a top strut of 16px, then you will have 48 logical pixels from the actual edge of the display to the top of the working area.
-
-The left and right structs work in a similar way, except the padded space is not empty. The horizontal struts are used to constrain where focused windows are allowed to go. If you define a left strut of 64px and go to the first window in a workspace, that window will be aligned 64 logical pixels from the left edge of the output, rather than snapping to the actual edge of the screen. If another window exists to the left of this window, then you will see 64px of its right edge (if you have zero borders and gaps)
-
-
-## `programs.niri.settings.layout.struts.bottom`
+## `programs.niri.settings.workspaces.<name>.layout.shadow.offset.y`
 - type: `floating point number or signed integer`
-- default: `0`
 
 
-## `programs.niri.settings.layout.struts.left`
-- type: `floating point number or signed integer`
-- default: `0`
-
-
-## `programs.niri.settings.layout.struts.right`
-- type: `floating point number or signed integer`
-- default: `0`
-
-
-## `programs.niri.settings.layout.struts.top`
-- type: `floating point number or signed integer`
-- default: `0`
-
-
-<!-- programs.niri.settings.animations -->
-
-## `programs.niri.settings.animations.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.slowdown`
+## `programs.niri.settings.workspaces.<name>.layout.shadow.softness`
 - type: `null or floating point number or signed integer`
 - default: `null`
 
+The softness/size of the shadow, measured in logical pixels.
 
-<!-- programs.niri.settings.animations.config-notification-open-close -->
-
-## `programs.niri.settings.animations.config-notification-open-close.enable`
-- type: `boolean`
-- default: `true`
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.animations.config-notification-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
+## `programs.niri.settings.workspaces.<name>.layout.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.workspaces.<name>.layout.shadow.draw-behind-window`
+- type: `null or boolean`
 - default: `null`
 
 
-<!-- programs.niri.settings.animations.exit-confirmation-open-close -->
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.exit-confirmation-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.horizontal-view-movement -->
-
-## `programs.niri.settings.animations.horizontal-view-movement.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.horizontal-view-movement.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.overview-open-close -->
-
-## `programs.niri.settings.animations.overview-open-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.overview-open-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.screenshot-ui-open -->
-
-## `programs.niri.settings.animations.screenshot-ui-open.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.screenshot-ui-open.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-close -->
-
-## `programs.niri.settings.animations.window-close.custom-shader`
+## `programs.niri.settings.workspaces.<name>.layout.shadow.color`
 - type: `null or string`
 - default: `null`
 
-Source code for a GLSL shader to use for this animation.
 
-For example, set it to `builtins.readFile ./window-close.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-close.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-close.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-movement -->
-
-## `programs.niri.settings.animations.window-movement.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-movement.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-open -->
-
-## `programs.niri.settings.animations.window-open.custom-shader`
+## `programs.niri.settings.workspaces.<name>.layout.shadow.inactive-color`
 - type: `null or string`
 - default: `null`
-
-Source code for a GLSL shader to use for this animation.
-
-For example, set it to `builtins.readFile ./window-open.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-open.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-open.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.window-resize -->
-
-## `programs.niri.settings.animations.window-resize.custom-shader`
-- type: `null or string`
-- default: `null`
-
-Source code for a GLSL shader to use for this animation.
-
-For example, set it to `builtins.readFile ./window-resize.glsl` to use a shader from the same directory as your configuration file.
-
-See: https://github.com/YaLTeR/niri/wiki/Configuration:-Animations#custom-shader
-
-
-## `programs.niri.settings.animations.window-resize.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.window-resize.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-<!-- programs.niri.settings.animations.workspace-switch -->
-
-## `programs.niri.settings.animations.workspace-switch.enable`
-- type: `boolean`
-- default: `true`
-
-
-## `programs.niri.settings.animations.workspace-switch.kind`
-- type: `null or`[`<animation-kind>`](#animation-kind)
-- default: `null`
-
-
-## `<animation-kind>`
-- type: `attribute-tagged union with choices: easing, spring`
-
-
-<!-- <animation-kind>.easing -->
-
-## `<animation-kind>.easing.curve`
-- type: `one of "linear", "ease-out-quad", "ease-out-cubic", "ease-out-expo", "cubic-bezier"`
-
-The curve to use for the easing function.
-
-
-## `<animation-kind>.easing.curve-args`
-- type: `list of (null or string or signed integer or floating point number or boolean)`
-
-Arguments to the easing curve. `cubic-bezier` requires 4 arguments, all others don't allow arguments.
-
-
-## `<animation-kind>.easing.duration-ms`
-- type: `signed integer`
-
-
-<!-- <animation-kind>.spring -->
-
-## `<animation-kind>.spring.damping-ratio`
-- type: `floating point number`
-
-
-## `<animation-kind>.spring.epsilon`
-- type: `floating point number`
-
-
-## `<animation-kind>.spring.stiffness`
-- type: `signed integer`
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll`
-
-
-When dragging a window to the left or right edge of the screen, the view will start scrolling in that direction.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.delay-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The delay in milliseconds before the view starts scrolling.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.max-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-When the cursor is at boundary of the trigger width, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
-
-
-## `programs.niri.settings.gestures.dnd-edge-view-scroll.trigger-width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the edge of the screen where dragging a window will scroll the view.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch`
-
-
-In the overview, when dragging a window to the top or bottom edge of the screen, view will start scrolling in that direction.
-
-This does not happen when the overview is not open.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.delay-ms`
-- type: `null or signed integer`
-- default: `null`
-
-The delay in milliseconds before the view starts scrolling.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.max-speed`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-When the cursor is at boundary of the trigger height, the view will not be scrolling. Moving the mouse further away from the boundary and closer to the egde will linearly increase the scrolling speed, until the mouse is pressed against the edge of the screen, at which point the view will scroll at this speed. The speed is measured in logical pixels per second.
-
-
-## `programs.niri.settings.gestures.dnd-edge-workspace-switch.trigger-height`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The height of the edge of the screen where dragging a window will scroll the view.
-
-
-## `programs.niri.settings.gestures.hot-corners.enable`
-- type: `boolean`
-- default: `true`
-
-Put your mouse at the very top-left corner of a monitor to toggle the overview. Also works during drag-and-dropping something.
-
-
-## `programs.niri.settings.environment`
-- type: `attribute set of (null or string)`
-
-Environment variables to set for processes spawned by niri.
-
-If an environment variable is already set in the environment, then it will be overridden by the value set here.
-
-If a value is null, then the environment variable will be unset, even if it already existed.
-
-Examples:
-
-```nix
-{
-  programs.niri.settings.environment = {
-    QT_QPA_PLATFORM = "wayland";
-    DISPLAY = null;
-  };
-}
-```
-
 
 
 ## `programs.niri.settings.window-rules`
@@ -2348,7 +3331,7 @@ If all of the rules do not match a window, then this window rule will not apply 
 
 
 ## `programs.niri.settings.window-rules.*.matches.*.app-id`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the app id of the window.
@@ -2357,7 +3340,7 @@ When non-null, for this field to match a window, a client must set the app id of
 
 
 ## `programs.niri.settings.window-rules.*.matches.*.title`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the title of the window.
@@ -2437,7 +3420,7 @@ If none of these rules match a window, then this window rule will not be rejecte
 
 
 ## `programs.niri.settings.window-rules.*.excludes.*.app-id`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the app id of the window.
@@ -2446,7 +3429,7 @@ When non-null, for this field to match a window, a client must set the app id of
 
 
 ## `programs.niri.settings.window-rules.*.excludes.*.title`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the title of the window.
@@ -2515,27 +3498,108 @@ When non-null, matches based on whether the window is being targeted by a window
 When true, this rule will match windows opened within the first 60 seconds of niri starting up. When false, this rule will match windows opened *more than* 60 seconds after niri started up. This is useful for applying different rules to windows opened from [`spawn-at-startup`](#programsnirisettingsspawn-at-startup) versus those opened later.
 
 
-## `programs.niri.settings.window-rules.*.default-column-display`
-- type: `null or one of "normal", "tabbed"`
+## `programs.niri.settings.window-rules.*.block-out-from`
+- type: `null or one of "screencast", "screen-capture"`
 - default: `null`
 
-When this window is inserted into the tiling layout such that a new column is created (e.g. when it is first opened, when it is expelled from an existing column, when it's moved to a new workspace, etc), this setting controls the default display mode of the column.
+Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
 
-If the final value of this field is null, then the default display mode is taken from [`layout.default-column-display`](#programsnirisettingslayoutdefault-column-display).
+This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
+
+Some of this may be obvious, but in general, these invariants *should* hold true:
+- a window is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
+- a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
+- a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
+
+
+There are three methods of screencapture in niri:
+
+1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
+1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
+1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
+
+
+| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
+| --- | :---: | :---: | :---: |
+| `null` | yes | yes | yes |
+| `"screencast"` | no | yes | yes |
+| `"screen-capture"` | no | no | yes |
+
+
+> [!caution]
+> **Streamers: Do not accidentally leak window contents via screenshots.**
+> 
+> For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
+> 
+> If you are a streamer, either:
+> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
+> - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
+
+
+> [!caution]
+> **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
+> 
+> (and don't let malicious software run on your system in the first place, you silly goose)
+> 
+> For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
+> 
+> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
+> 
+> **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
+
+
+Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
+
+
+## `programs.niri.settings.window-rules.*.opacity`
+- type: `null or floating point number`
+- default: `null`
+
+The opacity of the window, ranging from 0 to 1.
+
+If the final value of this field is null, niri will fall back to a value of 1.
+
+Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius`
+- type: `null or (submodule)`
+- default: `null`
+
+The corner radii of the window decorations (border, focus ring, and shadow) in logical pixels.
+
+By default, the actual window surface will be unaffected by this.
+
+Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to-geometry) to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-right`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-left`
+- type: `floating point number`
+
+
+## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-right`
+- type: `floating point number`
 
 
 ## `programs.niri.settings.window-rules.*.default-column-width`
 - type: `null or {} or attribute-tagged union with choices: fixed, proportion`
 - default: `null`
 
-The default width for new columns.
+The default width for new columns with a freshly opened window.
 
-If the final value of this option is null, it default to [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width)
+When this is set to an empty attrset `{}`, the window will get to decide its initial width. This is effectively "unsetting" the default column width. This is distinct from a null value, which represents taht this option is not set at this level, and its value should be inherited from elsewhere.
 
-If the final value option is not null, then its value will take priority over [`layout.default-column-width`](#programsnirisettingslayoutdefault-column-width) for windows matching this rule.
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
 
-An empty attrset `{}` is not the same as null. When this is set to an empty attrset `{}`, windows will get to decide their initial width. When set to null, it represents that this particular window rule has no effect on the default width (and it should instead be taken from an earlier rule or the global default).
-
+See [`layout.preset-column-widths`](#programsnirisettingslayoutpreset-column-widths) for more information.
 
 
 ## `programs.niri.settings.window-rules.*.default-column-width.fixed`
@@ -2577,6 +3641,256 @@ The height of the window in logical pixels
 - type: `floating point number`
 
 The height of the window as a proportion of the screen's height
+
+
+## `programs.niri.settings.window-rules.*.default-column-display`
+- type: `null or one of "normal", "tabbed"`
+- default: `null`
+
+How windows in newly opened columns should be displayed by default.
+
+- `"normal"`: Windows are arranged vertically, spread across the working area height.
+- `"tabbed"`: Windows are arranged in tabs, with only the focused window visible, taking up the full height of the working area.
+
+
+Note that you can override this for a given column at any time. Every column remembers its own display mode, independent from this setting. This setting controls the default value when a column is *created*.
+
+A newly created column always contains exactly one window. As such, the window rule variant of this option can match on properties of that singular window.
+
+
+## `programs.niri.settings.window-rules.*.max-height`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the maximum height (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the maximum height set by this option.
+
+
+Also, note that the maximum height is not taken into account when automatically sizing columns. That is, when a column is created normally, windows in it will be "automatically sized" to fill the vertical space. This algorithm will respect a minimum height, and not make windows any smaller than that, but the max height is only taken into account if it is equal to the min height. In other words, it will only accept a "fixed height" or a "minimum height". In practice, most windows do not set a max size unless it is equal to their min size, so this is usually not a problem without window rules.
+
+If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
+
+
+## `programs.niri.settings.window-rules.*.max-width`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the maximum width (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
+
+
+## `programs.niri.settings.window-rules.*.min-height`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the minimum height (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
+
+
+## `programs.niri.settings.window-rules.*.min-width`
+- type: `null or signed integer`
+- default: `null`
+
+Sets the minimum width (in logical pixels) that niri will ever ask this window for.
+
+Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
+
+
+## `programs.niri.settings.window-rules.*.border`
+
+
+The border is a decoration drawn *inside* every window in the layout. It will take space away from windows. That is, if you have a border of 8px, then each window will be 8px smaller on each edge than if you had no border.
+
+The currently focused window (i.e. the window that can receive keyboard input) will be drawn according to [`border.active`](#programsnirisettingswindow-rulesborderactive), and all other windows will be drawn according to [`border.inactive`](#programsnirisettingswindow-rulesborderinactive).
+
+If you have the [`focus-ring`](#programsnirisettingswindow-rulesfocus-ring) enabled, the border will be drawn inside (and over) the focus ring.
+
+
+## `programs.niri.settings.window-rules.*.border.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the border.
+
+
+## `programs.niri.settings.window-rules.*.border.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the border drawn around each window.
+
+
+## `programs.niri.settings.window-rules.*.border.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that are requesting attention.
+
+
+## `programs.niri.settings.window-rules.*.border.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for the window that has keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.border.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the border for windows that do not have keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring`
+
+
+The focus ring is a decoration drawn *around* the last focused window on each workspace. It takes no space away from windows. If you have insufficient gaps, the focus ring can be drawn over adjacent windows, but it will never affect the layout of windows.
+
+The focused window of the currently focused workspace (i.e. the window that can receive keyboard input) will be drawn according to [`focus-ring.active`](#programsnirisettingswindow-rulesfocus-ringactive), and the last focused window on all other workspaces will be drawn according to [`focus-ring.inactive`](#programsnirisettingswindow-rulesfocus-ringinactive).
+
+If you have the [`border`](#programsnirisettingswindow-rulesborder) enabled, the focus ring will be drawn around (and under) the border.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable the focus ring.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.width`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The width of the focus ring drawn around each focused window.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that are requesting attention.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for the window that has keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.focus-ring.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the focus ring for windows that do not have keyboard focus.
+
+
+<!-- programs.niri.settings.window-rules.*.tab-indicator -->
+
+## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that are requesting attention.
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.active`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for the window that has keyboard focus.
+
+
+## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
+- type: `null or`[`<decoration>`](#decoration)
+- default: `null`
+
+The color of the tab indicator for windows that do not have keyboard focus.
+
+
+<!-- programs.niri.settings.window-rules.*.shadow -->
+
+## `programs.niri.settings.window-rules.*.shadow.enable`
+- type: `null or boolean`
+- default: `null`
+
+Whether to enable shadows on this window.
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset`
+- type: `null or (submodule)`
+- default: `null`
+
+The offset of the shadow from the window, measured in logical pixels.
+
+This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset.x`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.window-rules.*.shadow.offset.y`
+- type: `floating point number or signed integer`
+
+
+## `programs.niri.settings.window-rules.*.shadow.softness`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The softness/size of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.window-rules.*.shadow.spread`
+- type: `null or floating point number or signed integer`
+- default: `null`
+
+The spread of the shadow, measured in logical pixels.
+
+This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
+
+
+## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
+- type: `null or boolean`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.window-rules.*.open-on-output`
+- type: `null or string`
+- default: `null`
+
+The output to open this window on.
+
+If final value of this field is an output that exists, the new window will open on that output.
+
+If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
+
+
+## `programs.niri.settings.window-rules.*.open-on-workspace`
+- type: `null or string`
+- default: `null`
+
+The workspace to open this window on.
+
+If the final value of this field is a named workspace that exists, the window will open on that workspace.
+
+If the final value of this is a named workspace that does not exist, or it is null, the window opens on the currently focused workspace.
 
 
 ## `programs.niri.settings.window-rules.*.open-floating`
@@ -2635,129 +3949,6 @@ If the final value of this field is null or false, then the window will not open
 If the final value of this field is true, then the window will open in a maximized column.
 
 
-## `programs.niri.settings.window-rules.*.open-on-output`
-- type: `null or string`
-- default: `null`
-
-The output to open this window on.
-
-If final value of this field is an output that exists, the new window will open on that output.
-
-If the final value is an output that does not exist, or it is null, then the window opens on the currently focused output.
-
-
-## `programs.niri.settings.window-rules.*.open-on-workspace`
-- type: `null or string`
-- default: `null`
-
-The workspace to open this window on.
-
-If the final value of this field is a named workspace that exists, the window will open on that workspace.
-
-If the final value of this is a named workspace that does not exist, or it is null, the window opens on the currently focused workspace.
-
-
-## `programs.niri.settings.window-rules.*.block-out-from`
-- type: `null or one of "screencast", "screen-capture"`
-- default: `null`
-
-Whether to block out this window from screen captures. When the final value of this field is null, it is not blocked out from screen captures.
-
-This is useful to protect sensitive information, like the contents of password managers or private chats. It is very important to understand the implications of this option, as described below, **especially if you are a streamer or content creator**.
-
-Some of this may be obvious, but in general, these invariants *should* hold true:
-- a window is never meant to be blocked out from the actual physical screen (otherwise you wouldn't be able to see it at all)
-- a `block-out-from` window *is* meant to be always blocked out from screencasts (as they are often used for livestreaming etc)
-- a `block-out-from` window is *not* supposed to be blocked from screenshots (because usually these are not broadcasted live, and you generally know what you're taking a screenshot of)
-
-
-There are three methods of screencapture in niri:
-
-1. The `org.freedesktop.portal.ScreenCast` interface, which is used by tools like OBS primarily to capture video. When `block-out-from = "screencast";` or `block-out-from = "screen-capture";`, this window is blocked out from the screencast portal, and will not be visible to screencasting software making use of the screencast portal.
-1. The `wlr-screencopy` protocol, which is used by tools like `grim` primarily to capture screenshots. When `block-out-from = "screencast";`, this protocol is not affected and tools like `grim` can still capture the window just fine. This is because you may still want to take a screenshot of such windows. However, some screenshot tools display a fullscreen overlay with a frozen image of the screen, and then capture that. This overlay is *not* blocked out in the same way, and may leak the window contents to an active screencast. When `block-out-from = "screen-capture";`, this window is blocked out from `wlr-screencopy` and thus will never leak in such a case, but of course it will always be blocked out from screenshots and (sometimes) the physical screen.
-1. The built in `screenshot` action, implemented in niri itself. This tool works similarly to those based on `wlr-screencopy`, but being a part of the compositor gets superpowers regarding secrecy of window contents. Its frozen overlay will never leak window contents to an active screencast, because information of blocked windows and can be distinguished for the physical output and screencasts. `block-out-from` does not affect the built in screenshot tool at all, and you can always take a screenshot of any window.
-
-
-| `block-out-from` | can `ScreenCast`? | can `screencopy`? | can `screenshot`? |
-| --- | :---: | :---: | :---: |
-| `null` | yes | yes | yes |
-| `"screencast"` | no | yes | yes |
-| `"screen-capture"` | no | no | yes |
-
-
-> [!caution]
-> **Streamers: Do not accidentally leak window contents via screenshots.**
-> 
-> For windows where `block-out-from = "screencast";`, contents of a window may still be visible in a screencast, if the window is indirectly displayed by a tool using `wlr-screencopy`.
-> 
-> If you are a streamer, either:
-> - make sure not to use `wlr-screencopy` tools that display a preview during your stream, or
-> - **set `block-out-from = "screen-capture";` to ensure that the window is never visible in a screencast.**
-
-
-> [!caution]
-> **Do not let malicious `wlr-screencopy` clients capture your top secret windows.**
-> 
-> (and don't let malicious software run on your system in the first place, you silly goose)
-> 
-> For windows where `block-out-from = "screencast";`, contents of a window will still be visible to any application using `wlr-screencopy`, even if you did not consent to this application capturing your screen.
-> 
-> Note that sandboxed clients restricted via security context (i.e. Flatpaks) do not have access to `wlr-screencopy` at all, and are not a concern.
-> 
-> **If a window's contents are so secret that they must never be captured by any (non-sandboxed) application, set `block-out-from = "screen-capture";`.**
-
-
-Essentially, use `block-out-from = "screen-capture";` if you want to be sure that the window is never visible to any external tool no matter what; or use `block-out-from = "screencast";` if you want to be able to capture screenshots of the window without its contents normally being visible in a screencast. (at the risk of some tools still leaking the window contents, see above)
-
-
-## `programs.niri.settings.window-rules.*.border`
-
-
-See [`layout.border`](#programsnirisettingslayoutborder).
-
-
-## `programs.niri.settings.window-rules.*.border.enable`
-- type: `null or boolean`
-- default: `null`
-
-Whether to enable the border.
-
-
-## `programs.niri.settings.window-rules.*.border.width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the border drawn around each matched window.
-
-
-## `programs.niri.settings.window-rules.*.border.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for the window that has keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.border.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that do not have keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.border.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the border for windows that are requesting attention.
-
-
-## `programs.niri.settings.window-rules.*.clip-to-geometry`
-- type: `null or boolean`
-- default: `null`
-
-Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
-
-
 ## `programs.niri.settings.window-rules.*.draw-border-with-background`
 - type: `null or boolean`
 - default: `null`
@@ -2770,218 +3961,16 @@ Because client-side decorations can take on arbitrary shapes, most notably inclu
 
 For most windows, this looks okay. At worst, you have some uneven/jagged borders, instead of a gaping hole in the region outside of the corner radius of the window but inside its bounds.
 
-If you wish to make windows sucha s your terminal transparent, and they use CSD, this is very undesirable. Instead of showing your wallpaper, you'll get a solid rectangle.
+If you wish to make windows such as your terminal transparent, and they use CSD, this is very undesirable. Instead of showing your wallpaper, you'll get a solid rectangle.
 
 You can set this option per window to override niri's default behaviour, and instruct it to omit the border background for CSD windows. You can also explicitly enable it for SSD windows.
 
 
-## `programs.niri.settings.window-rules.*.focus-ring`
-
-
-See [`layout.focus-ring`](#programsnirisettingslayoutfocus-ring).
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.enable`
+## `programs.niri.settings.window-rules.*.clip-to-geometry`
 - type: `null or boolean`
 - default: `null`
 
-Whether to enable the focus ring.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.width`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The width of the focus ring drawn around each matched window with focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for the window that has keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that do not have keyboard focus.
-
-
-## `programs.niri.settings.window-rules.*.focus-ring.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-The color of the focus ring for windows that are requesting attention.
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius`
-- type: `null or (submodule)`
-- default: `null`
-
-The corner radii of the window decorations (border, focus ring, and shadow) in logical pixels.
-
-By default, the actual window surface will be unaffected by this.
-
-Set [`window-rules.*.clip-to-geometry`](#programsnirisettingswindow-rulesclip-to-geometry) to true to clip the window to its visual geometry, i.e. apply the corner radius to the window surface itself.
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.bottom-right`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-left`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.geometry-corner-radius.top-right`
-- type: `floating point number`
-
-
-## `programs.niri.settings.window-rules.*.opacity`
-- type: `null or floating point number`
-- default: `null`
-
-The opacity of the window, ranging from 0 to 1.
-
-If the final value of this field is null, niri will fall back to a value of 1.
-
-Note that this is applied in addition to the opacity set by the client. Setting this to a semitransparent value on a window that is already semitransparent will make it even more transparent.
-
-
-<!-- programs.niri.settings.window-rules.*.shadow -->
-
-## `programs.niri.settings.window-rules.*.shadow.color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.draw-behind-window`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.enable`
-- type: `null or boolean`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset`
-- type: `null or (submodule)`
-- default: `null`
-
-The offset of the shadow from the window, measured in logical pixels.
-
-This behaves like a [CSS box-shadow offset](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset.x`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.window-rules.*.shadow.offset.y`
-- type: `floating point number or signed integer`
-
-
-## `programs.niri.settings.window-rules.*.shadow.softness`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The softness/size of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow blur radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-## `programs.niri.settings.window-rules.*.shadow.spread`
-- type: `null or floating point number or signed integer`
-- default: `null`
-
-The spread of the shadow, measured in logical pixels.
-
-This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
-
-
-<!-- programs.niri.settings.window-rules.*.tab-indicator -->
-
-## `programs.niri.settings.window-rules.*.tab-indicator.active`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.active`](#programsnirisettingslayouttab-indicatoractive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.inactive`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.inactive`](#programsnirisettingslayouttab-indicatorinactive).
-
-
-## `programs.niri.settings.window-rules.*.tab-indicator.urgent`
-- type: `null or`[`<decoration>`](#decoration)
-- default: `null`
-
-See [`layout.tab-indicator.urgent`](#programsnirisettingslayouttab-indicatorurgent).
-
-
-## `programs.niri.settings.window-rules.*.max-height`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the maximum height (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the maximum height set by this option.
-
-
-Also, note that the maximum height is not taken into account when automatically sizing columns. That is, when a column is created normally, windows in it will be "automatically sized" to fill the vertical space. This algorithm will respect a minimum height, and not make windows any smaller than that, but the max height is only taken into account if it is equal to the min height. In other words, it will only accept a "fixed height" or a "minimum height". In practice, most windows do not set a max size unless it is equal to their min size, so this is usually not a problem without window rules.
-
-If you manually change the window heights, then max-height will be taken into account and restrict you from making it any taller, as you'd intuitively expect.
-
-
-## `programs.niri.settings.window-rules.*.max-width`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the maximum width (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the maximum width set by this option.
-
-
-## `programs.niri.settings.window-rules.*.min-height`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the minimum height (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the minimum height set by this option.
-
-
-## `programs.niri.settings.window-rules.*.min-width`
-- type: `null or signed integer`
-- default: `null`
-
-Sets the minimum width (in logical pixels) that niri will ever ask this window for.
-
-Keep in mind that the window itself always has a final say in its size, and may not respect the minimum width set by this option.
-
-
-## `programs.niri.settings.window-rules.*.baba-is-float`
-- type: `null or boolean`
-- default: `null`
-
-Makes your window FLOAT up and down, like in the game Baba Is You.
-
-Made for April Fools 2025.
+Whether to clip the window to its visual geometry, i.e. whether the corner radius should be applied to the window surface itself or just the decorations.
 
 
 ## `programs.niri.settings.window-rules.*.default-floating-position`
@@ -3026,6 +4015,15 @@ Takes effect only when the window is on an output with [`outputs.<name>.variable
 ## `programs.niri.settings.window-rules.*.tiled-state`
 - type: `null or boolean`
 - default: `null`
+
+
+## `programs.niri.settings.window-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Makes your window FLOAT up and down, like in the game Baba Is You.
+
+Made for April Fools 2025.
 
 
 ## `programs.niri.settings.layer-rules`
@@ -3079,7 +4077,7 @@ If all of the rules do not match a layer surface, then this layer rule will not 
 
 
 ## `programs.niri.settings.layer-rules.*.matches.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the namespace of the layer surface.
@@ -3105,7 +4103,7 @@ If none of these rules match a layer surface, then this layer rule will not be r
 
 
 ## `programs.niri.settings.layer-rules.*.excludes.*.namespace`
-- type: `null or regular expression` (where `regular expression` is a `string`)
+- type: `null or regular expression string`
 - default: `null`
 
 A regular expression to match against the namespace of the layer surface.
@@ -3188,7 +4186,7 @@ Note that this is applied in addition to the opacity set by the client. Setting 
 - type: `null or (submodule)`
 - default: `null`
 
-The corner radii of the surface decorations (shadow) in logical pixels.
+The corner radii of the surface layer decorations (shadow) in logical pixels.
 
 
 ## `programs.niri.settings.layer-rules.*.geometry-corner-radius.bottom-left`
@@ -3209,24 +4207,13 @@ The corner radii of the surface decorations (shadow) in logical pixels.
 
 <!-- programs.niri.settings.layer-rules.*.shadow -->
 
-## `programs.niri.settings.layer-rules.*.shadow.color`
-- type: `null or string`
-- default: `null`
-
-
-## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
-- type: `null or boolean`
-- default: `null`
-
-
 ## `programs.niri.settings.layer-rules.*.shadow.enable`
 - type: `null or boolean`
 - default: `null`
 
+Whether to enable shadows for this layer surface.
 
-## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
-- type: `null or string`
-- default: `null`
+Note that while shadow properties are generally inherited from the workspace layout, this option is an exception. [`workspaces.<name>.layout.shadow.enable`](#programsnirisettingsworkspacesnamelayoutshadowenable) has no effect on this option. To use shadows on layer surfaces, you must explicitly set this option to true.
 
 
 ## `programs.niri.settings.layer-rules.*.shadow.offset`
@@ -3264,13 +4251,19 @@ The spread of the shadow, measured in logical pixels.
 This behaves like a [CSS box-shadow spread radius](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#syntax)
 
 
-## `programs.niri.settings.layer-rules.*.baba-is-float`
+## `programs.niri.settings.layer-rules.*.shadow.draw-behind-window`
 - type: `null or boolean`
 - default: `null`
 
-Make your layer surfaces FLOAT up and down.
 
-This is a natural extension of the April Fools' 2025 feature.
+## `programs.niri.settings.layer-rules.*.shadow.color`
+- type: `null or string`
+- default: `null`
+
+
+## `programs.niri.settings.layer-rules.*.shadow.inactive-color`
+- type: `null or string`
+- default: `null`
 
 
 ## `programs.niri.settings.layer-rules.*.place-within-backdrop`
@@ -3281,6 +4274,188 @@ Set to `true` to place the surface into the backdrop visible in the Overview and
 This will only work for background layer surfaces that ignore exclusive zones (typical for wallpaper tools). Layers within the backdrop will ignore all input.
 
 
+## `programs.niri.settings.layer-rules.*.baba-is-float`
+- type: `null or boolean`
+- default: `null`
+
+Makes your layer surface FLOAT up and down, like in the game Baba Is You.
+
+Made for April Fools 2025.
+
+
+## `programs.niri.settings.spawn-at-startup`
+- type: `list of attribute-tagged union with choices: argv, command, sh`
+
+A list of commands to run when niri starts.
+
+Each command can be represented as its raw arguments, or as a shell invocation.
+
+When niri is built with the `systemd` feature (on by default), commands spawned this way (or with the `spawn` and `spawn-sh` actions) will be put in a transient systemd unit, which separates the process from niri and prevents e.g. OOM situations from killing the entire session.
+
+
+## `programs.niri.settings.spawn-at-startup.*.argv`
+- type: `list of string`
+
+Almost raw process arguments to spawn, without shell syntax.
+
+A leading tilde in the zeroth argument will be expanded to the user's home directory. No other preprocessing is applied.
+
+Usage is like so:
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { argv = ["waybar"]; }
+    { argv = ["swaybg" "--image" "/path/to/wallpaper.jpg"]; }
+    { argv = ["~/.config/niri/scripts/startup.sh"]; }
+  ];
+}
+```
+
+
+
+## `programs.niri.settings.spawn-at-startup.*.sh`
+- type: `string`
+
+A shell command to spawn. Run wild with POSIX syntax.
+
+```nix
+{
+  programs.niri.settings.spawn-at-startup = [
+    { sh = "echo $NIRI_SOCKET > ~/.niri-socket"; }
+  ];
+}
+```
+
+
+Note that `{ sh = "foo"; }` is exactly equivalent to `{ argv = [ "sh" "-c" "foo" ]; }`.
+
+
+<!-- programs.niri.settings.cursor -->
+
+## `programs.niri.settings.cursor.theme`
+- type: `null or string`
+- default: `null`
+
+The name of the xcursor theme to use.
+
+This will also set the XCURSOR_THEME environment variable for all spawned processes.
+
+
+## `programs.niri.settings.cursor.size`
+- type: `null or signed integer`
+- default: `null`
+
+The size of the cursor in logical pixels.
+
+This will also set the XCURSOR_SIZE environment variable for all spawned processes.
+
+
+## `programs.niri.settings.cursor.hide-when-typing`
+- type: `null or boolean`
+- default: `null`
+
+Whether to hide the cursor when typing.
+
+
+## `programs.niri.settings.cursor.hide-after-inactive-ms`
+- type: `null or signed integer`
+- default: `null`
+
+If set, the cursor will automatically hide once this number of milliseconds passes since the last cursor movement.
+
+
+## `programs.niri.settings.screenshot`
+- type: `null or (submodule)`
+- default: `null`
+
+
+## `programs.niri.settings.screenshot.path`
+- type: `null or string`
+
+The path to save screenshots to.
+
+If this is null, then no screenshots will be saved.
+
+If the path starts with a `~`, then it will be expanded to the user's home directory.
+
+The path is then passed to [`strftime(3)`](https://man7.org/linux/man-pages/man3/strftime.3.html) with the current time, and the result is used as the final path.
+
+
+<!-- programs.niri.settings.hotkey-overlay -->
+
+## `programs.niri.settings.hotkey-overlay.skip-at-startup`
+- type: `null or boolean`
+- default: `null`
+
+Whether to skip the hotkey overlay shown when niri starts.
+
+
+## `programs.niri.settings.hotkey-overlay.hide-not-bound`
+- type: `null or boolean`
+- default: `null`
+
+By default, niri has a set of important keybinds that are always shown in the hotkey overlay, even if they are not bound to any key.
+In particular, this helps new users discover important keybinds, especially if their config has no keybinds at all.
+
+You can disable this behaviour by setting this option to `true`. Then, niri will only show keybinds that are actually bound to a key.
+
+
+<!-- programs.niri.settings.config-notification -->
+
+## `programs.niri.settings.config-notification.disable-failed`
+- type: `null or boolean`
+- default: `null`
+
+Disable the notification that the config file failed to load.
+
+
+<!-- programs.niri.settings.clipboard -->
+
+## `programs.niri.settings.clipboard.disable-primary`
+- type: `null or boolean`
+- default: `null`
+
+The "primary selection" is a special clipboard that contains the text that was last selected with the mouse, and can usually be pasted with the middle mouse button.
+
+This is a feature that is not inherently part of the core Wayland protocol, but [a widely supported protocol extension](https://wayland.app/protocols/primary-selection-unstable-v1#compositor-support) enables support for it anyway.
+
+This functionality was inherited from X11, is not necessarily intuitive to many users; especially those coming from other operating systems that do not have this feature (such as Windows, where the middle mouse button is used for scrolling).
+
+If you don't want to have a primary selection, you can disable it with this option. Doing so will prevent niri from adveritising support for the primary selection protocol.
+
+Note that this option has nothing to do with the "clipboard" that is commonly invoked with `Ctrl+C` and `Ctrl+V`.
+
+
+## `programs.niri.settings.prefer-no-csd`
+- type: `null or boolean`
+- default: `null`
+
+Whether to prefer server-side decorations (SSD) over client-side decorations (CSD).
+
+
+## `programs.niri.settings.environment`
+- type: `attribute set of (null or string)`
+
+Environment variables to set for processes spawned by niri.
+
+If an environment variable is already set in the environment, then it will be overridden by the value set here.
+
+If a value is null, then the environment variable will be unset, even if it already existed.
+
+Examples:
+
+```nix
+{
+  programs.niri.settings.environment = {
+    QT_QPA_PLATFORM = "wayland";
+    DISPLAY = null;
+  };
+}
+```
+
+
+
 ## `programs.niri.settings.xwayland-satellite`
 
 
@@ -3288,8 +4463,8 @@ Xwayland-satellite integration. Requires unstable niri and unstable xwayland-sat
 
 
 ## `programs.niri.settings.xwayland-satellite.enable`
-- type: `boolean`
-- default: `true`
+- type: `null or boolean`
+- default: `null`
 
 
 ## `programs.niri.settings.xwayland-satellite.path`
@@ -3325,3 +4500,7 @@ Here's an example of how to use this:
 This option is, just like [`binds.<name>.action`](#programsnirisettingsbindsnameaction), not verified by the nix module. But, it will be validated by niri before committing the config.
 
 Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
+
+
+## `programs.niri.settings.rendered`
+- type: `KDL document`
