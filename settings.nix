@@ -2271,6 +2271,7 @@
                   window-movement.has-shader = false;
                   window-open.has-shader = true;
                   window-close.has-shader = true;
+                  recent-windows-close.has-shader = false;
                   window-resize.has-shader = true;
                   screenshot-ui-open.has-shader = false;
                   overview-open-close.has-shader = false;
