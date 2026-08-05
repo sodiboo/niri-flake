@@ -441,7 +441,23 @@
           config.xdg.configFile.niri-config = {
             enable = cfg.finalConfig != null;
             target = "niri/config.kdl";
-            source = validated-config-for pkgs cfg.package cfg.finalConfig;
+            source =
+              let
+                extraConfig = if cfg.settings != null then cfg.settings.extraConfig else "";
+                validatedConfig = validated-config-for pkgs cfg.package cfg.checkedConfig;
+              in
+              pkgs.runCommand "config.kdl"
+                {
+                  inherit extraConfig;
+                  passAsFile = [ "extraConfig" ];
+                }
+                ''
+                  install -Dm0644 ${validatedConfig} $out
+                  if [ -s $extraConfigPath ]; then
+                    printf '\n' >> $out
+                    cat $extraConfigPath >> $out
+                  fi
+                '';
           };
         };
       nixosModules.niri =
@@ -568,6 +584,7 @@
       checks = forAllSystems (
         system:
         let
+          pkgs = inputs.nixpkgs.legacyPackages.${system};
           test-nixos-for =
             nixpkgs: modules:
             (nixpkgs.lib.nixosSystem {
@@ -598,7 +615,51 @@
               };
             in
             validated-config-for inputs.nixpkgs.legacyPackages.${system} self.packages.${system}.niri-stable
-              eval.config.programs.niri.finalConfig;
+              eval.config.programs.niri.checkedConfig;
+
+          home-extra-config-appended =
+            let
+              eval = nixpkgs.lib.evalModules {
+                specialArgs = {
+                  inherit pkgs;
+                };
+                modules = [
+                  self.homeModules.config
+                  {
+                    options.lib = nixpkgs.lib.mkOption {
+                      type = nixpkgs.lib.types.attrsOf nixpkgs.lib.types.anything;
+                      default = { };
+                    };
+
+                    options.xdg.configFile = nixpkgs.lib.mkOption {
+                      type = nixpkgs.lib.types.attrsOf (
+                        nixpkgs.lib.types.submodule {
+                          options = {
+                            enable = nixpkgs.lib.mkOption {
+                              type = nixpkgs.lib.types.bool;
+                              default = true;
+                            };
+                            target = nixpkgs.lib.mkOption {
+                              type = nixpkgs.lib.types.str;
+                            };
+                            source = nixpkgs.lib.mkOption {
+                              type = nixpkgs.lib.types.path;
+                            };
+                          };
+                        }
+                      );
+                      default = { };
+                    };
+
+                    config.programs.niri.settings.extraConfig = "unsupported-experimental-node";
+                  }
+                ];
+              };
+            in
+            pkgs.runCommand "home-extra-config-appended" { } ''
+              grep -Fx unsupported-experimental-node ${eval.config.xdg.configFile.niri-config.source}
+              touch $out
+            '';
 
           nixos-unstable = test-nixos-for nixpkgs [
             self.nixosModules.niri

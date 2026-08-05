@@ -216,7 +216,7 @@ By default, this is a KDL document that reflects the settings in [`programs.niri
 
 The final niri config file contents.
 
-This is a string that reflects the document stored in [`programs.niri.config`](#programsniriconfig).
+This is a string that reflects the document stored in [`programs.niri.config`](#programsniriconfig), with [`extraConfig`](#programsnirisettingsextraconfig) appended.
 
 It is exposed mainly for debugging purposes, such as when you need to inspect how a certain option affects the resulting config file.
 
@@ -3325,3 +3325,12 @@ Here's an example of how to use this:
 This option is, just like [`binds.<name>.action`](#programsnirisettingsbindsnameaction), not verified by the nix module. But, it will be validated by niri before committing the config.
 
 Additionally, i don't guarantee stability of the debug options. They may change at any time without prior notice, either because of niri changing the available options, or because of me changing this to a more reasonable schema.
+
+
+## `programs.niri.settings.extraConfig`
+- type: `strings concatenated with "\n"`
+- default: `""`
+
+Extra KDL config to append to the generated config file.
+
+This is not validated by niri at build time. Use this for experimental options that are not yet supported by `programs.niri.settings`.
