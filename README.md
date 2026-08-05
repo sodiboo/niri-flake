@@ -91,16 +91,25 @@ But you can also pass it a string:
 }
 ```
 
-or set `programs.niri.config = null;` to prevent this module from generating a config file. By default, it will generate a config file based on `programs.niri.settings` if it is not `null`.
+By default its value is derived from `programs.niri.settings`.
 
-For debugging (primarily development of this flake i guess), there is also `programs.niri.finalConfig` which is always a string (or null) and represents the final config file that will be end up in your config directory.
+You can also combine option-based configuration with manual one by
+setting `programs.niri.extraConfig`.  It has the same type as
+`programs.niri.config` and defaults to `null`.
+
+If both `programs.niri.config` and `programs.niri.extraConfig` are
+`null`, this module will not generate a config file at all.
+
+For debugging (primarily development of this flake i guess), there is also `programs.niri.finalConfig` which is always a string (or null) and represents the final rendered config file that will end up in your config directory.
 
 > [!note]
 > `programs.niri.settings` is not guaranteed to be compatible with niri versions other than the two provided by this flake. \
 > In particular, this means that i do not guarantee compatibility with the one from nixpkgs at all times (i.e. when nixpkgs is lagging behind due to build failures or other reasons). \
 > In practice, you will not have an issue with this unless you are running old versions of niri that are 2 or more releases behind. I will try my best not to break compatibility with nixpkgs.
 >
-> This does not apply to `programs.niri.config` as it is inherently version-agnostic and still provides build-time validation.
+> This does not apply to `programs.niri.config` and `programs.niri.extraConfig` as those are inherently version-agnostic.
+>
+> The final config is always validated at build time.
 
 # Stylix
 
