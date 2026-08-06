@@ -237,7 +237,8 @@ Beware that setting [`programs.niri.config`](#programsniriconfig) completely ove
 
 
 ## `programs.niri.settings.binds.<name>.action`
-- type: `niri action`, which is a `kdl leaf`
+- type: `null or niri action` (where `niri action` is a `kdl leaf`)
+- default: `null`
 
 An action is represented as an attrset with a single key, being the name, and a value that is a list of its arguments. For example, to represent a spawn action, you could do this:
 
@@ -300,6 +301,16 @@ When false, this keybind will always be triggered, even if an application is inh
 Has no effect when `action` is `toggle-keyboard-shortcuts-inhibit`. In that case, this value is implicitly false, no matter what you set it to. (note that the value reported in the nix config may be inaccurate in that case; although hopefully you're not relying on the values of specific keybinds for the rest of your config?)
 
 
+## `programs.niri.settings.binds.<name>.allow-invalidation`
+- type: `boolean`
+- default: `true`
+
+Whether a release bind will trigger if any other keys were released or any keys or mouse buttons were pressed after the bound key was pressed.
+
+By default this is `true`, meaning release binds will only trigger if no other keys were released and no keys or mouse buttons were pressed after the bound key was pressed.
+If you want a release bind to always trigger regardless, set this to `false`.
+
+
 ## `programs.niri.settings.binds.<name>.allow-when-locked`
 - type: `boolean`
 - default: `false`
@@ -346,6 +357,24 @@ When `true`, the hotkey overlay will not contain this keybind at all. When `fals
 - type: `string`
 
 The title of this keybind in the hotkey overlay. [Pango markup](https://docs.gtk.org/Pango/pango_markup.html) is supported.
+
+
+## `programs.niri.settings.binds.<name>.press`
+- type: `null or niri action` (where `niri action` is a `kdl leaf`)
+- default: `null`
+
+The action to trigger when the key is pressed.
+
+See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more information on how this works.
+
+
+## `programs.niri.settings.binds.<name>.release`
+- type: `null or niri action` (where `niri action` is a `kdl leaf`)
+- default: `null`
+
+The action to trigger when the key is released.
+
+See also [`binds.<name>.action`](#programsnirisettingsbindsnameaction) for more information on how this works.
 
 
 ## `programs.niri.settings.binds.<name>.repeat`
