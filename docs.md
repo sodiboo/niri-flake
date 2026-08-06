@@ -31,7 +31,7 @@ The latest commit to the development branch of niri.
 Currently, this is exactly commit [`feb3e43`](https://github.com/YaLTeR/niri/tree/feb3e43f1475e0865bb89cbd1e898b34d1d2ccf6) which was authored on `2026-08-02 20:07:21`.
 
 > [!warning]
-> `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from itme to time.
+> `niri-unstable` is not a released version, there are no stability guarantees, and it may break your workflow from time to time.
 >
 > The specific package provided by this flake is automatically updated without any testing. The only guarantee is that it builds.
 
