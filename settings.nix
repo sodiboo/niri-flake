@@ -1914,6 +1914,218 @@
                   When none of the connected outputs are explicitly focus-at-startup, niri will focus the first one sorted by name (same output sorting as used elsewhere in niri).
                 '';
               };
+
+              layout = ordered-section [
+                {
+                  focus-ring = border-rule {
+                    name = "focus ring";
+                    window = "focused window";
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).focus-ring}.
+                    '';
+                  };
+
+                  border = border-rule {
+                    name = "border";
+                    window = "window";
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).border}.
+                    '';
+                  };
+                }
+                {
+                  shadow = shadow-rule // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).shadow}.
+                    '';
+                  };
+                }
+                {
+                  insert-hint =
+                    section' (
+                      { options, ... }:
+                      {
+                        imports = make-ordered-options [
+                          {
+                            enable = nullable types.bool // {
+                              description = ''
+                                Whether to enable the insert hint.
+                              '';
+                            };
+                          }
+                          (make-decoration-options options {
+                            display.description = ''
+                              The color of the insert hint.
+                            '';
+                          })
+                        ];
+                      }
+                    )
+                    // {
+                      description = ''
+                        Output-local overrides for ${link-opt (subopts options.layout).insert-hint}.
+                      '';
+                    };
+                }
+                {
+                  background-color = nullable types.str // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).background-color}.
+                    '';
+                  };
+                }
+                {
+                  preset-column-widths = nullable (listOf preset-width) // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).preset-column-widths}.
+                    '';
+                  };
+                  preset-window-heights = nullable (listOf preset-height) // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).preset-window-heights}.
+                    '';
+                  };
+                }
+                {
+                  default-column-width = nullable default-width // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).default-column-width}.
+                    '';
+                  };
+                  center-focused-column =
+                    nullable (enum [
+                      "never"
+                      "always"
+                      "on-overflow"
+                    ])
+                    // {
+                      description = ''
+                        Output-local overrides for ${link-opt (subopts options.layout).center-focused-column}.
+                      '';
+                    };
+                  always-center-single-column = nullable types.bool // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).always-center-single-column}.
+                    '';
+                  };
+                  default-column-display =
+                    nullable (enum [
+                      "normal"
+                      "tabbed"
+                    ])
+                    // {
+                      description = ''
+                        Output-local overrides for ${link-opt (subopts options.layout).default-column-display}.
+                      '';
+                    };
+
+                  tab-indicator =
+                    nullable (
+                      submodule (
+                        { options, ... }:
+                        {
+                          imports = make-ordered-options [
+                            {
+                              enable = nullable types.bool;
+                              hide-when-single-tab = nullable types.bool;
+                              place-within-column = nullable types.bool;
+                              gap = nullable float-or-int;
+                              width = nullable float-or-int;
+                              length.total-proportion = nullable types.float;
+                              position = nullable (enum [
+                                "left"
+                                "right"
+                                "top"
+                                "bottom"
+                              ]);
+                              gaps-between-tabs = nullable float-or-int;
+                              corner-radius = nullable float-or-int;
+                            }
+
+                            (make-decoration-options options {
+                              urgent.description = ''
+                                The color of the tab indicator for windows that are requesting attention.
+                              '';
+                              active.description = ''
+                                The color of the tab indicator for the window that has keyboard focus.
+                              '';
+                              inactive.description = ''
+                                The color of the tab indicator for windows that do not have keyboard focus.
+                              '';
+                            })
+
+                          ];
+                        }
+                      )
+                    )
+                    // {
+                      description = ''
+                        Output-local overrides for ${link-opt (subopts options.layout).tab-indicator}.
+                      '';
+                    };
+                }
+                {
+                  empty-workspace-above-first = nullable types.bool // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).empty-workspace-above-first}.
+                    '';
+                  };
+                  gaps = nullable float-or-int // {
+                    description = ''
+                      Output-local overrides for ${link-opt (subopts options.layout).gaps}.
+                    '';
+                  };
+                  struts =
+                    section {
+                      left = nullable float-or-int;
+                      right = nullable float-or-int;
+                      top = nullable float-or-int;
+                      bottom = nullable float-or-int;
+                    }
+                    // {
+                      description = ''
+                        Output-local overrides for ${link-opt (subopts options.layout).struts}.
+                      '';
+                    };
+                }
+              ] // {
+                description = ''
+                  Per-output overrides for ${link-opt options.layout}.
+
+                  This is useful when you want different width behavior on different displays, e.g. keeping your current ultrawide defaults while making the laptop screen use wider columns.
+
+                  Example:
+
+                  ${fmt.nix-code-block ''
+                    {
+                      programs.niri.settings = {
+                        outputs = {
+                          "DVI-I-1".layout = {
+                            # Ultrawide: narrower defaults
+                            default-column-width = { proportion = 1.0 / 2.0; };
+                            preset-column-widths = [
+                              { proportion = 1.0 / 3.0; }
+                              { proportion = 1.0 / 2.0; }
+                              { proportion = 2.0 / 3.0; }
+                            ];
+                          };
+
+                          "eDP-1".layout = {
+                            # Laptop: wider defaults
+                            default-column-width = { proportion = 2.0 / 3.0; };
+                            preset-column-widths = [
+                              { proportion = 1.0 / 2.0; }
+                              { proportion = 2.0 / 3.0; }
+                              { proportion = 3.0 / 4.0; }
+                              { proportion = 5.0 / 6.0; }
+                            ];
+                          };
+                        };
+                      };
+                    }
+                  ''}
+                '';
+              };
             });
           }
 
@@ -3476,6 +3688,83 @@
           (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
         ]);
 
+        insert-hint-output =
+          cfg:
+          optional-node
+            (cfg.enable != null || cfg.display.color or null != null || cfg.display.gradient or null != null)
+            (
+              plain "insert-hint" [
+                (optional-node (cfg.enable == false) (flag "off"))
+                (nullable leaf "color" cfg.display.color or null)
+                (nullable gradient' "gradient" cfg.display.gradient or null)
+              ]
+            );
+
+        tab-indicator-output =
+          cfg:
+          optional-node
+            (
+              cfg.enable != null
+              || cfg.hide-when-single-tab != null
+              || cfg.place-within-column != null
+              || cfg.gap != null
+              || cfg.width != null
+              || cfg.length.total-proportion != null
+              || cfg.position != null
+              || cfg.gaps-between-tabs != null
+              || cfg.corner-radius != null
+              || cfg.urgent.color or null != null
+              || cfg.urgent.gradient or null != null
+              || cfg.active.color or null != null
+              || cfg.active.gradient or null != null
+              || cfg.inactive.color or null != null
+              || cfg.inactive.gradient or null != null
+            )
+            (
+              plain "tab-indicator" [
+                (optional-node (cfg.enable == false) (flag "off"))
+                (nullable leaf "hide-when-single-tab" cfg.hide-when-single-tab)
+                (nullable leaf "place-within-column" cfg.place-within-column)
+                (nullable leaf "gap" cfg.gap)
+                (nullable leaf "width" cfg.width)
+                (nullable leaf "length" cfg.length)
+                (nullable leaf "position" cfg.position)
+                (nullable leaf "gaps-between-tabs" cfg.gaps-between-tabs)
+                (nullable leaf "corner-radius" cfg.corner-radius)
+                (nullable leaf "urgent-color" cfg.urgent.color or null)
+                (nullable gradient' "urgent-gradient" cfg.urgent.gradient or null)
+                (nullable leaf "active-color" cfg.active.color or null)
+                (nullable gradient' "active-gradient" cfg.active.gradient or null)
+                (nullable leaf "inactive-color" cfg.inactive.color or null)
+                (nullable gradient' "inactive-gradient" cfg.inactive.gradient or null)
+              ]
+            );
+
+        layout-output =
+          cfg:
+          plain' "layout" [
+            (nullable leaf "gaps" cfg.gaps)
+            (plain' "struts" [
+              (nullable leaf "left" cfg.struts.left)
+              (nullable leaf "right" cfg.struts.right)
+              (nullable leaf "top" cfg.struts.top)
+              (nullable leaf "bottom" cfg.struts.bottom)
+            ])
+            (nullable border-rule "focus-ring" cfg.focus-ring)
+            (nullable border-rule "border" cfg.border)
+            (nullable leaf "background-color" cfg.background-color)
+            (nullable shadow-rule "shadow" cfg.shadow)
+            (optional-node (cfg.tab-indicator != null) (tab-indicator-output cfg.tab-indicator))
+            (insert-hint-output cfg.insert-hint)
+            (nullable preset-sizes "default-column-width" cfg.default-column-width)
+            (nullable preset-sizes "preset-column-widths" cfg.preset-column-widths)
+            (nullable preset-sizes "preset-window-heights" cfg.preset-window-heights)
+            (nullable leaf "center-focused-column" cfg.center-focused-column)
+            (nullable leaf "default-column-display" cfg.default-column-display)
+            (nullable leaf "always-center-single-column" cfg.always-center-single-column)
+            (nullable leaf "empty-workspace-above-first" cfg.empty-workspace-above-first)
+          ];
+
         corner-radius = cfg: [
           cfg.top-left
           cfg.top-right
@@ -3614,6 +3903,7 @@
               (optional-node (cfg.variable-refresh-rate != false) (
                 leaf "variable-refresh-rate" { on-demand = cfg.variable-refresh-rate == "on-demand"; }
               ))
+              (layout-output cfg.layout)
             ])
           ])
         ]))
