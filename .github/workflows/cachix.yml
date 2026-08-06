@@ -4,8 +4,15 @@ on:
   pull_request:
 jobs:
   nixos-unstable:
-    name: build
-    runs-on: ubuntu-latest
+    name: build (${{ matrix.system }})
+    strategy:
+      matrix:
+        include:
+          - system: x86_64-linux
+            runner: ubuntu-latest
+          - system: aarch64-linux
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
     - name: Free Disk Space (Ubuntu)
       uses: jlumbroso/free-disk-space@v1.3.1
@@ -18,4 +25,4 @@ jobs:
         name: niri
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Build packages and push to cachix
-      run: nix build .#checks.x86_64-linux.cached-packages
+      run: nix build .#checks.${{ matrix.system }}.cached-packages
