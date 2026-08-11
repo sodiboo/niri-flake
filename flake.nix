@@ -87,8 +87,10 @@
           seatd,
           libinput,
           libxkbcommon,
-          libdisplay-info_0_2 ? libdisplay-info,
+          # absent on nixos-25.11, where the default is already 0.3
+          libdisplay-info_0_3 ? libdisplay-info,
           libdisplay-info,
+          fetchFromGitLab,
           pango,
           withDbus ? true,
           withDinit ? false,
@@ -100,7 +102,35 @@
           # remove param at next release after 25.11 (yes! i know that's not even the stable version provided by this flake right now. i'm Working On It™)
           replace-service-with-usr-bin,
         }:
-        assert libdisplay-info_0_2.version == "0.2.0";
+        let
+          inherit (nixpkgs.lib.versions) majorMinor;
+
+          # the libdisplay-info crate only links against a system library of the same major.minor
+          libdisplay-info-crate =
+            nixpkgs.lib.findFirst (p: p.name == "libdisplay-info")
+              (throw "no libdisplay-info in ${src}/Cargo.lock")
+              (builtins.fromTOML (builtins.readFile "${src}/Cargo.lock")).package;
+
+          libdisplay-info-matching =
+            {
+              # removed from nixpkgs, so rebuild it from the current recipe
+              "0.2" = libdisplay-info.overrideAttrs {
+                version = "0.2.0";
+                src = fetchFromGitLab {
+                  domain = "gitlab.freedesktop.org";
+                  owner = "emersion";
+                  repo = "libdisplay-info";
+                  rev = "0.2.0";
+                  hash = "sha256-6xmWBrPHghjok43eIDGeshpUEQTuwWLXNHg7CnBUt3Q=";
+                };
+              };
+              "0.3" = libdisplay-info_0_3;
+            }
+            .${majorMinor libdisplay-info-crate.version} or libdisplay-info;
+        in
+        assert nixpkgs.lib.assertMsg
+          (majorMinor libdisplay-info-matching.version == majorMinor libdisplay-info-crate.version)
+          "niri needs libdisplay-info ${majorMinor libdisplay-info-crate.version}, but nixpkgs provides ${libdisplay-info-matching.version}";
         rustPlatform.buildRustPackage {
           pname = "niri";
           version = package-version src;
@@ -122,7 +152,7 @@
             libglvnd
             seatd
             libinput
-            libdisplay-info_0_2
+            libdisplay-info-matching
             libxkbcommon
             pango
           ]
